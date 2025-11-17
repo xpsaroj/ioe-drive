@@ -118,21 +118,20 @@ const Button = React.forwardRef<HTMLElement, ButtonProps>(
         // If href provided, render as link
         if (href) {
             return (
-                <Link href={href}>
-                    <a
-                        ref={ref as any}
-                        className={classes}
-                        // allow passing anchor attributes via rest (cast)
-                        {...(rest as React.AnchorHTMLAttributes<HTMLAnchorElement>)}
-                    >
-                        {content}
-                    </a>
+                <Link
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    ref={ref as any}
+                    href={href}
+                    className={classes}
+                >
+                    {content}
                 </Link>
             );
         }
 
         // Normal button
         return (
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             <button ref={ref as any} className={classes} {...rest}>
                 {content}
             </button>
