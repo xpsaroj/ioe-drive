@@ -22,7 +22,7 @@ export default function ImageContainer({ src, alt, width, height, href }: ImageC
 
     return (
         <div
-            className={`image-containerrelative relative rounded-lg overflow-hidden w-${width} h-${height} justify-center items-center`}
+            className={`image-containerrelative relative rounded-lg overflow-hidden justify-center items-center`}
             style={{ width: `${width}rem`, height: `${height}rem` }}
         >
             {href ? (

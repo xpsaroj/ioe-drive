@@ -1,4 +1,4 @@
-import Button from "@/components/Button";
+import Button from "@/components/ui/Button";
 
 /**
  * Hero section with primary call-to-actions for home page

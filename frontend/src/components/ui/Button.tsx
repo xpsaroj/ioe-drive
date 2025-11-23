@@ -37,7 +37,7 @@ export interface ButtonProps
  */
 const variantStyles: Record<ButtonVariant, string> = {
     primary:
-        "bg-accent text-white hover:bg-accent/60 focus:ring-accent transition-all duration-300",
+        "bg-accent text-white hover:bg-purple-500 focus:ring-accent transition-all duration-300",
     secondary:
         "bg-transparent border border-accent text-primary hover:bg-accent hover:text-white focus:ring-accent transition-all duration-300",
     ghost:

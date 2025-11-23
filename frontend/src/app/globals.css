@@ -6,8 +6,10 @@
 
     --color-primary: #354261;
     --color-secondary: #5F6F67;
+    --color-muted: #8a898d;
 
-    --color-accent: #CEB4ED;
+    --color-accent: oklch(55.4% 0.203 305.504);
+    --color-accent-faded: #DBC0FD;
     --color-link: #090084;
     --color-golden: #EBC351;
 }

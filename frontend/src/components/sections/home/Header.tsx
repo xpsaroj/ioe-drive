@@ -1,5 +1,5 @@
 import Logo from "@/components/Logo";
-import Button from "@/components/Button";
+import Button from "@/components/ui/Button";
 
 /**
  * Header with logo and primary actions for home page
@@ -8,7 +8,7 @@ export default function Header() {
     return (
         <header>
             <div className="container mx-auto flex items-center justify-between py-4 px-6">
-                <Logo size={6} />
+                <Logo size={6.5} />
                 <div className="flex space-x-6">
                     <Button
                         variant="secondary"

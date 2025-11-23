@@ -1,4 +1,5 @@
-import Image from "@/components/ImageContainer";
+import Link from "next/link";
+import Image from "next/image";
 
 interface LogoProps {
     size?: number;
@@ -6,12 +7,13 @@ interface LogoProps {
 
 export default function Logo({ size = 6 }: LogoProps) {
     return (
-        <Image
-            src="/images/home/logo.png"
-            alt="IOE Drive Logo"
-            width={size}
-            height={size}
-            href="/"
-        />
+        <Link href="/">
+            <Image
+                src="/images/home/logo.png"
+                alt="IOE Drive Logo"
+                width={size * 16}
+                height={size * 16}
+            />
+        </Link>
     )
 }
