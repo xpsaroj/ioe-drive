@@ -20,8 +20,9 @@ export default function HeroSection() {
                         variant="primary"
                         size="lg"
                         className="w-full sm:w-auto"
+                        href="/sign-in"
                     >
-                        Login with Google
+                        Login to IOE Drive
                     </Button>
 
                     <Button

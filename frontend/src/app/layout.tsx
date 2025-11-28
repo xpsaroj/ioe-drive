@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { Outfit } from "next/font/google";
+import { ClerkProvider } from '@clerk/nextjs';
 
-import { Navbar, Footer } from "@/components/layout";
+import { Navbar, Footer, GlobalLoader } from "@/components/layout";
 
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
 
@@ -17,12 +18,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={`bg-background text-foreground min-h-screen ${outfit.className}`}>
-        <Navbar />
-        {children}
-        <Footer />
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en">
+        <body className={`bg-background text-foreground min-h-screen ${outfit.className}`}>
+          <GlobalLoader>
+            <Navbar />
+            {children}
+            <Footer />
+          </GlobalLoader>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }

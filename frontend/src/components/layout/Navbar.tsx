@@ -3,6 +3,7 @@ import { usePathname } from "next/navigation";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import clsx from "clsx";
+import { useAuth } from '@clerk/nextjs';
 
 import { SearchBar } from "@/components/layout";
 import Logo from "@/components/Logo";
@@ -15,6 +16,7 @@ import { NAVIGATION_ITEMS } from "@/constants/navigations";
  * Navbar component for the application
  */
 export default function Navbar() {
+    const { isSignedIn } = useAuth();
     const pathname = usePathname();
 
     const [shrink, setShrink] = useState(false);
@@ -29,14 +31,14 @@ export default function Navbar() {
     }, []);
 
     // For not logged-in users, show the home page header
-    if (pathname === "/") {
+    if (!isSignedIn) {
         return <Header />;
     }
 
     return (
         <>
             {/* Navigations */}
-            <div 
+            <div
                 className="w-full sticky top-0 z-50 bg-background/10 backdrop-blur-sm"
             >
                 <div
@@ -73,7 +75,7 @@ export default function Navbar() {
             </div>
 
             {/* Search */}
-            <div className="w-full">
+            <div className="w-full mb-4">
                 <div className="container mx-auto mt-2 w-full flex justify-center items-center pb-2">
                     <SearchBar />
                 </div>

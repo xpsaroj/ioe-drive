@@ -1,7 +1,25 @@
+"use client"
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@clerk/nextjs";
+
 import { HeroSection, Features } from "@/components/sections/home";
-// import HorizontalLine from "@/components/HorizontalLine";
 
 export default function Home() {
+  const router = useRouter();
+
+  const { isSignedIn } = useAuth();
+
+  useEffect(() => {
+    if (isSignedIn) {
+      router.push("/dashboard");
+    }
+  }, [isSignedIn, router]);
+
+  if (isSignedIn) {
+    return null;
+  }
+
   return (
     <main>
       {/* Hero Section */}

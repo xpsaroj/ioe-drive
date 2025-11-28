@@ -22,7 +22,7 @@ export default function Footer() {
                             className="font-bold"
                         >
                             xpsaroj
-                        </Link>
+                        </Link>.
                     </p>
                 </div>
             </div>
