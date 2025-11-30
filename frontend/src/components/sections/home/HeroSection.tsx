@@ -1,9 +1,16 @@
+"use client"
+import { useRouter } from "next/navigation";
+import { useAuth } from "@clerk/nextjs";
 import Button from "@/components/ui/Button";
 
 /**
  * Hero section with primary call-to-actions for home page
  */
 export default function HeroSection() {
+    const router = useRouter();
+
+    const { isSignedIn } = useAuth();
+
     return (
         <section className="bg-gray-100 py-20">
             <div className="container mx-auto px-6 text-center">
@@ -20,18 +27,21 @@ export default function HeroSection() {
                         variant="primary"
                         size="lg"
                         className="w-full sm:w-auto"
-                        href="/sign-in"
+                        href={isSignedIn ? "/dashboard" : "/sign-in"}
                     >
-                        Login to IOE Drive
+                        {isSignedIn ? "Continue to Dashboard" : "Login to IOE Drive"}
                     </Button>
 
-                    <Button
-                        variant="secondary"
-                        size="lg"
-                        className="w-full sm:w-auto"
-                    >
-                        Use without login
-                    </Button>
+                    {
+                        !isSignedIn
+                        && <Button
+                            variant="secondary"
+                            size="lg"
+                            className="w-full sm:w-auto"
+                        >
+                            Use without login
+                        </Button>
+                    }
                 </div>
             </div>
         </section>

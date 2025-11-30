@@ -1,39 +1,34 @@
+import { NextResponse } from 'next/server';
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 
-// Public routes that anyone can visit
-const isPublicRoute = createRouteMatcher([
-    '/',               // Home
-    '/sign-in(.*)',    // Clerk sign-in
-    '/sign-up(.*)',    // Clerk sign-up
-    '/public(.*)',     // Example other public routes
+// Routes that require authentication
+const isProtectedRoute = createRouteMatcher([
+    "/dashboard(.*)",
+    "/resources(.*)",
+    "/community(.*)",
+    "/marketplace(.*)",
+    "/alumni(.*)",
+    "/profile(.*)",
 ]);
 
-// Routes that should redirect signed-in users AWAY from them
+// Routes that should redirect signed-in users away from them
 const isAuthPage = createRouteMatcher([
-    '/',
     '/sign-in(.*)',
     '/sign-up(.*)',
 ]);
 
 export default clerkMiddleware(async (auth, req) => {
-    const { isAuthenticated, redirectToSignIn } = await auth();
+    const { isAuthenticated } = await auth();
 
-    // Allow all public routes without auth
-    if (isPublicRoute(req)) {
-        // But redirect SIGNED-IN users away from auth pages
-        if (isAuthenticated && isAuthPage(req)) {
-            const dashboardUrl = new URL('/dashboard', req.url);
-            return Response.redirect(dashboardUrl);
-        }
-        return; // allow access
+    if (!isAuthenticated && isProtectedRoute(req)) {
+        await auth.protect();
     }
 
-    // Protect all other routes
-    if (!isAuthenticated) {
-        return redirectToSignIn();
+    // Redirect signed-in users away from auth pages
+    if (isAuthenticated && isAuthPage(req)) {
+        return NextResponse.redirect(new URL('/dashboard', req.url));
     }
 
-    // Default: allow request
     return;
 });
 
