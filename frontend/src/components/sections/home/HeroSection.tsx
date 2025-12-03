@@ -1,5 +1,4 @@
 "use client"
-import { useRouter } from "next/navigation";
 import { useAuth } from "@clerk/nextjs";
 import Button from "@/components/ui/Button";
 
@@ -7,7 +6,6 @@ import Button from "@/components/ui/Button";
  * Hero section with primary call-to-actions for home page
  */
 export default function HeroSection() {
-    const router = useRouter();
 
     const { isSignedIn } = useAuth();
 
