@@ -4,23 +4,21 @@ import { Loader } from '@/components/ui/Loader'
 
 export default function SignUpPage() {
     return (
-        <main className="min-h-screen flex justify-center items-center">
-            <div className="flex justify-center items-center p-10 bg-background">
-                <SignUp
-                    path="/sign-up"
-                    routing="path"
-                    signInUrl="/sign-in"
-                    appearance={{
-                        elements: {
-                            card: "shadow-lg/30",
-                        },
-                        layout: {
-                            socialButtonsPlacement: "bottom",
-                        },
-                    }}
-                    fallback={<SignUpFallback />}
-                />
-            </div>
+        <main className="flex justify-center items-center p-10 bg-background">
+            <SignUp
+                path="/sign-up"
+                routing="path"
+                signInUrl="/sign-in"
+                appearance={{
+                    elements: {
+                        card: "shadow-lg/30",
+                    },
+                    layout: {
+                        socialButtonsPlacement: "bottom",
+                    },
+                }}
+                fallback={<SignUpFallback />}
+            />
         </main>
     );
 }
