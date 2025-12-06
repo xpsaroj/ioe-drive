@@ -1,0 +1,37 @@
+name: Backend PR Checks
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'backend/**'
+
+jobs:
+  backend-ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+        working-directory: backend
+
+      - name: Run lint
+        run: npm run lint
+        working-directory: backend
+
+      - name: Run typecheck
+        run: npm run typecheck
+        working-directory: backend
+
+      - name: Build backend
+        run: npm run build
+        working-directory: backend
