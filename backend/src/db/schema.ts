@@ -1,0 +1,253 @@
+import {
+    integer,
+    pgTable,
+    varchar,
+    uuid,
+    timestamp,
+    text,
+    pgEnum,
+    unique,
+    index,
+} from "drizzle-orm/pg-core";
+import { relations } from "drizzle-orm";
+
+export const SemesterEnum = pgEnum("semester_enum", ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"]);
+
+// Tables
+export const departmentsTable = pgTable("departments", {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    code: varchar("code", { length: 10 }).notNull().unique(),
+    name: varchar("name", { length: 255 }).notNull(),
+});
+
+export const subjectsTable = pgTable("subjects", {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    code: varchar("code", { length: 10 }).notNull().unique(),
+    name: varchar("name", { length: 255 }).notNull(),
+    departmentId: integer("department_id")
+        .references(() => departmentsTable.id)
+        .notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull().$onUpdate(() => new Date()),
+});
+
+export const subjectOfferingsTable = pgTable("subject_offerings", {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    subjectId: integer("subject_id")
+        .references(() => subjectsTable.id)
+        .notNull(),
+    semester: SemesterEnum("semester").notNull(),
+    departmentId: integer("department_id")
+        .references(() => departmentsTable.id)
+        .notNull(),
+    year: integer("year").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull().$onUpdate(() => new Date()),
+},
+    (table) => [
+        unique("unique_subject_offering").on(
+            table.subjectId,
+            table.semester,
+            table.departmentId,
+            table.year
+        ),
+        index("idx_subject_offerings_semester_department").on(table.semester, table.departmentId),
+        index("idx_subject_offerings_department").on(table.departmentId),
+        index("idx_subject_offerings_subject").on(table.subjectId),
+    ]
+);
+
+export const usersTable = pgTable("users", {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    clerkUserId: uuid("clerk_user_id").notNull().unique(),
+    fullName: varchar("full_name", { length: 255 }).notNull(),
+    email: varchar("email", { length: 255 }).notNull().unique(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull().$onUpdate(() => new Date()),
+});
+
+export const profilesTable = pgTable("profiles", {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    userId: integer("user_id")
+        .references(() => usersTable.id)
+        .notNull()
+        .unique(),
+    bio: text("bio"),
+    departmentId: integer("department_id").references(() => departmentsTable.id),
+    semester: SemesterEnum("semester"),
+    profilePictureUrl: text("profile_picture_url"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull().$onUpdate(() => new Date()),
+});
+
+export const notesTable = pgTable("notes", {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    title: text("title").notNull(),
+    description: text("description").notNull(),
+    subjectId: integer("subject_id")
+        .references(() => subjectsTable.id)
+        .notNull(),
+    uploadedBy: integer("uploaded_by")
+        .references(() => usersTable.id)
+        .notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull().$onUpdate(() => new Date()),
+},
+    (table) => [
+        index("idx_notes_subject_id").on(table.subjectId),
+        index("idx_notes_uploaded_by").on(table.uploadedBy),
+    ]
+);
+
+export const noteFilesTable = pgTable("note_files", {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    noteId: integer("note_id")
+        .references(() => notesTable.id)
+        .notNull(),
+    fileUrl: text("file_url").notNull(),
+    fileSize: integer("file_size").notNull(),
+    compressedSize: integer("compressed_size").notNull(),
+    compressionMethod: varchar("compression_method", { length: 100 }).notNull(),
+    fileType: varchar("file_type", { length: 100 }).notNull(),
+    uploadedAt: timestamp("uploaded_at").defaultNow().notNull(),
+},
+    (table) => [
+        index("idx_note_files_note_id").on(table.noteId),
+    ]
+);
+
+export const userRecentNotesTable = pgTable("user_recent_notes", {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    userId: integer("user_id")
+        .references(() => usersTable.id)
+        .notNull(),
+    noteId: integer("note_id")
+        .references(() => notesTable.id)
+        .notNull(),
+    accessedAt: timestamp("accessed_at").defaultNow().notNull(),
+},
+    (table) => [
+        unique("unique_user_recent_note").on(
+            table.userId,
+            table.noteId
+        ),
+        index("idx_user_recent_notes_user_id").on(table.userId),
+    ]
+);
+
+export const userArchivedNotesTable = pgTable("user_archived_notes", {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    userId: integer("user_id")
+        .references(() => usersTable.id)
+        .notNull(),
+    noteId: integer("note_id")
+        .references(() => notesTable.id)
+        .notNull(),
+    archivedAt: timestamp("archived_at").defaultNow().notNull(),
+},
+    (table) => [
+        unique("unique_user_archived_note").on(
+            table.userId,
+            table.noteId
+        ),
+        index("idx_user_archived_notes_user_id").on(table.userId),
+    ]
+);
+
+
+// Relations
+export const departmentRelations = relations(departmentsTable, ({ many }) => ({
+    subjects: many(subjectsTable),
+    subjectOfferings: many(subjectOfferingsTable),
+}))
+
+export const subjectRelations = relations(subjectsTable, ({ many, one }) => ({
+    department: one(departmentsTable,
+        {
+            fields: [subjectsTable.departmentId],
+            references: [departmentsTable.id]
+        }),
+    subjectOfferings: many(subjectOfferingsTable),
+    notes: many(notesTable),
+}));
+
+export const subjectOfferingRelations = relations(subjectOfferingsTable, ({ one }) => ({
+    subject: one(subjectsTable,
+        {
+            fields: [subjectOfferingsTable.subjectId],
+            references: [subjectsTable.id]
+        }),
+    department: one(departmentsTable,
+        {
+            fields: [subjectOfferingsTable.departmentId],
+            references: [departmentsTable.id]
+        }),
+}));
+
+export const userRelations = relations(usersTable, ({ one, many }) => ({
+    profile: one(profilesTable),
+    notes: many(notesTable),
+    recentNotes: many(userRecentNotesTable),
+    archivedNotes: many(userArchivedNotesTable),
+}));
+
+export const profileRelations = relations(profilesTable, ({ one }) => ({
+    department: one(departmentsTable,
+        {
+            fields: [profilesTable.departmentId],
+            references: [departmentsTable.id]
+        }),
+    user: one(usersTable,
+        {
+            fields: [profilesTable.userId],
+            references: [usersTable.id]
+        }),
+}));
+
+export const noteRelations = relations(notesTable, ({ one, many }) => ({
+    subject: one(subjectsTable,
+        {
+            fields: [notesTable.subjectId],
+            references: [subjectsTable.id]
+        }),
+    uploader: one(usersTable,
+        {
+            fields: [notesTable.uploadedBy],
+            references: [usersTable.id]
+        }),
+    files: many(noteFilesTable),
+}));
+
+export const noteFileRelations = relations(noteFilesTable, ({ one }) => ({
+    note: one(notesTable,
+        {
+            fields: [noteFilesTable.noteId],
+            references: [notesTable.id]
+        }),
+}));
+
+export const userRecentNoteRelations = relations(userRecentNotesTable, ({ one }) => ({
+    user: one(usersTable,
+        {
+            fields: [userRecentNotesTable.userId],
+            references: [usersTable.id]
+        }),
+    note: one(notesTable,
+        {
+            fields: [userRecentNotesTable.noteId],
+            references: [notesTable.id]
+        }),
+}));
+
+export const userArchivedNoteRelations = relations(userArchivedNotesTable, ({ one }) => ({
+    user: one(usersTable,
+        {
+            fields: [userArchivedNotesTable.userId],
+            references: [usersTable.id]
+        }),
+    note: one(notesTable,
+        {
+            fields: [userArchivedNotesTable.noteId],
+            references: [notesTable.id]
+        }),
+}));
