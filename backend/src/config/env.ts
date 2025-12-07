@@ -1,35 +1,25 @@
 import dotenv from "dotenv";
 import { z } from "zod";
 
-dotenv.config();
+// Determine NODE_ENV first
+const nodeEnv = process.env.NODE_ENV ?? "development";
 
-// Default stage
-process.env.APP_STAGE = process.env.APP_STAGE || "development";
-
-// const isProduction = process.env.APP_STAGE === "production";
-const isDevelopment = process.env.APP_STAGE === "development";
-const isTesting = process.env.APP_STAGE === "test";
-
-// Load proper .env file based on stage
-if (isDevelopment) {
-    dotenv.config({ path: ".env" });
-} else if (isTesting) {
+// Load proper .env file
+if (nodeEnv === "development") {
+    dotenv.config({ path: ".env.local" });
+} else if (nodeEnv === "test") {
     dotenv.config({ path: ".env.test" });
 }
-// For production, we usually rely on actual environment variables,
-// so no dotenv.config() here unless you want `.env.production` support.
 
 /**
  * Zod Environment Schema
- */
+*/
 const envSchema = z.object({
     NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
 
-    APP_STAGE: z.enum(["development", "test", "production"]).default("development"),
-
     PORT: z.coerce.number().positive().default(3000),
 
-    // DATABASE_URL: z.string().startsWith('postgresql://')
+    DATABASE_URL: z.string().startsWith('postgresql://'),
 });
 
 export type Env = z.infer<typeof envSchema>;
@@ -55,9 +45,9 @@ try {
 }
 
 // Helpers
-export const isProd = () => env.APP_STAGE === "production";
-export const isDev = () => env.APP_STAGE === "development";
-export const isTest = () => env.APP_STAGE === "test";
+export const isDev = () => env.NODE_ENV === "development";
+export const isProd = () => env.NODE_ENV === "production";
+export const isTest = () => env.NODE_ENV === "test";
 
 export { env };
 export default env;
