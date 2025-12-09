@@ -25,7 +25,7 @@ export const subjectsTable = pgTable("subjects", {
     code: varchar("code", { length: 10 }).notNull().unique(),
     name: varchar("name", { length: 255 }).notNull(),
     departmentId: integer("department_id")
-        .references(() => departmentsTable.id)
+        .references(() => departmentsTable.id, { onDelete: "cascade" })
         .notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull().$onUpdate(() => new Date()),
@@ -34,11 +34,11 @@ export const subjectsTable = pgTable("subjects", {
 export const subjectOfferingsTable = pgTable("subject_offerings", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     subjectId: integer("subject_id")
-        .references(() => subjectsTable.id)
+        .references(() => subjectsTable.id, { onDelete: "cascade" })
         .notNull(),
     semester: SemesterEnum("semester").notNull(),
     departmentId: integer("department_id")
-        .references(() => departmentsTable.id)
+        .references(() => departmentsTable.id, { onDelete: "set null" })
         .notNull(),
     year: integer("year").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -59,7 +59,7 @@ export const subjectOfferingsTable = pgTable("subject_offerings", {
 
 export const usersTable = pgTable("users", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-    clerkUserId: uuid("clerk_user_id").notNull().unique(),
+    clerkUserId: varchar("clerk_user_id", { length: 255 }).notNull().unique(),
     fullName: varchar("full_name", { length: 255 }).notNull(),
     email: varchar("email", { length: 255 }).notNull().unique(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -69,12 +69,13 @@ export const usersTable = pgTable("users", {
 export const profilesTable = pgTable("profiles", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     userId: integer("user_id")
-        .references(() => usersTable.id)
+        .references(() => usersTable.id, { onDelete: "cascade" })
         .notNull()
         .unique(),
     bio: text("bio"),
     departmentId: integer("department_id").references(() => departmentsTable.id),
     semester: SemesterEnum("semester"),
+    college: text("college"),
     profilePictureUrl: text("profile_picture_url"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull().$onUpdate(() => new Date()),
@@ -85,10 +86,10 @@ export const notesTable = pgTable("notes", {
     title: text("title").notNull(),
     description: text("description").notNull(),
     subjectId: integer("subject_id")
-        .references(() => subjectsTable.id)
+        .references(() => subjectsTable.id, { onDelete: "set null" })
         .notNull(),
     uploadedBy: integer("uploaded_by")
-        .references(() => usersTable.id)
+        .references(() => usersTable.id, { onDelete: "set null" })
         .notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull().$onUpdate(() => new Date()),
@@ -102,7 +103,7 @@ export const notesTable = pgTable("notes", {
 export const noteFilesTable = pgTable("note_files", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     noteId: integer("note_id")
-        .references(() => notesTable.id)
+        .references(() => notesTable.id, { onDelete: "cascade" })
         .notNull(),
     fileUrl: text("file_url").notNull(),
     fileSize: integer("file_size").notNull(),
@@ -119,10 +120,10 @@ export const noteFilesTable = pgTable("note_files", {
 export const userRecentNotesTable = pgTable("user_recent_notes", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     userId: integer("user_id")
-        .references(() => usersTable.id)
+        .references(() => usersTable.id, { onDelete: "cascade" })
         .notNull(),
     noteId: integer("note_id")
-        .references(() => notesTable.id)
+        .references(() => notesTable.id, { onDelete: "cascade" })
         .notNull(),
     accessedAt: timestamp("accessed_at").defaultNow().notNull(),
 },
@@ -138,10 +139,10 @@ export const userRecentNotesTable = pgTable("user_recent_notes", {
 export const userArchivedNotesTable = pgTable("user_archived_notes", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     userId: integer("user_id")
-        .references(() => usersTable.id)
+        .references(() => usersTable.id, { onDelete: "cascade" })
         .notNull(),
     noteId: integer("note_id")
-        .references(() => notesTable.id)
+        .references(() => notesTable.id, { onDelete: "cascade" })
         .notNull(),
     archivedAt: timestamp("archived_at").defaultNow().notNull(),
 },
