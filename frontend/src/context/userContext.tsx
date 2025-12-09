@@ -2,7 +2,7 @@
 "use client";
 
 import { createContext, useContext, useState, ReactNode } from "react";
-import { RecentNote, ArchivedNote, SemesterRow, UpcomingExam } from "@/app/types/main";
+import { RecentNote, ArchivedNote, SemesterRow, UpcomingExam } from "@/types/main";
 
 export type UserContextType = {
   recentNotes: RecentNote[];
