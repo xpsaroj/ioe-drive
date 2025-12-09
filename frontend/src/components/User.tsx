@@ -19,7 +19,7 @@ export const User = () => {
             className="flex flex-row justify-center items-center gap-2 p-1.5 border border-muted rounded-full cursor-pointer relative"
         >
             {/* Avatar */}
-            <div className="w-10 h-10 relative rounded-full overflow-hidden border border-muted">
+            <div className="w-8 h-8 lg:w-10 lg:h-10 relative rounded-full overflow-hidden border border-muted">
                 <ClerkLoading>
                     <User2 className="h-full w-full p-3" />
                 </ClerkLoading>
@@ -37,12 +37,21 @@ export const User = () => {
                     }
                 </ClerkLoaded>
             </div>
-
-            {/* User info */}
             <div className="flex flex-col">
-                <h2 className="text-primary">{user?.fullName || "User"}</h2>
-                <p className="text-secondary text-xs">5th, BCT, Pulchowk</p>
+
+
+                <div className="block md:hidden lg:block flex-col">
+                    <h2 className="text-primary">{user?.fullName || "User"}</h2>
+                    <p className="text-secondary text-xs">5th, BCT, Pulchowk</p>
+                </div>
+
+
+                <h2 className="hidden md:block lg:hidden text-primary">
+                    {user?.fullName?.split(" ").map(n => n[0]).join("") || "U"}
+                </h2>
+
             </div>
+
 
             <ChevronDown className="size-5 text-accent" />
 
