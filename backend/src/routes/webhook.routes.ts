@@ -35,7 +35,7 @@ router.post(
     async (req: Request, res: Response) => {
         try {
             // Get the verified event from middleware
-            const event = (req as any).webhookEvent as ClerkWebhookEvent;
+            const event = (req as Request & { webhookEvent: ClerkWebhookEvent }).webhookEvent as ClerkWebhookEvent;
 
             console.log(`[Webhook] Received event: ${event.type} (ID: ${event.data.id || "N/A"})`);
 
@@ -55,7 +55,7 @@ router.post(
 
                 default:
                     // TypeScript exhaustiveness check - this should never happen
-                    console.warn(`[Webhook] Unhandled event type: ${(event as any).type}`);
+                    console.warn(`[Webhook] Unhandled event type: ${(event as ClerkWebhookEvent).type}`);
                     // Return 200 even for unhandled events to prevent retries
                     res.status(200).json({ message: "Event type not handled" });
                     return;
