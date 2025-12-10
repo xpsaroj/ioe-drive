@@ -2,8 +2,13 @@ import express from "express";
 import morgan from "morgan";
 
 import { isTest, isDev } from "./config/env.js";
+import webhookRoutes from "./routes/webhook.routes.js";
 
 const app = express();
+
+// Webhook routes MUST come before express.json() middleware
+// This is critical for signature verification which requires raw body
+app.use("/api/webhooks", webhookRoutes);
 
 // Global Middlewares
 app.use(express.json());
