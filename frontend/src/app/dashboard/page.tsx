@@ -1,8 +1,12 @@
-export default function DashboardPage() {
+import React from "react";
+import { DashboardContent } from "@/components/sections/dashboard";
+
+const DashboardPage = () => {
   return (
-    <main className="h-[200vh] flex flex-col items-center justify-center">
-      <h1>Dashboard</h1>
-      <p>Welcome to your dashboard!</p>
-    </main>
+    <div className="min-h-screen bg-background text-foreground ">
+      <DashboardContent />
+    </div>
   );
-}
+};
+
+export default DashboardPage;

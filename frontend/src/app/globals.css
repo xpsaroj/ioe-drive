@@ -1,15 +1,15 @@
 @import "tailwindcss";
 
 @theme {
-    --color-background: #ffffff;
-    --color-foreground: #000000;
+    --color-background: #ffffff; /* White - plain background */
+--color-foreground: #000000; /* Black - text/foreground color */
 
-    --color-primary: #354261;
-    --color-secondary: #5F6F67;
-    --color-muted: #8a898d;
+--color-primary: #354261;    /* Dark bluish-gray - main color for headings/buttons */
+--color-secondary: #5F6F67;  /* Gray-green/teal-ish - secondary elements */
+--color-muted: #8a898d;      /* Light gray - disabled text or muted info */
 
-    --color-accent: oklch(55.4% 0.203 305.504);
-    --color-accent-faded: #DBC0FD;
-    --color-link: #090084;
-    --color-golden: #EBC351;
+--color-accent: oklch(55.4% 0.203 305.504); /* Accent color (purplish) using OKLCH color model */
+--color-accent-faded: #DBC0FD;              /* Light lavender/purple - background highlight, badges */
+--color-link: #090084;                      /* Dark blue - links */
+--color-golden: #EBC351;                    /* Golden yellow - highlights, icons */
 }

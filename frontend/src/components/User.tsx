@@ -16,10 +16,12 @@ export const User = () => {
     return (
         <div
             onClick={handleOpenMenu}
-            className="flex flex-row justify-center items-center gap-2 p-1.5 border border-muted rounded-full cursor-pointer relative"
+            className="flex flex-row justify-between items-center gap-2 p-1.5 border border-muted rounded-full cursor-pointer relative"
         >
+            <div className="flex items-center justify-center gap-2">
+
             {/* Avatar */}
-            <div className="w-10 h-10 relative rounded-full overflow-hidden border border-muted">
+            <div className="w-8 h-8 lg:w-10 lg:h-10 relative rounded-full overflow-hidden border border-muted">
                 <ClerkLoading>
                     <User2 className="h-full w-full p-3" />
                 </ClerkLoading>
@@ -27,22 +29,31 @@ export const User = () => {
                 <ClerkLoaded>
                     {
                         user?.imageUrl ?
-                            <Image
-                                src={user.imageUrl}
-                                alt="User avatar"
-                                fill
-                                className="object-cover"
-                            />
-                            : <User2 className="h-full w-full p-3" />
+                        <Image
+                        src={user.imageUrl}
+                        alt="User avatar"
+                        fill
+                        className="object-cover"
+                        />
+                        : <User2 className="h-full w-full p-3" />
                     }
                 </ClerkLoaded>
             </div>
 
-            {/* User info */}
             <div className="flex flex-col">
-                <h2 className="text-primary">{user?.fullName || "User"}</h2>
-                <p className="text-secondary text-xs">5th, BCT, Pulchowk</p>
+                <div className="block md:hidden lg:block flex-col">
+                    <h2 className="text-primary">{user?.fullName || "User"}</h2>
+                    <p className="text-secondary text-xs">5th, BCT, Pulchowk</p>
+                </div>
+
+
+                <h2 className="hidden md:block lg:hidden text-primary">
+                    {user?.fullName?.split(" ").map(n => n[0]).join("") || "U"}
+                </h2>
+
             </div>
+                    </div>
+
 
             <ChevronDown className="size-5 text-accent" />
 
