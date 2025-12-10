@@ -1,5 +1,3 @@
-
-
 import RecentAccess from "./RecentAccess";
 import YourArchive from "./YourArchieve";
 import UploadNotes from "./UploadNotes";
