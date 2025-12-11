@@ -36,6 +36,7 @@ export default function HeroSection() {
                             variant="secondary"
                             size="lg"
                             className="w-full sm:w-auto"
+                            href="/dashboard"
                         >
                             Use without login
                         </Button>

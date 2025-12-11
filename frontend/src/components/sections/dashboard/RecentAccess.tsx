@@ -1,6 +1,6 @@
 "use client";
 
-import { useUser } from "@/context/userContext";
+import { useUser } from "@/context/UserContext";
 
 const RecentAccessItem = ({ title, author }: { title: string; author: string }) => (
   <div className="border border-muted rounded-lg p-3 cursor-pointer hover:bg-blue-50 transition duration-150">
