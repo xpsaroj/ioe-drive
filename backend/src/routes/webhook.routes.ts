@@ -1,5 +1,6 @@
 import { Router } from "express";
 import type { Request, Response } from "express";
+import type { WebhookEvent } from "@clerk/express/webhooks"
 import bodyParser from "body-parser";
 
 import { verifyClerkWebhook } from "../middleware/webhook.middleware.js";
@@ -8,12 +9,6 @@ import {
     handleUserUpdated,
     handleUserDeleted,
 } from "../controllers/webhook.controller.js";
-import type {
-    ClerkWebhookEvent,
-    UserCreatedEvent,
-    UserUpdatedEvent,
-    UserDeletedEvent,
-} from "../types/webhook.types.js";
 
 const router = Router();
 
@@ -35,39 +30,41 @@ router.post(
     async (req: Request, res: Response) => {
         try {
             // Get the verified event from middleware
-            const event = (req as Request & { webhookEvent: ClerkWebhookEvent }).webhookEvent as ClerkWebhookEvent;
+            const event = (req as Request & { webhookEvent: WebhookEvent }).webhookEvent;
+
+            const svixId = req.get("svix-id");
+            if (!svixId) {
+                console.warn("No svix-id in webhook request");
+                return res.sendStatus(400);
+            }
 
             console.log(`[Webhook] Received event: ${event.type} (ID: ${event.data.id || "N/A"})`);
 
             // Route to appropriate handler based on event type
             switch (event.type) {
                 case "user.created":
-                    await handleUserCreated(event as UserCreatedEvent);
+                    await handleUserCreated(svixId, event);
                     break;
 
                 case "user.updated":
-                    await handleUserUpdated(event as UserUpdatedEvent);
+                    await handleUserUpdated(svixId, event);
                     break;
 
                 case "user.deleted":
-                    await handleUserDeleted(event as UserDeletedEvent);
+                    await handleUserDeleted(svixId, event);
                     break;
 
                 default:
-                    // TypeScript exhaustiveness check - this should never happen
-                    console.warn(`[Webhook] Unhandled event type: ${(event as ClerkWebhookEvent).type}`);
-                    // Return 200 even for unhandled events to prevent retries
-                    res.status(200).json({ message: "Event type not handled" });
-                    return;
+                    console.warn(`[Webhook] Unhandled event type: ${(event).type}`);
             }
 
             // Success response (prevents Clerk/Svix from retrying)
-            res.status(200).json({ message: "Webhook processed successfully" });
+            res.sendStatus(200);
         } catch (error) {
             console.error("[Webhook] Error processing webhook:", error);
 
             // Return 500 to trigger retry from Clerk/Svix
-            res.status(500).json({ error: "Error processing webhook" });
+            res.sendStatus(500);
         }
     }
 );
