@@ -9,9 +9,9 @@ const DashboardContent = () => {
     <div className="p-6 max-w-7xl mx-auto space-y-4">
       <div className="flex flex-col lg:flex-row lg:space-x-6 space-y-6 lg:space-y-0">
         {/* Left Column */}
-        <div className="lg:w-1/3 space-y-6">
+        <div className="lg:w-1/3 space-y-6 ">
           <RecentAccess />
-          <div className="flex flex-col sm:flex-row sm:space-x-6 space-y-6 sm:space-y-0">
+          <div className="flex flex-row gap-2 sm:space-x-3 space-y-6 sm:space-y-0">
             <YourArchive />
             <UploadNotes />
           </div>

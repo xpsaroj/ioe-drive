@@ -63,7 +63,7 @@ export default function Navbar() {
           <div className="flex flex-row gap-4 rounded-full border border-muted">
             <div className="flex flex-row items-center rounded-full shadow-lg/30">
               {NAVIGATION_ITEMS.map((item, index) => {
-                const isCurrentRoute = pathname === item.href;
+                const isCurrentRoute = pathname === item.href || pathname.startsWith(item.href + "/");
 
                 return (
                   <Link
@@ -131,7 +131,7 @@ export default function Navbar() {
 
           <div className="flex-1 flex flex-col px-2 py-4">
             {NAVIGATION_ITEMS.map((item, index) => {
-              const isCurrentRoute = pathname === item.href
+              const isCurrentRoute = pathname === item.href || pathname.startsWith(item.href + "/");
               return (
                 <Link
                   key={item.href + index}

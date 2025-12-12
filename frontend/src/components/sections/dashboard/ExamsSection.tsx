@@ -1,8 +1,8 @@
 "use client";
 
 import { useState, ChangeEvent } from "react";
-import { PencilLine, X, Plus } from "lucide-react"; 
-import { useUser } from "@/context/userContext";
+import { PencilLine, Save, Plus } from "lucide-react"; 
+import { useUser } from "@/context/UserContext";
 import { useClerk } from "@clerk/nextjs";
 
 interface Exam {
@@ -15,7 +15,7 @@ interface Exam {
 
 const UpcomingExams: React.FC = () => {
   const { user } = useClerk();
-  const { upcomingExams, setUpcomingExams } = useUser();
+  const { upcomingExams, addExam,updateExam} = useUser();
   const [isEditing, setIsEditing] = useState(false);
   const [newExam, setNewExam] = useState<Exam>({
     date: "",
@@ -25,17 +25,26 @@ const UpcomingExams: React.FC = () => {
     addedBy: "",
   });
 
+  // Update an existing exam
   const handleChange = (index: number, field: keyof Exam, value: string) => {
-    const updated = [...upcomingExams];
-    updated[index] = { ...updated[index], [field]: value };
-    setUpcomingExams(updated);
+    const updated = { ...upcomingExams[index], [field]: value };
+    updateExam(index, updated);
   };
 
+  // Add a new exam row
   const handleAddRow = () => {
-    setUpcomingExams([...upcomingExams, { ...newExam }]);
+    const examToAdd = {
+      ...newExam,
+      addedBy: user?.fullName || "Unknown", 
+    };
+
+    addExam(examToAdd);
+
+    // Reset newExam state
     setNewExam({ date: "", subject: "", type: "", marks: "", addedBy: "" });
   };
 
+  // Format date for input type="date"
   const formatDate = (dateStr: string) => {
     if (!dateStr) return "";
     const date = new Date(dateStr);
@@ -53,7 +62,7 @@ const UpcomingExams: React.FC = () => {
           className="ml-2 text-purple-600 cursor-pointer"
           onClick={() => setIsEditing(!isEditing)}
         >
-          {isEditing ? <X className="w-4 h-4" /> : <PencilLine className="w-4 h-4" />}
+          {isEditing ? <Save className="w-4 h-4" /> : <PencilLine className="w-4 h-4" />}
         </span>
       </h3>
       <p className="text-xs text-gray-500 mb-4 italic">
@@ -138,11 +147,12 @@ const UpcomingExams: React.FC = () => {
                   {isEditing ? (
                     <input
                       type="text"
-                      value={item.addedBy || user?.fullName || "Unknown"}
+                      value={item.addedBy} 
                       onChange={(e: ChangeEvent<HTMLInputElement>) =>
                         handleChange(index, "addedBy", e.target.value)
                       }
                       className="border rounded px-1 w-full"
+                      readOnly={!!item.addedBy}
                     />
                   ) : (
                     item.addedBy

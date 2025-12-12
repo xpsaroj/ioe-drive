@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Outfit } from "next/font/google";
 import { ClerkProvider } from '@clerk/nextjs';
-import { UserProvider } from "@/context/userContext";
+import { UserProvider } from "@/context/UserContext";
 
 import { Navbar, Footer, GlobalLoader } from "@/components/layout";
 
@@ -25,7 +25,7 @@ export default function RootLayout({
         <ClerkProvider>
           <GlobalLoader>
             <Navbar />
-            <UserProvider>
+            <UserProvider >
             {children}
             </UserProvider>
             <Footer />
