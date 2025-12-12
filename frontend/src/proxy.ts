@@ -1,9 +1,9 @@
 import { NextResponse } from 'next/server';
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 
-// Routes that require authentication - Allowing Dashboard and Resources routes for non-logged-in users too
+// Routes that require authentication - Allowing Resources routes for non-logged-in users too
 const isProtectedRoute = createRouteMatcher([
-    // "/dashboard(.*)",
+    "/dashboard(.*)",
     // "/resources(.*)",
     "/community(.*)",
     "/marketplace(.*)",

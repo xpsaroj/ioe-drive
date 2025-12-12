@@ -81,11 +81,23 @@ export const UploadComponent: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-  
+
+    // Validation: check if any field or file is empty
+    if (
+      !formState.resourceName.trim() ||
+      !formState.resourceType ||
+      !formState.targetStudents ||
+      !formState.college.trim() ||
+      !file
+    ) {
+      alert("Please fill in all fields and select a file before uploading.");
+      return;
+    }
+
     // Simulate upload
     console.log("Uploading Resource:", formState);
     console.log("File:", file);
-  
+
     // Reset form fields and file
     setFormState({
       resourceName: "",
@@ -94,11 +106,11 @@ export const UploadComponent: React.FC = () => {
       college: "",
     });
     setFile(null);
-  
+
     // Show success alert
     alert("Resource uploaded successfully!");
   };
-  
+
 
   return (
     <div className="p-8 bg-gray-50 min-h-screen">
