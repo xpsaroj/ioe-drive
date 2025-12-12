@@ -13,6 +13,12 @@ import { relations } from "drizzle-orm";
 export const SemesterEnum = pgEnum("semester_enum", ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"]);
 
 // Tables
+export const webhookEventsTable = pgTable("webhook_events", {
+  svixId: text("svix_id").primaryKey(),
+  eventType: varchar("event_type", { length: 255 }).notNull(),
+  receivedAt: timestamp("received_at").defaultNow(),
+});
+
 export const departmentsTable = pgTable("departments", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     code: varchar("code", { length: 10 }).notNull().unique(),
@@ -60,7 +66,7 @@ export const usersTable = pgTable("users", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     clerkUserId: varchar("clerk_user_id", { length: 255 }).notNull().unique(),
     fullName: varchar("full_name", { length: 255 }).notNull(),
-    email: varchar("email", { length: 255 }).notNull().unique(),
+    email: varchar("email", { length: 255 }).unique(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull().$onUpdate(() => new Date()),
 });

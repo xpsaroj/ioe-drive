@@ -1,7 +1,9 @@
-import { db } from "../db/index.js";
-import { usersTable } from "../db/schema.js";
-import type { UserCreatedEvent, UserUpdatedEvent, UserDeletedEvent } from "../types/webhook.types.js";
 import { eq } from "drizzle-orm";
+import type { UserWebhookEvent, UserJSON, UserDeletedJSON } from "@clerk/express";
+
+import { db } from "../db/index.js";
+import { usersTable, profilesTable } from "../db/schema.js";
+import { alreadyProcessed, markProcessed } from "../utils/webhooks.js";
 
 /**
  * Helper: Extract full name from Clerk user data
@@ -15,7 +17,7 @@ function getFullName(firstName: string | null, lastName: string | null): string 
 /**
  * Helper: Get primary email from Clerk user data
  */
-function getPrimaryEmail(data: UserCreatedEvent["data"] | UserUpdatedEvent["data"]): string {
+function getPrimaryEmail(data: UserJSON): string | null {
     if (data.primary_email_address_id) {
         const primaryEmail = data.email_addresses.find(
             (email) => email.id === data.primary_email_address_id
@@ -30,28 +32,54 @@ function getPrimaryEmail(data: UserCreatedEvent["data"] | UserUpdatedEvent["data
         return data.email_addresses[0].email_address;
     }
 
-    throw new Error("No email address found for user");
+    // No email found
+    return null;
 }
 
 /**
  * Controller: Handle user.created event
- * - Creates a new user in the database
+ * - Creates a new user and associated profile in a transaction
  */
-export async function handleUserCreated(event: UserCreatedEvent): Promise<void> {
-    const { data } = event;
+export async function handleUserCreated(svixId: string, event: UserWebhookEvent): Promise<void> {
+    if (await alreadyProcessed(svixId)) {
+        return console.log("Duplicate webhook skipped");
+    }
 
-    console.log(`[Webhook] Creating user: ${data.id}`);
-
+    const data = event.data as UserJSON;
     const fullName = getFullName(data.first_name, data.last_name);
     const email = getPrimaryEmail(data);
 
     try {
-        await db.insert(usersTable).values({
-            clerkUserId: data.id,
-            fullName,
-            email,
-        });
+        await db.transaction(async (tx) => {
+            // Insert user
+            const [user] = await tx
+                .insert(usersTable)
+                .values({
+                    clerkUserId: data.id,
+                    fullName,
+                    email,
+                })
+                .onConflictDoNothing()
+                .returning();
 
+            if (!user) {
+                throw new Error("Failed to create user");
+            }
+
+            // Insert associated profile
+            await tx
+                .insert(profilesTable)
+                .values({
+                    userId: user.id,
+                    profilePictureUrl: data.image_url,
+                })
+                .onConflictDoUpdate({
+                    target: profilesTable.userId,
+                    set: { profilePictureUrl: data.image_url, },
+                });
+        })
+
+        await markProcessed(svixId, event.type);
         console.log(`[Webhook] User created successfully: ${data.id}`);
     } catch (error) {
         console.error(`[Webhook] Error creating user ${data.id}:`, error);
@@ -63,11 +91,12 @@ export async function handleUserCreated(event: UserCreatedEvent): Promise<void> 
  * Controller: Handle user.updated event
  * - Updates existing user in the database
  */
-export async function handleUserUpdated(event: UserUpdatedEvent): Promise<void> {
-    const { data } = event;
+export async function handleUserUpdated(svixId: string, event: UserWebhookEvent): Promise<void> {
+    if (await alreadyProcessed(svixId)) {
+        return console.log("Duplicate webhook skipped");
+    }
 
-    console.log(`[Webhook] Updating user: ${data.id}`);
-
+    const data = event.data as UserJSON;
     const fullName = getFullName(data.first_name, data.last_name);
     const email = getPrimaryEmail(data);
 
@@ -77,7 +106,6 @@ export async function handleUserUpdated(event: UserUpdatedEvent): Promise<void> 
             .set({
                 fullName,
                 email,
-                updatedAt: new Date(),
             })
             .where(eq(usersTable.clerkUserId, data.id))
             .returning();
@@ -85,14 +113,38 @@ export async function handleUserUpdated(event: UserUpdatedEvent): Promise<void> 
         if (result.length === 0) {
             console.warn(`[Webhook] User not found for update: ${data.id}. Creating instead.`);
             // User doesn't exist, create it (handles edge cases)
-            const createEvent: UserCreatedEvent = {
-                ...event,
-                type: "user.created",
-            };
-            await handleUserCreated(createEvent);
-        } else {
-            console.log(`[Webhook] User updated successfully: ${data.id}`);
+            await db.transaction(async (tx) => {
+                // Insert user
+                const [user] = await tx
+                    .insert(usersTable)
+                    .values({
+                        clerkUserId: data.id,
+                        fullName,
+                        email,
+                    })
+                    .onConflictDoNothing()
+                    .returning();
+
+                if (!user) {
+                    throw new Error("Failed to create user during update fallback");
+                }
+
+                // Insert associated profile
+                await tx
+                    .insert(profilesTable)
+                    .values({
+                        userId: user.id,
+                        profilePictureUrl: data.image_url,
+                    })
+                    .onConflictDoUpdate({
+                        target: profilesTable.userId,
+                        set: { profilePictureUrl: data.image_url, },
+                    })
+            });
         }
+
+        await markProcessed(svixId, event.type);
+        console.log(`[Webhook] User updated successfully: ${data.id}`);
     } catch (error) {
         console.error(`[Webhook] Error updating user ${data.id}:`, error);
         throw error;
@@ -101,17 +153,19 @@ export async function handleUserUpdated(event: UserUpdatedEvent): Promise<void> 
 
 /**
  * Controller: Handle user.deleted event
- * - Deletes user from the database
+ * - Deletes user from the database (profile cascades)
  */
-export async function handleUserDeleted(event: UserDeletedEvent): Promise<void> {
-    const { data } = event;
+export async function handleUserDeleted(svixId: string, event: UserWebhookEvent): Promise<void> {
+    if (await alreadyProcessed(svixId)) {
+        return console.log("Duplicate webhook skipped");
+    }
 
-    console.log(`[Webhook] Deleting user: ${data.id}`);
+    const data = event.data as UserDeletedJSON;
 
     try {
         const result = await db
             .delete(usersTable)
-            .where(eq(usersTable.clerkUserId, data.id))
+            .where(eq(usersTable.clerkUserId, data.id as string))
             .returning();
 
         if (result.length === 0) {
@@ -119,6 +173,8 @@ export async function handleUserDeleted(event: UserDeletedEvent): Promise<void> 
         } else {
             console.log(`[Webhook] User deleted successfully: ${data.id}`);
         }
+
+        await markProcessed(svixId, event.type);
     } catch (error) {
         console.error(`[Webhook] Error deleting user ${data.id}:`, error);
         throw error;

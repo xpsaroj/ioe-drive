@@ -21,7 +21,7 @@ const envSchema = z.object({
 
     DATABASE_URL: z.string().startsWith('postgresql://'),
 
-    CLERK_WEBHOOK_SECRET: z.string().startsWith('whsec_'),
+    CLERK_WEBHOOK_SIGNING_SECRET: z.string().startsWith('whsec_'),
 });
 
 export type Env = z.infer<typeof envSchema>;
