@@ -1,4 +1,4 @@
-import { UploadComponent } from "@/components/sections/dashboard/UploadNotes";
+import { UploadComponent } from "@/components/sections/dashboard";
 
 const UploadPage = () => {
     return (
