@@ -2,12 +2,15 @@
 
 import { useUser } from "@/context/UserContext";
 import { Folder } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 const YourArchive = () => {
   const { archivedNotes } = useUser();
-
+  const router = useRouter();
   return (
-    <div className="w-1/2 h-56 bg-white p-4 rounded-xl shadow-sm border border-gray-300">
+    <div
+    onClick={() => router.push("/dashboard/archive")}
+    className="w-1/2 h-56 bg-white p-4 rounded-xl shadow-sm border border-gray-300">
       <h3 className="text-lg text-center font-semibold mb-4 text-primary">Your Archive</h3>
       <div className="flex flex-col items-center text-center">
         <div className="text-purple-600 mb-3">

@@ -25,20 +25,11 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export const UserProvider = ({ children }: { children: ReactNode }) => {
 
   // Load data from localStorage or fallback to demo-data
-  const [recentNotes, setRecentNotes] = useState<RecentNote[]>(() => {
-    const stored = localStorage.getItem("recentNotes");
-    return stored ? JSON.parse(stored) : userRecentNotes;
-  });
+  const [recentNotes, setRecentNotes] = useState<RecentNote[]>(userRecentNotes);
 
-  const [archivedNotes, setArchivedNotes] = useState<ArchivedNote[]>(() => {
-    const stored = localStorage.getItem("archivedNotes");
-    return stored ? JSON.parse(stored) : userArchivedNotes;
-  });
+  const [archivedNotes, setArchivedNotes] = useState<ArchivedNote[]>(userArchivedNotes);
 
-  const [semesterData, setSemesterData] = useState<SemesterRow[]>(() => {
-    const stored = localStorage.getItem("semesterData");
-    return stored ? JSON.parse(stored) : semesterDataByUser;
-  });
+  const [semesterData, setSemesterData] = useState<SemesterRow[]>(semesterDataByUser);
 
   const [upcomingExams, setUpcomingExams] = useState<UpcomingExam[]>(() => {
     const stored = localStorage.getItem("upcomingExams");
@@ -46,18 +37,7 @@ export const UserProvider = ({ children }: { children: ReactNode }) => {
   });
 
   // Persist all changes to localStorage for now (as no backend is present)
-  useEffect(() => {
-    localStorage.setItem("recentNotes", JSON.stringify(recentNotes));
-  }, [recentNotes]);
-
-  useEffect(() => {
-    localStorage.setItem("archivedNotes", JSON.stringify(archivedNotes));
-  }, [archivedNotes]);
-
-  useEffect(() => {
-    localStorage.setItem("semesterData", JSON.stringify(semesterData));
-  }, [semesterData]);
-
+  
   useEffect(() => {
     localStorage.setItem("upcomingExams", JSON.stringify(upcomingExams));
   }, [upcomingExams]);

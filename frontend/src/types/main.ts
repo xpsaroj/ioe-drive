@@ -38,8 +38,9 @@ export type UpcomingExam = {
 export type ArchivedNote = {
   noteId: number;
   noteTitle: string;
-  uploadedBy: string;
-  archivedAt: string;
+  subject: string;
+  fileType: string;
+  remarks: string;
 };
 
 export type RecentNote = {

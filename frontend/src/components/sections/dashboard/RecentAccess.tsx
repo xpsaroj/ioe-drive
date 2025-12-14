@@ -3,8 +3,7 @@
 import { useUser } from "@/context/UserContext";
 
 const RecentAccessItem = ({ title, author }: { title: string; author: string }) => (
-  <div className="border border-muted rounded-lg p-3 cursor-pointer hover:bg-blue-50 transition duration-150">
-
+  <div className="border border-muted rounded-lg p-2 cursor-pointer hover:bg-blue-50 transition duration-150">
     <h4
       className="text-lg font-semibold text-link border-b border-link overflow-hidden whitespace-nowrap text-ellipsis"
       title={title} 

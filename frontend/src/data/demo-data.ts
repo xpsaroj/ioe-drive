@@ -57,11 +57,40 @@ export const noteFiles = [
 export const userRecentNotes = [
   { noteId: 1, noteTitle: "Data Structures Notes", uploader: "John Doe", accessedAt: new Date().toISOString() },
   { noteId: 2, noteTitle: "Algorithms Notes", uploader: "Jane Smith", accessedAt: new Date().toISOString() },
+  { noteId: 2, noteTitle: "Electromagnetism Notes", uploader: "Jane Smith", accessedAt: new Date().toISOString() },
 ];
 
 export const userArchivedNotes = [
-  // empty for now
+  {
+    noteId: 1,
+    noteTitle: "Data Communications Notes",
+    subject: "Data Communication",
+    fileType: "PDF",
+    remarks: "Pages 6–37 are important",
+  },
+  {
+    noteId: 2,
+    noteTitle: "Instrumentation Insights",
+    subject: "Instrumentation",
+    fileType: "Insight",
+    remarks: "Well explained diagrams",
+  },
+  {
+    noteId: 3,
+    noteTitle: "Electromagnetics Book",
+    subject: "EM",
+    fileType: "Book",
+    remarks: "Focus on chapter 3 and 4",
+  },
+  {
+    noteId: 4,
+    noteTitle: "Question Bank – Electrodynamics",
+    subject: "Electrodynamics",
+    fileType: "PDF",
+    remarks: "Practice all solved examples",
+  },
 ];
+
 
 export const semesterDataByUser = [
   { subject: "Data Structures", examType: "BOTH", marks: "100+50", remarks: "Good" },
