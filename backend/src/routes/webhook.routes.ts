@@ -10,8 +10,6 @@ import {
     handleUserDeleted,
 } from "../controllers/webhook.controller.js";
 
-const router = Router();
-
 /**
  * POST /api/webhooks/clerk
  * 
@@ -20,6 +18,8 @@ const router = Router();
  * IMPORTANT: This route uses raw body parsing for signature verification.
  * Do NOT apply express.json() middleware to this route.
  */
+const router = Router();
+
 router.post(
     "/clerk",
     // Use raw body parser (required for signature verification)
@@ -30,7 +30,7 @@ router.post(
     async (req: Request, res: Response) => {
         try {
             // Get the verified event from middleware
-            const event = (req as Request & { webhookEvent: WebhookEvent }).webhookEvent;
+            const event = req.webhookEvent as WebhookEvent;
 
             const svixId = req.get("svix-id");
             if (!svixId) {
