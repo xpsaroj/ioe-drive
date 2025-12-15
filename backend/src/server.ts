@@ -1,22 +1,42 @@
 import express from "express";
 import morgan from "morgan";
+import cors from "cors";
+import { clerkMiddleware } from "@clerk/express"
 
-import { isTest, isDev } from "./config/env.js";
+import { isTest, isDev, env } from "./config/env.js";
 import webhookRoutes from "./routes/webhook.routes.js";
+import userRoutes from "./routes/user.routes.js";
+import notesRoutes from "./routes/notes.routes.js";
 
 const app = express();
+
+// CORS Configuration
+app.use(cors({
+    origin: env.ALLOWED_ORIGINS.split(","),
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+    allowedHeaders: ["Content-Type", "Authorization"],
+}));
 
 // Webhook routes MUST come before express.json() middleware
 // This is critical for signature verification which requires raw body
 app.use("/api/webhooks", webhookRoutes);
 
-// Global Middlewares
-app.use(express.json());
+// Logger
 app.use(
     morgan(isDev() ? "dev" : "combined", {
         skip: () => isTest(),
     })
 )
+
+// Clerk Middleware
+app.use(clerkMiddleware());
+
+// Global Middlewares
+app.use(express.json());
+
+// API Routes
+app.use("/api/users", userRoutes);
+app.use("/api/notes", notesRoutes);
 
 // Health Check Route
 app.get("/health", (_req, res) => {

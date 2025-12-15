@@ -19,9 +19,15 @@ const envSchema = z.object({
 
     PORT: z.coerce.number().positive().default(3000),
 
+    ALLOWED_ORIGINS: z.string().default("http://localhost:3000,http://localhost:5173"),
+
     DATABASE_URL: z.string().startsWith('postgresql://'),
 
     CLERK_WEBHOOK_SIGNING_SECRET: z.string().startsWith('whsec_'),
+
+    CLERK_SECRET_KEY: z.string().startsWith('sk_'),
+
+    CLERK_PUBLISHABLE_KEY: z.string().startsWith('pk_'),
 });
 
 export type Env = z.infer<typeof envSchema>;
