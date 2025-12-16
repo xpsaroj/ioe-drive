@@ -1,6 +1,6 @@
 import express from "express"
 
-import { apiAuthMiddleware } from "../middleware/apiAuth.middleware.js"
+import { requireAuth } from "../middleware/auth.middleware.js"
 import * as notesController from "../controllers/notes.controller.js"
 
 /**
@@ -14,7 +14,7 @@ import * as notesController from "../controllers/notes.controller.js"
 const router = express.Router()
 
 // All routes require authentication
-router.use(apiAuthMiddleware);
+router.use(requireAuth);
 
 // Mark a note as recently accessed
 router.post("/:noteId/recent", notesController.markNoteAsRecentlyAccessed);

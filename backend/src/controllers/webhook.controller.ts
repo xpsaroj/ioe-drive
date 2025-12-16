@@ -101,14 +101,30 @@ export async function handleUserUpdated(svixId: string, event: UserWebhookEvent)
     const email = getPrimaryEmail(data);
 
     try {
-        const result = await db
-            .update(usersTable)
-            .set({
-                fullName,
-                email,
-            })
-            .where(eq(usersTable.clerkUserId, data.id))
-            .returning();
+        const result = await db.transaction(async (tx) => {
+            const [user] = await db
+                .update(usersTable)
+                .set({
+                    fullName,
+                    email,
+                })
+                .where(eq(usersTable.clerkUserId, data.id))
+                .returning();
+
+            if (!user) {
+                return [];
+            }
+
+            // Update associated profile
+            await tx
+                .update(profilesTable)
+                .set({
+                    profilePictureUrl: data.image_url,
+                })
+                .where(eq(profilesTable.userId, user.id));
+
+            return [user];
+        })
 
         if (result.length === 0) {
             console.warn(`[Webhook] User not found for update: ${data.id}. Creating instead.`);
