@@ -1,6 +1,6 @@
 import express from "express"
 
-import { apiAuthMiddleware } from "../middleware/apiAuth.middleware.js"
+import { requireAuth } from "../middleware/auth.middleware.js"
 import * as userController from "../controllers/user.controller.js"
 
 /**
@@ -18,7 +18,7 @@ const router = express.Router()
 
 
 // All routes require authentication
-router.use(apiAuthMiddleware);
+router.use(requireAuth);
 
 // Get current authenticated user
 router.get("/me", userController.getCurrentUserProfile);
