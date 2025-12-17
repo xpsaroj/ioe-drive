@@ -6,6 +6,10 @@ declare global {
     namespace Express {
         interface Request {
             webhookEvent?: WebhookEvent;
+            authUser?: {
+                id: number;
+                clerkUserId: string;
+            }
         }
     }
 }

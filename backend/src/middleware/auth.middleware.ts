@@ -1,5 +1,9 @@
 import type { Request, Response, NextFunction } from "express";
 import { getAuth } from "@clerk/express";
+import { eq } from "drizzle-orm";
+
+import { db } from "../db/index.js";
+import { usersTable } from "../db/schema.js";
 
 /**
  * Middleware to require authentication for protected routes.
@@ -39,6 +43,25 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
                 message: 'User not authenticated'
             })
         }
+
+        const user = await db
+            .query.usersTable
+            .findFirst({
+                where: eq(usersTable.clerkUserId, userId),
+                columns: {
+                    id: true,
+                    clerkUserId: true,
+                }
+            });
+
+        if (!user) {
+            return res.status(401).json({
+                success: false,
+                message: "User not registered in database"
+            });
+        }
+
+        req.authUser = user;
 
         next();
     } catch (error) {

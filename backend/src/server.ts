@@ -5,6 +5,7 @@ import { clerkMiddleware } from "@clerk/express"
 
 import { isTest, isDev, env } from "./config/env.js";
 import webhookRoutes from "./routes/webhook.routes.js";
+import meRoutes from "./routes/me.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import notesRoutes from "./routes/notes.routes.js";
 
@@ -35,6 +36,7 @@ app.use(clerkMiddleware());
 app.use(express.json());
 
 // API Routes
+app.use("/api/me", meRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/notes", notesRoutes);
 
