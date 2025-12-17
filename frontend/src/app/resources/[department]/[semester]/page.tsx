@@ -11,17 +11,19 @@ export default function SemesterRedirectPage() {
 
   useEffect(() => {
     if (!department || !semester) return;
-
-    // Get subjects for this department + semester
+  
     const subjects = departmentSubjects[department]?.[semester] || [];
-
+  
     if (subjects.length > 0) {
-      const defaultSubject = subjects[0].code; // first subject as default
+      const defaultSubject = subjects[0].code;
       router.replace(`/resources/${department}/${semester}/${defaultSubject}`);
     } else {
-      setIsRedirecting(false); 
+      // Defer setState to next tick
+      const timeout = setTimeout(() => setIsRedirecting(false), 0);
+      return () => clearTimeout(timeout);
     }
   }, [department, semester, router]);
+  
 
   if (!isRedirecting) {
     return <p className="text-center mt-20 text-gray-500">No subjects found.</p>;
