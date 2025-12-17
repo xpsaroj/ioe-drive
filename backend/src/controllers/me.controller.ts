@@ -1,8 +1,8 @@
 import type { Request, Response } from "express";
+import { desc, eq, and } from "drizzle-orm";
 
 import { usersTable, userRecentNotesTable, userArchivedNotesTable, notesTable } from "../db/schema.js";
 import { db } from "../db/index.js";
-import { desc, eq, and } from "drizzle-orm";
 
 /**
  * Get the currently authenticated user's profile.
@@ -76,7 +76,7 @@ export const getCurrentUserUploadedNotes = async (req: Request, res: Response) =
                 }
             });
 
-        res.json({
+        return res.json({
             success: true,
             notes,
         });
@@ -124,7 +124,7 @@ export const getCurrentUserRecentlyAccessedNotes = async (req: Request, res: Res
                 limit: 5,
             });
 
-        res.json({
+        return res.json({
             success: true,
             notes,
         });
@@ -172,7 +172,7 @@ export const getCurrentUserArchivedNotes = async (req: Request, res: Response) =
                 limit: 10,
             });
 
-        res.json({
+        return res.json({
             success: true,
             notes,
         });
@@ -189,7 +189,7 @@ export const getCurrentUserArchivedNotes = async (req: Request, res: Response) =
  * Mark a note as recently accessed by the current user.
  * @param req Request
  * @param res Response
- * @returns Success message or 400 on invalid note ID or 500 on error
+ * @returns Success message or 400 on invalid note ID or 404 if note not found or 500 on error
  */
 export const markNoteAsRecentlyAccessed = async (req: Request, res: Response) => {
     const userId = req.authUser!.id;
@@ -203,6 +203,17 @@ export const markNoteAsRecentlyAccessed = async (req: Request, res: Response) =>
     }
 
     try {
+        const note = await db.query.notesTable.findFirst({
+            where: eq(notesTable.id, noteId),
+        });
+
+        if (!note) {
+            return res.status(404).json({
+                success: false,
+                message: "Note not found"
+            });
+        }
+
         await db.insert(userRecentNotesTable)
             .values({
                 userId: Number(userId),
@@ -230,7 +241,7 @@ export const markNoteAsRecentlyAccessed = async (req: Request, res: Response) =>
 /** * Mark a note as bookmarked/archived by the current user.
  * @param req Request
  * @param res Response
- * @returns Success message or 400 on invalid note ID or 500 on error
+ * @returns Success message or 400 on invalid note ID or 404 if note not found or 500 on error
  */
 export const markNoteAsArchived = async (req: Request, res: Response) => {
     const userId = req.authUser!.id;
@@ -244,6 +255,17 @@ export const markNoteAsArchived = async (req: Request, res: Response) => {
     }
 
     try {
+        const note = await db.query.notesTable.findFirst({
+            where: eq(notesTable.id, noteId),
+        });
+
+        if (!note) {
+            return res.status(404).json({
+                success: false,
+                message: "Note not found"
+            });
+        }
+
         await db.insert(userArchivedNotesTable)
             .values({
                 userId: Number(userId),
@@ -279,12 +301,20 @@ export const unmarkNoteAsArchived = async (req: Request, res: Response) => {
         });
     }
 
-    await db.delete(userArchivedNotesTable)
-        .where(
-            and(eq(userArchivedNotesTable.userId, Number(userId)), eq(userArchivedNotesTable.noteId, noteId)),
-        );
+    try {
+        await db.delete(userArchivedNotesTable)
+            .where(
+                and(eq(userArchivedNotesTable.userId, Number(userId)), eq(userArchivedNotesTable.noteId, noteId)),
+            );
 
-    return res.json({
-        success: true,
-    });
+        return res.json({
+            success: true,
+        });
+    } catch (e) {
+        console.error("Error unmarking note as archived:", e);
+        return res.status(500).json({
+            success: false,
+            message: "Internal server error"
+        });
+    }
 };
