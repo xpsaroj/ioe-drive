@@ -87,14 +87,16 @@ export default function Navbar() {
       </div>
 
       {/* Search bar  */}
-      <div className="hidden md:block w-full mb-4">
-        <div className="container mx-auto mt-2 w-full flex justify-center items-center pb-2">
-          <SearchBar />
+      {pathname.startsWith("/dashboard") && (
+        <div className="hidden md:block w-full mb-4">
+          <div className="container mx-auto mt-2 w-full flex justify-center items-center pb-2">
+            <SearchBar />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Sidebar (Mobile) */}
-      <div className="block md:hidden sticky top-0">
+      <div className="block md:hidden sticky top-0 z-50">
         <div className="flex justify-between items-center px-6 py-1 z-50 bg-background/10 backdrop-blur-sm border-b border-muted">
           <div>
             <Logo size={3} />
