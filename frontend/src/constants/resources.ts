@@ -133,3 +133,30 @@ export interface Department {
       // Add remaining semesters...
     },
   };
+
+export interface examTypeDetails{
+  type: string;
+  marks: number;
+}
+
+export interface subjectDetails{
+  name: string;
+  level: string;
+  description: string;
+  code: string;
+  credits: number;
+  examType: examTypeDetails[];
+}
+
+// dummy subject details
+export const subjectDetailsData:  subjectDetails = {
+  name: "Computer Programming",
+  level: "Hard",
+  description: "Introduction to programming concepts using Python. Covers variables, control structures, functions, and basic data structures.",
+  code: "CT401",
+  credits: 3,
+  examType: [
+    { type: "Theory", marks: 60 },
+    { type: "Pratical", marks: 40 }
+  ]
+};
