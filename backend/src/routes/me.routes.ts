@@ -1,6 +1,8 @@
 import express from "express"
 
-import { requireAuth } from "../middleware/auth.middleware.js"
+import { requireAuth } from "../middlewares/auth.middleware.js"
+import { validate } from "../middlewares/validate.middleware.js";
+import { markNoteAsRecentlyAccessedSchema, markNoteAsArchivedSchema, unmarkNoteAsArchivedSchema } from "../schemas/me.schema.js"
 import * as meController from "../controllers/me.controller.js"
 
 /**
@@ -23,24 +25,48 @@ router.use(requireAuth);
 
 
 // Get the currently authenticated user's profile
-router.get("/", meController.getCurrentUserProfile);
+router.get(
+    "/",
+    meController.getCurrentUserProfile
+);
 
 // Get notes uploaded by the current user
-router.get("/notes", meController.getCurrentUserUploadedNotes);
+router.get(
+    "/notes",
+    meController.getCurrentUserUploadedNotes
+);
 
 // Get recently accessed notes by the current user
-router.get("/recent-notes", meController.getCurrentUserRecentlyAccessedNotes);
+router.get(
+    "/recent-notes",
+    meController.getCurrentUserRecentlyAccessedNotes
+);
 
 // Get bookmarked/archived notes by the current user
-router.get("/archived-notes", meController.getCurrentUserArchivedNotes);
+router.get(
+    "/archived-notes",
+    meController.getCurrentUserArchivedNotes
+);
 
 // Mark a note as recently accessed by the current user
-router.post("/notes/:noteId/recent", meController.markNoteAsRecentlyAccessed);
+router.post(
+    "/notes/:noteId/recent",
+    validate(markNoteAsRecentlyAccessedSchema),
+    meController.markNoteAsRecentlyAccessed
+);
 
 // Mark a note as bookmarked/archived by the current user
-router.post("/notes/:noteId/archive", meController.markNoteAsArchived);
+router.post(
+    "/notes/:noteId/archive",
+    validate(markNoteAsArchivedSchema),
+    meController.markNoteAsArchived
+);
 
 // Unmark a note as bookmarked/archived by the current user
-router.delete("/notes/:noteId/archive", meController.unmarkNoteAsArchived);
+router.delete(
+    "/notes/:noteId/archive",
+    validate(unmarkNoteAsArchivedSchema),
+    meController.unmarkNoteAsArchived
+);
 
 export default router;

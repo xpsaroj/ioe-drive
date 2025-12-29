@@ -3,7 +3,7 @@ import type { Request, Response } from "express";
 import type { WebhookEvent } from "@clerk/express/webhooks"
 import bodyParser from "body-parser";
 
-import { verifyClerkWebhook } from "../middleware/webhook.middleware.js";
+import { verifyClerkWebhook } from "../middlewares/webhook.middleware.js";
 import {
     handleUserCreated,
     handleUserUpdated,

@@ -9,6 +9,8 @@ import meRoutes from "./routes/me.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import notesRoutes from "./routes/notes.routes.js";
 
+import { errorHandler } from "./middlewares/error.middleware.js";
+
 const app = express();
 
 // CORS Configuration
@@ -56,6 +58,17 @@ app.get("/", (_req, res) => {
         timestamp: new Date().toISOString(),
     })
 });
+
+// 404 Handler
+app.use((_req, res) => {
+    res.status(404).json({
+        success: false,
+        error: "Route not found"
+    });
+});
+
+// Error Handling Middleware
+app.use(errorHandler)
 
 export { app };
 export default app;
