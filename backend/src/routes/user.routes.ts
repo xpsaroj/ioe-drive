@@ -1,6 +1,8 @@
 import express from "express"
 
-import { requireAuth } from "../middleware/auth.middleware.js"
+import { requireAuth } from "../middlewares/auth.middleware.js"
+import { validate } from "../middlewares/validate.middleware.js"
+import { getUserProfileByIdSchema } from "../schemas/users.schema.js"
 import * as userController from "../controllers/user.controller.js"
 
 /**
@@ -16,7 +18,10 @@ const router = express.Router()
 router.use(requireAuth);
 
 
-// Get a user's profile
-router.get("/:userId", userController.getUserProfileById);
+// Get a user's profile by ID
+router.get("/:userId",
+    validate(getUserProfileByIdSchema),
+    userController.getUserProfileById
+);
 
 export default router;
