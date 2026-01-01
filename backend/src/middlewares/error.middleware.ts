@@ -25,6 +25,7 @@ export const errorHandler = (err: Error, _req: Request, res: Response, _next: Ne
 
     if (err instanceof ZodError) {
         sendErrorResponse(res, formatZodError(err), 400);
+        return;
     }
 
     const statusCode = res.statusCode !== 200 ? res.statusCode : 500;

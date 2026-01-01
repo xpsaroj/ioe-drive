@@ -3,6 +3,7 @@ import { desc, eq, and } from "drizzle-orm";
 
 import { usersTable, userRecentNotesTable, userArchivedNotesTable, notesTable } from "../db/schema.js";
 import { db } from "../db/index.js";
+import { sendSuccessResponse, sendErrorResponse } from "../lib/response.js";
 
 /**
  * Get the currently authenticated user's profile.
@@ -28,22 +29,13 @@ export const getCurrentUserProfile = async (req: Request, res: Response) => {
             })
 
         if (!user) {
-            return res.status(404).json({
-                success: false,
-                message: "User not found"
-            });
+            return sendErrorResponse(res, "User not found", 404);
         }
 
-        return res.json({
-            success: true,
-            user,
-        });
+        return sendSuccessResponse(res, user);
     } catch (e) {
         console.error("Error fetching current user profile:", e);
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error"
-        });
+        return sendErrorResponse(res, "Internal server error", 500);
     }
 };
 
@@ -76,16 +68,10 @@ export const getCurrentUserUploadedNotes = async (req: Request, res: Response) =
                 }
             });
 
-        return res.json({
-            success: true,
-            notes,
-        });
+        return sendSuccessResponse(res, notes);
     } catch (e) {
         console.error("Error fetching current user uploaded notes:", e);
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error"
-        });
+        return sendErrorResponse(res, "Internal server error", 500);
     }
 };
 
@@ -124,16 +110,10 @@ export const getCurrentUserRecentlyAccessedNotes = async (req: Request, res: Res
                 limit: 5,
             });
 
-        return res.json({
-            success: true,
-            notes,
-        });
+        return sendSuccessResponse(res, notes);
     } catch (e) {
         console.error("Error fetching current user recently accessed notes:", e);
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error"
-        });
+        return sendErrorResponse(res, "Internal server error", 500);
     }
 };
 
@@ -172,16 +152,10 @@ export const getCurrentUserArchivedNotes = async (req: Request, res: Response) =
                 limit: 10,
             });
 
-        return res.json({
-            success: true,
-            notes,
-        });
+        return sendSuccessResponse(res, notes);
     } catch (e) {
         console.error("Error fetching current user archived notes:", e);
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error"
-        });
+        return sendErrorResponse(res, "Internal server error", 500);
     }
 };
 
@@ -195,23 +169,13 @@ export const markNoteAsRecentlyAccessed = async (req: Request, res: Response) =>
     const userId = req.authUser!.id;
     const noteId = Number(req.params.noteId);
 
-    if (isNaN(noteId)) {
-        return res.status(400).json({
-            success: false,
-            message: "Invalid note ID"
-        });
-    }
-
     try {
         const note = await db.query.notesTable.findFirst({
             where: eq(notesTable.id, noteId),
         });
 
         if (!note) {
-            return res.status(404).json({
-                success: false,
-                message: "Note not found"
-            });
+            return sendErrorResponse(res, "Note not found", 404);
         }
 
         await db.insert(userRecentNotesTable)
@@ -226,15 +190,12 @@ export const markNoteAsRecentlyAccessed = async (req: Request, res: Response) =>
                 },
             })
 
-        return res.json({
-            success: true,
-        })
+        return sendSuccessResponse(res, {
+            message: "Note marked as recently accessed"
+        });
     } catch (e) {
         console.error("Error marking note as recently accessed:", e);
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error"
-        });
+        return sendErrorResponse(res, "Internal server error", 500);
     }
 };
 
@@ -247,23 +208,13 @@ export const markNoteAsArchived = async (req: Request, res: Response) => {
     const userId = req.authUser!.id;
     const noteId = Number(req.params.noteId);
 
-    if (isNaN(noteId)) {
-        return res.status(400).json({
-            success: false,
-            message: "Invalid note ID"
-        });
-    }
-
     try {
         const note = await db.query.notesTable.findFirst({
             where: eq(notesTable.id, noteId),
         });
 
         if (!note) {
-            return res.status(404).json({
-                success: false,
-                message: "Note not found"
-            });
+            return sendErrorResponse(res, "Note not found", 404);
         }
 
         await db.insert(userArchivedNotesTable)
@@ -273,15 +224,12 @@ export const markNoteAsArchived = async (req: Request, res: Response) => {
             })
             .onConflictDoNothing();
 
-        return res.json({
-            success: true,
+        return sendSuccessResponse(res, {
+            message: "Note marked as archived"
         });
     } catch (e) {
         console.error("Error marking note as archived:", e);
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error"
-        });
+        return sendErrorResponse(res, "Internal server error", 500);
     }
 };
 
@@ -294,27 +242,17 @@ export const unmarkNoteAsArchived = async (req: Request, res: Response) => {
     const userId = req.authUser!.id;
     const noteId = Number(req.params.noteId);
 
-    if (isNaN(noteId)) {
-        return res.status(400).json({
-            success: false,
-            message: "Invalid note ID"
-        });
-    }
-
     try {
         await db.delete(userArchivedNotesTable)
             .where(
                 and(eq(userArchivedNotesTable.userId, Number(userId)), eq(userArchivedNotesTable.noteId, noteId)),
             );
 
-        return res.json({
-            success: true,
+        return sendSuccessResponse(res, {
+            message: "Note unmarked as archived"
         });
     } catch (e) {
         console.error("Error unmarking note as archived:", e);
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error"
-        });
+        return sendErrorResponse(res, "Internal server error", 500);
     }
 };
