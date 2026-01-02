@@ -10,7 +10,9 @@ import {
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
-export const SemesterEnum = pgEnum("semester_enum", ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"]);
+export const SemesterEnum = pgEnum("semester_enum", ["1", "2", "3", "4", "5", "6", "7", "8"]);
+
+export type Semester = (typeof SemesterEnum.enumValues)[number];
 
 // Tables
 export const webhookEventsTable = pgTable("webhook_events", {
