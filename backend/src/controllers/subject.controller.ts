@@ -18,12 +18,32 @@ export const getSubjectsByDepartmentAndSemester = async (req: Request, res: Resp
         const subjects = await db
             .query.subjectOfferingsTable
             .findMany({
-                where: (fields, {eq, and}) => (
+                where: (fields, { eq, and }) => (
                     and(
                         eq(fields.departmentId, departmentId),
                         semester ? eq(fields.semester, semester) : undefined
                     )
-                )
+                ),
+                columns: {
+                    id: true,
+                    subjectId: true,
+                    semester: true,
+                    departmentId: true,
+                    year: true,
+                },
+                with: {
+                    subject: {
+                        columns: {
+                            id: true,
+                            code: true,
+                            name: true,
+                            departmentId: true,
+                        },
+                        with: {
+                            department: true
+                        }
+                    },
+                }
             });
 
         return sendSuccessResponse(res, subjects);
@@ -47,6 +67,26 @@ export const getSubjectDetails = async (req: Request, res: Response) => {
             .query.subjectOfferingsTable
             .findFirst({
                 where: (fields, { eq }) => eq(fields.id, subjectId),
+                columns: {
+                    id: true,
+                    subjectId: true,
+                    semester: true,
+                    departmentId: true,
+                    year: true,
+                },
+                with: {
+                    subject: {
+                        columns: {
+                            id: true,
+                            code: true,
+                            name: true,
+                            departmentId: true,
+                        },
+                        with: {
+                            department: true
+                        }
+                    },
+                }
             });
 
         if (!subject) {
