@@ -10,13 +10,15 @@ import {
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
-export const SemesterEnum = pgEnum("semester_enum", ["1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th"]);
+export const SemesterEnum = pgEnum("semester_enum", ["1", "2", "3", "4", "5", "6", "7", "8"]);
+
+export type Semester = (typeof SemesterEnum.enumValues)[number];
 
 // Tables
 export const webhookEventsTable = pgTable("webhook_events", {
-  svixId: text("svix_id").primaryKey(),
-  eventType: varchar("event_type", { length: 255 }).notNull(),
-  receivedAt: timestamp("received_at").defaultNow(),
+    svixId: text("svix_id").primaryKey(),
+    eventType: varchar("event_type", { length: 255 }).notNull(),
+    receivedAt: timestamp("received_at").defaultNow(),
 });
 
 export const departmentsTable = pgTable("departments", {
@@ -30,7 +32,7 @@ export const subjectsTable = pgTable("subjects", {
     code: varchar("code", { length: 10 }).notNull().unique(),
     name: varchar("name", { length: 255 }).notNull(),
     departmentId: integer("department_id")
-        .references(() => departmentsTable.id, { onDelete: "cascade" })
+        .references(() => departmentsTable.id)
         .notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull().$onUpdate(() => new Date()),
@@ -39,11 +41,11 @@ export const subjectsTable = pgTable("subjects", {
 export const subjectOfferingsTable = pgTable("subject_offerings", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     subjectId: integer("subject_id")
-        .references(() => subjectsTable.id, { onDelete: "cascade" })
+        .references(() => subjectsTable.id)
         .notNull(),
     semester: SemesterEnum("semester").notNull(),
     departmentId: integer("department_id")
-        .references(() => departmentsTable.id, { onDelete: "set null" })
+        .references(() => departmentsTable.id)
         .notNull(),
     year: integer("year").notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -91,11 +93,10 @@ export const notesTable = pgTable("notes", {
     title: text("title").notNull(),
     description: text("description").notNull(),
     subjectId: integer("subject_id")
-        .references(() => subjectsTable.id, { onDelete: "set null" })
+        .references(() => subjectsTable.id)
         .notNull(),
     uploadedBy: integer("uploaded_by")
-        .references(() => usersTable.id, { onDelete: "set null" })
-        .notNull(),
+        .references(() => usersTable.id, { onDelete: "set null" }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull().$onUpdate(() => new Date()),
 },

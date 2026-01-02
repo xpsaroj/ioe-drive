@@ -8,6 +8,8 @@ import webhookRoutes from "./routes/webhook.routes.js";
 import meRoutes from "./routes/me.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import notesRoutes from "./routes/notes.routes.js";
+import departmentRoutes from "./routes/department.routes.js";
+import subjectRoutes from "./routes/subject.routes.js";
 
 import { errorHandler } from "./middlewares/error.middleware.js";
 
@@ -41,6 +43,8 @@ app.use(express.json());
 app.use("/api/me", meRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/notes", notesRoutes);
+app.use("/api/departments", departmentRoutes);
+app.use("/api/subjects", subjectRoutes);
 
 // Health Check Route
 app.get("/health", (_req, res) => {
