@@ -4,6 +4,7 @@ import { eq } from "drizzle-orm";
 
 import { db } from "../db/index.js";
 import { usersTable } from "../db/schema.js";
+import { sendErrorResponse } from "../lib/response.js";
 
 /**
  * Middleware to require authentication for protected routes.
@@ -20,28 +21,19 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
         const authHeader = req.headers.authorization;
 
         if (!authHeader) {
-            return res.status(401).json({
-                success: false,
-                message: "Authorization header missing"
-            });
+            return sendErrorResponse(res, "Authorization header missing", 401);
         }
 
         const token = authHeader.split(" ")[1];
 
         if (!token) {
-            return res.status(401).json({
-                success: false,
-                message: "Token missing from Authorization header"
-            });
+            return sendErrorResponse(res, "Token missing from Authorization header", 401);
         }
 
         const { userId, isAuthenticated } = getAuth(req);
 
         if (!isAuthenticated || !userId) {
-            return res.status(401).json({
-                success: false,
-                message: 'User not authenticated'
-            })
+            return sendErrorResponse(res, "User not authenticated", 401);
         }
 
         const user = await db
@@ -55,10 +47,7 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
             });
 
         if (!user) {
-            return res.status(401).json({
-                success: false,
-                message: "User not registered in database"
-            });
+            return sendErrorResponse(res, "User not registered in database", 401);
         }
 
         req.authUser = user;
@@ -66,9 +55,6 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
         next();
     } catch (error) {
         console.error("API authentication error:", error);
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error during authentication"
-        });
+        return sendErrorResponse(res, "Internal server error", 500);
     }
 }

@@ -4,6 +4,7 @@ import cors from "cors";
 import { clerkMiddleware } from "@clerk/express"
 
 import { isTest, isDev, env } from "./config/env.js";
+import healthRoutes from "./routes/health.routes.js";
 import webhookRoutes from "./routes/webhook.routes.js";
 import meRoutes from "./routes/me.routes.js";
 import userRoutes from "./routes/user.routes.js";
@@ -40,28 +41,12 @@ app.use(clerkMiddleware());
 app.use(express.json());
 
 // API Routes
+app.use("/health", healthRoutes);
 app.use("/api/me", meRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/notes", notesRoutes);
 app.use("/api/departments", departmentRoutes);
 app.use("/api/subjects", subjectRoutes);
-
-// Health Check Route
-app.get("/health", (_req, res) => {
-    res.status(200).json({
-        message: "Server up and running.",
-        status: "ok",
-        timestamp: new Date().toISOString(),
-    })
-})
-
-app.get("/", (_req, res) => {
-    res.json({
-        message: "Server up and running.",
-        status: "ok",
-        timestamp: new Date().toISOString(),
-    })
-});
 
 // 404 Handler
 app.use((_req, res) => {
