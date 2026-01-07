@@ -190,9 +190,7 @@ export const markNoteAsRecentlyAccessed = async (req: Request, res: Response) =>
                 },
             })
 
-        return sendSuccessResponse(res, {
-            message: "Note marked as recently accessed"
-        });
+        return sendSuccessResponse(res, null, "Note marked as recently accessed");
     } catch (e) {
         console.error("Error marking note as recently accessed:", e);
         return sendErrorResponse(res, "Internal server error", 500);
@@ -224,9 +222,7 @@ export const markNoteAsArchived = async (req: Request, res: Response) => {
             })
             .onConflictDoNothing();
 
-        return sendSuccessResponse(res, {
-            message: "Note marked as archived"
-        });
+        return sendSuccessResponse(res, null, "Note marked as archived");
     } catch (e) {
         console.error("Error marking note as archived:", e);
         return sendErrorResponse(res, "Internal server error", 500);
@@ -248,9 +244,7 @@ export const unmarkNoteAsArchived = async (req: Request, res: Response) => {
                 and(eq(userArchivedNotesTable.userId, Number(userId)), eq(userArchivedNotesTable.noteId, noteId)),
             );
 
-        return sendSuccessResponse(res, {
-            message: "Note unmarked as archived"
-        });
+        return sendSuccessResponse(res, null, "Note unmarked as archived");
     } catch (e) {
         console.error("Error unmarking note as archived:", e);
         return sendErrorResponse(res, "Internal server error", 500);
