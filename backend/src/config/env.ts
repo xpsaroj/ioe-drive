@@ -2,13 +2,13 @@ import dotenv from "dotenv";
 import { z } from "zod";
 
 // Determine NODE_ENV first
-const nodeEnv = process.env.NODE_ENV ?? "development";
+const nodeEnv = process.env.NODE_ENV;
 
 // Load proper .env file
-if (nodeEnv === "development") {
-    dotenv.config({ path: ".env.local" });
-} else if (nodeEnv === "test") {
+if (nodeEnv === "test") {
     dotenv.config({ path: ".env.test" });
+} else if (nodeEnv === "development" || !nodeEnv) {
+    dotenv.config({ path: ".env.local" });
 }
 
 /**
