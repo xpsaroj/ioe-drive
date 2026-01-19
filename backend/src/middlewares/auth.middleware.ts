@@ -4,7 +4,7 @@ import { eq } from "drizzle-orm";
 
 import { db } from "../db/index.js";
 import { usersTable } from "../db/schema.js";
-import { sendErrorResponse } from "../lib/response.js";
+import { UnauthorizedError } from "../lib/errors.js";
 
 /**
  * Middleware to require authentication for protected routes.
@@ -21,21 +21,21 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
         const authHeader = req.headers.authorization;
 
         if (!authHeader) {
-            return sendErrorResponse(res, "Authorization header missing", 401);
+            throw new UnauthorizedError("Authorization header missing");
         }
 
         const token = authHeader.split(" ")[1];
 
         if (!token) {
-            return sendErrorResponse(res, "Token missing from Authorization header", 401);
+            throw new UnauthorizedError("Token missing from Authorization header");
         }
 
         const { userId, isAuthenticated } = getAuth(req);
 
         if (!isAuthenticated || !userId) {
-            return sendErrorResponse(res, "User not authenticated", 401);
+            throw new UnauthorizedError("User not authenticated");
         }
-
+        
         const user = await db
             .query.usersTable
             .findFirst({
@@ -47,14 +47,13 @@ export const requireAuth = async (req: Request, res: Response, next: NextFunctio
             });
 
         if (!user) {
-            return sendErrorResponse(res, "User not registered in database", 401);
+            throw new UnauthorizedError("User not registered in database");
         }
 
         req.authUser = user;
 
         next();
     } catch (error) {
-        console.error("API authentication error:", error);
-        return sendErrorResponse(res, "Internal server error", 500);
+        next(error);
     }
 }

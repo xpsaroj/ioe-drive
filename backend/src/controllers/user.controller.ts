@@ -1,9 +1,10 @@
-import type { Request, Response } from "express";
+import type { Request, Response, NextFunction } from "express";
 
 import { usersTable } from "../db/schema.js";
 import { db } from "../db/index.js";
 import { eq } from "drizzle-orm";
-import { sendSuccessResponse, sendErrorResponse } from "../lib/response.js";
+import { sendSuccessResponse } from "../lib/response.js";
+import { NotFoundError } from "../lib/errors.js";
 
 /**
  * Get a user's profile by ID.
@@ -11,7 +12,7 @@ import { sendSuccessResponse, sendErrorResponse } from "../lib/response.js";
  * @param res Response
  * @returns User profile JSON or 404 if not found or 500 on error
  */
-export const getUserProfileById = async (req: Request, res: Response) => {
+export const getUserProfileById = async (req: Request, res: Response, next: NextFunction) => {
     const userId = Number(req.params.userId);
 
     try {
@@ -44,12 +45,11 @@ export const getUserProfileById = async (req: Request, res: Response) => {
             });
 
         if (!user) {
-            return sendErrorResponse(res, "User not found", 404);
+            throw new NotFoundError("User not found");
         }
 
         return sendSuccessResponse(res, user);
     } catch (e) {
-        console.error("Error fetching user profile by ID:", e);
-        return sendErrorResponse(res, "Internal server error", 500);
+        next(e);
     }
 };

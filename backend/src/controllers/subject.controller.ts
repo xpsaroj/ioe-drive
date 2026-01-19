@@ -1,8 +1,9 @@
-import type { Request, Response } from "express";
+import type { Request, Response, NextFunction } from "express";
 
 import type { Semester } from "../db/schema.js";
 import { db } from "../db/index.js";
-import { sendSuccessResponse, sendErrorResponse } from "../lib/response.js";
+import { sendSuccessResponse } from "../lib/response.js";
+import { NotFoundError } from "../lib/errors.js";
 
 /**
  * Get subjects by department and semester.
@@ -10,7 +11,7 @@ import { sendSuccessResponse, sendErrorResponse } from "../lib/response.js";
  * @param res Response
  * @returns List of subjects or 500 on error
  */
-export const getSubjectsByDepartmentAndSemester = async (req: Request, res: Response) => {
+export const getSubjectsByDepartmentAndSemester = async (req: Request, res: Response, next: NextFunction) => {
     const departmentId = Number(req.query.departmentId);
     const semester = req.query.semester as Semester | undefined;
 
@@ -48,8 +49,7 @@ export const getSubjectsByDepartmentAndSemester = async (req: Request, res: Resp
 
         return sendSuccessResponse(res, subjects);
     } catch (e) {
-        console.error("Error fetching subjects:", e);
-        return sendErrorResponse(res, "Internal server error", 500);
+        next(e);
     }
 };
 
@@ -59,7 +59,7 @@ export const getSubjectsByDepartmentAndSemester = async (req: Request, res: Resp
  * @param res Response
  * @returns Subject details or 500 on error
  */
-export const getSubjectDetails = async (req: Request, res: Response) => {
+export const getSubjectDetails = async (req: Request, res: Response, next: NextFunction) => {
     const subjectId = Number(req.params.subjectId);
 
     try {
@@ -90,12 +90,11 @@ export const getSubjectDetails = async (req: Request, res: Response) => {
             });
 
         if (!subject) {
-            return sendErrorResponse(res, "Subject not found", 404);
+            throw new NotFoundError("Subject not found");
         }
 
         return sendSuccessResponse(res, subject);
     } catch (e) {
-        console.error("Error fetching subject details:", e);
-        return sendErrorResponse(res, "Internal server error", 500);
+        next(e);
     }
 };
