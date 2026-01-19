@@ -1,9 +1,10 @@
-import type { Request, Response } from "express";
+import type { Request, Response, NextFunction } from "express";
 import { desc, eq, and } from "drizzle-orm";
 
 import { usersTable, userRecentNotesTable, userArchivedNotesTable, notesTable } from "../db/schema.js";
 import { db } from "../db/index.js";
-import { sendSuccessResponse, sendErrorResponse } from "../lib/response.js";
+import { sendSuccessResponse } from "../lib/response.js";
+import { NotFoundError } from "../lib/errors.js";
 
 /**
  * Get the currently authenticated user's profile.
@@ -11,7 +12,7 @@ import { sendSuccessResponse, sendErrorResponse } from "../lib/response.js";
  * @param res Response
  * @returns User profile or 404 if not found or 500 on error
  */
-export const getCurrentUserProfile = async (req: Request, res: Response) => {
+export const getCurrentUserProfile = async (req: Request, res: Response, next: NextFunction) => {
     const userId = req.authUser!.id;
 
     try {
@@ -29,13 +30,12 @@ export const getCurrentUserProfile = async (req: Request, res: Response) => {
             })
 
         if (!user) {
-            return sendErrorResponse(res, "User not found", 404);
+            throw new NotFoundError("User not found");
         }
 
         return sendSuccessResponse(res, user);
     } catch (e) {
-        console.error("Error fetching current user profile:", e);
-        return sendErrorResponse(res, "Internal server error", 500);
+        next(e);
     }
 };
 
@@ -45,7 +45,7 @@ export const getCurrentUserProfile = async (req: Request, res: Response) => {
  * @param res Response
  * @returns Notes uploaded by the user or 500 on error
  */
-export const getCurrentUserUploadedNotes = async (req: Request, res: Response) => {
+export const getCurrentUserUploadedNotes = async (req: Request, res: Response, next: NextFunction) => {
     const userId = req.authUser!.id;
 
     try {
@@ -70,8 +70,7 @@ export const getCurrentUserUploadedNotes = async (req: Request, res: Response) =
 
         return sendSuccessResponse(res, notes);
     } catch (e) {
-        console.error("Error fetching current user uploaded notes:", e);
-        return sendErrorResponse(res, "Internal server error", 500);
+        next(e);
     }
 };
 
@@ -81,7 +80,7 @@ export const getCurrentUserUploadedNotes = async (req: Request, res: Response) =
  * @param res Response
  * @returns Recently accessed notes or 500 on error
  */
-export const getCurrentUserRecentlyAccessedNotes = async (req: Request, res: Response) => {
+export const getCurrentUserRecentlyAccessedNotes = async (req: Request, res: Response, next: NextFunction) => {
     const userId = req.authUser!.id;
 
     try {
@@ -112,8 +111,7 @@ export const getCurrentUserRecentlyAccessedNotes = async (req: Request, res: Res
 
         return sendSuccessResponse(res, notes);
     } catch (e) {
-        console.error("Error fetching current user recently accessed notes:", e);
-        return sendErrorResponse(res, "Internal server error", 500);
+        next(e);
     }
 };
 
@@ -123,7 +121,7 @@ export const getCurrentUserRecentlyAccessedNotes = async (req: Request, res: Res
  * @param res Response
  * @returns Archived notes or 500 on error
  */
-export const getCurrentUserArchivedNotes = async (req: Request, res: Response) => {
+export const getCurrentUserArchivedNotes = async (req: Request, res: Response, next: NextFunction) => {
     const userId = req.authUser!.id;
 
     try {
@@ -154,8 +152,7 @@ export const getCurrentUserArchivedNotes = async (req: Request, res: Response) =
 
         return sendSuccessResponse(res, notes);
     } catch (e) {
-        console.error("Error fetching current user archived notes:", e);
-        return sendErrorResponse(res, "Internal server error", 500);
+        next(e);
     }
 };
 
@@ -165,7 +162,7 @@ export const getCurrentUserArchivedNotes = async (req: Request, res: Response) =
  * @param res Response
  * @returns Success message or 400 on invalid note ID or 404 if note not found or 500 on error
  */
-export const markNoteAsRecentlyAccessed = async (req: Request, res: Response) => {
+export const markNoteAsRecentlyAccessed = async (req: Request, res: Response, next: NextFunction) => {
     const userId = req.authUser!.id;
     const noteId = Number(req.params.noteId);
 
@@ -175,7 +172,7 @@ export const markNoteAsRecentlyAccessed = async (req: Request, res: Response) =>
         });
 
         if (!note) {
-            return sendErrorResponse(res, "Note not found", 404);
+            throw new NotFoundError("Note not found");
         }
 
         await db.insert(userRecentNotesTable)
@@ -192,8 +189,7 @@ export const markNoteAsRecentlyAccessed = async (req: Request, res: Response) =>
 
         return sendSuccessResponse(res, null, "Note marked as recently accessed");
     } catch (e) {
-        console.error("Error marking note as recently accessed:", e);
-        return sendErrorResponse(res, "Internal server error", 500);
+        next(e);
     }
 };
 
@@ -202,7 +198,7 @@ export const markNoteAsRecentlyAccessed = async (req: Request, res: Response) =>
  * @param res Response
  * @returns Success message or 400 on invalid note ID or 404 if note not found or 500 on error
  */
-export const markNoteAsArchived = async (req: Request, res: Response) => {
+export const markNoteAsArchived = async (req: Request, res: Response, next: NextFunction) => {
     const userId = req.authUser!.id;
     const noteId = Number(req.params.noteId);
 
@@ -212,7 +208,7 @@ export const markNoteAsArchived = async (req: Request, res: Response) => {
         });
 
         if (!note) {
-            return sendErrorResponse(res, "Note not found", 404);
+            throw new NotFoundError("Note not found");
         }
 
         await db.insert(userArchivedNotesTable)
@@ -224,8 +220,7 @@ export const markNoteAsArchived = async (req: Request, res: Response) => {
 
         return sendSuccessResponse(res, null, "Note marked as archived");
     } catch (e) {
-        console.error("Error marking note as archived:", e);
-        return sendErrorResponse(res, "Internal server error", 500);
+        next(e);
     }
 };
 
@@ -234,7 +229,7 @@ export const markNoteAsArchived = async (req: Request, res: Response) => {
  * @param res Response
  * @returns Success message or 400 on invalid note ID or 500 on error
  */
-export const unmarkNoteAsArchived = async (req: Request, res: Response) => {
+export const unmarkNoteAsArchived = async (req: Request, res: Response, next: NextFunction) => {
     const userId = req.authUser!.id;
     const noteId = Number(req.params.noteId);
 
@@ -246,7 +241,6 @@ export const unmarkNoteAsArchived = async (req: Request, res: Response) => {
 
         return sendSuccessResponse(res, null, "Note unmarked as archived");
     } catch (e) {
-        console.error("Error unmarking note as archived:", e);
-        return sendErrorResponse(res, "Internal server error", 500);
+        next(e);
     }
 };

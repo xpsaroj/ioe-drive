@@ -1,7 +1,7 @@
-import type { Request, Response } from "express";
+import type { NextFunction, Request, Response } from "express";
 
 import { db } from "../db/index.js";
-import { sendSuccessResponse, sendErrorResponse } from "../lib/response.js";
+import { sendSuccessResponse } from "../lib/response.js";
 
 /**
  * Get all departments.
@@ -9,7 +9,7 @@ import { sendSuccessResponse, sendErrorResponse } from "../lib/response.js";
  * @param res Response
  * @returns List of departments or 500 on error
  */
-export const getAllDepartments = async (_req: Request, res: Response) => {
+export const getAllDepartments = async (_req: Request, res: Response, next: NextFunction) => {
     try {
         const departments = await db
             .query.departmentsTable
@@ -17,7 +17,6 @@ export const getAllDepartments = async (_req: Request, res: Response) => {
 
         return sendSuccessResponse(res, departments);
     } catch (e) {
-        console.error("Error fetching departments:", e);
-        return sendErrorResponse(res, "Internal server error", 500);
+        next(e);
     }
 };
