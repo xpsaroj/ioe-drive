@@ -1,6 +1,6 @@
 import { z } from "zod"
 
-import { SemesterEnum } from "../db/schema.js"
+import { SemesterEnum } from "../../db/schema.js"
 
 export const getSubjectsSchema = z.object({
     query: z.object({

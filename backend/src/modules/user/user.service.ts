@@ -1,22 +1,21 @@
-import type { Request, Response, NextFunction } from "express";
-
-import { usersTable } from "../db/schema.js";
-import { db } from "../db/index.js";
 import { eq } from "drizzle-orm";
-import { sendSuccessResponse } from "../lib/response.js";
-import { NotFoundError } from "../lib/errors.js";
+import { db } from "../../db/index.js";
+
+import { usersTable } from "../../db/schema.js";
+import { NotFoundError } from "../../lib/errors.js";
 
 /**
- * Get a user's profile by ID.
- * @param req Request
- * @param res Response
- * @returns User profile JSON or 404 if not found or 500 on error
+ * User Service
+ * - Handles business logic related to users.
  */
-export const getUserProfileById = async (req: Request, res: Response, next: NextFunction) => {
-    const userId = Number(req.params.userId);
-
-    try {
-        const user = await db
+export class UserService {
+    /**
+     * Retrieves a user's profile by their ID.
+     * @param userId ID of the user to retrieve
+     * @returns User profile
+     */
+    async getUserProfileById(userId: number) {
+        const userProfile = await db
             .query.usersTable
             .findFirst({
                 where: eq(usersTable.id, userId),
@@ -44,12 +43,12 @@ export const getUserProfileById = async (req: Request, res: Response, next: Next
                 }
             });
 
-        if (!user) {
+        if (!userProfile) {
             throw new NotFoundError("User not found");
         }
 
-        return sendSuccessResponse(res, user);
-    } catch (e) {
-        next(e);
+        return userProfile;
     }
-};
+}
+
+export const userService = new UserService();

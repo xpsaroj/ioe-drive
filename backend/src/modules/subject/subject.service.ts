@@ -1,22 +1,20 @@
-import type { Request, Response, NextFunction } from "express";
-
-import type { Semester } from "../db/schema.js";
-import { db } from "../db/index.js";
-import { sendSuccessResponse } from "../lib/response.js";
-import { NotFoundError } from "../lib/errors.js";
+import { db } from "../../db/index.js";
+import type { Semester } from "../../db/schema.js";
+import { NotFoundError } from "../../lib/errors.js";
 
 /**
- * Get subjects by department and semester.
- * @param req Request
- * @param res Response
- * @returns List of subjects or 500 on error
+ * Subject Service
+ * - Handles business logic related to subjects.
  */
-export const getSubjectsByDepartmentAndSemester = async (req: Request, res: Response, next: NextFunction) => {
-    const departmentId = Number(req.query.departmentId);
-    const semester = req.query.semester as Semester | undefined;
-
-    try {
-        const subjects = await db
+export class SubjectService {
+    /**
+     * Get subjects by department and semester.
+     * @param departmentId Department ID
+     * @param semester Semester (optional)
+     * @returns List of subjects
+     */
+    async getSubjectsByDepartmentAndSemester(departmentId: number, semester?: Semester) {
+        return await db
             .query.subjectOfferingsTable
             .findMany({
                 where: (fields, { eq, and }) => (
@@ -45,24 +43,15 @@ export const getSubjectsByDepartmentAndSemester = async (req: Request, res: Resp
                         }
                     },
                 }
-            });
-
-        return sendSuccessResponse(res, subjects);
-    } catch (e) {
-        next(e);
+            })
     }
-};
 
-/**
- * Get subject details by subject ID.
- * @param req Request
- * @param res Response
- * @returns Subject details or 500 on error
- */
-export const getSubjectDetails = async (req: Request, res: Response, next: NextFunction) => {
-    const subjectId = Number(req.params.subjectId);
-
-    try {
+    /**
+     * Get subject details by subject ID.
+     * @param subjectId Subject ID
+     * @returns Details of the subject
+     */
+    async getSubjectDetails(subjectId: number) {
         const subject = await db
             .query.subjectOfferingsTable
             .findFirst({
@@ -93,8 +82,8 @@ export const getSubjectDetails = async (req: Request, res: Response, next: NextF
             throw new NotFoundError("Subject not found");
         }
 
-        return sendSuccessResponse(res, subject);
-    } catch (e) {
-        next(e);
+        return subject;
     }
-};
+}
+
+export const subjectService = new SubjectService();

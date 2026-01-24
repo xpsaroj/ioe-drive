@@ -28,5 +28,5 @@ export const updateNoteSchema = z.object({
     ),
 });
 
-export type CreateNoteInput = z.infer<typeof createNoteSchema>["body"];
+export type CreateNoteInput = z.infer<typeof createNoteSchema>["body"] & { uploadedBy: number };
 export type UpdateNoteInput = z.infer<typeof updateNoteSchema>["body"];
