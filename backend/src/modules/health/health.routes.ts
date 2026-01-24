@@ -1,5 +1,6 @@
 import { Router } from "express";
-import * as healthController from "../controllers/health.controller.js";
+
+import { healthCheck } from "./health.controller.js";
 
 /**
  * Health-related routes.
@@ -9,6 +10,10 @@ import * as healthController from "../controllers/health.controller.js";
  */
 const router = Router();
 
-router.get("/", healthController.healthCheck);
+/**
+ * GET /health
+ * - Check the health of the server
+ */
+router.get("/", healthCheck);
 
 export default router;

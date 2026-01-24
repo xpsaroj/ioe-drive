@@ -4,13 +4,9 @@ import cors from "cors";
 import { clerkMiddleware } from "@clerk/express"
 
 import { isTest, isDev, env } from "./config/env.js";
-import healthRoutes from "./routes/health.routes.js";
-import webhookRoutes from "./routes/webhook.routes.js";
-import meRoutes from "./routes/me.routes.js";
-import userRoutes from "./routes/user.routes.js";
-import notesRoutes from "./routes/notes.routes.js";
-import departmentRoutes from "./routes/department.routes.js";
-import subjectRoutes from "./routes/subject.routes.js";
+import healthRoutes from "./modules/health/health.routes.js";
+import webhookRoutes from "./modules/webhook/webhook.routes.js";
+import apiRoutes from "./routes/index.js";
 
 import { errorHandler } from "./middlewares/error.middleware.js";
 
@@ -40,13 +36,11 @@ app.use(clerkMiddleware());
 // Global Middlewares
 app.use(express.json());
 
-// API Routes
+// Health Check Route
 app.use("/health", healthRoutes);
-app.use("/api/me", meRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/notes", notesRoutes);
-app.use("/api/departments", departmentRoutes);
-app.use("/api/subjects", subjectRoutes);
+
+// API Routes
+app.use("/api", apiRoutes)
 
 // 404 Handler
 app.use((_req, res) => {
