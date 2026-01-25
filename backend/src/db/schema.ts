@@ -11,8 +11,10 @@ import {
 import { relations } from "drizzle-orm";
 
 export const SemesterEnum = pgEnum("semester_enum", ["1", "2", "3", "4", "5", "6", "7", "8"]);
+export const SubjectHardnessLevelEnum = pgEnum("subject_hardness_level_enum", ["EASY", "MEDIUM", "HARD", "VERY_HARD"]);
 
 export type Semester = (typeof SemesterEnum.enumValues)[number];
+export type SubjectHardnessLevel = (typeof SubjectHardnessLevelEnum.enumValues)[number];
 
 // Tables
 export const webhookEventsTable = pgTable("webhook_events", {
@@ -34,9 +36,29 @@ export const subjectsTable = pgTable("subjects", {
     departmentId: integer("department_id")
         .references(() => departmentsTable.id)
         .notNull(),
+    hardnessLevel: SubjectHardnessLevelEnum("hardness_level").notNull(),
+    description: text("description"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull().$onUpdate(() => new Date()),
 });
+
+export const marksTable = pgTable("subject_marks", {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    subjectId: integer("subject_id")
+        .references(() => subjectsTable.id, { onDelete: "cascade" })
+        .notNull(),
+    theoryAssessment: integer("theory_assessment").notNull().default(0),
+    theoryFinal: integer("theory_final").notNull().default(0),
+    practicalAssessment: integer("practical_assessment").notNull().default(0),
+    practicalFinal: integer("practical_final").notNull().default(0),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull().$onUpdate(() => new Date()),
+},
+    (table) => [
+        unique("unique_subject_marks").on(table.subjectId),
+        index("idx_subject_marks_subject_id").on(table.subjectId),
+    ]
+);
 
 export const subjectOfferingsTable = pgTable("subject_offerings", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
@@ -169,26 +191,27 @@ export const departmentRelations = relations(departmentsTable, ({ many }) => ({
 }))
 
 export const subjectRelations = relations(subjectsTable, ({ many, one }) => ({
-    department: one(departmentsTable,
-        {
-            fields: [subjectsTable.departmentId],
-            references: [departmentsTable.id]
-        }),
+    department: one(departmentsTable, {
+        fields: [subjectsTable.departmentId],
+        references: [departmentsTable.id]
+    }),
     subjectOfferings: many(subjectOfferingsTable),
+    marks: one(marksTable, {
+        fields: [subjectsTable.id],
+        references: [marksTable.subjectId]
+    }),
     notes: many(notesTable),
 }));
 
 export const subjectOfferingRelations = relations(subjectOfferingsTable, ({ one }) => ({
-    subject: one(subjectsTable,
-        {
-            fields: [subjectOfferingsTable.subjectId],
-            references: [subjectsTable.id]
-        }),
-    department: one(departmentsTable,
-        {
-            fields: [subjectOfferingsTable.departmentId],
-            references: [departmentsTable.id]
-        }),
+    subject: one(subjectsTable, {
+        fields: [subjectOfferingsTable.subjectId],
+        references: [subjectsTable.id]
+    }),
+    department: one(departmentsTable, {
+        fields: [subjectOfferingsTable.departmentId],
+        references: [departmentsTable.id]
+    }),
 }));
 
 export const userRelations = relations(usersTable, ({ one, many }) => ({
@@ -199,62 +222,53 @@ export const userRelations = relations(usersTable, ({ one, many }) => ({
 }));
 
 export const profileRelations = relations(profilesTable, ({ one }) => ({
-    department: one(departmentsTable,
-        {
-            fields: [profilesTable.departmentId],
-            references: [departmentsTable.id]
-        }),
-    user: one(usersTable,
-        {
-            fields: [profilesTable.userId],
-            references: [usersTable.id]
-        }),
+    department: one(departmentsTable, {
+        fields: [profilesTable.departmentId],
+        references: [departmentsTable.id]
+    }),
+    user: one(usersTable, {
+        fields: [profilesTable.userId],
+        references: [usersTable.id]
+    }),
 }));
 
 export const noteRelations = relations(notesTable, ({ one, many }) => ({
-    subject: one(subjectsTable,
-        {
-            fields: [notesTable.subjectId],
-            references: [subjectsTable.id]
-        }),
-    uploader: one(usersTable,
-        {
-            fields: [notesTable.uploadedBy],
-            references: [usersTable.id]
-        }),
+    subject: one(subjectsTable, {
+        fields: [notesTable.subjectId],
+        references: [subjectsTable.id]
+    }),
+    uploader: one(usersTable, {
+        fields: [notesTable.uploadedBy],
+        references: [usersTable.id]
+    }),
     files: many(noteFilesTable),
 }));
 
 export const noteFileRelations = relations(noteFilesTable, ({ one }) => ({
-    note: one(notesTable,
-        {
-            fields: [noteFilesTable.noteId],
-            references: [notesTable.id]
-        }),
+    note: one(notesTable, {
+        fields: [noteFilesTable.noteId],
+        references: [notesTable.id]
+    }),
 }));
 
 export const userRecentNoteRelations = relations(userRecentNotesTable, ({ one }) => ({
-    user: one(usersTable,
-        {
-            fields: [userRecentNotesTable.userId],
-            references: [usersTable.id]
-        }),
-    note: one(notesTable,
-        {
-            fields: [userRecentNotesTable.noteId],
-            references: [notesTable.id]
-        }),
+    user: one(usersTable, {
+        fields: [userRecentNotesTable.userId],
+        references: [usersTable.id]
+    }),
+    note: one(notesTable, {
+        fields: [userRecentNotesTable.noteId],
+        references: [notesTable.id]
+    }),
 }));
 
 export const userArchivedNoteRelations = relations(userArchivedNotesTable, ({ one }) => ({
-    user: one(usersTable,
-        {
-            fields: [userArchivedNotesTable.userId],
-            references: [usersTable.id]
-        }),
-    note: one(notesTable,
-        {
-            fields: [userArchivedNotesTable.noteId],
-            references: [notesTable.id]
-        }),
+    user: one(usersTable, {
+        fields: [userArchivedNotesTable.userId],
+        references: [usersTable.id]
+    }),
+    note: one(notesTable, {
+        fields: [userArchivedNotesTable.noteId],
+        references: [notesTable.id]
+    }),
 }));
