@@ -18,8 +18,6 @@ export interface Subject {
     departmentId: number;
     hardnessLevel: SubjectHardnessLevel;
     description?: string;
-    createdAt: string;
-    updatedAt: string;
 }
 
 export interface SubjectOffering {
@@ -28,6 +26,13 @@ export interface SubjectOffering {
     semester: number;
     departmentId: number;
     year: number;
-    createdAt: string;
-    updatedAt: string;
+}
+
+export interface Marks {
+    id: number;
+    subjectId: number;
+    theoryAssessment: number;
+    theoryFinal: number;
+    practicalAssessment: number;
+    practicalFinal: number;
 }

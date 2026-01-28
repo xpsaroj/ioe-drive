@@ -3,8 +3,6 @@ export interface User {
     clerkUserId: string;
     fullName: string;
     email: string;
-    createdAt?: string;
-    updatedAt?: string;
 }
 
 export enum SemesterEnum {
@@ -26,6 +24,4 @@ export interface UserProfile {
     semester?: SemesterEnum;
     college?: string;
     profilePictureUrl?: string;
-    createdAt?: string;
-    updatedAt?: string;
 }

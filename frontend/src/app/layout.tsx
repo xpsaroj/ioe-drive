@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
-import "./globals.css";
 import { Outfit } from "next/font/google";
 import { ClerkProvider } from '@clerk/nextjs';
+
+import "./globals.css";
 import { UserProvider } from "@/context/UserContext";
+import { ClerkApiProvider } from "@/context/ClerkApiProvider";
 
 import { Navbar, Footer, GlobalLoader } from "@/components/layout";
 
@@ -19,20 +21,20 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    
-      <html lang="en">
-        <body className={`bg-background text-foreground min-h-screen ${outfit.className}`}>
+    <html lang="en">
+      <body className={`bg-background text-foreground min-h-screen ${outfit.className}`}>
         <ClerkProvider>
-          <GlobalLoader>
-            <Navbar />
-            <UserProvider >
-            {children}
-            </UserProvider>
-            <Footer />
-          </GlobalLoader>
-          </ClerkProvider>
-        </body>
-      </html>
-    
+          <ClerkApiProvider>
+            <GlobalLoader>
+              <Navbar />
+              <UserProvider >
+                {children}
+              </UserProvider>
+              <Footer />
+            </GlobalLoader>
+          </ClerkApiProvider>
+        </ClerkProvider>
+      </body>
+    </html>
   );
 }
