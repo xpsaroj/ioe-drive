@@ -1,46 +1,46 @@
 import { apiClient } from "./api-client";
-import type { User, UserProfile, Department, ApiResponse } from "@/types";
-
-interface ProfileWithDepartment extends UserProfile {
-    department?: Department;
-}
-
-export interface MyProfile extends User {
-    profile: ProfileWithDepartment;
-}
+import type { UserProfile, ApiResponse, UploadedNote, RecentNote, ArchivedNote, EmptyApiResponse } from "@/types";
 
 const ME_API_BASE_URL = "/me";
 
 export const meApi = {
+    async getMyProfile(): Promise<ApiResponse<UserProfile>> {
+        return apiClient.get<ApiResponse<UserProfile>>(`${ME_API_BASE_URL}`);
+    },
+
+    async getUploadedNotes(): Promise<ApiResponse<UploadedNote[]>> {
+        return apiClient.get<ApiResponse<UploadedNote[]>>(`${ME_API_BASE_URL}/notes`);
+    },
+
+    async getRecentNotes(): Promise<ApiResponse<RecentNote[]>> {
+        return apiClient.get<ApiResponse<RecentNote[]>>(`${ME_API_BASE_URL}/recent-notes`);
+    },
+
     /**
-     * Fetches the profile of the currently authenticated user. 
-     * @return A promise that resolves to the API response containing the user's profile.
+     * Fetches the archived/bookmarked notes of the currently authenticated user.
      */
-    async getMyProfile(): Promise<ApiResponse<MyProfile>> {
-        return apiClient.get<ApiResponse<MyProfile>>(`${ME_API_BASE_URL}`);
+    async getArchivedNotes(): Promise<ApiResponse<ArchivedNote[]>> {
+        return apiClient.get<ApiResponse<ArchivedNote[]>>(`${ME_API_BASE_URL}/archived-notes`);
     },
 
-    async getUplodoadedNotes() {
-        return apiClient.get<ApiResponse<any>>(`${ME_API_BASE_URL}/notes`);
+    /**
+     * Adds the note to the user's `recently accessed` list.
+     */
+    async markNoteAsRecentlyAccessed(noteId: string): Promise<EmptyApiResponse> {
+        return apiClient.post<EmptyApiResponse>(`${ME_API_BASE_URL}/notes/${noteId}/recent`);
     },
 
-    async getRecentNotes() {
-        return apiClient.get<ApiResponse<any>>(`${ME_API_BASE_URL}/recent-notes`);
+    /**
+     * Archives/bookmarks a note for the user.
+     */
+    async markNoteAsArchived(noteId: string): Promise<EmptyApiResponse> {
+        return apiClient.post<EmptyApiResponse>(`${ME_API_BASE_URL}/notes/${noteId}/archive`);
     },
 
-    async getArchivedNotes() {
-        return apiClient.get<ApiResponse<any>>(`${ME_API_BASE_URL}/archived-notes`);
-    },
-
-    async markNoteAsRecentlyAccessed(noteId: string) {
-        return apiClient.post<ApiResponse<any>>(`${ME_API_BASE_URL}/notes/${noteId}/recent`);
-    },
-
-    async markNoteAsArchived(noteId: string) {
-        return apiClient.post<ApiResponse<any>>(`${ME_API_BASE_URL}/notes/${noteId}/archive`);
-    },
-
-    async unmarkNoteAsArchived(noteId: string) {
-        return apiClient.delete<ApiResponse<any>>(`${ME_API_BASE_URL}/notes/${noteId}/archive`);
+    /**
+     * Unmarks a note as archived by the user.
+     */
+    async unmarkNoteAsArchived(noteId: string): Promise<EmptyApiResponse> {
+        return apiClient.delete<EmptyApiResponse>(`${ME_API_BASE_URL}/notes/${noteId}/archive`);
     },
 }

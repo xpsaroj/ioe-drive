@@ -11,6 +11,17 @@ export enum SubjectHardnessLevel {
     VERY_HARD = "Very Hard",
 }
 
+export enum SemesterEnum {
+    FIRST = "1st",
+    SECOND = "2nd",
+    THIRD = "3rd",
+    FOURTH = "4th",
+    FIFTH = "5th",
+    SIXTH = "6th",
+    SEVENTH = "7th",
+    EIGHTH = "8th",
+}
+
 export interface Subject {
     id: number;
     code: string;
@@ -23,7 +34,7 @@ export interface Subject {
 export interface SubjectOffering {
     id: number;
     subjectId: number;
-    semester: number;
+    semester: SemesterEnum;
     departmentId: number;
     year: number;
 }
@@ -35,4 +46,12 @@ export interface Marks {
     theoryFinal: number;
     practicalAssessment: number;
     practicalFinal: number;
+}
+
+export interface SubjectWithDepartment extends Subject {
+    department: Department;
+}
+
+export interface SubjectOfferingWithSubject extends SubjectOffering {
+    subject: SubjectWithDepartment;
 }
