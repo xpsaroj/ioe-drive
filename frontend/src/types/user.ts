@@ -1,31 +1,26 @@
+import type { Department, SemesterEnum } from "./academics";
+
 export interface User {
-    id: string;
+    id: number;
     clerkUserId: string;
     fullName: string;
     email: string;
-    createdAt?: string;
-    updatedAt?: string;
 }
 
-export enum SemesterEnum {
-    FIRST = "1st",
-    SECOND = "2nd",
-    THIRD = "3rd",
-    FOURTH = "4th",
-    FIFTH = "5th",
-    SIXTH = "6th",
-    SEVENTH = "7th",
-    EIGHTH = "8th",
-}
-
-export interface UserProfile {
-    id: string;
-    userId: string;
+export interface Profile {
+    id: number;
+    userId: number;
     bio?: string;
-    departmentId?: string;
+    departmentId?: number;
     semester?: SemesterEnum;
     college?: string;
     profilePictureUrl?: string;
-    createdAt?: string;
-    updatedAt?: string;
+}
+
+interface ProfileWithDepartment extends Profile {
+    department?: Department;
+}
+
+export interface UserProfile extends User {
+    profile: ProfileWithDepartment;
 }
