@@ -9,6 +9,8 @@ if (nodeEnv === "test") {
     dotenv.config({ path: ".env.test" });
 } else if (nodeEnv === "development" || !nodeEnv) {
     dotenv.config({ path: ".env.local" });
+} else {
+    dotenv.config();    // Defaults to .env
 }
 
 /**
