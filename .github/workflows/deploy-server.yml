@@ -24,6 +24,8 @@ jobs:
           key: ${{ secrets.VM_SSH_KEY }}     
           port: 22
           script: |
+            set -e
+            
             cd ~/ioe-drive/backend
             git pull origin main
 
