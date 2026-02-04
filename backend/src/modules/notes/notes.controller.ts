@@ -27,8 +27,9 @@ export class NotesController {
             }
 
             const noteData: Omit<CreateNoteInput, 'uploadedBy'> = req.body;
+            const noteFiles = req.files as Express.Multer.File[];
 
-            const createdNote = await notesService.createNote(userId, noteData);
+            const createdNote = await notesService.createNote(userId, noteData, noteFiles);
             return sendSuccessResponse(res, createdNote, "Note created successfully", 201);
         } catch (e) {
             next(e);

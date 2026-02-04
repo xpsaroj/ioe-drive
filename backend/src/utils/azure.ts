@@ -1,3 +1,6 @@
+import crypto from "node:crypto";
+import path from "node:path";
+
 import { containerClient } from "../lib/azureBlob.js";
 
 export async function uploadToAzure(
@@ -14,4 +17,10 @@ export async function uploadToAzure(
     });
 
     return blockBlob.url;
+}
+
+export async function generateBlobName(originalName: string) {
+    const ext = path.extname(originalName);
+    const random = crypto.randomUUID();
+    return `${random}${ext}`;
 }

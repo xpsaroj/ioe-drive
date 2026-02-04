@@ -1,8 +1,9 @@
 import { eq, and } from "drizzle-orm";
 
 import { db } from "../../db/index.js";
-import { notesTable } from "../../db/schema.js";
+import { noteFilesTable, notesTable } from "../../db/schema.js";
 import type { CreateNoteInput, UpdateNoteInput } from "./notes.dto.js";
+import type { FileMetaData } from "../../types/file.js";
 
 /**
  * Notes Repository
@@ -14,14 +15,33 @@ export class NotesRepository {
      * @param noteData - Data for the new note.
      * @returns The created note.
      */
-    async create(noteData: CreateNoteInput) {
-        const [note] = await db
-            .insert(notesTable)
-            .values(noteData)
-            .returning();
+    async create(noteData: CreateNoteInput, files: FileMetaData[]) {
+        return await db.transaction(async (tx) => {
+            const [createdNote] = await tx
+                .insert(notesTable)
+                .values(noteData)
+                .returning();
 
-        // Todo: Write logic to add noteFiles data to the db
-        return note;
+            if (!createdNote) {
+                throw new Error("Failed to create note");
+            }
+
+            if (files.length > 0) {
+                await tx
+                    .insert(noteFilesTable)
+                    .values(
+                        files.map((file) => ({
+                            noteId: createdNote.id,
+                            fileUrl: file.url,
+                            fileSize: file.size,
+                            blobName: file.blobName,
+                            originalFileName: file.originalName,
+                            mimeType: file.mimeType,
+                        }))
+                    )
+            }
+            return createdNote;
+        })
     }
 
     /**
