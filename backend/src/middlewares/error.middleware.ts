@@ -1,10 +1,12 @@
 import type { Request, Response, NextFunction } from "express";
+import { MulterError } from "multer";
 import { ZodError } from "zod";
 
 import env from "../config/env.js";
 import { sendErrorResponse } from "../lib/response.js";
 import { ApiError } from "../lib/errors.js";
 
+// Helper function to format Zod validation errors
 const formatZodError = (error: ZodError) => {
     const errors = error.issues.map((issue) => {
         const path = issue.path.join(".");
@@ -12,6 +14,20 @@ const formatZodError = (error: ZodError) => {
     })
 
     return errors.join("; ");
+}
+
+// Helper function to format Multer errors
+const formatMulterError = (error: MulterError) => {
+    switch (error.code) {
+        case "LIMIT_FILE_SIZE":
+            return "File size exceeds the maximum limit.";
+        case "LIMIT_FILE_COUNT":
+            return "File count exceeds the maximum limit.";
+        case "LIMIT_UNEXPECTED_FILE":
+            return "Unexpected file field.";
+        default:
+            return error.message;
+    }
 }
 
 /**
@@ -30,6 +46,11 @@ export const errorHandler = (err: Error, _req: Request, res: Response, _next: Ne
     // Zod validation errors
     if (err instanceof ZodError) {
         return sendErrorResponse(res, formatZodError(err), 400);
+    }
+
+    // Multer file upload errors
+    if (err instanceof MulterError) {
+        return sendErrorResponse(res, formatMulterError(err), 400);
     }
 
     // Known / expected API errors

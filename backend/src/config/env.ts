@@ -30,6 +30,10 @@ const envSchema = z.object({
     CLERK_SECRET_KEY: z.string().startsWith('sk_'),
 
     CLERK_PUBLISHABLE_KEY: z.string().startsWith('pk_'),
+
+    AZURE_STORAGE_CONNECTION_STRING: z.string().min(1),
+
+    AZURE_STORAGE_CONTAINER: z.string().min(1),
 });
 
 export type Env = z.infer<typeof envSchema>;

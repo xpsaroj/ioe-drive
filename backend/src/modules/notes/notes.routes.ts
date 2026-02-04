@@ -3,6 +3,7 @@ import { Router } from "express";
 import { notesController } from "./notes.controller.js";
 import { validate } from "../../middlewares/validate.middleware.js";
 import { requireAuth } from "../../middlewares/auth.middleware.js";
+import { upload } from "../../middlewares/upload.js";
 import { createNoteSchema, updateNoteSchema } from "./notes.dto.js";
 
 /**
@@ -21,6 +22,7 @@ const router = Router();
 router.post(
     "/",
     requireAuth,
+    upload.array("noteFile", 5), // Max 5 files
     validate(createNoteSchema),
     notesController.createNote.bind(notesController)
 )
