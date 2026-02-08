@@ -5,6 +5,7 @@ import { ClerkProvider } from '@clerk/nextjs';
 import "./globals.css";
 import { UserProvider } from "@/context/UserContext";
 import { ClerkApiProvider } from "@/context/ClerkApiProvider";
+import { StoreProvider } from "@/context/StoreProvider";
 
 import { Navbar, Footer, GlobalLoader } from "@/components/layout";
 
@@ -25,13 +26,15 @@ export default function RootLayout({
       <body className={`bg-background text-foreground min-h-screen ${outfit.className}`}>
         <ClerkProvider>
           <ClerkApiProvider>
-            <GlobalLoader>
-              <Navbar />
-              <UserProvider >
-                {children}
-              </UserProvider>
-              <Footer />
-            </GlobalLoader>
+            <StoreProvider>
+              <GlobalLoader>
+                <Navbar />
+                <UserProvider >
+                  {children}
+                </UserProvider>
+                <Footer />
+              </GlobalLoader>
+            </StoreProvider>
           </ClerkApiProvider>
         </ClerkProvider>
       </body>
