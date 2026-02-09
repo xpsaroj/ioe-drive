@@ -20,7 +20,6 @@ const ProfilePage = () => {
             dispatch(fetchMyProfile());
         }
     }, [dispatch, myProfile]);
-    console.log("My Profile:", myProfile);
 
     const profileDetails = [
         { label: "Bio", value: myProfile?.profile?.bio || "No bio set." },
