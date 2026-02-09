@@ -5,15 +5,14 @@ import { useEffect } from 'react';
 import { apiClient } from '@/lib/api/api-client';
 
 export function ClerkApiProvider({ children }: { children: React.ReactNode }) {
-    const { getToken, isLoaded } = useAuth();
+    const { getToken } = useAuth();
 
     useEffect(() => {
-        if (!isLoaded) return;
-
+        // Set the token provider for the API client to include the Clerk authentication token in requests
         apiClient.setTokenProvider(async () => {
             return await getToken();
         });
-    }, [isLoaded, getToken]);
+    }, [getToken]);
 
     return <>{children}</>;
 }
