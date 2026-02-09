@@ -57,7 +57,7 @@ export const noteFiles = [
 export const userRecentNotes = [
   { noteId: 1, noteTitle: "Data Structures Notes", uploader: "John Doe", accessedAt: new Date().toISOString() },
   { noteId: 2, noteTitle: "Algorithms Notes", uploader: "Jane Smith", accessedAt: new Date().toISOString() },
-  { noteId: 2, noteTitle: "Electromagnetism Notes", uploader: "Jane Smith", accessedAt: new Date().toISOString() },
+  { noteId: 3, noteTitle: "Electromagnetism Notes", uploader: "Jane Smith", accessedAt: new Date().toISOString() },
 ];
 
 export const userArchivedNotes = [
