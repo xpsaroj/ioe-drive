@@ -30,3 +30,34 @@ export const fetchUploadedNotes = createAsyncThunk(
         }
     }
 );
+
+export const fetchRecentNotes = createAsyncThunk(
+    "me/fetchRecentNotes",
+    async (_, { rejectWithValue }) => {
+        try {
+            const res = await meApi.getRecentNotes();
+            if (!res.success) {
+                return rejectWithValue(res.error || "Failed to load recent notes");
+            }
+            return res.data;
+        } catch {
+            return rejectWithValue("Failed to load recent notes");
+        }
+    }
+);
+
+export const fetchArchivedNotes = createAsyncThunk(
+    "me/fetchArchivedNotes",
+    async (_, { rejectWithValue }) => {
+        try {
+            const res = await meApi.getArchivedNotes();
+            if (!res.success) {
+                return rejectWithValue(res.error || "Failed to load archived notes");
+            }
+            return res.data;
+        } catch {
+            return rejectWithValue("Failed to load archived notes");
+        }
+    }
+);
+
