@@ -1,25 +1,17 @@
 "use client"
 import { UserProfile } from "@clerk/nextjs";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { User2, Pencil } from "lucide-react";
 
-import { useAppDispatch, useAppSelector } from "@/lib/store/hooks"
-import { fetchMyProfile } from "@/lib/store/features/me/me.thunks";
+import { useAppSelector } from "@/lib/store/hooks"
 import { selectMyProfile } from "@/lib/store/features/me/me.selectors";
 
 type ProfileTab = "view" | "edit";
 
 const ProfilePage = () => {
-    const dispatch = useAppDispatch();
     const myProfile = useAppSelector(selectMyProfile);
 
     const [activeTab, setActiveTab] = useState<ProfileTab>("view");
-
-    useEffect(() => {
-        if (!myProfile) {
-            dispatch(fetchMyProfile());
-        }
-    }, [dispatch, myProfile]);
 
     const profileDetails = [
         { label: "Bio", value: myProfile?.profile?.bio || "No bio set." },

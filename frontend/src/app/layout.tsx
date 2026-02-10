@@ -6,6 +6,7 @@ import "./globals.css";
 import { UserProvider } from "@/context/UserContext";
 import { ClerkApiProvider } from "@/context/ClerkApiProvider";
 import { StoreProvider } from "@/context/StoreProvider";
+import { StoreInitializer } from "@/context/StoreInitializer";
 
 import { Navbar, Footer, GlobalLoader } from "@/components/layout";
 
@@ -27,13 +28,15 @@ export default function RootLayout({
         <ClerkProvider>
           <ClerkApiProvider>
             <StoreProvider>
-              <GlobalLoader>
-                <Navbar />
-                <UserProvider >
-                  {children}
-                </UserProvider>
-                <Footer />
-              </GlobalLoader>
+              <StoreInitializer>
+                <GlobalLoader>
+                  <Navbar />
+                  <UserProvider >
+                    {children}
+                  </UserProvider>
+                  <Footer />
+                </GlobalLoader>
+              </StoreInitializer>
             </StoreProvider>
           </ClerkApiProvider>
         </ClerkProvider>
