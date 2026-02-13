@@ -2,7 +2,7 @@ import type { Request, Response, NextFunction } from 'express';
 import { meService } from './me.service.js';
 import { UnauthorizedError } from '../../lib/errors.js';
 import { sendSuccessResponse } from '../../lib/response.js';
-import { updateProfileSchema, type UpdateProfileInput } from './me.dto.js';
+import { type UpdateProfileInput } from './me.dto.js';
 
 /**
  * Me Controller
@@ -98,16 +98,14 @@ export class MeController {
 
     /**
      * Update the currently authenticated user's profile.
-     * - PUT /api/me/profile
+     * - PATCH /api/me
      */
     async updateProfile(req: Request, res: Response, next: NextFunction) {
         try {
             const userId = req.authUser?.id;
             if (!userId) throw new UnauthorizedError("User not authenticated");
 
-            // Validate request body using Zod
-            const validatedData: UpdateProfileInput = updateProfileSchema.parse(req.body);
-
+            const validatedData: UpdateProfileInput = req.body;
             const updatedProfile = await meService.updateProfile(userId, validatedData);
 
             return sendSuccessResponse(res, updatedProfile, "Profile updated successfully");

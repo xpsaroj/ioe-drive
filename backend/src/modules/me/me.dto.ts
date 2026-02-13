@@ -19,13 +19,12 @@ export const unmarkNoteAsArchivedSchema = z.object({
 })
 
 export const updateProfileSchema = z.object({
-  fullName: z.string().optional(),
-  bio: z.string().optional(),
-  departmentId: z.number().optional(),
-  semester: z.enum(["1","2","3","4","5","6","7","8"]).optional(),
-  college: z.string().optional(),
-  profilePictureUrl: z.string().url().optional(),
+    body: z.object({
+        bio: z.string().optional(),
+        departmentId: z.number().optional(),
+        semester: z.enum(["1", "2", "3", "4", "5", "6", "7", "8"]).optional(),
+        college: z.string().optional(),
+    })
 });
 
-// Type inference for TypeScript
-export type UpdateProfileInput = z.infer<typeof updateProfileSchema>;
+export type UpdateProfileInput = z.infer<typeof updateProfileSchema>["body"];

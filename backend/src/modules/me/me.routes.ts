@@ -33,6 +33,16 @@ router.get(
 );
 
 /**
+ * PATCH /api/me
+ * - Update the currently authenticated user's profile
+ */
+router.patch(
+    "/",
+    validate(updateProfileSchema),
+    meController.updateProfile.bind(meController)
+);
+
+/**
  * Get /api/me/notes
  * - Get notes uploaded by the current user
  */
@@ -88,12 +98,5 @@ router.delete(
     validate(unmarkNoteAsArchivedSchema),
     meController.unmarkNoteAsArchived.bind(meController)
 );
-
-router.put(
-    "/profile",
-    validate(updateProfileSchema), // validate request body using Zod
-    meController.updateProfile.bind(meController)
-);
-
 
 export default router;
