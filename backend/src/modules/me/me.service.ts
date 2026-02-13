@@ -2,7 +2,9 @@ import { eq, desc, and } from "drizzle-orm";
 
 import { db } from "../../db/index.js";
 import { notesTable, userRecentNotesTable, userArchivedNotesTable } from "../../db/schema.js";
+import { profilesTable } from "../../db/schema.js";
 import { NotFoundError } from "../../lib/errors.js";
+import type { UpdateProfileInput } from "./me.dto.js";
 
 /**
  * Me Service
@@ -200,6 +202,40 @@ export class MeService {
                     eq(userArchivedNotesTable.noteId, noteId)
                 )
             );
+    }
+
+    /**
+     * Updates the currently authenticated user's profile.
+     * @param userId User ID
+     * @param noteId Note ID
+     */
+    async updateProfile(userId: number, data: Partial<UpdateProfileInput>) {
+        await db.transaction(async (tx) => {
+            const existingProfile = await tx.query.profilesTable.findFirst({
+                where: eq(profilesTable.userId, userId),
+            });
+
+            if (!existingProfile) throw new NotFoundError("User profile not found");
+
+            // Prepare profile data
+            const profileData: Partial<UpdateProfileInput> = {};
+            if (data.bio !== undefined) profileData.bio = data.bio;
+            if (data.departmentId !== undefined) profileData.departmentId = data.departmentId;
+            if (data.semester !== undefined) profileData.semester = data.semester;
+            if (data.college !== undefined) profileData.college = data.college;
+
+            // Update profile
+            if (Object.keys(profileData).length > 0) {
+                const [updatedProfile] = await tx.update(profilesTable)
+                    .set(profileData)
+                    .where(eq(profilesTable.userId, userId))
+                    .returning();
+
+                return updatedProfile;
+            }
+
+            return existingProfile;
+        });
     }
 }
 

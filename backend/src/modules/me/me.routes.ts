@@ -2,7 +2,7 @@ import { Router } from "express";
 
 import { requireAuth } from "../../middlewares/auth.middleware.js"
 import { validate } from "../../middlewares/validate.middleware.js";
-import { markNoteAsRecentlyAccessedSchema, markNoteAsArchivedSchema, unmarkNoteAsArchivedSchema } from "./me.dto.js"
+import { markNoteAsRecentlyAccessedSchema, markNoteAsArchivedSchema, unmarkNoteAsArchivedSchema, updateProfileSchema } from "./me.dto.js"
 import { meController } from "./me.controller.js";
 
 /**
@@ -30,6 +30,16 @@ router.use(requireAuth);
 router.get(
     "/",
     meController.getCurrentUserProfile.bind(meController)
+);
+
+/**
+ * PATCH /api/me
+ * - Update the currently authenticated user's profile
+ */
+router.patch(
+    "/",
+    validate(updateProfileSchema),
+    meController.updateProfile.bind(meController)
 );
 
 /**
