@@ -2,7 +2,7 @@ import { Router } from "express";
 
 import { requireAuth } from "../../middlewares/auth.middleware.js"
 import { validate } from "../../middlewares/validate.middleware.js";
-import { markNoteAsRecentlyAccessedSchema, markNoteAsArchivedSchema, unmarkNoteAsArchivedSchema } from "./me.dto.js"
+import { markNoteAsRecentlyAccessedSchema, markNoteAsArchivedSchema, unmarkNoteAsArchivedSchema, updateProfileSchema } from "./me.dto.js"
 import { meController } from "./me.controller.js";
 
 /**
@@ -88,5 +88,12 @@ router.delete(
     validate(unmarkNoteAsArchivedSchema),
     meController.unmarkNoteAsArchived.bind(meController)
 );
+
+router.put(
+    "/profile",
+    validate(updateProfileSchema), // validate request body using Zod
+    meController.updateProfile.bind(meController)
+);
+
 
 export default router;

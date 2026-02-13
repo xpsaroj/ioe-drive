@@ -2,7 +2,9 @@ import { eq, desc, and } from "drizzle-orm";
 
 import { db } from "../../db/index.js";
 import { notesTable, userRecentNotesTable, userArchivedNotesTable } from "../../db/schema.js";
+import { usersTable, profilesTable } from "../../db/schema.js";
 import { NotFoundError } from "../../lib/errors.js";
+import type { UpdateProfileInput } from "./me.dto.js";
 
 /**
  * Me Service
@@ -201,6 +203,57 @@ export class MeService {
                 )
             );
     }
+    
+    /**
+     * Unmarks a note as archived/bookmarked by the user.
+     * @param userId User ID
+     * @param noteId Note ID
+     */
+ async updateProfile(userId: number, data: Partial<UpdateProfileInput>) {
+    if (!userId) throw new NotFoundError("User not found");
+
+    // Transaction-safe update
+    await db.transaction(async (tx) => {
+        // 1️⃣ Update usersTable if fullName provided
+        if (data.fullName !== undefined) {
+            await tx.update(usersTable)
+                .set({ fullName: data.fullName })
+                .where(eq(usersTable.id, userId));
+        }
+
+        // 2️⃣ Check if profile exists
+        const existingProfile = await tx.query.profilesTable.findFirst({
+            where: eq(profilesTable.userId, userId),
+        });
+
+        // Prepare profile data
+        const profileData: Partial<UpdateProfileInput> = {
+            ...(data.bio !== undefined && { bio: data.bio }),
+            ...(data.departmentId !== undefined && { departmentId: data.departmentId }),
+            ...(data.semester !== undefined && { semester: data.semester }),
+            ...(data.college !== undefined && { college: data.college }),
+            ...(data.profilePictureUrl !== undefined && { profilePictureUrl: data.profilePictureUrl }),
+        };
+
+        if (existingProfile) {
+            // Update existing profile
+            if (Object.keys(profileData).length > 0) {
+                await tx.update(profilesTable)
+                    .set(profileData)
+                    .where(eq(profilesTable.userId, userId));
+            }
+        } else {
+            // Create new profile
+            await tx.insert(profilesTable).values({
+                userId,
+                ...profileData,
+            });
+        }
+    });
+
+    // Return updated profile using existing getProfile logic
+    return this.getProfile(userId);
+}
 }
 
 export const meService = new MeService();
