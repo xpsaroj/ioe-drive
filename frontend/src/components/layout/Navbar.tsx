@@ -20,14 +20,7 @@ export default function Navbar() {
   const { isSignedIn } = useAuth()
   const pathname = usePathname()
 
-  const [shrink, setShrink] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
-
-  useEffect(() => {
-    const handleScroll = () => setShrink(window.scrollY > 20)
-    window.addEventListener("scroll", handleScroll)
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
 
   // Prevent body scroll when mobile menu is open
   useEffect(() => {
@@ -45,55 +38,51 @@ export default function Navbar() {
   if (!isSignedIn) return <Header />
 
   return (
-    <>
-      {/* Navbar (Desktop) */}
-      <div className={clsx(
-        shrink ? "" : "",
-        "hidden md:block w-full sticky top-0 z-50 bg-background/10 backdrop-blur-sm transition-all duration-400")}>
-        <div
-          className={clsx(
-            "container mx-auto flex items-center w-full md:gap-4 transition-all duration-400 ",
-            shrink ? "py-0 transform scale-70 justify-center" : "justify-between md:pt-2"
-          )}
-        >
-          {/* Logo */}
-          {!shrink && <Logo size={6.5} />}
-
-          {/* Desktop Navigation */}
-          <div className="flex flex-row gap-4 rounded-full border border-muted">
-            <div className="flex flex-row items-center rounded-full shadow-lg/30">
-              {NAVIGATION_ITEMS.map((item, index) => {
-                const isCurrentRoute = pathname === item.href || pathname.startsWith(item.href + "/");
-
-                return (
-                  <Link
-                    key={item.href + index}
-                    href={item.href}
-                    className={clsx(
-                      "font-semibold text-primary px-5 py-3 lg:px-6 lg:py-4 rounded-full border",
-                      isCurrentRoute ? "bg-accent-faded border-muted" : "border-transparent"
-                    )}
-                  >
-                    {item.name}
-                  </Link>
-                )
-              })}
-            </div>
+    <div className="">
+      {/* Sidebar (Desktop) */}
+      <div className="flex flex-col gap-4 overflow-hidden h-screen">
+        <div className="pt-3 px-3 flex flex-col gap-4">
+          <div className="flex flex-row gap-2 items-center">
+            <Logo size={2} />
+            IOE Drive
           </div>
 
-          {!shrink && <User />}
-
-        </div>
-      </div>
-
-      {/* Search bar  */}
-      {pathname.startsWith("/dashboard") && (
-        <div className="hidden md:block w-full mb-4">
-          <div className="container mx-auto mt-2 w-full flex justify-center items-center pb-2">
+          <div>
             <SearchBar />
           </div>
         </div>
-      )}
+
+        <div className="h-full px-3 flex flex-col overflow-y-auto">
+          <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+            Navigation
+          </h3>
+          <div className="space-y-1 flex flex-col" role="navigation">
+            {NAVIGATION_ITEMS.map(({ href, icon: Icon, name }, index) => {
+              const isCurrentRoute = pathname === href || pathname.startsWith(href + "/");
+              return (
+                <Link
+                  key={href + index}
+                  href={href}
+                  className={clsx(
+                    "font-medium py-2 px-3 rounded-lg transition-all duration-200",
+                    "hover:bg-muted/30 active:scale-95",
+                    isCurrentRoute ? "bg-accent-faded text-accent-foreground shadow-md" : "text-foreground"
+                  )}
+                >
+                  <div className="flex gap-2 items-center">
+                    <Icon className="size-5" />
+                    {name}
+                  </div>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+
+        <div className="border-t border-gray-300 px-3 py-2 hover:bg-muted/30 transition-colors cursor-pointer">
+          <User />
+        </div>
+      </div>
 
       {/* Sidebar (Mobile) */}
       <div className="block md:hidden sticky top-0 z-50">
@@ -163,6 +152,6 @@ export default function Navbar() {
           />
         )}
       </div>
-    </>
+    </div>
   )
 }

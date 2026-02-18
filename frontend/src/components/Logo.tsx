@@ -12,7 +12,7 @@ export default function Logo({ size = 6 }: LogoProps) {
     return (
         <Link href={isSignedIn ? "/dashboard" : "/"}>
             <Image
-                src="/images/home/logo.png"
+                src="/logo/logo-light.svg"
                 alt="IOE Drive Logo"
                 preload={true}
                 width={size * 16}
