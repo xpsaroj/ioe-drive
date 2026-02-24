@@ -1,15 +1,265 @@
 @import "tailwindcss";
 
 @theme {
-    --color-background: #ffffff; /* White - plain background */
---color-foreground: #000000; /* Black - text/foreground color */
+    /* ===== Background Colors ===== */
+    --color-background: #ffffff;
+    /* Main background - pure white */
+    --color-background-secondary: #fafafa;
+    /* Secondary background - slight gray */
+    --color-background-tertiary: #f5f5f5;
+    /* Tertiary background - cards, sections */
+    --color-background-hover: #f0f0f0;
+    /* Hover states for light backgrounds */
+    --color-background-active: #e5e5e5;
+    /* Active/pressed states */
 
---color-primary: #354261;    /* Dark bluish-gray - main color for headings/buttons */
---color-secondary: #5F6F67;  /* Gray-green/teal-ish - secondary elements */
---color-muted: #8a898d;      /* Light gray - disabled text or muted info */
+    /* ===== Foreground/Text Colors ===== */
+    --color-foreground: #000000;
+    /* Primary text - pure black */
+    --color-foreground-secondary: #666666;
+    /* Secondary text - medium gray */
+    --color-foreground-tertiary: #999999;
+    /* Tertiary text - light gray */
+    --color-foreground-muted: #b3b3b3;
+    /* Muted text - very light gray */
+    --color-foreground-inverse: #ffffff;
+    /* Text on dark backgrounds */
 
---color-accent: oklch(55.4% 0.203 305.504); /* Accent color (purplish) using OKLCH color model */
---color-accent-faded: #DBC0FD;              /* Light lavender/purple - background highlight, badges */
---color-link: #090084;                      /* Dark blue - links */
---color-golden: #EBC351;                    /* Golden yellow - highlights, icons */
+    /* ===== Border Colors ===== */
+    --color-border: #e5e5e5;
+    /* Default borders */
+    --color-border-secondary: #d4d4d4;
+    /* Slightly darker borders */
+    --color-border-hover: #000000;
+    /* Border on hover - black */
+    --color-border-focus: #000000;
+    /* Border on focus - black */
+
+    /* ===== Accent Colors ===== */
+    --color-accent: #000000;
+    /* Primary accent - black */
+    --color-accent-hover: #1a1a1a;
+    /* Accent hover state */
+    --color-accent-active: #333333;
+    /* Accent active state */
+    --color-accent-foreground: #ffffff;
+    /* Text on accent backgrounds */
+
+    /* ===== Status/Semantic Colors ===== */
+    /* Success - Green */
+    --color-success: #16a34a;
+    /* Success state - green 600 */
+    --color-success-hover: #15803d;
+    /* Success hover - green 700 */
+    --color-success-light: #dcfce7;
+    /* Success background - green 100 */
+    --color-success-foreground: #ffffff;
+    /* Text on success background */
+
+    /* Error - Red */
+    --color-error: #dc2626;
+    /* Error state - red 600 */
+    --color-error-hover: #b91c1c;
+    /* Error hover - red 700 */
+    --color-error-light: #fee2e2;
+    /* Error background - red 100 */
+    --color-error-foreground: #ffffff;
+    /* Text on error background */
+
+    /* Warning - Amber/Yellow */
+    --color-warning: #f59e0b;
+    /* Warning state - amber 500 */
+    --color-warning-hover: #d97706;
+    /* Warning hover - amber 600 */
+    --color-warning-light: #fef3c7;
+    /* Warning background - amber 100 */
+    --color-warning-foreground: #000000;
+    /* Text on warning background */
+
+    /* Info - Blue */
+    --color-info: #0ea5e9;
+    /* Info state - sky 500 */
+    --color-info-hover: #0284c7;
+    /* Info hover - sky 600 */
+    --color-info-light: #e0f2fe;
+    /* Info background - sky 100 */
+    --color-info-foreground: #ffffff;
+    /* Text on info background */
+
+    /* ===== Interactive Elements ===== */
+    --color-link: #0070f3;
+    /* Link color */
+    --color-link-hover: #0761d1;
+    /* Link hover - darker blue */
+    --color-link-visited: #551a8b;
+    /* Visited links - purple */
+
+    /* ===== Component-Specific Colors ===== */
+    --color-input-background: #ffffff;
+    /* Input fields background */
+    --color-input-border: #e5e5e5;
+    /* Input borders */
+    --color-input-focus: #000000;
+    /* Input focus border */
+    --color-input-disabled: #f5f5f5;
+    /* Disabled input background */
+    --color-input-placeholder: #999999;
+    /* Placeholder text */
+
+    /* Primary Button - Black */
+    --color-button-primary: #000000;
+    /* Primary button background */
+    --color-button-primary-hover: #1a1a1a;
+    /* Primary button hover */
+    --color-button-primary-active: #333333;
+    /* Primary button active */
+    --color-button-primary-text: #ffffff;
+    /* Primary button text */
+
+    /* Secondary Button - White with border */
+    --color-button-secondary: #ebebeb;
+    /* Secondary button background */
+    --color-button-secondary-hover: #fafafa;
+    /* Secondary button hover */
+    --color-button-secondary-active: #f0f0f0;
+    /* Secondary button active */
+    --color-button-secondary-text: #000000;
+    /* Secondary button text */
+
+    /* Ghost Button */
+    --color-button-ghost-hover: #f5f5f5;
+    /* Ghost button hover background */
+
+    /* Destructive Button - Red */
+    --color-button-destructive: #dc2626;
+    /* Destructive button background */
+    --color-button-destructive-hover: #b91c1c;
+    /* Destructive button hover */
+    --color-button-destructive-active: #991b1b;
+    /* Destructive button active */
+    --color-button-destructive-text: #ffffff;
+    /* Destructive button text */
+
+    /* ===== Overlay & Shadow Colors ===== */
+    --color-overlay: rgba(0, 0, 0, 0.5);
+    /* Modal/drawer overlays */
+    --color-overlay-light: rgba(0, 0, 0, 0.1);
+    /* Light overlays */
+
+    --color-shadow: rgba(0, 0, 0, 0.08);
+    /* Box shadows */
+    --color-shadow-md: rgba(0, 0, 0, 0.12);
+    /* Medium shadows */
+    --color-shadow-lg: rgba(0, 0, 0, 0.16);
+    /* Large shadows */
+
+    /* ===== Divider Colors ===== */
+    --color-divider: #e5e5e5;
+    /* Horizontal rules, dividers */
+    --color-divider-strong: #d4d4d4;
+    /* Stronger dividers */
+
+    /* ===== Selection Colors ===== */
+    --color-selection-background: #000000;
+    /* Text selection background */
+    --color-selection-foreground: #ffffff;
+    /* Text selection text */
+
+    /* ===== Badge/Tag Colors ===== */
+    --color-badge-background: #f5f5f5;
+    /* Badge background */
+    --color-badge-foreground: #000000;
+    /* Badge text */
+    --color-badge-border: #e5e5e5;
+    /* Badge border */
+
+    /* Colored Badges */
+    --color-badge-success: #dcfce7;
+    /* Success badge background */
+    --color-badge-success-text: #15803d;
+    /* Success badge text */
+    --color-badge-error: #fee2e2;
+    /* Error badge background */
+    --color-badge-error-text: #b91c1c;
+    /* Error badge text */
+    --color-badge-warning: #fef3c7;
+    /* Warning badge background */
+    --color-badge-warning-text: #d97706;
+    /* Warning badge text */
+    --color-badge-info: #e0f2fe;
+    /* Info badge background */
+    --color-badge-info-text: #0284c7;
+    /* Info badge text */
+
+    /* ===== Card Colors ===== */
+    --color-card-background: #ffffff;
+    /* Card background */
+    --color-card-border: #e5e5e5;
+    /* Card border */
+    --color-card-hover: #fafafa;
+    /* Card hover state */
+
+    /* ===== Header/Footer Colors ===== */
+    --color-header-background: rgba(255, 255, 255, 0.8);
+    /* Header background - slightly transparent */
+    --color-header-border: #e5e5e5;
+    /* Header bottom border */
+    --color-footer-background: #fafafa;
+    /* Footer background */
+
+    /* ===== Code Block Colors ===== */
+    --color-code-background: #f5f5f5;
+    /* Inline code background */
+    --color-code-foreground: #eb5757;
+    /* Code text */
+    --color-code-block-background: #fafafa;
+    /* Code block background */
+    --color-code-block-border: #e5e5e5;
+    /* Code block border */
+
+    /* ===== Focus Ring ===== */
+    --color-focus-ring: #0070f3;
+    /* Focus ring color */
+    --color-focus-ring-offset: #ffffff;
+    /* Focus ring offset color */
+
+    /* ===== Loading/Skeleton ===== */
+    --color-skeleton-base: #f5f5f5;
+    /* Skeleton loading background */
+    --color-skeleton-highlight: #ececec;
+    /* Skeleton loading highlight */
+}
+
+/* ===== Global Styles ===== */
+* {
+    @apply border-border;
+}
+
+body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+::selection {
+    background-color: var(--color-selection-background);
+    color: var(--color-selection-foreground);
+}
+
+/* ===== Custom Scrollbar ===== */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #d4d4d4;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #a3a3a3;
 }

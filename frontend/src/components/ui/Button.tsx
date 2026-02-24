@@ -2,7 +2,12 @@ import React from "react";
 import Link from "next/link";
 import clsx from "clsx";
 
-export type ButtonVariant = "primary" | "secondary" | "ghost" | "destructive";
+export type ButtonVariant =
+    | "primary"
+    | "secondary"
+    | "ghost"
+    | "outline"
+    | "destructive";
 export type ButtonSize = "sm" | "md" | "lg";
 
 export interface ButtonProps
@@ -33,36 +38,48 @@ export interface ButtonProps
  * Button
  * - supports optional icon (left/right)
  * - wraps in Next.js Link when href provided
- * - 4 variants, 3 sizes
+ * - 5 variants, 3 sizes
+ * - Black & white theme aligned with Tailwind v4 design system
  */
 const variantStyles: Record<ButtonVariant, string> = {
+    // Black background, white text - primary CTA
     primary:
-        "bg-accent text-white hover:bg-purple-500 focus:ring-accent transition-all duration-300",
+        "bg-button-primary text-button-primary-text hover:bg-button-primary-hover active:bg-button-primary-active focus:ring-button-primary border border-transparent",
+
+    // White background with border, black text - secondary action
     secondary:
-        "bg-transparent border border-accent text-primary hover:bg-accent hover:text-white focus:ring-accent transition-all duration-300",
+        "bg-button-secondary text-button-secondary-text border border-border hover:bg-button-secondary-hover hover:border-border-hover active:bg-button-secondary-active focus:ring-foreground",
+
+    // Transparent background, visible on hover - tertiary action
     ghost:
-        "bg-transparent text-foreground hover:bg-accent focus:ring-foreground transition-all duration-300",
+        "bg-transparent text-foreground hover:bg-button-ghost-hover active:bg-background-active focus:ring-foreground border border-transparent",
+
+    // Outlined style with hover fill - alternative secondary
+    outline:
+        "bg-transparent text-foreground border border-border hover:bg-foreground hover:text-foreground-inverse hover:border-foreground active:bg-button-primary-active focus:ring-foreground",
+
+    // Error/destructive actions (kept for semantic purposes, using black in b&w theme)
     destructive:
-        "bg-red-600 text-white hover:bg-red-700 focus:ring-red-600 transition-all duration-300",
+        "bg-error text-error-foreground border border-transparent hover:bg-button-primary-hover active:bg-button-primary-active focus:ring-error",
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
-    sm: "text-sm px-3 py-1.5 gap-1.5",
-    md: "text-sm px-4 py-2 gap-2",
-    lg: "text-base px-5 py-3 gap-3",
+    sm: "text-sm px-3 py-1.5 gap-1.5 h-8",
+    md: "text-sm px-4 py-2 gap-2 h-10",
+    lg: "text-base px-6 py-2.5 gap-2.5 h-12",
 };
 
 const base =
-    "inline-flex items-center justify-center font-semibold rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-60 disabled:pointer-events-none cursor-pointer";
+    "inline-flex items-center justify-center font-medium rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none cursor-pointer select-none transition-all duration-200";
 
 const iconOnlySize: Record<ButtonSize, string> = {
-    sm: "p-2",
-    md: "p-2.5",
-    lg: "p-3",
+    sm: "p-2 h-8 w-8",
+    md: "p-2.5 h-10 w-10",
+    lg: "p-3 h-12 w-12",
 };
 
 const IconWrapper = ({ children }: { children: React.ReactNode }) => (
-    <span className="inline-flex items-center">{children}</span>
+    <span className="inline-flex items-center justify-center shrink-0">{children}</span>
 );
 
 const Button = React.forwardRef<HTMLElement, ButtonProps>(
@@ -85,33 +102,20 @@ const Button = React.forwardRef<HTMLElement, ButtonProps>(
             base,
             variantStyles[variant],
             isIconOnly ? iconOnlySize[size] : sizeStyles[size],
-            isIconOnly ? "rounded-full" : "rounded-md",
             className
         );
 
-        const iconLeft =
-            icon && !isIconOnly && iconPosition === "left" ? (
-                <IconWrapper>
-                    <span className="mr-2">{icon}</span>
-                </IconWrapper>
-            ) : null;
-
-        const iconRight =
-            icon && !isIconOnly && iconPosition === "right" ? (
-                <IconWrapper>
-                    <span className="ml-2">{icon}</span>
-                </IconWrapper>
-            ) : null;
-
-        const iconOnlyContent = icon ? (
+        const iconElement = icon ? (
             <IconWrapper>{icon}</IconWrapper>
         ) : null;
 
-        const content = isIconOnly ? iconOnlyContent : (
+        const content = isIconOnly ? (
+            iconElement
+        ) : (
             <>
-                {iconLeft}
-                <span>{children}</span>
-                {iconRight}
+                {icon && iconPosition === "left" && iconElement}
+                {children && <span className="truncate">{children}</span>}
+                {icon && iconPosition === "right" && iconElement}
             </>
         );
 

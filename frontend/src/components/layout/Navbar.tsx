@@ -7,6 +7,7 @@ import { useAuth } from "@clerk/nextjs"
 import { Menu, X } from "lucide-react"
 
 import { SearchBar } from "@/components/layout"
+import Button from "@/components/ui/Button"
 import Logo from "@/components/Logo"
 import { Header } from "@/components/sections/home"
 import { User } from "../User"
@@ -60,20 +61,17 @@ export default function Navbar() {
             {NAVIGATION_ITEMS.map(({ href, icon: Icon, name }, index) => {
               const isCurrentRoute = pathname === href || pathname.startsWith(href + "/");
               return (
-                <Link
+                <Button
                   key={href + index}
                   href={href}
-                  className={clsx(
-                    "font-medium py-2 px-3 rounded-lg transition-all duration-200",
-                    "hover:bg-muted/30 active:scale-95",
-                    isCurrentRoute ? "bg-accent-faded text-accent-foreground shadow-md" : "text-foreground"
-                  )}
+                  variant={isCurrentRoute ? "secondary": "ghost"}
+                  className="border-none w-full justify-start"
                 >
                   <div className="flex gap-2 items-center">
                     <Icon className="size-5" />
                     {name}
                   </div>
-                </Link>
+                </Button>
               );
             })}
           </div>
