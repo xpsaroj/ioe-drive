@@ -127,6 +127,7 @@ const Button = React.forwardRef<HTMLElement, ButtonProps>(
                     ref={ref as any}
                     href={href}
                     className={classes}
+                    target={href.startsWith("http") ? "_blank" : undefined}
                 >
                     {content}
                 </Link>

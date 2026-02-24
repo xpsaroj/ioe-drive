@@ -8,12 +8,13 @@ export default function Header() {
     return (
         <header>
             <div className="container mx-auto flex items-center justify-between py-2 px-6 border-b border-gray-300">
-                <Logo size={6.5} />
+                <Logo size={3} theme="dark" bg={false} />
                 <div className="flex space-x-6">
                     <Button
                         variant="secondary"
                         size="md"
                         className="text-xl sm:text-base"
+                        href="https://github.com/xpsaroj/ioe-drive/"
                     >
                         Contribute
                     </Button>

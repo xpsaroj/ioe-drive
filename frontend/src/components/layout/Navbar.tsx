@@ -35,16 +35,13 @@ export default function Navbar() {
     }
   }, [menuOpen])
 
-  // For not logged-in users, show the home page header
-  if (!isSignedIn) return <Header />
-
   return (
     <div className="">
       {/* Sidebar (Desktop) */}
       <div className="flex flex-col gap-4 overflow-hidden h-screen">
         <div className="pt-3 px-3 flex flex-col gap-4">
-          <div className="flex flex-row gap-2 items-center">
-            <Logo size={2} />
+          <div className="px-3 flex flex-row gap-2 items-center">
+            <Logo theme="dark" size={2} bg={false} />
             IOE Drive
           </div>
 
@@ -86,7 +83,7 @@ export default function Navbar() {
       <div className="block md:hidden sticky top-0 z-50">
         <div className="flex justify-between items-center px-6 py-1 z-50 bg-background/10 backdrop-blur-sm border-b border-muted">
           <div>
-            <Logo size={3} />
+            <Logo size={3} theme="dark" />
           </div>
 
           <div className="md:hidden flex items-center">

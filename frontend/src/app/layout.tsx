@@ -3,12 +3,11 @@ import { Outfit } from "next/font/google";
 import { ClerkProvider } from '@clerk/nextjs';
 
 import "./globals.css";
-import { UserProvider } from "@/context/UserContext";
 import { ClerkApiProvider } from "@/context/ClerkApiProvider";
 import { StoreProvider } from "@/context/StoreProvider";
 import { StoreInitializer } from "@/context/StoreInitializer";
 
-import { Navbar, Footer, GlobalLoader } from "@/components/layout";
+import { GlobalLoader, LayoutWrapper } from "@/components/layout";
 
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
 
@@ -30,20 +29,9 @@ export default function RootLayout({
             <StoreProvider>
               <StoreInitializer>
                 <GlobalLoader>
-                  <div className="flex md:flex-row flex-col min-h-screen">
-                    <div className="hidden md:block sticky top-0 w-64 h-screen border-r border-gray-300">
-                      <Navbar />
-                    </div>
-
-                    <div className="md:flex-1 flex flex-col min-h-screen">
-                      <UserProvider >
-                        <div className="flex-1">
-                          {children}
-                        </div>
-                      </UserProvider>
-                      <Footer />
-                    </div>
-                  </div>
+                  <LayoutWrapper>
+                    {children}
+                  </LayoutWrapper>
                 </GlobalLoader>
               </StoreInitializer>
             </StoreProvider>

@@ -1,4 +1,5 @@
 "use client";
+import { ContainerBox } from "@/components/ui/ContainerBox";
 import Table, { Column } from "@/components/ui/Table";
 import { SubjectOfferingWithSubject } from "@/types/academics";
 import { subjectOfferings } from "@/data/demo-data";
@@ -33,20 +34,17 @@ const SemesterInformation = () => {
   ];
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-300">
-      <h3 className="text-lg font-semibold text-gray-800">
-        Subjects this semester
-      </h3>
-      <p className="text-xs text-gray-500 mb-4 italic">
-        Tip: Click on subject to directly access its resources
-      </p>
+    <ContainerBox
+      title="Subjects this semester"
+      comment="Tip: Click on subject to directly access its resources"
+    >
       <Table
         columns={columns}
         data={subjectOfferings}
         emptyMessage="No semester information available."
         striped
       />
-    </div>
+    </ContainerBox>
   );
 };
 

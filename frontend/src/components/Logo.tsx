@@ -3,16 +3,24 @@ import Image from "next/image";
 import { useAuth } from '@clerk/nextjs';
 
 interface LogoProps {
+    theme: "light" | "dark";
     size?: number;
+    bg?: boolean;
 }
 
-export default function Logo({ size = 6 }: LogoProps) {
+export default function Logo({
+    theme,
+    size = 6,
+    bg = true,
+}: LogoProps) {
     const { isSignedIn } = useAuth();
+
+    const imagePath = `/logo/logo-${theme}${bg ? "" : "-no-bg"}.svg`;
 
     return (
         <Link href={isSignedIn ? "/dashboard" : "/"}>
             <Image
-                src="/logo/logo-light.svg"
+                src={imagePath}
                 alt="IOE Drive Logo"
                 preload={true}
                 width={size * 16}
