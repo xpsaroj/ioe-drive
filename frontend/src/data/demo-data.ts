@@ -1,3 +1,4 @@
+import { SubjectOfferingWithSubject, SemesterEnum, SubjectHardnessLevel } from "@/types/academics"
 
 export const users = [
   {
@@ -100,4 +101,88 @@ export const semesterDataByUser = [
 export const upcomingExamsByUser = [
   { date: "2082/02/03", subject: "Instrumentation", type: "Assessment (SST)", marks: "20", addedBy: "Acchividhu Aryal" },
   { date: "2082/02/06", subject: "Instrumentation", type: "Board Exam", marks: "60", addedBy: "Acchividhu Aryal" },
+];
+
+
+export const subjectOfferings: SubjectOfferingWithSubject[] = [
+  {
+    id: 1,
+    subjectId: 101,
+    semester: SemesterEnum.FIRST,
+    departmentId: 1,
+    year: 2024,
+    subject: {
+      id: 101,
+      code: "CSE101",
+      name: "Introduction to Programming",
+      departmentId: 1,
+      hardnessLevel: SubjectHardnessLevel.EASY,
+      description: "Basics of programming using C",
+      department: {
+        id: 1,
+        code: "CSE",
+        name: "Computer Science and Engineering",
+      },
+    },
+  },
+  {
+    id: 2,
+    subjectId: 102,
+    semester: SemesterEnum.SECOND,
+    departmentId: 1,
+    year: 2024,
+    subject: {
+      id: 102,
+      code: "CSE201",
+      name: "Data Structures",
+      departmentId: 1,
+      hardnessLevel: SubjectHardnessLevel.MEDIUM,
+      description: "Arrays, linked lists, stacks, queues, trees",
+      department: {
+        id: 1,
+        code: "CSE",
+        name: "Computer Science and Engineering",
+      },
+    },
+  },
+  {
+    id: 3,
+    subjectId: 201,
+    semester: SemesterEnum.THIRD,
+    departmentId: 2,
+    year: 2024,
+    subject: {
+      id: 201,
+      code: "EEE301",
+      name: "Circuit Theory",
+      departmentId: 2,
+      hardnessLevel: SubjectHardnessLevel.HARD,
+      description: "Network theorems and AC/DC circuits",
+      department: {
+        id: 2,
+        code: "EEE",
+        name: "Electrical and Electronic Engineering",
+      },
+    },
+  },
+  {
+    id: 4,
+    subjectId: 103,
+    semester: SemesterEnum.FOURTH,
+    departmentId: 1,
+    year: 2025,
+    subject: {
+      id: 103,
+      code: "CSE401",
+      name: "Operating Systems",
+      departmentId: 1,
+      hardnessLevel: SubjectHardnessLevel.VERY_HARD,
+      description: "Processes, threads, memory management",
+      department: {
+        id: 1,
+        code: "CSE",
+        name: "Computer Science and Engineering",
+      },
+    },
+  },
 ];

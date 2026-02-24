@@ -1,9 +1,9 @@
-import React from "react";
 import { DashboardContent } from "@/components/sections/dashboard";
+
 
 const DashboardPage = () => {
   return (
-    <div className="min-h-screen bg-background text-foreground ">
+    <div className="min-h-screen bg-background text-foreground p-10">
       <DashboardContent />
     </div>
   );

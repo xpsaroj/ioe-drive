@@ -6,19 +6,19 @@ import UpcomingExams from "./ExamsSection";
 
 const DashboardContent = () => {
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-4">
+    <div className="max-w-7xl mx-auto space-y-4">
       <div className="flex flex-col lg:flex-row lg:space-x-6 space-y-6 lg:space-y-0">
         {/* Left Column */}
-        <div className="lg:w-1/3 space-y-6 ">
-          <RecentAccess />
-          <div className="flex flex-row gap-2 sm:space-x-3 space-y-6 sm:space-y-0">
-            <YourArchive />
-            <UploadNotes />
-          </div>
-        </div>
+        {/* <div className="lg:w-1/3 space-y-6 "> */}
+          {/* <RecentAccess /> */}
+          {/* <div className="flex flex-row gap-2 sm:space-x-3 space-y-6 sm:space-y-0"> */}
+            {/* <YourArchive /> */}
+            {/* <UploadNotes /> */}
+          {/* </div> */}
+        {/* </div> */}
 
         {/* Right Column */}
-        <div className="lg:w-2/3 space-y-6">
+        <div className="w-full space-y-6">
           <SemesterInformation />
           <UpcomingExams />
         </div>
