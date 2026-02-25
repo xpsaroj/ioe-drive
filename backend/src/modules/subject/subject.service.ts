@@ -1,3 +1,5 @@
+import { asc } from "drizzle-orm"
+
 import { db } from "../../db/index.js";
 import type { Semester } from "../../db/schema.js";
 import { NotFoundError } from "../../lib/errors.js";
@@ -32,17 +34,13 @@ export class SubjectService {
                 },
                 with: {
                     subject: {
-                        columns: {
-                            id: true,
-                            code: true,
-                            name: true,
-                            departmentId: true,
-                        },
                         with: {
-                            department: true
+                            department: true,
+                            marks: true,
                         }
                     },
-                }
+                },
+                orderBy: (fields) => asc(fields.semester),
             })
     }
 
@@ -65,14 +63,9 @@ export class SubjectService {
                 },
                 with: {
                     subject: {
-                        columns: {
-                            id: true,
-                            code: true,
-                            name: true,
-                            departmentId: true,
-                        },
                         with: {
-                            department: true
+                            department: true,
+                            marks: true,
                         }
                     },
                 }

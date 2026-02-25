@@ -11,16 +11,17 @@ export enum SubjectHardnessLevel {
     VERY_HARD = "Very Hard",
 }
 
-export enum SemesterEnum {
-    FIRST = "1st",
-    SECOND = "2nd",
-    THIRD = "3rd",
-    FOURTH = "4th",
-    FIFTH = "5th",
-    SIXTH = "6th",
-    SEVENTH = "7th",
-    EIGHTH = "8th",
-}
+export type Semester = "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8";
+export const SemesterLabel: Record<Semester, string> = {
+    "1": "1st",
+    "2": "2nd",
+    "3": "3rd",
+    "4": "4th",
+    "5": "5th",
+    "6": "6th",
+    "7": "7th",
+    "8": "8th",
+};
 
 export interface Subject {
     id: number;
@@ -34,7 +35,7 @@ export interface Subject {
 export interface SubjectOffering {
     id: number;
     subjectId: number;
-    semester: SemesterEnum;
+    semester: Semester;
     departmentId: number;
     year: number;
 }
@@ -48,10 +49,11 @@ export interface Marks {
     practicalFinal: number;
 }
 
-export interface SubjectWithDepartment extends Subject {
+export interface SubjectWithDepartmentandMarks extends Subject {
     department: Department;
+    marks: Marks;
 }
 
 export interface SubjectOfferingWithSubject extends SubjectOffering {
-    subject: SubjectWithDepartment;
+    subject: SubjectWithDepartmentandMarks;
 }

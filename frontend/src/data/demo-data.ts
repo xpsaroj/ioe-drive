@@ -1,4 +1,4 @@
-import { SubjectOfferingWithSubject, SemesterEnum, SubjectHardnessLevel } from "@/types/academics"
+import { SubjectOfferingWithSubject, SubjectHardnessLevel } from "@/types/academics"
 
 export const users = [
   {
@@ -108,7 +108,7 @@ export const subjectOfferings: SubjectOfferingWithSubject[] = [
   {
     id: 1,
     subjectId: 101,
-    semester: SemesterEnum.FIRST,
+    semester: "1",
     departmentId: 1,
     year: 2024,
     subject: {
@@ -123,12 +123,20 @@ export const subjectOfferings: SubjectOfferingWithSubject[] = [
         code: "CSE",
         name: "Computer Science and Engineering",
       },
+      marks: {
+        id: 1,
+        subjectId: 101,
+        theoryAssessment: 30,
+        theoryFinal: 50,
+        practicalAssessment: 10,
+        practicalFinal: 20,
+      }
     },
   },
   {
     id: 2,
     subjectId: 102,
-    semester: SemesterEnum.SECOND,
+    semester: "2",
     departmentId: 1,
     year: 2024,
     subject: {
@@ -143,12 +151,20 @@ export const subjectOfferings: SubjectOfferingWithSubject[] = [
         code: "CSE",
         name: "Computer Science and Engineering",
       },
+      marks: {
+        id: 1,
+        subjectId: 102,
+        theoryAssessment: 40,
+        theoryFinal: 60,
+        practicalAssessment: 20,
+        practicalFinal: 30,
+      }
     },
   },
   {
     id: 3,
     subjectId: 201,
-    semester: SemesterEnum.THIRD,
+    semester: "3",
     departmentId: 2,
     year: 2024,
     subject: {
@@ -163,12 +179,20 @@ export const subjectOfferings: SubjectOfferingWithSubject[] = [
         code: "EEE",
         name: "Electrical and Electronic Engineering",
       },
+      marks: {
+        id: 1,
+        subjectId: 201,
+        theoryAssessment: 35,
+        theoryFinal: 55,
+        practicalAssessment: 15,
+        practicalFinal: 25,
+      }
     },
   },
   {
     id: 4,
     subjectId: 103,
-    semester: SemesterEnum.FOURTH,
+    semester: "4",
     departmentId: 1,
     year: 2025,
     subject: {
@@ -183,6 +207,14 @@ export const subjectOfferings: SubjectOfferingWithSubject[] = [
         code: "CSE",
         name: "Computer Science and Engineering",
       },
+      marks: {
+        id: 1,
+        subjectId: 103,
+        theoryAssessment: 45,
+        theoryFinal: 70,
+        practicalAssessment: 25,
+        practicalFinal: 35,
+      }
     },
   },
 ];

@@ -38,8 +38,6 @@ export const subjectsTable = pgTable("subjects", {
         .notNull(),
     hardnessLevel: SubjectHardnessLevelEnum("hardness_level").notNull(),
     description: text("description"),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull().$onUpdate(() => new Date()),
 });
 
 export const marksTable = pgTable("subject_marks", {
@@ -51,8 +49,6 @@ export const marksTable = pgTable("subject_marks", {
     theoryFinal: integer("theory_final").notNull().default(0),
     practicalAssessment: integer("practical_assessment").notNull().default(0),
     practicalFinal: integer("practical_final").notNull().default(0),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull().$onUpdate(() => new Date()),
 },
     (table) => [
         unique("unique_subject_marks").on(table.subjectId),
@@ -70,8 +66,6 @@ export const subjectOfferingsTable = pgTable("subject_offerings", {
         .references(() => departmentsTable.id)
         .notNull(),
     year: integer("year").notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at").defaultNow().notNull().$onUpdate(() => new Date()),
 },
     (table) => [
         unique("unique_subject_offering").on(
