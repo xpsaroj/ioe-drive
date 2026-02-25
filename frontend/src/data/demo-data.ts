@@ -1,4 +1,5 @@
 import { SubjectOfferingWithSubject, SubjectHardnessLevel } from "@/types/academics"
+import { RecentNote } from "@/types/notes";
 
 export const users = [
   {
@@ -215,6 +216,199 @@ export const subjectOfferings: SubjectOfferingWithSubject[] = [
         practicalAssessment: 25,
         practicalFinal: 35,
       }
+    },
+  },
+];
+
+export const recentNotes: RecentNote[] = [
+  {
+    id: 1,
+    userId: 101,
+    noteId: 5001,
+    accessedAt: "2026-02-25T14:32:00Z",
+    note: {
+      id: 5001,
+      title: "OS – Process Scheduling",
+      description: "CPU scheduling algorithms and examples",
+      subjectId: 301,
+      createdAt: "2026-02-20T10:15:00Z",
+      updatedAt: "2026-02-20T10:15:00Z",
+      subject: {
+        id: 301,
+        code: "CS301",
+        name: "Operating Systems",
+        departmentId: 10,
+        hardnessLevel: SubjectHardnessLevel.HARD,
+        department: {
+          id: 10,
+          code: "CSE",
+          name: "Computer Science & Engineering",
+        },
+        marks: {
+          id: 901,
+          subjectId: 301,
+          theoryAssessment: 30,
+          theoryFinal: 70,
+          practicalAssessment: 25,
+          practicalFinal: 50,
+        },
+      },
+      uploader: {
+        id: 201,
+        fullName: "Aarav Sharma",
+      },
+    },
+  },
+  {
+    id: 2,
+    userId: 101,
+    noteId: 5002,
+    accessedAt: "2026-02-24T18:10:00Z",
+    note: {
+      id: 5002,
+      title: "DBMS – Normalization",
+      description: "1NF to BCNF with examples",
+      subjectId: 302,
+      createdAt: "2026-02-18T09:00:00Z",
+      updatedAt: "2026-02-19T11:45:00Z",
+      subject: {
+        id: 302,
+        code: "CS302",
+        name: "Database Management Systems",
+        departmentId: 10,
+        hardnessLevel: SubjectHardnessLevel.MEDIUM,
+        department: {
+          id: 10,
+          code: "CSE",
+          name: "Computer Science & Engineering",
+        },
+        marks: {
+          id: 902,
+          subjectId: 302,
+          theoryAssessment: 25,
+          theoryFinal: 75,
+          practicalAssessment: 30,
+          practicalFinal: 50,
+        },
+      },
+      uploader: {
+        id: 202,
+        fullName: "Neha Verma",
+      },
+    },
+  },
+  {
+    id: 3,
+    userId: 101,
+    noteId: 5003,
+    accessedAt: "2026-02-23T21:40:00Z",
+    note: {
+      id: 5003,
+      title: "CN – TCP/IP Model",
+      description: "Layered architecture and protocols",
+      subjectId: 303,
+      createdAt: "2026-02-15T14:20:00Z",
+      updatedAt: "2026-02-16T10:00:00Z",
+      subject: {
+        id: 303,
+        code: "CS303",
+        name: "Computer Networks",
+        departmentId: 10,
+        hardnessLevel: SubjectHardnessLevel.MEDIUM,
+        department: {
+          id: 10,
+          code: "CSE",
+          name: "Computer Science & Engineering",
+        },
+        marks: {
+          id: 903,
+          subjectId: 303,
+          theoryAssessment: 28,
+          theoryFinal: 72,
+          practicalAssessment: 20,
+          practicalFinal: 50,
+        },
+      },
+      uploader: {
+        id: 203,
+        fullName: "Rohit Mehta",
+      },
+    },
+  },
+  {
+    id: 4,
+    userId: 101,
+    noteId: 5004,
+    accessedAt: "2026-02-22T16:05:00Z",
+    note: {
+      id: 5004,
+      title: "SE – Software Development Life Cycle",
+      description: "SDLC models and comparisons",
+      subjectId: 304,
+      createdAt: "2026-02-12T08:30:00Z",
+      updatedAt: "2026-02-12T08:30:00Z",
+      subject: {
+        id: 304,
+        code: "CS304",
+        name: "Software Engineering",
+        departmentId: 10,
+        hardnessLevel: SubjectHardnessLevel.EASY,
+        department: {
+          id: 10,
+          code: "CSE",
+          name: "Computer Science & Engineering",
+        },
+        marks: {
+          id: 904,
+          subjectId: 304,
+          theoryAssessment: 35,
+          theoryFinal: 65,
+          practicalAssessment: 30,
+          practicalFinal: 50,
+        },
+      },
+      uploader: {
+        id: 204,
+        fullName: "Simran Kaur",
+      },
+    },
+  },
+  {
+    id: 5,
+    userId: 101,
+    noteId: 5005,
+    accessedAt: "2026-02-21T11:55:00Z",
+    note: {
+      id: 5005,
+      title: "TOC – Finite Automata",
+      description: "DFA, NFA, and state transitions",
+      subjectId: 305,
+      createdAt: "2026-02-10T13:10:00Z",
+      updatedAt: "2026-02-11T09:00:00Z",
+      subject: {
+        id: 305,
+        code: "CS305",
+        name: "Theory of Computation",
+        departmentId: 10,
+        hardnessLevel: SubjectHardnessLevel.VERY_HARD,
+        department: {
+          id: 10,
+          code: "CSE",
+          name: "Computer Science & Engineering",
+        },
+        marks: {
+          id: 905,
+          subjectId: 305,
+          theoryAssessment: 20,
+          theoryFinal: 80,
+          practicalAssessment: 0,
+          practicalFinal: 0,
+        },
+      },
+      uploader: {
+        id: 205,
+        fullName: "Kunal Singh",
+      },
     },
   },
 ];

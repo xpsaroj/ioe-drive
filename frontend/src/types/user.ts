@@ -1,4 +1,4 @@
-import type { Department, SemesterEnum } from "./academics";
+import type { Department, Semester } from "./academics";
 
 export interface User {
     id: number;
@@ -12,7 +12,7 @@ export interface Profile {
     userId: number;
     bio?: string;
     departmentId?: number;
-    semester?: SemesterEnum;
+    semester?: Semester;
     college?: string;
     profilePictureUrl?: string;
 }

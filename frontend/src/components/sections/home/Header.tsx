@@ -7,7 +7,7 @@ import Button from "@/components/ui/Button";
 export default function Header() {
     return (
         <header>
-            <div className="container mx-auto flex items-center justify-between py-2 px-6 border-b border-gray-300">
+            <div className="container mx-auto flex items-center justify-between py-4 px-6 border-b border-gray-300">
                 <Logo size={3} theme="dark" bg={false} />
                 <div className="flex space-x-6">
                     <Button

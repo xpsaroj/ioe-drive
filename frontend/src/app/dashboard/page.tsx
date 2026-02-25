@@ -1,9 +1,8 @@
 import { DashboardContent } from "@/components/sections/dashboard";
 
-
 const DashboardPage = () => {
   return (
-    <div className="min-h-screen bg-background text-foreground p-10">
+    <div className="min-h-screen bg-background text-foreground md:p-10 p-6 max-w-7xl mx-auto">
       <DashboardContent />
     </div>
   );

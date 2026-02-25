@@ -23,11 +23,29 @@ const SemesterInformation = () => {
       ),
     },
     {
-      key: "examType",
-      label: "EXAM TYPE",
+      key: "department",
+      label: "DEPARTMENT",
       render: (item) => (
         <span>
-          {item.semester} {item.year}
+          {item.subject.department.code}
+        </span>
+      ),
+    },
+    {
+      key: "marks-theory",
+      label: "MARKS (TH)",
+      render: (item) => (
+        <span>
+          {item.subject.marks.theoryFinal} + {item.subject.marks.theoryAssessment}
+        </span>
+      ),
+    },
+    {
+      key: "marks-practical",
+      label: "MARKS (PR)",
+      render: (item) => (
+        <span>
+          {item.subject.marks.practicalFinal} + {item.subject.marks.practicalAssessment}
         </span>
       ),
     },

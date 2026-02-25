@@ -72,9 +72,12 @@ function Table<T>({
     const sortedData = React.useMemo(() => {
         if (!sortConfig || !sortable) return data;
 
-        return [...data].sort((a: any, b: any) => {
-            const aValue = a[sortConfig.key];
-            const bValue = b[sortConfig.key];
+        return [...data].sort((a, b) => {
+            const aValue = (a as Record<string, unknown>)[sortConfig.key];
+            const bValue = (b as Record<string, unknown>)[sortConfig.key];
+
+            if (aValue == null) return 1;
+            if (bValue == null) return -1;
 
             if (aValue < bValue) {
                 return sortConfig.direction === "asc" ? -1 : 1;
@@ -161,7 +164,7 @@ function Table<T>({
                             <th
                                 key={column.key}
                                 className={clsx(
-                                    "px-4 py-3 font-medium text-foreground-secondary text-xs uppercase tracking-wide",
+                                    "px-4 py-3 font-medium text-foreground-secondary text-xs uppercase tracking-wide whitespace-nowrap",
                                     getAlignClass(column.align),
                                     column.sortable && sortable && "cursor-pointer select-none hover:text-foreground"
                                 )}
@@ -218,7 +221,7 @@ function Table<T>({
                                     >
                                         {column.render
                                             ? column.render(item, rowIndex)
-                                            : (item as any)[column.key]}
+                                            : String((item as Record<string, unknown>)[column.key] ?? "")}
                                     </td>
                                 ))}
                             </tr>

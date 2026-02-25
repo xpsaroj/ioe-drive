@@ -1,26 +1,20 @@
 import RecentAccess from "./RecentAccess";
-import YourArchive from "./YourArchieve";
-import UploadNotes from "./UploadNotes";
+import DashboardHero from "./DashboardHero";
 import SemesterInformation from "./SemesterInformation";
 import UpcomingExams from "./ExamsSection";
 
 const DashboardContent = () => {
   return (
-    <div className="max-w-7xl mx-auto space-y-4">
-      <div className="flex flex-col lg:flex-row lg:space-x-6 space-y-6 lg:space-y-0">
-        {/* Left Column */}
-        {/* <div className="lg:w-1/3 space-y-6 "> */}
-          {/* <RecentAccess /> */}
-          {/* <div className="flex flex-row gap-2 sm:space-x-3 space-y-6 sm:space-y-0"> */}
-            {/* <YourArchive /> */}
-            {/* <UploadNotes /> */}
-          {/* </div> */}
-        {/* </div> */}
-
-        {/* Right Column */}
-        <div className="w-full space-y-6">
-          <SemesterInformation />
+    <div className="space-y-10">
+      <DashboardHero />
+      <div className="space-y-10">
+        <div className="flex flex-col md:flex-row gap-10">
+          <RecentAccess />
           <UpcomingExams />
+        </div>
+
+        <div className="flex-1 space-y-6">
+          <SemesterInformation />
         </div>
       </div>
     </div>

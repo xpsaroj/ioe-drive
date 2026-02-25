@@ -1,36 +1,31 @@
 "use client";
-
-import { useUser } from "@/context/UserContext";
+import { ContainerBox } from "@/components/ui/ContainerBox";
+import { recentNotes } from "@/data/demo-data";
 
 const RecentAccessItem = ({ title, author }: { title: string; author: string }) => (
-  <div className="border border-muted rounded-lg p-2 cursor-pointer hover:bg-blue-50 transition duration-150">
-    <h4
-      className="text-lg font-semibold text-link border-b border-link overflow-hidden whitespace-nowrap text-ellipsis"
-      title={title} 
-    >
-      {title}
-    </h4>
-    <p className="text-xs text-black/65"> | By {author}</p>
+  <div className="border rounded-lg p-2 px-3 cursor-pointer hover:bg-background-tertiary transition duration-150">
+    <p className="overflow-hidden whitespace-nowrap text-ellipsis">{title}</p>
+    <p className="text-xs text-black/65"> By {author}</p>
   </div>
 );
 
-
 const RecentAccess = () => {
-  const { recentNotes } = useUser();
-
   return (
-    <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-300">
-      <h3 className="text-lg font-semibold mb-4 text-gray-800">Recent Access</h3>
+    <ContainerBox
+      title="Recently accessed notes"
+      comment="Jump back to your notes and continue where you left off."
+      className="md:min-w-xs"
+    >
       <div className="space-y-3">
-        {recentNotes.map((note) => (
+        {recentNotes.slice(0, 2).map((noteItem) => (
           <RecentAccessItem
-            key={note.noteId}
-            title={note.noteTitle}
-            author={note.uploader}
+            key={noteItem.noteId}
+            title={noteItem.note.title}
+            author={noteItem.note.uploader?.fullName || "Unknown"}
           />
         ))}
       </div>
-    </div>
+    </ContainerBox>
   );
 };
 

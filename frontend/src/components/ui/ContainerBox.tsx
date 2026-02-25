@@ -1,16 +1,20 @@
+import clsx from "clsx";
+
 interface ContainerBoxProps {
     children: React.ReactNode;
     title: string;
     comment?: string;
+    className?: string;
 }
 
 export const ContainerBox = ({
     children,
     title,
-    comment
+    comment,
+    className = "",
 }: ContainerBoxProps) => {
     return (
-        <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-300">
+        <div className={clsx("bg-white p-6 rounded-xl shadow-sm border border-gray-300", className)}>
             <h3 className="text-lg font-semibold text-gray-800 select-text">
                 {title}
             </h3>

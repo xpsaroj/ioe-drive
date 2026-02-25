@@ -1,9 +1,9 @@
 import { apiClient } from "./api-client";
-import type { ApiResponse, Department, SemesterEnum, SubjectOfferingWithSubject } from "@/types";
+import type { ApiResponse, Department, Semester, SubjectOfferingWithSubject } from "@/types";
 
 export interface SubjectsFilters {
     departmentId: number;
-    semester?: SemesterEnum;
+    semester?: Semester;
 }
 
 export const academicsApi = {
