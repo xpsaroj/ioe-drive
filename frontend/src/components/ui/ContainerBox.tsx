@@ -11,7 +11,7 @@ export const ContainerBox = ({
 }: ContainerBoxProps) => {
     return (
         <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-300">
-            <h3 className="text-lg font-semibold text-gray-800">
+            <h3 className="text-lg font-semibold text-gray-800 select-text">
                 {title}
             </h3>
             {comment && (

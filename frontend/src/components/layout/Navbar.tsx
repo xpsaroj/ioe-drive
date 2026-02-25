@@ -3,13 +3,11 @@ import { usePathname } from "next/navigation"
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import clsx from "clsx"
-import { useAuth } from "@clerk/nextjs"
 import { Menu, X } from "lucide-react"
 
 import { SearchBar } from "@/components/layout"
 import Button from "@/components/ui/Button"
 import Logo from "@/components/Logo"
-import { Header } from "@/components/sections/home"
 import { User } from "../User"
 
 import { NAVIGATION_ITEMS } from "@/constants/navigations"
@@ -18,7 +16,6 @@ import { NAVIGATION_ITEMS } from "@/constants/navigations"
  * Navbar component for the application
  */
 export default function Navbar() {
-  const { isSignedIn } = useAuth()
   const pathname = usePathname()
 
   const [menuOpen, setMenuOpen] = useState(false)

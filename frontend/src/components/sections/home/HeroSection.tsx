@@ -10,7 +10,7 @@ export default function HeroSection() {
     const { isSignedIn } = useAuth();
 
     return (
-        <section className="bg-gray-100 py-20">
+        <section className="bg-background-secondary py-20 border-b">
             <div className="container mx-auto px-6 text-center">
                 <h1 className="text-4xl text-primary font-bold mb-4">A unified digital space for IOE students</h1>
                 <p className="text-lg text-secondary max-w-2xl mx-auto mb-8">

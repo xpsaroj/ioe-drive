@@ -1,5 +1,6 @@
 "use client";
 import { useAuth } from "@clerk/nextjs"
+import { usePathname } from "next/navigation";
 
 import Navbar from "./Navbar";
 import { Header } from "../sections/home";
@@ -7,6 +8,9 @@ import Footer from "./Footer";
 
 const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
     const { isSignedIn } = useAuth()
+    const pathname = usePathname()
+
+    const pagesWithFooter = ["/", "/about", "/contact"]
 
     // For not logged-in users, show the home page header
     if (!isSignedIn) return (
@@ -15,7 +19,9 @@ const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
             <div className="flex-1">
                 {children}
             </div>
-            <Footer />
+            {pagesWithFooter.includes(pathname) && (
+                <Footer />
+            )}
         </div>
     )
 
@@ -29,7 +35,9 @@ const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
                 <div className="flex-1">
                     {children}
                 </div>
-                <Footer />
+                {pagesWithFooter.includes(pathname) && (
+                    <Footer />
+                )}
             </div>
         </div>
     )
