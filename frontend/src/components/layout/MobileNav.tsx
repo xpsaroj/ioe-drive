@@ -34,7 +34,7 @@ export default function MobileNav() {
     return (
         <div>
             {/* Floating button for mobile nav */}
-            <div className="fixed top-3 right-3 md:hidden">
+            <div className="fixed top-3 right-3 md:hidden z-9999">
                 <button
                     className="p-3 text-foreground backdrop-blur-sm rounded-full shadow-lg transition-colors border border-button-primary"
                     onClick={() => setMenuOpen(true)}

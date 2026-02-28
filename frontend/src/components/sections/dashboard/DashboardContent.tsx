@@ -5,10 +5,10 @@ import UpcomingExams from "./ExamsSection";
 
 const DashboardContent = () => {
   return (
-    <div className="space-y-10">
+    <div className="space-y-8">
       <DashboardHero />
-      <div className="space-y-10">
-        <div className="flex flex-col md:flex-row gap-10">
+      <div className="space-y-8">
+        <div className="flex flex-col md:flex-row gap-8">
           <RecentAccess />
           <UpcomingExams />
         </div>

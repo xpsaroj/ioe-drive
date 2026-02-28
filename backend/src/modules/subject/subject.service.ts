@@ -39,6 +39,7 @@ export class SubjectService {
                             marks: true,
                         }
                     },
+                    department: true,
                 },
                 orderBy: (fields) => asc(fields.semester),
             })
@@ -68,6 +69,7 @@ export class SubjectService {
                             marks: true,
                         }
                     },
+                    department: true,
                 }
             });
 

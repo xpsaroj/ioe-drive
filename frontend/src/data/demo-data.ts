@@ -112,6 +112,11 @@ export const subjectOfferings: SubjectOfferingWithSubject[] = [
     semester: "1",
     departmentId: 1,
     year: 2024,
+    department: {
+      id: 1,
+      code: "CSE",
+      name: "Computer Science and Engineering",
+    },
     subject: {
       id: 101,
       code: "CSE101",
@@ -140,6 +145,11 @@ export const subjectOfferings: SubjectOfferingWithSubject[] = [
     semester: "2",
     departmentId: 1,
     year: 2024,
+    department: {
+      id: 1,
+      code: "CSE",
+      name: "Computer Science and Engineering",
+    },
     subject: {
       id: 102,
       code: "CSE201",
@@ -168,6 +178,11 @@ export const subjectOfferings: SubjectOfferingWithSubject[] = [
     semester: "3",
     departmentId: 2,
     year: 2024,
+    department: {
+      id: 2,
+      code: "EEE",
+      name: "Electrical and Electronic Engineering",
+    },
     subject: {
       id: 201,
       code: "EEE301",
@@ -196,6 +211,11 @@ export const subjectOfferings: SubjectOfferingWithSubject[] = [
     semester: "4",
     departmentId: 1,
     year: 2025,
+    department: {
+      id: 1,
+      code: "CSE",
+      name: "Computer Science and Engineering",
+    },
     subject: {
       id: 103,
       code: "CSE401",

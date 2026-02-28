@@ -40,6 +40,10 @@ export interface SubjectOffering {
     year: number;
 }
 
+export interface SubjectOfferingWithDepartment extends SubjectOffering {
+    department: Department;
+}
+
 export interface Marks {
     id: number;
     subjectId: number;
@@ -54,6 +58,6 @@ export interface SubjectWithDepartmentandMarks extends Subject {
     marks: Marks;
 }
 
-export interface SubjectOfferingWithSubject extends SubjectOffering {
+export interface SubjectOfferingWithSubject extends SubjectOfferingWithDepartment {
     subject: SubjectWithDepartmentandMarks;
 }
