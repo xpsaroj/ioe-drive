@@ -1,23 +1,23 @@
 import { apiClient } from "./api-client";
-import type { ApiResponse, Department, Semester, SubjectOfferingWithSubject } from "@/types";
+import type { ApiResponse, Program, Semester, SubjectOfferingWithSubject } from "@/types";
 
 export interface SubjectsFilters {
-    departmentId: number;
+    programId: number;
     semester?: Semester;
 }
 
 export const academicsApi = {
-    async getAllDepartments(): Promise<ApiResponse<Department[]>> {
-        return apiClient.get<ApiResponse<Department[]>>("/departments");
+    async getAllPrograms(): Promise<ApiResponse<Program[]>> {
+        return apiClient.get<ApiResponse<Program[]>>("/programs");
     },
 
     /**
-     * Get subjects filtered by department and semester.
-     * - If semester is not provided, fetches all subjects for the department.
+     * Get subjects filtered by program and semester.
+     * - If semester is not provided, fetches all subjects for the program.
      */
-    async getSubjectsByDepartmentAndSemester(filters: SubjectsFilters): Promise<ApiResponse<SubjectOfferingWithSubject[]>> {
+    async getSubjectsByProgramAndSemester(filters: SubjectsFilters): Promise<ApiResponse<SubjectOfferingWithSubject[]>> {
         const params = new URLSearchParams({
-            departmentId: filters.departmentId.toString(),
+            programId: filters.programId.toString(),
         });
         if (filters.semester) {
             params.append("semester", filters.semester);

@@ -110,24 +110,28 @@ export const subjectOfferings: SubjectOfferingWithSubject[] = [
     id: 1,
     subjectId: 101,
     semester: "1",
-    departmentId: 1,
-    year: 2024,
-    department: {
+    programId: 1,
+    year: "1",
+    program: {
       id: 1,
       code: "CSE",
       name: "Computer Science and Engineering",
+      totalYears: 4,
+      syllabusUrl: "https://example.com/syllabus/cse",
     },
     subject: {
       id: 101,
       code: "CSE101",
       name: "Introduction to Programming",
-      departmentId: 1,
+      programId: 1,
       hardnessLevel: SubjectHardnessLevel.EASY,
       description: "Basics of programming using C",
-      department: {
+      program: {
         id: 1,
         code: "CSE",
         name: "Computer Science and Engineering",
+        totalYears: 4,
+        syllabusUrl: "https://example.com/syllabus/cse",
       },
       marks: {
         id: 1,
@@ -143,24 +147,28 @@ export const subjectOfferings: SubjectOfferingWithSubject[] = [
     id: 2,
     subjectId: 102,
     semester: "2",
-    departmentId: 1,
-    year: 2024,
-    department: {
+    programId: 1,
+    year: "1",
+    program: {
       id: 1,
       code: "CSE",
       name: "Computer Science and Engineering",
+      totalYears: 4,
+      syllabusUrl: "https://example.com/syllabus/cse",
     },
     subject: {
       id: 102,
       code: "CSE201",
       name: "Data Structures",
-      departmentId: 1,
+      programId: 1,
       hardnessLevel: SubjectHardnessLevel.MEDIUM,
       description: "Arrays, linked lists, stacks, queues, trees",
-      department: {
+      program: {
         id: 1,
         code: "CSE",
         name: "Computer Science and Engineering",
+        totalYears: 4,
+        syllabusUrl: "https://example.com/syllabus/cse",
       },
       marks: {
         id: 1,
@@ -176,24 +184,28 @@ export const subjectOfferings: SubjectOfferingWithSubject[] = [
     id: 3,
     subjectId: 201,
     semester: "3",
-    departmentId: 2,
-    year: 2024,
-    department: {
+    programId: 2,
+    year: "2",
+    program: {
       id: 2,
       code: "EEE",
       name: "Electrical and Electronic Engineering",
+      totalYears: 4,
+      syllabusUrl: "https://example.com/syllabus/eee",
     },
     subject: {
       id: 201,
       code: "EEE301",
       name: "Circuit Theory",
-      departmentId: 2,
+      programId: 2,
       hardnessLevel: SubjectHardnessLevel.HARD,
       description: "Network theorems and AC/DC circuits",
-      department: {
+      program: {
         id: 2,
         code: "EEE",
         name: "Electrical and Electronic Engineering",
+        totalYears: 4,
+        syllabusUrl: "https://example.com/syllabus/eee",
       },
       marks: {
         id: 1,
@@ -209,24 +221,28 @@ export const subjectOfferings: SubjectOfferingWithSubject[] = [
     id: 4,
     subjectId: 103,
     semester: "4",
-    departmentId: 1,
-    year: 2025,
-    department: {
+    programId: 1,
+    year: "2",
+    program: {
       id: 1,
       code: "CSE",
       name: "Computer Science and Engineering",
+      totalYears: 4,
+      syllabusUrl: "https://example.com/syllabus/cse",
     },
     subject: {
       id: 103,
       code: "CSE401",
       name: "Operating Systems",
-      departmentId: 1,
+      programId: 1,
       hardnessLevel: SubjectHardnessLevel.VERY_HARD,
       description: "Processes, threads, memory management",
-      department: {
+      program: {
         id: 1,
         code: "CSE",
         name: "Computer Science and Engineering",
+        totalYears: 4,
+        syllabusUrl: "https://example.com/syllabus/cse",
       },
       marks: {
         id: 1,
@@ -257,12 +273,13 @@ export const recentNotes: RecentNote[] = [
         id: 301,
         code: "CS301",
         name: "Operating Systems",
-        departmentId: 10,
+        programId: 10,
         hardnessLevel: SubjectHardnessLevel.HARD,
-        department: {
+        program: {
           id: 10,
           code: "CSE",
           name: "Computer Science & Engineering",
+          totalYears: 4,
         },
         marks: {
           id: 901,
@@ -295,12 +312,14 @@ export const recentNotes: RecentNote[] = [
         id: 302,
         code: "CS302",
         name: "Database Management Systems",
-        departmentId: 10,
+        programId: 10,
         hardnessLevel: SubjectHardnessLevel.MEDIUM,
-        department: {
+        program: {
           id: 10,
           code: "CSE",
           name: "Computer Science & Engineering",
+          totalYears: 4,
+          syllabusUrl: "https://example.com/syllabus/cse",
         },
         marks: {
           id: 902,
@@ -333,12 +352,14 @@ export const recentNotes: RecentNote[] = [
         id: 303,
         code: "CS303",
         name: "Computer Networks",
-        departmentId: 10,
+        programId: 10,
         hardnessLevel: SubjectHardnessLevel.MEDIUM,
-        department: {
+        program: {
           id: 10,
           code: "CSE",
           name: "Computer Science & Engineering",
+          totalYears: 4,
+          syllabusUrl: "https://example.com/syllabus/cse",
         },
         marks: {
           id: 903,
@@ -371,12 +392,14 @@ export const recentNotes: RecentNote[] = [
         id: 304,
         code: "CS304",
         name: "Software Engineering",
-        departmentId: 10,
+        programId: 10,
         hardnessLevel: SubjectHardnessLevel.EASY,
-        department: {
+        program: {
           id: 10,
           code: "CSE",
           name: "Computer Science & Engineering",
+          totalYears: 4,
+          syllabusUrl: "https://example.com/syllabus/cse",
         },
         marks: {
           id: 904,
@@ -409,12 +432,14 @@ export const recentNotes: RecentNote[] = [
         id: 305,
         code: "CS305",
         name: "Theory of Computation",
-        departmentId: 10,
+        programId: 10,
         hardnessLevel: SubjectHardnessLevel.VERY_HARD,
-        department: {
+        program: {
           id: 10,
           code: "CSE",
           name: "Computer Science & Engineering",
+          totalYears: 4,
+          syllabusUrl: "https://example.com/syllabus/cse",
         },
         marks: {
           id: 905,

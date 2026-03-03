@@ -1,7 +1,9 @@
-export interface Department {
+export interface Program {
     id: number;
     code: string;
     name: string;
+    totalYears: number;
+    syllabusUrl?: string;
 }
 
 export enum SubjectHardnessLevel {
@@ -11,7 +13,8 @@ export enum SubjectHardnessLevel {
     VERY_HARD = "Very Hard",
 }
 
-export type Semester = "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8";
+export type Semester = "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "10";
+export type Year = "1" | "2" | "3" | "4" | "5";
 export const SemesterLabel: Record<Semester, string> = {
     "1": "1st",
     "2": "2nd",
@@ -21,13 +24,15 @@ export const SemesterLabel: Record<Semester, string> = {
     "6": "6th",
     "7": "7th",
     "8": "8th",
+    "9": "9th",
+    "10": "10th",
 };
 
 export interface Subject {
     id: number;
     code: string;
     name: string;
-    departmentId: number;
+    programId: number;
     hardnessLevel: SubjectHardnessLevel;
     description?: string;
 }
@@ -36,12 +41,12 @@ export interface SubjectOffering {
     id: number;
     subjectId: number;
     semester: Semester;
-    departmentId: number;
-    year: number;
+    programId: number;
+    year: Year;
 }
 
-export interface SubjectOfferingWithDepartment extends SubjectOffering {
-    department: Department;
+export interface SubjectOfferingWithProgram extends SubjectOffering {
+    program: Program;
 }
 
 export interface Marks {
@@ -53,11 +58,11 @@ export interface Marks {
     practicalFinal: number;
 }
 
-export interface SubjectWithDepartmentandMarks extends Subject {
-    department: Department;
+export interface SubjectWithProgramAndMarks extends Subject {
+    program: Program;
     marks: Marks;
 }
 
-export interface SubjectOfferingWithSubject extends SubjectOfferingWithDepartment {
-    subject: SubjectWithDepartmentandMarks;
+export interface SubjectOfferingWithSubject extends SubjectOfferingWithProgram {
+    subject: SubjectWithProgramAndMarks;
 }

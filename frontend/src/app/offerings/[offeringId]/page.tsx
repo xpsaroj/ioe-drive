@@ -25,7 +25,7 @@ const OfferingPage = ({
     return (
         <div className="min-h-screen bg-background text-foreground md:p-8 p-6 max-w-7xl mx-auto">
             <h1 className="text-2xl font-bold mb-4">{offering.subject.name}</h1>
-            <p className="text-lg mb-2">Department: {offering.department.name}</p>
+            <p className="text-lg mb-2">Program: {offering.program.name}</p>
             <p className="text-lg mb-2">Semester: {offering.semester}</p>
             <p className="text-lg mb-2">Year: {offering.year}</p>
         </div>

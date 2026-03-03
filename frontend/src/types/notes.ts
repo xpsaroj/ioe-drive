@@ -1,5 +1,5 @@
 import type { User } from "./user";
-import type { SubjectWithDepartmentandMarks } from "./academics";
+import type { SubjectWithProgramAndMarks } from "./academics";
 
 export interface Note {
     id: number;
@@ -23,7 +23,7 @@ export interface NoteFile {
 }
 
 export interface UploadedNote extends Note {
-    subject: SubjectWithDepartmentandMarks;
+    subject: SubjectWithProgramAndMarks;
     uploader?: Omit<User, "email" | "clerkUserId">;
 }
 

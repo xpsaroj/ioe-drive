@@ -23,11 +23,11 @@ const SemesterInformation = () => {
       ),
     },
     {
-      key: "department",
-      label: "DEPARTMENT",
+      key: "program",
+      label: "PROGRAM",
       render: (item) => (
         <span>
-          {item.subject.department.code}
+          {item.subject.program.code}
         </span>
       ),
     },

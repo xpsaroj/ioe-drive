@@ -16,7 +16,7 @@ const ProfilePage = () => {
     const profileDetails = [
         { label: "Bio", value: myProfile?.profile?.bio || "No bio set." },
         { label: "College", value: myProfile?.profile?.college || "No college set." },
-        { label: "Department", value: myProfile?.profile?.department?.name || "No department set." },
+        { label: "Program", value: myProfile?.profile?.program?.name || "No program set." },
         { label: "Semester", value: myProfile?.profile?.semester || "No semester set." },
     ]
 

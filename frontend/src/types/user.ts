@@ -1,4 +1,4 @@
-import type { Department, Semester } from "./academics";
+import type { Program, Semester } from "./academics";
 
 export interface User {
     id: number;
@@ -11,16 +11,16 @@ export interface Profile {
     id: number;
     userId: number;
     bio?: string;
-    departmentId?: number;
+    programId?: number;
     semester?: Semester;
     college?: string;
     profilePictureUrl?: string;
 }
 
-interface ProfileWithDepartment extends Profile {
-    department?: Department;
+interface ProfileWithProgram extends Profile {
+    program?: Program;
 }
 
 export interface UserProfile extends User {
-    profile: ProfileWithDepartment;
+    profile: ProfileWithProgram;
 }
