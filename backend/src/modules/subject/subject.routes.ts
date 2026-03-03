@@ -8,19 +8,19 @@ import { getSubjectsSchema, getSubjectDetailsSchema } from "./subject.dto.js";
  * Subject Routes
  * 
  * Routes:
- * - GET /                   - Get subjects by department and semester
+ * - GET /                   - Get subjects by program and semester
  * - GET /:subjectId         - Get subject details by ID
  */
 const router = Router();
 
 /**
  * GET /api/subjects
- * - Get subjects by department and semester
+ * - Get subjects by program and semester
  */
 router.get(
     "/",
     validate(getSubjectsSchema),
-    subjectController.getSubjectsByDepartmentAndSemester.bind(subjectController)
+    subjectController.getSubjectsByProgramAndSemester.bind(subjectController)
 );
 
 /**

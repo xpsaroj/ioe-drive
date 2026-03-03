@@ -10,19 +10,19 @@ import { subjectService } from "./subject.service.js";
  */
 export class SubjectController {
     /**
-     * Get subjects by department and semester.
-     * - GET /api/subjects?departmentId=&semester=
+     * Get subjects by program and semester.
+     * - GET /api/subjects?programId=&semester=
      */
-    async getSubjectsByDepartmentAndSemester(
+    async getSubjectsByProgramAndSemester(
         req: Request,
         res: Response,
         next: NextFunction
     ) {
-        const departmentId = Number(req.query.departmentId);
+        const programId = Number(req.query.programId);
         const semester = req.query.semester as Semester | undefined;
 
         try {
-            const subjects = await subjectService.getSubjectsByDepartmentAndSemester(departmentId, semester);
+            const subjects = await subjectService.getSubjectsByProgramAndSemester(programId, semester);
             return sendSuccessResponse(res, subjects);
         } catch (e) {
             next(e);

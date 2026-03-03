@@ -21,7 +21,7 @@ export const unmarkNoteAsArchivedSchema = z.object({
 export const updateProfileSchema = z.object({
     body: z.object({
         bio: z.string().optional(),
-        departmentId: z.number().optional(),
+        programId: z.number().optional(),
         semester: z.enum(["1", "2", "3", "4", "5", "6", "7", "8"]).optional(),
         college: z.string().optional(),
     })

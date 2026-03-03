@@ -10,10 +10,13 @@ import {
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
-export const SemesterEnum = pgEnum("semester_enum", ["1", "2", "3", "4", "5", "6", "7", "8"]);
+// Enums
+export const SemesterEnum = pgEnum("semester_enum", ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]);
+export const YearEnum = pgEnum("year_enum", ["1", "2", "3", "4", "5"]);
 export const SubjectHardnessLevelEnum = pgEnum("subject_hardness_level_enum", ["EASY", "MEDIUM", "HARD", "VERY_HARD"]);
 
 export type Semester = (typeof SemesterEnum.enumValues)[number];
+export type Year = (typeof YearEnum.enumValues)[number];
 export type SubjectHardnessLevel = (typeof SubjectHardnessLevelEnum.enumValues)[number];
 
 // Tables
@@ -23,18 +26,20 @@ export const webhookEventsTable = pgTable("webhook_events", {
     receivedAt: timestamp("received_at").defaultNow(),
 });
 
-export const departmentsTable = pgTable("departments", {
+export const programsTable = pgTable("programs", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     code: varchar("code", { length: 10 }).notNull().unique(),
     name: varchar("name", { length: 255 }).notNull(),
+    totalYears: integer("total_years").default(4).notNull(),
+    syllabusUrl: varchar("syllabus_url", { length: 255 }),
 });
 
 export const subjectsTable = pgTable("subjects", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     code: varchar("code", { length: 10 }).notNull().unique(),
     name: varchar("name", { length: 255 }).notNull(),
-    departmentId: integer("department_id")
-        .references(() => departmentsTable.id)
+    programId: integer("program_id")
+        .references(() => programsTable.id)
         .notNull(),
     hardnessLevel: SubjectHardnessLevelEnum("hardness_level").notNull(),
     description: text("description"),
@@ -62,20 +67,20 @@ export const subjectOfferingsTable = pgTable("subject_offerings", {
         .references(() => subjectsTable.id)
         .notNull(),
     semester: SemesterEnum("semester").notNull(),
-    departmentId: integer("department_id")
-        .references(() => departmentsTable.id)
+    programId: integer("program_id")
+        .references(() => programsTable.id)
         .notNull(),
-    year: integer("year").notNull(),
+    year: YearEnum("year").notNull(),
 },
     (table) => [
         unique("unique_subject_offering").on(
             table.subjectId,
             table.semester,
-            table.departmentId,
+            table.programId,
             table.year
         ),
-        index("idx_subject_offerings_semester_department").on(table.semester, table.departmentId),
-        index("idx_subject_offerings_department").on(table.departmentId),
+        index("idx_subject_offerings_semester_program").on(table.semester, table.programId),
+        index("idx_subject_offerings_program").on(table.programId),
         index("idx_subject_offerings_subject").on(table.subjectId),
     ]
 );
@@ -96,7 +101,7 @@ export const profilesTable = pgTable("profiles", {
         .notNull()
         .unique(),
     bio: text("bio"),
-    departmentId: integer("department_id").references(() => departmentsTable.id),
+    programId: integer("program_id").references(() => programsTable.id),
     semester: SemesterEnum("semester"),
     college: text("college"),
     profilePictureUrl: text("profile_picture_url"),
@@ -181,15 +186,15 @@ export const userArchivedNotesTable = pgTable("user_archived_notes", {
 
 
 // Relations
-export const departmentRelations = relations(departmentsTable, ({ many }) => ({
+export const programRelations = relations(programsTable, ({ many }) => ({
     subjects: many(subjectsTable),
     subjectOfferings: many(subjectOfferingsTable),
 }))
 
 export const subjectRelations = relations(subjectsTable, ({ many, one }) => ({
-    department: one(departmentsTable, {
-        fields: [subjectsTable.departmentId],
-        references: [departmentsTable.id]
+    program: one(programsTable, {
+        fields: [subjectsTable.programId],
+        references: [programsTable.id]
     }),
     subjectOfferings: many(subjectOfferingsTable),
     marks: one(marksTable, {
@@ -204,9 +209,9 @@ export const subjectOfferingRelations = relations(subjectOfferingsTable, ({ one 
         fields: [subjectOfferingsTable.subjectId],
         references: [subjectsTable.id]
     }),
-    department: one(departmentsTable, {
-        fields: [subjectOfferingsTable.departmentId],
-        references: [departmentsTable.id]
+    program: one(programsTable, {
+        fields: [subjectOfferingsTable.programId],
+        references: [programsTable.id]
     }),
 }));
 
@@ -218,9 +223,9 @@ export const userRelations = relations(usersTable, ({ one, many }) => ({
 }));
 
 export const profileRelations = relations(profilesTable, ({ one }) => ({
-    department: one(departmentsTable, {
-        fields: [profilesTable.departmentId],
-        references: [departmentsTable.id]
+    program: one(programsTable, {
+        fields: [profilesTable.programId],
+        references: [programsTable.id]
     }),
     user: one(usersTable, {
         fields: [profilesTable.userId],

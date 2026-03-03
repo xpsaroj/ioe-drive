@@ -10,18 +10,18 @@ import { NotFoundError } from "../../lib/errors.js";
  */
 export class SubjectService {
     /**
-     * Get subjects by department and semester.
-     * @param departmentId Department ID
+     * Get subjects by program and semester.
+     * @param programId Program ID
      * @param semester Semester (optional)
      * @returns List of subjects
      */
-    async getSubjectsByDepartmentAndSemester(departmentId: number, semester?: Semester) {
+    async getSubjectsByProgramAndSemester(programId: number, semester?: Semester) {
         return await db
             .query.subjectOfferingsTable
             .findMany({
                 where: (fields, { eq, and }) => (
                     and(
-                        eq(fields.departmentId, departmentId),
+                        eq(fields.programId, programId),
                         semester ? eq(fields.semester, semester) : undefined
                     )
                 ),
@@ -29,17 +29,17 @@ export class SubjectService {
                     id: true,
                     subjectId: true,
                     semester: true,
-                    departmentId: true,
+                    programId: true,
                     year: true,
                 },
                 with: {
                     subject: {
                         with: {
-                            department: true,
+                            program: true,
                             marks: true,
                         }
                     },
-                    department: true,
+                    program: true,
                 },
                 orderBy: (fields) => asc(fields.semester),
             })
@@ -59,17 +59,17 @@ export class SubjectService {
                     id: true,
                     subjectId: true,
                     semester: true,
-                    departmentId: true,
+                    programId: true,
                     year: true,
                 },
                 with: {
                     subject: {
                         with: {
-                            department: true,
+                            program: true,
                             marks: true,
                         }
                     },
-                    department: true,
+                    program: true,
                 }
             });
 

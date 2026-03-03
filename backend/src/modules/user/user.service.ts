@@ -30,14 +30,14 @@ export class UserService {
                             id: true,
                             userId: true,
                             bio: true,
-                            departmentId: true,
+                            programId: true,
                             semester: true,
                             college: true,
                             profilePictureUrl: true,
                             createdAt: true,
                         },
                         with: {
-                            department: true,
+                            program: true,
                         }
                     },
                 }

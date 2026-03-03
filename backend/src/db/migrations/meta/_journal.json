@@ -29,6 +29,27 @@
       "when": 1772020713886,
       "tag": "0003_chunky_harry_osborn",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1772557599275,
+      "tag": "0004_tough_robbie_robertson",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1772557615051,
+      "tag": "0005_nice_hemingway",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1772557622555,
+      "tag": "0006_outstanding_zombie",
+      "breakpoints": true
     }
   ]
 }

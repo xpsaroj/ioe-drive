@@ -24,7 +24,7 @@ export class MeService {
                 with: {
                     profile: {
                         with: {
-                            department: true,
+                            program: true,
                         }
                     },
                 }
@@ -50,7 +50,7 @@ export class MeService {
                 with: {
                     subject: {
                         with: {
-                            department: true,
+                            program: true,
                         }
                     },
                     uploader: {
@@ -78,7 +78,7 @@ export class MeService {
                         with: {
                             subject: {
                                 with: {
-                                    department: true,
+                                    program: true,
                                 }
                             },
                             uploader: {
@@ -110,7 +110,7 @@ export class MeService {
                         with: {
                             subject: {
                                 with: {
-                                    department: true,
+                                    program: true,
                                 }
                             },
                             uploader: {
@@ -220,7 +220,7 @@ export class MeService {
             // Prepare profile data
             const profileData: Partial<UpdateProfileInput> = {};
             if (data.bio !== undefined) profileData.bio = data.bio;
-            if (data.departmentId !== undefined) profileData.departmentId = data.departmentId;
+            if (data.programId !== undefined) profileData.programId = data.programId;
             if (data.semester !== undefined) profileData.semester = data.semester;
             if (data.college !== undefined) profileData.college = data.college;
 

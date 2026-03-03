@@ -4,7 +4,7 @@ import { SemesterEnum } from "../../db/schema.js"
 
 export const getSubjectsSchema = z.object({
     query: z.object({
-        departmentId: z.coerce.number().int().positive("Department ID is required and it must be a positive integer"),
+        programId: z.coerce.number().int().positive("Program ID is required and it must be a positive integer"),
         semester: z.enum(SemesterEnum.enumValues).optional(),
     }),
 })
