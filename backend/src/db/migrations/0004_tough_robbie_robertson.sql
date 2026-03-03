@@ -14,7 +14,7 @@ ALTER TABLE "subjects" DROP CONSTRAINT "subjects_department_id_departments_id_fk
 DROP INDEX "idx_subject_offerings_semester_department";--> statement-breakpoint
 DROP INDEX "idx_subject_offerings_department";--> statement-breakpoint
 ALTER TABLE "departments" ALTER COLUMN "id" DROP IDENTITY;--> statement-breakpoint
-ALTER TABLE "subject_offerings" ALTER COLUMN "year" SET DATA TYPE "public"."year_enum" USING "year"::"public"."year_enum";--> statement-breakpoint
+ALTER TABLE "subject_offerings" ALTER COLUMN "year" SET DATA TYPE "public"."year_enum" USING "year"::"text"::"public"."year_enum";--> statement-breakpoint
 ALTER TABLE "departments" ADD COLUMN "total_years" integer DEFAULT 4 NOT NULL;--> statement-breakpoint
 ALTER TABLE "departments" ADD COLUMN "syllabus_url" varchar(255);--> statement-breakpoint
 ALTER TABLE "profiles" ADD CONSTRAINT "profiles_program_id_departments_id_fk" FOREIGN KEY ("program_id") REFERENCES "public"."departments"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
