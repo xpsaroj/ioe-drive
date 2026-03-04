@@ -37,7 +37,7 @@ export const programsTable = pgTable("programs", {
 
 export const subjectsTable = pgTable("subjects", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-    code: varchar("code", { length: 10 }).notNull().unique(),
+    code: varchar("code", { length: 15 }).notNull().unique(),
     name: varchar("name", { length: 255 }).notNull(),
     programId: integer("program_id")
         .references(() => programsTable.id)

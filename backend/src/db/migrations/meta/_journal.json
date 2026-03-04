@@ -57,6 +57,13 @@
       "when": 1772625020155,
       "tag": "0007_bumpy_cloak",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1772643022451,
+      "tag": "0008_worthless_millenium_guard",
+      "breakpoints": true
     }
   ]
 }
