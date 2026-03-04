@@ -40,8 +40,9 @@
     "dotenv": "^17.2.3",
     "drizzle-orm": "^0.45.0",
     "express": "^5.2.1",
+    "express-rate-limit": "^8.2.1",
     "morgan": "^1.10.1",
-    "multer": "^2.0.2",
+    "multer": "^2.1.1",
     "pg": "^8.16.3",
     "svix": "^1.82.0",
     "zod": "^4.1.13"
