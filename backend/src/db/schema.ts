@@ -7,6 +7,7 @@ import {
     pgEnum,
     unique,
     index,
+    boolean,
 } from "drizzle-orm/pg-core";
 import { relations } from "drizzle-orm";
 
@@ -43,6 +44,7 @@ export const subjectsTable = pgTable("subjects", {
         .notNull(),
     hardnessLevel: SubjectHardnessLevelEnum("hardness_level").notNull(),
     description: text("description"),
+    syllabusUrl: varchar("syllabus_url", { length: 255 }),
 });
 
 export const marksTable = pgTable("subject_marks", {
@@ -71,6 +73,7 @@ export const subjectOfferingsTable = pgTable("subject_offerings", {
         .references(() => programsTable.id)
         .notNull(),
     year: YearEnum("year").notNull(),
+    isElective: boolean("is_elective").default(false).notNull(),
 },
     (table) => [
         unique("unique_subject_offering").on(
