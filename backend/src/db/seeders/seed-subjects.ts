@@ -30,8 +30,8 @@ type SubjectOfferingsJson = {
         subjects: {
             code: string;
             name: string;
-            year: number;
-            semester: number;
+            year: Year;
+            semester: Semester;
             programCode: string;
             isElective?: boolean;
         }[];
@@ -130,8 +130,8 @@ async function seedSubjectsAndOfferings() {
                     .values({
                         subjectId,
                         programId,
-                        semester: String(offering.semester) as Semester,
-                        year: String(offering.year) as Year,
+                        semester: offering.semester,
+                        year: offering.year,
                         isElective: offering.isElective ?? false,
                     })
                     .onConflictDoNothing();
