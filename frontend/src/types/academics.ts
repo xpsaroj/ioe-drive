@@ -35,6 +35,7 @@ export interface Subject {
     programId: number;
     hardnessLevel: SubjectHardnessLevel;
     description?: string;
+    syllabusUrl?: string;
 }
 
 export interface SubjectOffering {
@@ -43,6 +44,7 @@ export interface SubjectOffering {
     semester: Semester;
     programId: number;
     year: Year;
+    isElective: boolean;
 }
 
 export interface SubjectOfferingWithProgram extends SubjectOffering {

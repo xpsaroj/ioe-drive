@@ -112,6 +112,7 @@ export const subjectOfferings: SubjectOfferingWithSubject[] = [
     semester: "1",
     programId: 1,
     year: "1",
+    isElective: false,
     program: {
       id: 1,
       code: "CSE",
@@ -149,6 +150,7 @@ export const subjectOfferings: SubjectOfferingWithSubject[] = [
     semester: "2",
     programId: 1,
     year: "1",
+    isElective: false,
     program: {
       id: 1,
       code: "CSE",
@@ -186,6 +188,7 @@ export const subjectOfferings: SubjectOfferingWithSubject[] = [
     semester: "3",
     programId: 2,
     year: "2",
+    isElective: true,
     program: {
       id: 2,
       code: "EEE",
@@ -223,6 +226,7 @@ export const subjectOfferings: SubjectOfferingWithSubject[] = [
     semester: "4",
     programId: 1,
     year: "2",
+    isElective: false,
     program: {
       id: 1,
       code: "CSE",
