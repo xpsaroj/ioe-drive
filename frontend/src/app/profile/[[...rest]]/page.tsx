@@ -9,7 +9,7 @@ import { selectMyProfile } from "@/lib/store/features/me/me.selectors";
 type ProfileTab = "view" | "edit";
 
 const ProfilePage = () => {
-    const myProfile = useAppSelector(selectMyProfile);
+    const myProfile = useAppSelector(selectMyProfile).data;
 
     const [activeTab, setActiveTab] = useState<ProfileTab>("view");
 

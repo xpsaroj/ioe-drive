@@ -4,14 +4,13 @@ import {
     fetchMyProfile,
     fetchUploadedNotes,
 } from "./me.thunks";
+import { createAsyncState } from "../../utils";
 
 const initialState: MeState = {
-    profile: null,
-    uploadedNotes: [],
-    recentNotes: [],
-    archivedNotes: [],
-    isLoading: false,
-    error: undefined,
+    profile: createAsyncState(null),
+    uploadedNotes: createAsyncState([]),
+    recentNotes: createAsyncState([]),
+    archivedNotes: createAsyncState([]),
 };
 
 export const meSlice = createSlice({
@@ -23,18 +22,17 @@ export const meSlice = createSlice({
     extraReducers: (builder) => {
         builder
             .addCase(fetchMyProfile.pending, (state) => {
-                state.isLoading = true;
+                state.profile.loading = true;
             })
             .addCase(fetchMyProfile.fulfilled, (state, action) => {
-                state.profile = action.payload;
-                state.isLoading = false;
+                state.profile = { ...state.profile, data: action.payload, loading: false };
             })
             .addCase(fetchMyProfile.rejected, (state) => {
-                state.isLoading = false;
+                state.profile = { ...state.profile, loading: false };
             })
 
             .addCase(fetchUploadedNotes.fulfilled, (state, action) => {
-                state.uploadedNotes = action.payload;
+                state.uploadedNotes = { ...state.uploadedNotes, data: action.payload, loading: false };
             });
     },
 });

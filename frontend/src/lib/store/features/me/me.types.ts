@@ -1,10 +1,8 @@
-import type { UserProfile, UploadedNote, RecentNote, ArchivedNote } from "@/types";
+import type { UserProfile, UploadedNote, RecentNote, ArchivedNote, AsyncState } from "@/types";
 
 export interface MeState {
-    profile: UserProfile | null;
-    uploadedNotes: UploadedNote[];
-    recentNotes: RecentNote[];
-    archivedNotes: ArchivedNote[];
-    isLoading: boolean;
-    error?: string;
+    profile: AsyncState<UserProfile | null>;
+    uploadedNotes: AsyncState<UploadedNote[]>;
+    recentNotes: AsyncState<RecentNote[]>;
+    archivedNotes: AsyncState<ArchivedNote[]>;
 }
