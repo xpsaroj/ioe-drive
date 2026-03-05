@@ -8,3 +8,9 @@ export type ApiResponse<T> = Readonly<{
 }>;
 
 export type EmptyApiResponse = ApiResponse<null>;
+
+export interface AsyncState<T> {
+    data: T;
+    loading: boolean;
+    error?: string;
+}
