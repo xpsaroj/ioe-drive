@@ -1,10 +1,16 @@
 "use client";
+import Link from "next/link";
 import { ContainerBox } from "@/components/ui/ContainerBox";
 import Table, { Column } from "@/components/ui/Table";
 import { SubjectOfferingWithSubject } from "@/types/academics";
-import { subjectOfferings } from "@/data/demo-data";
+
+import { useAppSelector } from "@/lib/store/hooks";
+import { selectSubjectOfferings } from "@/lib/store/features/academics/academics.selectors";
 
 const SemesterInformation = () => {
+
+  const subjectOfferings = useAppSelector(selectSubjectOfferings);
+
   const columns: Column<SubjectOfferingWithSubject>[] = [
     {
       key: "code",
@@ -17,9 +23,11 @@ const SemesterInformation = () => {
       key: "subject",
       label: "SUBJECT",
       render: (item) => (
-        <span className="font-medium cursor-pointer hover:underline">
-          {item.subject.name}
-        </span>
+        <Link href={`/offerings/${item.id}`}>
+          <span className="font-medium cursor-pointer hover:underline">
+            {item.subject.name}
+          </span>
+        </Link>
       ),
     },
     {
@@ -58,8 +66,9 @@ const SemesterInformation = () => {
     >
       <Table
         columns={columns}
-        data={subjectOfferings}
-        emptyMessage="No semester information available."
+        loading={subjectOfferings.loading}
+        data={subjectOfferings.data}
+        emptyMessage="No semester information available. Make sure you've added your semester and program in your profile settings."
         striped
       />
     </ContainerBox>

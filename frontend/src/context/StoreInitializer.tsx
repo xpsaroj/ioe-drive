@@ -19,7 +19,7 @@ export function StoreInitializer({
     
     useEffect(() => {
         if (isSignedIn) {
-            if (!myProfile) {
+            if (!myProfile.data && !myProfile.loading) {
                 dispatch(fetchMyProfile());
             }
         }

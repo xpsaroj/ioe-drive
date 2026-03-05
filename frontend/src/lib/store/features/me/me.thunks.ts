@@ -1,15 +1,27 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { meApi } from "@/lib/api/me-api";
+import { fetchSubjectOfferings, fetchPrograms } from "../academics/academics.thunks";
 
 export const fetchMyProfile = createAsyncThunk(
     "me/fetchProfile",
-    async (_, { rejectWithValue }) => {
+    async (_, { rejectWithValue, dispatch }) => {
         try {
             const res = await meApi.getMyProfile();
             if (!res.success) {
                 return rejectWithValue(res.error || "Failed to load profile");
             }
-            return res.data;
+            const user = res.data;
+
+            if (user.profile?.semester && user.profile?.programId) {
+                dispatch(
+                    fetchSubjectOfferings({
+                        semester: user.profile.semester,
+                        programId: user.profile.programId,
+                    })
+                );
+            }
+
+            return user;
         } catch (err) {
             return rejectWithValue("Failed to load profile");
         }
@@ -60,4 +72,3 @@ export const fetchArchivedNotes = createAsyncThunk(
         }
     }
 );
-
