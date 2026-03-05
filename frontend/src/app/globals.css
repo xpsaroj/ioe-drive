@@ -231,8 +231,10 @@
 }
 
 /* ===== Global Styles ===== */
-* {
-    @apply border-border;
+@layer base {
+    * {
+        @apply border-border;
+    }
 }
 
 body {

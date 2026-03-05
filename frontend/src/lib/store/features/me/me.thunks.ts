@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { meApi } from "@/lib/api/me-api";
-import { fetchSubjectOfferings, fetchPrograms } from "../academics/academics.thunks";
+import { fetchSubjectOfferings } from "../academics/academics.thunks";
 
 export const fetchMyProfile = createAsyncThunk(
     "me/fetchProfile",

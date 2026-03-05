@@ -14,7 +14,7 @@ export default function GlobalLoader({
         <>
             <ClerkLoading>
                 <div className="fixed inset-0 flex items-center justify-center bg-background z-9999">
-                    <div className="animate-spin rounded-full h-12 w-12 border-4 border-muted border-t-primary"></div>
+                    <div className="animate-spin rounded-full h-12 w-12 border-4 border-foreground-secondary border-t-foreground"></div>
                 </div>
             </ClerkLoading>
 
