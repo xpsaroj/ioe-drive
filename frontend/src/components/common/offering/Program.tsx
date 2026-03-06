@@ -15,7 +15,7 @@ const Program = ({ program }: { program: ProgramType }) => {
             {program.syllabusUrl && (
                 <p className="text-sm">Syllabus: {" "}
                     <Link href={program.syllabusUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
-                        {program.syllabusUrl}
+                        {program.code} Syllabus (IOE)
                     </Link>
                 </p>
             )}

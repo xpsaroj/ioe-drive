@@ -9,7 +9,7 @@ const Subject = ({ subject, program }: { subject: SubjectType, program: ProgramT
         <div
             className="border p-6 rounded-xl shadow-sm bg-white"
         >
-            <div className="flex flex-col md:flex-row justify-between">
+            <div className="flex justify-between items-center">
                 <h2 className="text-lg font-bold">{subject.code}</h2>
                 <SubjectHardnessBadge level={subject.hardnessLevel} />
             </div>
@@ -23,7 +23,7 @@ const Subject = ({ subject, program }: { subject: SubjectType, program: ProgramT
             {subject.syllabusUrl && (
                 <p className="text-sm">Syllabus: {" "}
                     <Link href={subject.syllabusUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
-                        {subject.syllabusUrl}
+                        {subject.code} Syllabus (IOE)
                     </Link>
                 </p>
             )}

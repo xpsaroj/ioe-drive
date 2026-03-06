@@ -92,7 +92,7 @@ const OfferingPage = ({
     return (
         <div className="min-h-screen bg-background text-foreground md:p-8 p-6 max-w-7xl mx-auto space-y-3">
             <Button
-                variant="ghost"
+                variant="secondary"
                 onClick={() => router.back()}
                 icon={<ArrowLeft className="size-4" />}
             >
