@@ -18,7 +18,7 @@ const AcademicTermInfo = ({ year, semester, isElective }: Omit<SubjectOffering, 
     }
 
     return (
-        <div className="p-6 border rounded-xl shadow-md bg-background">
+        <div className="p-6 border rounded-lg bg-background">
             <p className="font-semibold">[Year {numberToRoman(+year)}: Part {numberToRoman(Math.floor(+semester/+year))}]</p>
             <p className="text-sm text-foreground-secondary">Year: {year}</p>
             <p className="text-sm text-foreground-secondary">Semester: {semester}</p>

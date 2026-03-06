@@ -2,12 +2,34 @@ import Link from "next/link";
 
 import Program from "./Program";
 import SubjectHardnessBadge from "./SubjectHardnessBadge";
-import type { Subject as SubjectType, Program as ProgramType } from "@/types";
+import Table, { Column } from "@/components/ui/Table";
+import type { SubjectWithProgramAndMarks, Marks } from "@/types";
 
-const Subject = ({ subject, program }: { subject: SubjectType, program: ProgramType }) => {
+const Subject = ({ subject }: { subject: SubjectWithProgramAndMarks }) => {
+    const marks = [subject.marks];
+
+    const marksColumn: Column<Marks>[] = [
+        {
+            key: "theoryFinal",
+            label: "Theory Final",
+        },
+        {
+            key: "theoryAssessment",
+            label: "Theory Assessment",
+        },
+        {
+            key: "practicalFinal",
+            label: "Practical Final",
+        },
+        {
+            key: "practicalAssessment",
+            label: "Practical Assessment",
+        },
+    ];
+
     return (
         <div
-            className="border p-6 rounded-xl shadow-sm bg-white"
+            className="border p-6 rounded-lg bg-white"
         >
             <div className="flex justify-between items-center">
                 <h2 className="text-lg font-bold">{subject.code}</h2>
@@ -16,7 +38,7 @@ const Subject = ({ subject, program }: { subject: SubjectType, program: ProgramT
             <p className="text-lg font-semibold">{subject.name}</p>
 
             {subject.description && (
-                <p className="text-sm text-foreground-secondary">
+                <p className="text-sm mb-1 text-foreground-secondary">
                     {subject.description}
                 </p>
             )}
@@ -28,8 +50,16 @@ const Subject = ({ subject, program }: { subject: SubjectType, program: ProgramT
                 </p>
             )}
 
-            <h4 className="text-lg mt-3">Belongs to Program:</h4>
-            <Program program={program} />
+            <div>
+                <h4 className="mt-3 font-medium">Marks Distribution</h4>
+                <Table
+                    data={marks}
+                    columns={marksColumn}
+                />
+            </div>
+
+            <h4 className="mt-3">Belongs to Program</h4>
+            <Program program={subject.program} />
         </div>
     )
 }
