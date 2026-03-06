@@ -210,7 +210,7 @@ export class MeService {
      * @param noteId Note ID
      */
     async updateProfile(userId: number, data: Partial<UpdateProfileInput>) {
-        await db.transaction(async (tx) => {
+        return await db.transaction(async (tx) => {
             const existingProfile = await tx.query.profilesTable.findFirst({
                 where: eq(profilesTable.userId, userId),
             });
@@ -226,15 +226,10 @@ export class MeService {
 
             // Update profile
             if (Object.keys(profileData).length > 0) {
-                const [updatedProfile] = await tx.update(profilesTable)
+                await tx.update(profilesTable)
                     .set(profileData)
-                    .where(eq(profilesTable.userId, userId))
-                    .returning();
-
-                return updatedProfile;
+                    .where(eq(profilesTable.userId, userId));
             }
-
-            return existingProfile;
         });
     }
 }

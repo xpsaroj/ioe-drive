@@ -1,6 +1,7 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import { meApi } from "@/lib/api/me-api";
 import { fetchSubjectOfferings } from "../academics/academics.thunks";
+import type { Profile } from "@/types";
 
 export const fetchMyProfile = createAsyncThunk(
     "me/fetchProfile",
@@ -24,6 +25,23 @@ export const fetchMyProfile = createAsyncThunk(
             return user;
         } catch (err) {
             return rejectWithValue("Failed to load profile");
+        }
+    }
+);
+
+export const updateMyProfile = createAsyncThunk(
+    "me/updateProfile",
+    async (profileData: Partial<Profile>, { rejectWithValue, dispatch }) => {
+        try {
+            const res = await meApi.updateMyProfile(profileData);
+            if (!res.success) {
+                return rejectWithValue(res.error || "Failed to update profile");
+            }
+
+            // Refetch profile to get updated data and trigger any dependent fetches (like subject offerings)
+            dispatch(fetchMyProfile());
+        } catch (err) {
+            return rejectWithValue("Failed to update profile");
         }
     }
 );

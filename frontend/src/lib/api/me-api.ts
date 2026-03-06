@@ -1,11 +1,15 @@
 import { apiClient } from "./api-client";
-import type { UserProfile, ApiResponse, UploadedNote, RecentNote, ArchivedNote, EmptyApiResponse } from "@/types";
+import type { UserProfile, ApiResponse, UploadedNote, RecentNote, ArchivedNote, EmptyApiResponse, Profile } from "@/types";
 
 const ME_API_BASE_URL = "/me";
 
 export const meApi = {
     async getMyProfile(): Promise<ApiResponse<UserProfile>> {
         return apiClient.get<ApiResponse<UserProfile>>(`${ME_API_BASE_URL}`);
+    },
+
+    async updateMyProfile(profileData: Partial<Profile>): Promise<ApiResponse<Profile>> {
+        return apiClient.patch<ApiResponse<Profile>>(`${ME_API_BASE_URL}`, profileData);
     },
 
     async getUploadedNotes(): Promise<ApiResponse<UploadedNote[]>> {

@@ -3,6 +3,7 @@ import type { MeState } from "./me.types";
 import {
     fetchMyProfile,
     fetchUploadedNotes,
+    updateMyProfile,
 } from "./me.thunks";
 import { createAsyncState } from "../../utils";
 
@@ -23,17 +24,42 @@ export const meSlice = createSlice({
         builder
             .addCase(fetchMyProfile.pending, (state) => {
                 state.profile.loading = true;
+                state.profile.error = null;
             })
             .addCase(fetchMyProfile.fulfilled, (state, action) => {
-                state.profile = { ...state.profile, data: action.payload, loading: false };
+                state.profile.loading = false;
+                state.profile.error = null;
+                state.profile.data = action.payload;
             })
             .addCase(fetchMyProfile.rejected, (state) => {
-                state.profile = { ...state.profile, loading: false };
+                state.profile.loading = false;
+                state.profile.error = "Failed to load profile";
             })
-
+            .addCase(updateMyProfile.pending, (state) => {
+                state.profile.loading = true;
+                state.profile.error = null;
+            })
+            .addCase(updateMyProfile.fulfilled, (state) => {
+                state.profile.loading = false;
+                state.profile.error = null;
+            })
+            .addCase(updateMyProfile.rejected, (state) => {
+                state.profile.loading = false;
+                state.profile.error = "Failed to update profile";
+            })
+            .addCase(fetchUploadedNotes.pending, (state) => {
+                state.uploadedNotes.loading = true;
+                state.uploadedNotes.error = null;
+            })
             .addCase(fetchUploadedNotes.fulfilled, (state, action) => {
-                state.uploadedNotes = { ...state.uploadedNotes, data: action.payload, loading: false };
-            });
+                state.uploadedNotes.loading = false;
+                state.uploadedNotes.data = action.payload;
+                state.uploadedNotes.error = null;
+            })
+            .addCase(fetchUploadedNotes.rejected, (state) => {
+                state.uploadedNotes.loading = false;
+                state.uploadedNotes.error = "Failed to load uploaded notes";
+            })
     },
 });
 

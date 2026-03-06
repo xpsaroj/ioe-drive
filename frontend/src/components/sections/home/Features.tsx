@@ -38,7 +38,7 @@ interface FeatureCardProps {
 const FeatureCard = ({ title, description, index, isLast }: FeatureCardProps) => {
     return (
         <div className={`flex ${index % 2 == 0 ? "flex-row" : "flex-row-reverse"} items-end gap-6`}>
-            <div className={`w-full sm:w-7/12 border border-accent rounded-lg p-6 hover:scale-[1.05] hover:shadow-lg transition-all duration-300 cursor-pointer`}>
+            <div className={`w-full sm:w-7/12 border hover:border-accent-active rounded-lg p-6 hover:scale-[1.05] hover:shadow-lg transition-all duration-300 cursor-pointer`}>
                 <h3 className="text-xl text-golden font-semibold mb-4">{title}</h3>
                 <p className="text-secondary">{description}</p>
             </div>

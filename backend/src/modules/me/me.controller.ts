@@ -106,9 +106,9 @@ export class MeController {
             if (!userId) throw new UnauthorizedError("User not authenticated");
 
             const validatedData: UpdateProfileInput = req.body;
-            const updatedProfile = await meService.updateProfile(userId, validatedData);
+            await meService.updateProfile(userId, validatedData);
 
-            return sendSuccessResponse(res, updatedProfile, "Profile updated successfully");
+            return sendSuccessResponse(res, null, "Profile updated successfully");
         } catch (e) {
             next(e);
         }

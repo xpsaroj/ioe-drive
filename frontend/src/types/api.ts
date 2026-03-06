@@ -12,5 +12,5 @@ export type EmptyApiResponse = ApiResponse<null>;
 export interface AsyncState<T> {
     data: T;
     loading: boolean;
-    error?: string;
+    error: string | null;
 }
