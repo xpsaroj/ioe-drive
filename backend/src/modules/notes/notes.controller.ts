@@ -61,6 +61,42 @@ export class NotesController {
             next(e);
         }
     }
+
+    /**
+     * Get note details by note ID.
+     * - GET /api/notes/:noteId
+     */
+    async getNoteById(
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            const noteId = Number(req.params.noteId);
+            const note = await notesService.findNoteById(noteId);
+            return sendSuccessResponse(res, note);
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    /**
+     * Get all notes for a specific subject.
+     * - GET /api/notes?subjectId=<subjectId>
+     */
+    async getNotesBySubjectId(
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            const subjectId = Number(req.query.subjectId);
+            const notes = await notesService.findNotesBySubjectId(subjectId);
+            return sendSuccessResponse(res, notes);
+        } catch (e) {
+            next(e);
+        }
+    }
 }
 
 export const notesController = new NotesController();

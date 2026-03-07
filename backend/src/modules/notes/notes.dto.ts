@@ -28,5 +28,23 @@ export const updateNoteSchema = z.object({
     ),
 });
 
+export const getNoteByIdSchema = z.object({
+    params: z.object({
+        noteId: z.coerce
+            .number()
+            .int()
+            .positive("Note ID must be a positive integer"),
+    }),
+});
+
+export const getNotesBySubjectIdSchema = z.object({
+    query: z.object({
+        subjectId: z.coerce
+            .number()
+            .int()
+            .positive("Subject ID must be a positive integer"),
+    }),
+});
+
 export type CreateNoteInput = z.infer<typeof createNoteSchema>["body"] & { uploadedBy: number };
 export type UpdateNoteInput = z.infer<typeof updateNoteSchema>["body"];

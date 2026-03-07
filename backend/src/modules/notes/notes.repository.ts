@@ -64,6 +64,40 @@ export class NotesRepository {
             .returning();
         return updatedNote;
     }
+
+    /**
+     * Find a note by its ID.
+     * @param noteId - ID of the note to find.
+     * @returns The found note or undefined.
+     */
+    async findById(noteId: number) {
+        return await db
+            .query
+            .notesTable
+            .findFirst({
+                where: eq(notesTable.id, noteId),
+                with: {
+                    files: true,
+                }
+            });
+    }
+
+    /**
+     * Find notes by subject ID.
+     * @param subjectId - ID of the subject to find notes for.
+     * @returns An array of notes for the given subject ID.
+     */
+    async findBySubjectId(subjectId: number) {
+        return await db
+            .query
+            .notesTable
+            .findMany({
+                where: eq(notesTable.subjectId, subjectId),
+                with: {
+                    files: true,
+                }
+            });
+    }
 }
 
 export const notesRepository = new NotesRepository();

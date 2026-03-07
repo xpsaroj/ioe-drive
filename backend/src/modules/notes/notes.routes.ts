@@ -4,7 +4,7 @@ import { notesController } from "./notes.controller.js";
 import { validate } from "../../middlewares/validate.middleware.js";
 import { requireAuth } from "../../middlewares/auth.middleware.js";
 import { upload } from "../../middlewares/upload.js";
-import { createNoteSchema, updateNoteSchema } from "./notes.dto.js";
+import { createNoteSchema, updateNoteSchema, getNoteByIdSchema, getNotesBySubjectIdSchema } from "./notes.dto.js";
 
 /**
  * Notes-related routes.
@@ -36,6 +36,26 @@ router.patch(
     requireAuth,
     validate(updateNoteSchema),
     notesController.updateNote.bind(notesController)
+)
+
+/**
+ * GET /api/notes/:noteId
+ * - Get note details by note ID
+ */
+router.get(
+    "/:noteId",
+    validate(getNoteByIdSchema),
+    notesController.getNoteById.bind(notesController)
+)
+
+/**
+ * GET /api/notes?subjectId=<subjectId>
+ * - Get notes by subject ID
+ */
+router.get(
+    "/",
+    validate(getNotesBySubjectIdSchema),
+    notesController.getNotesBySubjectId.bind(notesController)
 )
 
 export default router;

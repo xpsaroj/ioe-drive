@@ -16,20 +16,8 @@ import { UnauthorizedError } from "../lib/errors.js";
  * @param res Response
  * @param next NextFunction
  */
-export const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
+export const requireAuth = async (req: Request, _res: Response, next: NextFunction) => {
     try {
-        const authHeader = req.headers.authorization;
-
-        if (!authHeader) {
-            throw new UnauthorizedError("Authorization header missing");
-        }
-
-        const token = authHeader.split(" ")[1];
-
-        if (!token) {
-            throw new UnauthorizedError("Token missing from Authorization header");
-        }
-
         const { userId, isAuthenticated } = getAuth(req);
 
         if (!isAuthenticated || !userId) {
