@@ -1,4 +1,4 @@
-import { SubjectOfferingWithSubject, SubjectHardnessLevel } from "@/types/academics"
+import { SubjectHardnessLevel } from "@/types/academics"
 import { RecentNote } from "@/types/notes";
 
 export const users = [

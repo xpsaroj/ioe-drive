@@ -7,18 +7,16 @@ import { SubjectOfferingWithSubject } from "@/types";
 
 import { useMe } from "@/hooks/queries/use-me";
 import { useSubjectOfferings } from "@/hooks/queries/use-academics";
-import { usePrograms } from "@/hooks/queries/use-academics";
 
 const CurrentResourcesPage = () => {
     const { data: userData } = useMe();
     const profile = userData?.profile;
 
     const { data: subjectOfferings, isLoading: offeringsLoading, error } = useSubjectOfferings(profile?.programId, profile?.semester);
-    const { data: programs, isLoading: programsLoading } = usePrograms();
 
     const [selectedSubject, setSelectedSubject] = useState<SubjectOfferingWithSubject | null>(null);
 
-    if (offeringsLoading || programsLoading) {
+    if (offeringsLoading) {
         return (
             <div className="min-h-screen bg-background text-foreground md:p-8 p-6 max-w-7xl mx-auto">
             </div>

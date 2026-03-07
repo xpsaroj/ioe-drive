@@ -29,7 +29,7 @@ export function AppDataInitializer({
             queryClient.removeQueries({ queryKey: [...academicsKeys.all, "subject-offerings"] });
 
         }
-    }, [isSignedIn]);
+    }, [isSignedIn, queryClient]);
 
     return <>{children}</>;
 }

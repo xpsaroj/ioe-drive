@@ -1,14 +1,12 @@
 "use client"
 import { useRouter } from "next/navigation";
-import { use, useState, useEffect } from "react"
+import { use } from "react"
 import { ArrowLeft } from "lucide-react"
 
-import { academicsApi } from "@/lib/api/academics-api";
 import Button from "@/components/ui/Button";
 import Loader from "@/components/ui/Loader";
 import { useSubjectDetails } from "@/hooks/queries/use-academics";
 import { SubjectOffering } from "@/components/common/offering";
-import type { SubjectOfferingWithSubject } from "@/types";
 
 interface OfferingPageProps {
     params: Promise<{ offeringId: string }>
