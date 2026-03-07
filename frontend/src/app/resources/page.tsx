@@ -1,10 +1,27 @@
-
+"use client"
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useAuth } from "@clerk/nextjs";
+
+import { useAppSelector } from "@/lib/store/hooks";
+import { selectMyProfile } from "@/lib/store/features/me/me.selectors";
+import Select from "@/components/ui/Select";
 import { programs } from "@/constants/resources";
 
-const ResourcesPage =() => {
+const ResourcesPage = () => {
+  const router = useRouter();
+  const { isSignedIn } = useAuth();
+  const user = useAppSelector(selectMyProfile).data;
+
+  // useEffect(() => {
+  //   if (isSignedIn && user?.profile?.program) {
+  //     router.push(`/resources/${user.profile.program.code.toLowerCase()}`);
+  //   }
+  // }, [isSignedIn, router])
+
   return (
-    <div className="p-8 min-h-screen">
+    <div className="min-h-screen bg-background text-foreground md:p-8 p-6 max-w-7xl mx-auto">
       <h1 className="text-3xl font-bold mb-6 text-primary text-center">Select Program</h1>
       <div className="grid mt-12 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {programs.map((program) => (

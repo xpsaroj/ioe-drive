@@ -14,7 +14,7 @@ export const ContainerBox = ({
     className = "",
 }: ContainerBoxProps) => {
     return (
-        <div className={clsx("bg-white p-6 rounded-xl shadow-sm border border-gray-300", className)}>
+        <div className={clsx("bg-white p-6 rounded-xl border border-gray-300", className)}>
             <h3 className="text-lg font-semibold text-gray-800 select-text">
                 {title}
             </h3>

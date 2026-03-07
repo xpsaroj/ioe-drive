@@ -14,12 +14,18 @@ export interface Note {
 export interface NoteFile {
     id: number;
     noteId: number;
+    originalFileName: string;
+    blobName: string;
+    mimeType: string;
     fileUrl: string;
     fileSize: number;
-    compressedSize: number;
-    compressionMethod: string;
-    fileType: string;
+    compressedSize: number | null;
+    compressionMethod: string | null;
     uploadedAt: string;
+}
+
+export interface NoteWithFiles extends Note {
+    files: NoteFile[];
 }
 
 export interface UploadedNote extends Note {
