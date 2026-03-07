@@ -6,6 +6,7 @@ import { ArrowLeft } from "lucide-react"
 import { academicsApi } from "@/lib/api/academics-api";
 import Button from "@/components/ui/Button";
 import Loader from "@/components/ui/Loader";
+import { useSubjectDetails } from "@/hooks/queries/use-academics";
 import { SubjectOffering } from "@/components/common/offering";
 import type { SubjectOfferingWithSubject } from "@/types";
 
@@ -18,42 +19,9 @@ const OfferingPage = ({
 }: OfferingPageProps) => {
     const router = useRouter();
     const { offeringId } = use(params)
+    const { data: offering, isLoading, error } = useSubjectDetails(Number(offeringId));
 
-    const [loading, setLoading] = useState(true);
-    const [offering, setOffering] = useState<SubjectOfferingWithSubject | null>(null);
-    const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-        const fetchOffering = async () => {
-            const offeringIdNum = Number(offeringId);
-            if (isNaN(offeringIdNum)) {
-                setError("Invalid offering ID.");
-                setLoading(false);
-                return;
-            }
-
-            try {
-                const result = await academicsApi.getSubjectDetails(offeringIdNum);
-                if (result.success) {
-                    setOffering(result.data);
-                    setError(null);
-                } else {
-                    setError("Subject offering not found.");
-                }
-            } catch (err) {
-                setError("Failed to fetch subject offering. Please try again later.");
-            } finally {
-                setLoading(false);
-            }
-        }
-
-        if (offeringId) {
-            fetchOffering();
-        }
-    }, [offeringId])
-
-
-    if (loading) {
+    if (isLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background text-foreground md:p-8 p-6 max-w-7xl mx-auto">
                 <div className="flex flex-col items-center justify-center">
@@ -68,9 +36,14 @@ const OfferingPage = ({
             <div className="min-h-screen flex items-center justify-center bg-background text-foreground md:p-8 p-6 max-w-7xl mx-auto">
                 <div className="flex flex-col items-center justify-center">
                     <p className="text-red-500">Something went wrong. Please try again later.</p>
-                    <Button variant="primary" className="mt-4" onClick={() => router.back()}>
-                        Go Back
-                    </Button>
+                    <div className="flex space-x-4">
+                        <Button variant="secondary" className="mt-4" onClick={() => router.refresh()}>
+                            Refresh Page
+                        </Button>
+                        <Button variant="primary" className="mt-4" onClick={() => router.back()}>
+                            Go Back
+                        </Button>
+                    </div>
                 </div>
             </div>
         )

@@ -3,21 +3,21 @@ import { UserProfile } from "@clerk/nextjs";
 import { useState } from "react";
 import { User2, Pencil } from "lucide-react";
 
-import { useAppSelector } from "@/lib/store/hooks"
-import { selectMyProfile } from "@/lib/store/features/me/me.selectors";
+import { useMe } from "@/hooks/queries/use-me";
 
 type ProfileTab = "view" | "edit";
 
 const ProfilePage = () => {
-    const myProfile = useAppSelector(selectMyProfile).data;
+    const { data: userData } = useMe();
+    const profile = userData?.profile;
 
     const [activeTab, setActiveTab] = useState<ProfileTab>("view");
 
     const profileDetails = [
-        { label: "Bio", value: myProfile?.profile?.bio || "No bio set." },
-        { label: "College", value: myProfile?.profile?.college || "No college set." },
-        { label: "Program", value: myProfile?.profile?.program?.name || "No program set." },
-        { label: "Semester", value: myProfile?.profile?.semester || "No semester set." },
+        { label: "Bio", value: profile?.bio || "No bio set." },
+        { label: "College", value: profile?.college || "No college set." },
+        { label: "Program", value: profile?.program?.name || "No program set." },
+        { label: "Semester", value: profile?.semester || "No semester set." },
     ]
 
     return (

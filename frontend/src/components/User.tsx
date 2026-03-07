@@ -3,15 +3,13 @@ import { User2 } from "lucide-react";
 import { UserButton, ClerkLoading, ClerkLoaded, useClerk } from "@clerk/nextjs";
 import { useRef } from "react";
 
-import { useAppSelector } from "@/lib/store/hooks";
-import { selectMyProfile } from "@/lib/store/features/me/me.selectors";
+import { useMe } from "@/hooks/queries/use-me";
 import { SemesterLabel } from "@/types";
 
 export const User = () => {
     const { user } = useClerk();
-
-    const userData = useAppSelector(selectMyProfile);
-    const profile = userData ? userData?.data?.profile : null;
+    const { data: userData, isLoading, error } = useMe();
+    const profile = userData ? userData?.profile : null;
 
     const buttonRef = useRef<HTMLDivElement>(null);
 
@@ -50,8 +48,12 @@ export const User = () => {
                 <div className="flex flex-col">
                     <div className="block md:hidden lg:block flex-col">
                         <h2 className="text-primary">{user?.fullName || "User"}</h2>
-                        {profile && (
-                            <p className="text-secondary text-xs text-foreground-secondary text-ellipsis overflow-hidden whitespace-nowrap">
+                        {isLoading ? (
+                            <p className="text-xs text-foreground-secondary">Loading...</p>
+                        ) : error ? (
+                            <p className="text-xs text-error">Error loading profile</p>
+                        ) : profile && (
+                            <p className="text-xs text-foreground-secondary text-ellipsis overflow-hidden whitespace-nowrap">
                                 {profile?.semester && `${SemesterLabel[profile?.semester]}`}
                                 {profile?.program && `, ${profile?.program.code}`}
                                 {profile?.college && `, ${profile?.college.trim().split(" ")[0]}`}

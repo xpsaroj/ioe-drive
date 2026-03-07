@@ -1,18 +1,18 @@
 "use client"
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+// import { useEffect } from "react";
+// import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useAuth } from "@clerk/nextjs";
+// import { useAuth } from "@clerk/nextjs";
 
-import { useAppSelector } from "@/lib/store/hooks";
-import { selectMyProfile } from "@/lib/store/features/me/me.selectors";
-import Select from "@/components/ui/Select";
+// import { useMe } from "@/hooks/queries/use-me";
+// import Select from "@/components/ui/Select";
 import { programs } from "@/constants/resources";
 
 const ResourcesPage = () => {
-  const router = useRouter();
-  const { isSignedIn } = useAuth();
-  const user = useAppSelector(selectMyProfile).data;
+  // const router = useRouter();
+  // const { isSignedIn } = useAuth();
+  // const { data: userData } = useMe();
+  // const profile = userData?.profile;
 
   // useEffect(() => {
   //   if (isSignedIn && user?.profile?.program) {

@@ -4,11 +4,10 @@ import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 import { useForm, Controller } from "react-hook-form"
 
-import { useAppSelector, useAppDispatch } from "@/lib/store/hooks"
-import { selectPrograms } from "@/lib/store/features/academics/academics.selectors"
-import { selectMyProfile } from "@/lib/store/features/me/me.selectors"
 import { Semester, SemesterLabel } from "@/types"
-import { updateMyProfile } from "@/lib/store/features/me/me.thunks"
+import { usePrograms } from "@/hooks/queries/use-academics"
+import { useMe } from "@/hooks/queries/use-me"
+import { useUpdateProfile } from "@/hooks/queries/use-me"
 
 import Select from "@/components/ui/Select"
 import Button from "@/components/ui/Button"
@@ -22,20 +21,20 @@ type FormValues = {
 
 const OnBoardingPage = () => {
     const router = useRouter()
-    const dispatch = useAppDispatch()
 
-    const programsState = useAppSelector(selectPrograms)
-    const programs = programsState.data
+    const { data: programs, isLoading: programsLoading } = usePrograms();
 
-    const userData = useAppSelector(selectMyProfile);
-    const profile = userData ? userData?.data?.profile : null;
+    const { data: userData, isLoading: userLoading, error } = useMe();
+    const profile = userData ? userData?.profile : null;
+
+    const { mutateAsync: updateProfile, isPending } = useUpdateProfile();
 
     const {
         handleSubmit,
         control,
         register,
         setError,
-        formState: { isSubmitting, errors }
+        formState: { errors }
     } = useForm<FormValues>({
         defaultValues: {
             programId: "",
@@ -55,7 +54,7 @@ const OnBoardingPage = () => {
         if (!data.programId || !data.semester)
             return;
 
-        if (programs.find(p => p.id === Number(data.programId))?.code !== "BAR" && Number(data.semester) > 8) {
+        if (programs?.find(p => p.id === Number(data.programId))?.code !== "BAR" && Number(data.semester) > 8) {
             setError("semester", {
                 message: "Only students in the BAR program can select a semester beyond 8."
             })
@@ -63,11 +62,11 @@ const OnBoardingPage = () => {
         }
 
         try {
-            await dispatch(updateMyProfile({
+            await updateProfile({
                 programId: Number(data.programId),
                 semester: data.semester,
-                college: data.college
-            })).unwrap();
+                college: data.college,
+            });
 
             router.push("/dashboard")
         } catch {
@@ -77,11 +76,29 @@ const OnBoardingPage = () => {
         }
     }
 
-    if (programsState.loading || userData.loading) {
+    if (programsLoading || userLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background text-foreground md:p-8 p-6 max-w-7xl mx-auto">
                 <div className="flex flex-col items-center justify-center">
                     <Loader text="Loading. Please wait." />
+                </div>
+            </div>
+        )
+    }
+
+    if (error || !programs) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-background text-foreground md:p-8 p-6 max-w-7xl mx-auto">
+                <div className="flex flex-col items-center justify-center">
+                    <p className="text-red-500">Something went wrong. Please try again later.</p>
+                    <div className="flex space-x-4">
+                        <Button variant="secondary" className="mt-4" onClick={() => router.refresh()}>
+                            Refresh Page
+                        </Button>
+                        <Button variant="primary" className="mt-4" onClick={() => router.back()}>
+                            Go Back
+                        </Button>
+                    </div>
                 </div>
             </div>
         )
@@ -173,7 +190,7 @@ const OnBoardingPage = () => {
                     <div className="flex gap-3 pt-4">
                         <Button
                             type="button"
-                            disabled={isSubmitting}
+                            disabled={isPending}
                             href="/dashboard"
                             variant="secondary"
                             className="flex-1"
@@ -183,10 +200,10 @@ const OnBoardingPage = () => {
 
                         <Button
                             type="submit"
-                            disabled={isSubmitting}
+                            disabled={isPending}
                             className="flex-1"
                         >
-                            {isSubmitting ? "Saving..." : "Save & Continue"}
+                            {isPending ? "Saving..." : "Save & Continue"}
                         </Button>
 
                     </div>

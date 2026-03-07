@@ -23,7 +23,7 @@ export default function Navbar() {
       <Button
         variant="ghost"
         size="sm"
-        className={`absolute top-2 ${showDesktopNav ? "-right-4" : "-right-10"} hidden p-0 md:flex items-center justify-center backdrop-blur-sm shadow-lg`}
+        className={`absolute top-2.5 ${showDesktopNav ? "right-2" : "-right-9"} hidden p-0 md:flex items-center justify-center backdrop-blur-sm border`}
         onClick={() => setShowDesktopNav(!showDesktopNav)}
         icon={showDesktopNav ? <PanelRightOpen className="size-5" /> : <PanelLeftOpen className="size-5" />}
         iconOnly

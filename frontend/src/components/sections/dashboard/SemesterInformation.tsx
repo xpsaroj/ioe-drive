@@ -4,12 +4,14 @@ import { ContainerBox } from "@/components/ui/ContainerBox";
 import Table, { Column } from "@/components/ui/Table";
 import { SubjectOfferingWithSubject } from "@/types/academics";
 
-import { useAppSelector } from "@/lib/store/hooks";
-import { selectSubjectOfferings } from "@/lib/store/features/academics/academics.selectors";
+import { useMe } from "@/hooks/queries/use-me";
+import { useSubjectOfferings } from "@/hooks/queries/use-academics";
 
 const SemesterInformation = () => {
+  const { data: userData } = useMe();
+  const profile = userData?.profile;
 
-  const subjectOfferings = useAppSelector(selectSubjectOfferings);
+  const { data: subjectOfferings, isLoading } = useSubjectOfferings(profile?.programId, profile?.semester);
 
   const columns: Column<SubjectOfferingWithSubject>[] = [
     {
@@ -66,8 +68,8 @@ const SemesterInformation = () => {
     >
       <Table
         columns={columns}
-        loading={subjectOfferings.loading}
-        data={subjectOfferings.data}
+        loading={isLoading}
+        data={subjectOfferings || []}
         emptyMessage="No semester information available. Make sure you've added your semester and program in your profile settings."
         striped
       />

@@ -8,8 +8,8 @@ export const meApi = {
         return apiClient.get<ApiResponse<UserProfile>>(`${ME_API_BASE_URL}`);
     },
 
-    async updateMyProfile(profileData: Partial<Profile>): Promise<ApiResponse<Profile>> {
-        return apiClient.patch<ApiResponse<Profile>>(`${ME_API_BASE_URL}`, profileData);
+    async updateMyProfile(profileData: Partial<Omit<Profile, "id" | "userId">>): Promise<EmptyApiResponse> {
+        return apiClient.patch<EmptyApiResponse>(`${ME_API_BASE_URL}`, profileData);
     },
 
     async getUploadedNotes(): Promise<ApiResponse<UploadedNote[]>> {
