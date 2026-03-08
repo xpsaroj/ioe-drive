@@ -24,7 +24,7 @@ const CurrentResourcesPage = () => {
 
     const { data: resources, isLoading: resourcesLoading, error: resourcesError } = useNotesBySubjectId(currentSubject?.id);
 
-    if (offeringsLoading || isPending || resourcesLoading) {
+    if (offeringsLoading || isPending) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background text-foreground md:p-8 p-6 max-w-7xl mx-auto">
                 <div className="flex flex-col items-center justify-center">
