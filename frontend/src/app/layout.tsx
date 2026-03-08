@@ -5,6 +5,7 @@ import { ClerkProvider } from '@clerk/nextjs';
 import "./globals.css";
 import { ClerkApiProvider } from "@/providers/ClerkApiProvider";
 import { QueryProvider } from '@/providers/query-provider';
+import { AuthStateWatcher } from "@/context/AuthStateWatcher";
 import { AppDataInitializer } from "@/context/AppDataInitializer";
 
 import { GlobalLoader, LayoutWrapper } from "@/components/layout";
@@ -27,13 +28,15 @@ export default function RootLayout({
         <ClerkProvider>
           <ClerkApiProvider>
             <QueryProvider>
-              <AppDataInitializer>
-                <GlobalLoader>
-                  <LayoutWrapper>
-                    {children}
-                  </LayoutWrapper>
-                </GlobalLoader>
-              </AppDataInitializer>
+              <AuthStateWatcher>
+                <AppDataInitializer>
+                  <GlobalLoader>
+                    <LayoutWrapper>
+                      {children}
+                    </LayoutWrapper>
+                  </GlobalLoader>
+                </AppDataInitializer>
+              </AuthStateWatcher>
             </QueryProvider>
           </ClerkApiProvider>
         </ClerkProvider>
