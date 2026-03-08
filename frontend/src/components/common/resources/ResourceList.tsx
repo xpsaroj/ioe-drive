@@ -11,7 +11,7 @@ interface ResourceListProps {
 const ResourceList = ({ resources, loading, error }: ResourceListProps) => {
     if (loading) {
         return (
-            <div className="border p-6 rounded-lg bg-white flex flex-col gap-6">
+            <div className="border md:p-6 p-0 px-6 py-3 rounded-lg bg-white flex flex-col md:gap-6 divide-y divide-border">
                 {Array.from({ length: 3 }).map((_, index) => (
                     <ResourceCardSkeleton key={index} />
                 ))}
@@ -36,7 +36,7 @@ const ResourceList = ({ resources, loading, error }: ResourceListProps) => {
     }
 
     return (
-        <div className="border p-6 rounded-lg bg-white flex flex-col gap-6">
+        <div className="border md:p-6 p-0 px-6 py-3 rounded-lg bg-white flex flex-col md:gap-6 divide-y divide-border">
             {resources.map((resource) => (
                 <ResourceCard key={resource.id} resource={resource} />
             ))}

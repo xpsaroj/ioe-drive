@@ -8,7 +8,7 @@ import { useMe } from "@/hooks/queries/use-me";
 import { useSubjectOfferings } from "@/hooks/queries/use-academics";
 
 const SemesterInformation = () => {
-  const { data: userData } = useMe();
+  const { data: userData, isLoading: userLoading } = useMe();
   const profile = userData?.profile;
 
   const { data: subjectOfferings, isLoading } = useSubjectOfferings(profile?.programId, profile?.semester);
@@ -68,7 +68,7 @@ const SemesterInformation = () => {
     >
       <Table
         columns={columns}
-        loading={isLoading}
+        loading={isLoading || userLoading}
         data={subjectOfferings || []}
         emptyMessage="No semester information available. Make sure you've added your semester and program in your profile settings."
         striped

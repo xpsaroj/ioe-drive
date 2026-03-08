@@ -6,8 +6,6 @@ import Table, { Column } from "@/components/ui/Table";
 import type { SubjectWithProgramAndMarks, Marks } from "@/types";
 
 const SubjectDetails = ({ subject }: { subject: SubjectWithProgramAndMarks }) => {
-    if (!subject) return null;
-
     const { code, name, description, syllabusUrl, hardnessLevel, program } = subject;
 
     const marks = subject?.marks ? [subject?.marks] : [];
