@@ -6,7 +6,7 @@ import { ArrowLeft } from "lucide-react"
 import Button from "@/components/ui/Button";
 import Loader from "@/components/ui/Loader";
 import { useSubjectDetails } from "@/hooks/queries/use-academics";
-import { SubjectOffering } from "@/components/common/offering";
+import { SubjectOfferingDetails } from "@/components/common/offering";
 
 interface OfferingPageProps {
     params: Promise<{ offeringId: string }>
@@ -69,7 +69,7 @@ const OfferingPage = ({
             >
                 Go Back
             </Button>
-            <SubjectOffering offering={offering} />
+            <SubjectOfferingDetails offering={offering} />
         </div>
     )
 }

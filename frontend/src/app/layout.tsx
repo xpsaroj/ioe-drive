@@ -3,7 +3,7 @@ import { Outfit } from "next/font/google";
 import { ClerkProvider } from '@clerk/nextjs';
 
 import "./globals.css";
-import { ClerkApiProvider } from "@/context/ClerkApiProvider";
+import { ClerkApiProvider } from "@/providers/ClerkApiProvider";
 import { QueryProvider } from '@/providers/query-provider';
 import { AppDataInitializer } from "@/context/AppDataInitializer";
 

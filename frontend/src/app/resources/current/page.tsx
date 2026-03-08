@@ -1,12 +1,12 @@
 "use client"
 import { useState } from "react";
 
-import { Subject } from "@/components/common/offering";
-import { SubjectTabs } from "@/components/common/resources";
-import { SubjectOfferingWithSubject } from "@/types";
-
+import { SubjectDetails } from "@/components/common/offering";
+import { SubjectTabs, ResourceList } from "@/components/common/resources";
 import { useMe } from "@/hooks/queries/use-me";
 import { useSubjectOfferings } from "@/hooks/queries/use-academics";
+import { useNotesBySubjectId } from "@/hooks/queries/use-notes";
+import { SubjectOfferingWithSubject } from "@/types";
 
 const CurrentResourcesPage = () => {
     const { data: userData } = useMe();
@@ -15,6 +15,11 @@ const CurrentResourcesPage = () => {
     const { data: subjectOfferings, isLoading: offeringsLoading, error } = useSubjectOfferings(profile?.programId, profile?.semester);
 
     const [selectedSubject, setSelectedSubject] = useState<SubjectOfferingWithSubject | null>(null);
+    const { data: notes, isLoading: notesLoading, error: notesError } = useNotesBySubjectId(
+        selectedSubject
+            ? selectedSubject?.subject?.id
+            : subjectOfferings?.[0]?.subject.id
+    );
 
     if (offeringsLoading) {
         return (
@@ -24,10 +29,10 @@ const CurrentResourcesPage = () => {
     }
 
     if (error || !subjectOfferings) {
-       return (
+        return (
             <div className="min-h-screen bg-background text-foreground md:p-8 p-6 max-w-7xl mx-auto">
             </div>
-        ) 
+        )
     }
 
     return (
@@ -41,13 +46,18 @@ const CurrentResourcesPage = () => {
 
             <div>
                 <h3 className="text-lg">Subject Details</h3>
-                <Subject
+                <SubjectDetails
                     subject={selectedSubject ? selectedSubject.subject : subjectOfferings?.[0]?.subject}
                 />
             </div>
 
-            <div>
-                <h3 className="text-lg h-screen">Available Resources</h3>
+            <div className="pb-6 md:pb-8">
+                <h3 className="text-lg">Available Resources</h3>
+                <ResourceList
+                    resources={notes || []}
+                    loading={notesLoading}
+                    error={notesError ? "Failed to load resources" : undefined}
+                />
             </div>
         </div>
     )

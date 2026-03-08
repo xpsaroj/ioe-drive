@@ -11,7 +11,7 @@ export interface NavigationItem {
  */
 export const NAVIGATION_ITEMS: NavigationItem[] = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
-    { name: 'Resources', href: '/resources', icon: NotebookPen },
+    { name: 'Resources', href: '/resources/current', icon: NotebookPen },
     { name: 'Community', href: '/community', icon: UsersRound },
     { name: 'Market', href: '/market', icon: Store },
     { name: 'Alumni', href: '/alumni', icon: GraduationCap },

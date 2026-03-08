@@ -5,7 +5,7 @@ import type { CreateNoteInput, UpdateNoteInput } from '@/lib/validators/notes';
 export const notesKeys = {
     all: ['notes'] as const,
     byId: (id: number) => ['notes', id] as const,
-    bySubjectId: (subjectId: number) => ['notes', 'subject', subjectId] as const,
+    bySubjectId: (subjectId?: number) => ['notes', 'subject', subjectId] as const,
 };
 
 export function useNote(noteId: number) {
@@ -21,18 +21,21 @@ export function useNote(noteId: number) {
     });
 }
 
-export function useNotesBySubjectId(subjectId: number) {
+export function useNotesBySubjectId(subjectId?: number) {
     return useQuery({
         queryKey: notesKeys.bySubjectId(subjectId),
         queryFn: async () => {
+            if (!subjectId) {
+                throw new Error('Subject ID is required to fetch notes');
+            }
             const response = await notesApi.getNotesBySubject(subjectId);
             if (!response.success) {
                 throw new Error(response.error || 'Failed to fetch notes for subject');
             }
             return response.data;
         },
-        // Public data - can be accessed without auth
-        staleTime: 10 * 60 * 1000, // 10 minutes for public data
+        enabled: !!subjectId,
+        staleTime: 10 * 60 * 1000,
     });
 }
 

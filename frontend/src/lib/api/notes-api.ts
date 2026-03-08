@@ -18,6 +18,9 @@ export const notesApi = {
     },
 
     async getNotesBySubject(subjectId: number): Promise<ApiResponse<NoteWithFiles[]>> {
-        return apiClient.get<ApiResponse<NoteWithFiles[]>>(`${NOTES_API_BASE_URL}/subject/${subjectId}`);
+        const params = new URLSearchParams({
+            subjectId: subjectId.toString()
+        });
+        return apiClient.get<ApiResponse<NoteWithFiles[]>>(`${NOTES_API_BASE_URL}?${params.toString()}`);
     },
 }
