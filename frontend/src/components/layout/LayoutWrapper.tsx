@@ -28,7 +28,7 @@ const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
 
     return (
         <div className="flex md:flex-row flex-col min-h-screen">
-            <div className="hidden md:block sticky top-0 h-screen border-r border-gray-300">
+            <div className="hidden md:block sticky top-0 h-screen border-r">
                 <Navbar />
             </div>
             <div className="md:hidden">

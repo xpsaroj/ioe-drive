@@ -22,9 +22,9 @@ type FormValues = {
 const OnBoardingPage = () => {
     const router = useRouter()
 
-    const { data: programs, isLoading: programsLoading } = usePrograms();
+    const { data: programs, isPending: programsPending } = usePrograms();
 
-    const { data: userData, isLoading: userLoading, error } = useMe();
+    const { data: userData, isPending: userPending, error } = useMe();
     const profile = userData ? userData?.profile : null;
 
     const { mutateAsync: updateProfile, isPending } = useUpdateProfile();
@@ -76,7 +76,7 @@ const OnBoardingPage = () => {
         }
     }
 
-    if (programsLoading || userLoading) {
+    if (programsPending || userPending) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background text-foreground md:p-8 p-6 max-w-7xl mx-auto">
                 <div className="flex flex-col items-center justify-center">

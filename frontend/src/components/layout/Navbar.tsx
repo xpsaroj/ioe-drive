@@ -66,7 +66,7 @@ export default function Navbar() {
             </div>
           </div>
 
-          <div className="border-t border-gray-300 px-3 py-2 hover:bg-muted/30 transition-colors cursor-pointer">
+          <div className="border-t px-3 py-2 hover:bg-muted/30 transition-colors cursor-pointer">
             <User />
           </div>
         </div>

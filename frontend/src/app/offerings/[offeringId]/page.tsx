@@ -17,9 +17,9 @@ const OfferingPage = ({
 }: OfferingPageProps) => {
     const router = useRouter();
     const { offeringId } = use(params)
-    const { data: offering, isLoading, error } = useSubjectDetails(Number(offeringId));
+    const { data: offering, isPending, error } = useSubjectDetails(Number(offeringId));
 
-    if (isLoading) {
+    if (isPending) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background text-foreground md:p-8 p-6 max-w-7xl mx-auto">
                 <div className="flex flex-col items-center justify-center">

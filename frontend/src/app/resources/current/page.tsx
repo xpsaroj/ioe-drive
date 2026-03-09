@@ -15,7 +15,7 @@ const CurrentResourcesPage = () => {
     const { data: userData } = useMe();
     const profile = userData?.profile;
 
-    const { data: subjectOfferings, isLoading: offeringsLoading, error, isPending } = useSubjectOfferings(profile?.programId, profile?.semester);
+    const { data: subjectOfferings, error, isPending: offeringsPending } = useSubjectOfferings(profile?.programId, profile?.semester);
 
     const [selectedSubject, setSelectedSubject] = useState<SubjectOfferingWithSubject | null>(null);
     const [showSubjectDetails, setShowSubjectDetails] = useState(false);
@@ -24,7 +24,7 @@ const CurrentResourcesPage = () => {
 
     const { data: resources, isLoading: resourcesLoading, error: resourcesError } = useNotesBySubjectId(currentSubject?.id);
 
-    if (offeringsLoading || isPending) {
+    if (offeringsPending) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background text-foreground md:p-8 p-6 max-w-7xl mx-auto">
                 <div className="flex flex-col items-center justify-center">

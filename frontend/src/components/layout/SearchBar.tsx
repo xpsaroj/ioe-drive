@@ -6,10 +6,10 @@ export default function SearchBar() {
         <div className="search-bar">
             <button
                 type="button"
-                className="flex items-center border border-gray-300 rounded-md p-2 w-full cursor-pointer"
+                className="flex items-center border rounded-md p-2 w-full cursor-pointer"
             >
-                <Search className="size-5 text-gray-300" />
-                <span className="ml-2 text-sm text-gray-500">Search...</span>
+                <Search className="size-5 text-foreground-secondary" />
+                <span className="ml-2 text-sm text-foreground-secondary">Search...</span>
             </button>
         </div>
     );

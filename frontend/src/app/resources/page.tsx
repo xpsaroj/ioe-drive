@@ -12,7 +12,7 @@ import { programs } from "@/constants/resources";
 const ResourcesPage = () => {
   const router = useRouter();
   const { isSignedIn } = useAuth();
-  const { data: userData, isLoading: userLoading } = useMe();
+  const { data: userData, isPending: userPending } = useMe();
   const profile = userData?.profile;
 
   useEffect(() => {
@@ -21,7 +21,7 @@ const ResourcesPage = () => {
     }
   }, [isSignedIn, router, profile]);
 
-  if (userLoading) {
+  if (userPending) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background text-foreground md:p-8 p-6 max-w-7xl mx-auto">
         <div className="flex flex-col items-center justify-center">

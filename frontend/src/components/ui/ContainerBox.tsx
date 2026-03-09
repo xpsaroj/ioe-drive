@@ -14,12 +14,12 @@ export const ContainerBox = ({
     className = "",
 }: ContainerBoxProps) => {
     return (
-        <div className={clsx("bg-white p-6 rounded-xl border border-gray-300", className)}>
-            <h3 className="text-lg font-semibold text-gray-800 select-text">
+        <div className={clsx("bg-background p-6 rounded-xl border", className)}>
+            <h3 className="text-lg font-semibold text-foreground select-text">
                 {title}
             </h3>
             {comment && (
-                <p className="text-xs text-gray-500 mb-4 italic">
+                <p className="text-xs text-foreground-secondary mb-4 italic">
                     {comment}
                 </p>
             )}
