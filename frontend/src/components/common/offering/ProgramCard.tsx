@@ -11,7 +11,7 @@ const ProgramCard = ({ program }: { program: Program }) => {
         >
             <p className="text-xl font-bold">{code}</p>
             <div className="flex flex-col md:flex-row justify-between">
-                <p className="font-semibold text-lg">{name}</p>
+                <p className="font-semibold text-lg">{code !== "SH" && "Bachelor in"} {name}</p>
                 <p>Total Years: {totalYears}</p>
             </div>
             {syllabusUrl && (

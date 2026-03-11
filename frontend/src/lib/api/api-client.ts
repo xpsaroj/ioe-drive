@@ -129,6 +129,29 @@ class ApiClient {
 
         return this.handleResponse(response);
     }
+
+    /**
+     * Make a POST request with form data to the specified endpoint.
+     * @param endpoint - The API endpoint to call.
+     * @param body - The form data to send in the request body.
+     * @param includeAuth - Whether to include the authentication token.
+     * @returns The response data.
+     */
+    async postForm<T>(endpoint: string, body: FormData, includeAuth: boolean = true): Promise<T> {
+        const headers = new Headers();
+        if (includeAuth) {
+            const token = await this.tokenProvider?.();
+            if (token) {
+                headers.append('Authorization', `Bearer ${token}`);
+            }
+        }
+        const response = await fetch(`${this.baseUrl}${endpoint}`, {
+            method: 'POST',
+            headers,
+            body,
+        });
+        return this.handleResponse(response);
+    }
 }
 
 /**

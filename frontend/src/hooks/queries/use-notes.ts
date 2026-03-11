@@ -1,6 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { notesApi } from '@/lib/api/notes-api';
-import type { CreateNoteInput, UpdateNoteInput } from '@/lib/validators/notes';
+import type { UpdateNoteInput } from '@/lib/validators/notes';
 
 export const notesKeys = {
     all: ['notes'] as const,
@@ -41,17 +41,19 @@ export function useNotesBySubjectId(subjectId?: number) {
 
 export function useCreateNote() {
     const queryClient = useQueryClient();
-
     return useMutation({
-        mutationFn: (noteData: CreateNoteInput) => notesApi.createNote(noteData),
-        onSuccess: (response) => {
-            // Invalidate relevant queries
-            queryClient.invalidateQueries({ queryKey: notesKeys.all });
-            if (response.success) {
-                queryClient.invalidateQueries({
-                    queryKey: notesKeys.bySubjectId(response.data.subjectId)
-                });
+        mutationFn: async (formData: FormData) => {
+            const response = await notesApi.createNote(formData);
+            if (!response.success) {
+                throw new Error(response.error || 'Failed to create note');
             }
+            return response;
+        },
+        onSuccess: (response) => {
+            queryClient.invalidateQueries({ queryKey: notesKeys.all });
+            queryClient.invalidateQueries({
+                queryKey: notesKeys.bySubjectId(response.data.subjectId)
+            });
         },
     });
 }

@@ -1,9 +1,15 @@
 import { apiClient } from "./api-client";
-import type { ApiResponse, Program, Semester, SubjectOfferingWithSubject } from "@/types";
+import type { ApiResponse, Program, Semester, Year, SubjectOfferingWithSubject, SubjectForUploadForm } from "@/types";
 
 export interface SubjectsFilters {
     programId: number;
     semester?: Semester;
+}
+
+export interface ResourceUploadFormFilters {
+    programId: number;
+    semester: Semester;
+    year: Year;
 }
 
 export const academicsApi = {
@@ -29,4 +35,17 @@ export const academicsApi = {
     async getSubjectDetails(subjectId: number): Promise<ApiResponse<SubjectOfferingWithSubject>> {
         return apiClient.get<ApiResponse<SubjectOfferingWithSubject>>(`/subjects/${subjectId}`);
     },
+
+    /**
+     * Get subjects for the resource upload form based on program, semester, and year.
+     * - For select based on user input in the upload form.
+     */
+    async getSubjectsForUpload(filters: ResourceUploadFormFilters): Promise<ApiResponse<SubjectForUploadForm[]>> {
+        const params = new URLSearchParams({
+            programId: filters.programId.toString(),
+            semester: filters.semester,
+            year: filters.year.toString(),
+        })
+        return apiClient.get<ApiResponse<SubjectForUploadForm[]>>(`/subjects/upload/?${params.toString()}`);
+    }
 }

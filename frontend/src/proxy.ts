@@ -9,6 +9,7 @@ const isProtectedRoute = createRouteMatcher([
     "/marketplace(.*)",
     "/alumni(.*)",
     "/profile(.*)",
+    "/onboarding",
 ]);
 
 // Routes that should redirect signed-in users away from them

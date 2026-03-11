@@ -14,7 +14,7 @@ const RecentAccess = () => {
     <ContainerBox
       title="Recently accessed notes"
       comment="Jump back to your notes and continue where you left off."
-      className="md:min-w-xs"
+      className="md:min-w-xs flex-1"
     >
       <div className="space-y-3">
         {recentNotes.slice(0, 2).map((noteItem) => (

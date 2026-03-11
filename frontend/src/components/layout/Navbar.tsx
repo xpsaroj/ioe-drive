@@ -48,7 +48,7 @@ export default function Navbar() {
             </h3>
             <div className="space-y-1 flex flex-col" role="navigation">
               {NAVIGATION_ITEMS.map(({ href, icon: Icon, name }, index) => {
-                const isCurrentRoute = pathname === href || pathname.startsWith(href + "/");
+                const isCurrentRoute = pathname === href || pathname.split("/")[1] === href.split("/")[1];
                 return (
                   <Button
                     key={href + index}

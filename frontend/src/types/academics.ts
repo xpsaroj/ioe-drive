@@ -13,6 +13,20 @@ export enum SubjectHardnessLevel {
     VERY_HARD = "Very Hard",
 }
 
+export type ProgramCode =
+    | "BCE"
+    | "BCT"
+    | "BEL"
+    | "BEI"
+    | "BME"
+    | "BAR"
+    | "BGE"
+    | "BIE"
+    | "BAG"
+    | "BAM"
+    | "BAS"
+    | "BCH"
+    | "SH";
 export type Semester = "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "10";
 export type Year = "1" | "2" | "3" | "4" | "5";
 export const SemesterLabel: Record<Semester, string> = {
@@ -26,6 +40,13 @@ export const SemesterLabel: Record<Semester, string> = {
     "8": "8th",
     "9": "9th",
     "10": "10th",
+};
+export const YearLabel: Record<Year, string> = {
+    "1": "1st Year",
+    "2": "2nd Year",
+    "3": "3rd Year",
+    "4": "4th Year",
+    "5": "5th Year",
 };
 
 export interface Subject {
@@ -67,4 +88,14 @@ export interface SubjectWithProgramAndMarks extends Subject {
 
 export interface SubjectOfferingWithSubject extends SubjectOfferingWithProgram {
     subject: SubjectWithProgramAndMarks;
+}
+
+export interface SubjectForUploadForm {
+    id: string;
+    isElective: boolean;
+    subject: {
+        id: number;
+        code: string;
+        name: string;
+    };
 }
