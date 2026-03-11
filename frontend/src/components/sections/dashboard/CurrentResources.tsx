@@ -30,7 +30,7 @@ const CurrentResources = () => {
                 <Button
                     variant="primary"
                     className="w-full"
-                    disabled={isLoading || !profile}
+                    disabled={!profile || isLoading}
                     href="/resources/current"
                     icon={<BookOpen className="w-4 h-4" />}
                 >
