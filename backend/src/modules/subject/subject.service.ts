@@ -1,7 +1,7 @@
 import { asc } from "drizzle-orm"
 
 import { db } from "../../db/index.js";
-import type { Semester } from "../../db/schema.js";
+import type { Semester, Year } from "../../db/schema.js";
 import { NotFoundError } from "../../lib/errors.js";
 
 /**
@@ -78,6 +78,39 @@ export class SubjectService {
         }
 
         return subject;
+    }
+
+    /**
+     * Get subjects list for resource upload based on program, year, and semester.
+     * @param programId Program ID
+     * @param year Year
+     * @param semester Semester 
+     * @returns List of subjects for upload
+     */
+    async getSubjectsForUpload(programId: number, year: Year, semester: Semester) {
+        return await db
+            .query.subjectOfferingsTable
+            .findMany({
+                where: (fields, { eq, and }) => and(
+                    eq(fields.programId, programId),
+                    eq(fields.year, year),
+                    eq(fields.semester, semester),
+                ),
+                columns: {
+                    id: true,
+                    isElective: true,
+                },
+                with: {
+                    subject: {
+                        columns: {
+                            id: true,
+                            code: true,
+                            name: true,
+                        },
+                    },
+                },
+                orderBy: (fields) => asc(fields.id),
+            });
     }
 }
 
