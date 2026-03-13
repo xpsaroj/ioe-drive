@@ -1,5 +1,5 @@
 import { apiClient } from "./api-client";
-import type { ApiResponse, Program, Semester, Year, SubjectOfferingWithSubject, SubjectForUploadForm } from "@/types";
+import type { ApiResponse, Program, Semester, SubjectOfferingWithSubject, SubjectForUploadForm } from "@/types";
 
 export interface SubjectsFilters {
     programId: number;
@@ -9,7 +9,6 @@ export interface SubjectsFilters {
 export interface ResourceUploadFormFilters {
     programId: number;
     semester: Semester;
-    year: Year;
 }
 
 export const academicsApi = {
@@ -44,7 +43,6 @@ export const academicsApi = {
         const params = new URLSearchParams({
             programId: filters.programId.toString(),
             semester: filters.semester,
-            year: filters.year.toString(),
         })
         return apiClient.get<ApiResponse<SubjectForUploadForm[]>>(`/subjects/upload/?${params.toString()}`);
     }

@@ -10,14 +10,13 @@ import Loader from "@/components/ui/Loader";
 import { ContainerBox } from "@/components/ui/ContainerBox";
 import { usePrograms, useSubjectsForUpload } from "@/hooks/queries/use-academics";
 import { useCreateNote } from "@/hooks/queries/use-notes";
-import { Semester, Year, SemesterLabel, YearLabel } from "@/types";
+import { Semester, SemesterLabel } from "@/types";
 
 type FormValues = {
     title: string;
     description: string;
     programId: string;
     type: string;
-    year: Year | "";
     semester: Semester | "";
     subjectId: string;
     file: File | null;
@@ -48,7 +47,6 @@ export const ResourceUploadForm: React.FC = () => {
             description: "",
             programId: "",
             type: "",
-            year: "",
             semester: "",
             subjectId: "",
             file: null,
@@ -57,7 +55,6 @@ export const ResourceUploadForm: React.FC = () => {
 
     const file = watch("file");
     const selectedProgramId = watch("programId");
-    const selectedYear = watch("year");
     const selectedSemester = watch("semester");
 
     const {
@@ -65,7 +62,6 @@ export const ResourceUploadForm: React.FC = () => {
         isFetching: subjectsFetching,
     } = useSubjectsForUpload(
         selectedProgramId ? Number(selectedProgramId) : undefined,
-        selectedYear || undefined,
         selectedSemester || undefined,
     );
 
@@ -125,7 +121,7 @@ export const ResourceUploadForm: React.FC = () => {
         );
     }
 
-    const allThreeSelected = !!(selectedProgramId && selectedYear && selectedSemester);
+    const bothSelected = !!(selectedProgramId && selectedSemester);
 
     return (
         <ContainerBox
@@ -156,7 +152,7 @@ export const ResourceUploadForm: React.FC = () => {
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-                <div className="flex flex-col md:flex-row md:gap-6">
+                <div className="flex flex-col md:flex-row gap-4 md:gap-6">
                     {/* Title */}
                     <Input
                         label="Resource Title"
@@ -184,7 +180,7 @@ export const ResourceUploadForm: React.FC = () => {
                     />
                 </div>
 
-                <div className="flex flex-col md:flex-row md:gap-6">
+                <div className="flex flex-col md:flex-row gap-4 md:gap-6">
                     {/* Program */}
                     <Controller
                         control={control}
@@ -199,7 +195,6 @@ export const ResourceUploadForm: React.FC = () => {
                                 disabled={isUploading}
                                 onChange={(e) => {
                                     field.onChange(e);
-                                    setValue("year", "");
                                     setValue("semester", "");
                                     setValue("subjectId", "");
                                 }}
@@ -235,33 +230,7 @@ export const ResourceUploadForm: React.FC = () => {
                     />
                 </div>
 
-                <div className="flex flex-col md:flex-row md:gap-6">
-                    {/* Year */}
-                    <Controller
-                        control={control}
-                        name="year"
-                        rules={{ required: "Year is required" }}
-                        render={({ field }) => (
-                            <Select
-                                label="Year"
-                                placeholder="Select Year"
-                                value={field.value}
-                                error={errors.year?.message}
-                                disabled={!selectedProgramId || isUploading}
-                                onChange={(e) => {
-                                    field.onChange(e);
-                                    setValue("semester", "");
-                                    setValue("subjectId", "");
-                                }}
-                                options={Object.keys(YearLabel).map((year) => ({
-                                    value: year,
-                                    label: YearLabel[year as Year],
-                                }))}
-                                helperText="Select the year to which the resource belongs."
-                            />
-                        )}
-                    />
-
+                <div className="flex flex-col md:flex-row gap-4 md:gap-6">
                     {/* Semester */}
                     <Controller
                         control={control}
@@ -273,7 +242,7 @@ export const ResourceUploadForm: React.FC = () => {
                                 placeholder="Select Semester"
                                 value={field.value}
                                 error={errors.semester?.message}
-                                disabled={!selectedProgramId || !selectedYear || isUploading}
+                                disabled={!selectedProgramId || isUploading}
                                 onChange={(e) => {
                                     field.onChange(e);
                                     setValue("subjectId", "");
@@ -286,9 +255,7 @@ export const ResourceUploadForm: React.FC = () => {
                             />
                         )}
                     />
-                </div>
 
-                <div className="flex flex-col md:flex-row md:gap-6">
                     {/* Subject */}
                     <Controller
                         control={control}
@@ -298,15 +265,15 @@ export const ResourceUploadForm: React.FC = () => {
                             <Select
                                 label="Subject"
                                 placeholder={
-                                    !allThreeSelected
-                                        ? "Select program, year and semester first"
+                                    !bothSelected
+                                        ? "Select program and semester first"
                                         : subjectsFetching
                                             ? "Loading subjects..."
                                             : "Select Subject"
                                 }
                                 value={field.value}
                                 error={errors.subjectId?.message}
-                                disabled={!allThreeSelected || subjectsFetching || isUploading}
+                                disabled={!bothSelected || subjectsFetching || isUploading}
                                 onChange={field.onChange}
                                 options={
                                     subjects?.map((offering) => ({

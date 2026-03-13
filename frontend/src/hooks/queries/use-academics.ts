@@ -2,14 +2,14 @@ import { useAuth } from "@clerk/nextjs";
 import { useQuery } from "@tanstack/react-query";
 
 import { academicsApi } from "@/lib/api/academics-api";
-import type { Semester, Year } from "@/types";
+import type { Semester } from "@/types";
 
 export const academicsKeys = {
     all: ["academics"] as const,
     programs: ["academics", "programs"] as const,
     subjectOfferings: (programId?: number, semester?: Semester) => [...academicsKeys.all, "subject-offerings", programId, semester] as const,
     subjectDetails: (offeringId: number) => [...academicsKeys.all, "subject-details", offeringId] as const,
-    subjectsForUpload: (programId?: number, year?: Year, semester?: Semester) => [...academicsKeys.all, "subjects-for-upload", programId, year, semester] as const,
+    subjectsForUpload: (programId?: number, semester?: Semester) => [...academicsKeys.all, "subjects-for-upload", programId, semester] as const,
 };
 
 export function useSubjectOfferings(programId?: number, semester?: Semester) {
@@ -64,22 +64,22 @@ export function useSubjectDetails(offeringId: number) {
     });
 }
 
-export function useSubjectsForUpload(programId?: number, year?: Year, semester?: Semester) {
+export function useSubjectsForUpload(programId?: number, semester?: Semester) {
     const { isSignedIn } = useAuth();
 
     return useQuery({
-        queryKey: academicsKeys.subjectsForUpload(programId, year, semester),
+        queryKey: academicsKeys.subjectsForUpload(programId, semester),
         queryFn: async () => {
-            if (!programId || !year || !semester) {
-                throw new Error("Program ID, year and semester are required");
+            if (!programId || !semester) {
+                throw new Error("Program ID and semester are required");
             }
-            const response = await academicsApi.getSubjectsForUpload({ programId, year, semester });
+            const response = await academicsApi.getSubjectsForUpload({ programId, semester });
             if (!response.success) {
                 throw new Error(response.error || "Failed to fetch subjects");
             }
             return response.data;
         },
-        enabled: !!(isSignedIn && programId && year && semester),
+        enabled: !!(isSignedIn && programId && semester),
         staleTime: 20 * 60 * 1000,
         gcTime: 30 * 60 * 1000,
     });
