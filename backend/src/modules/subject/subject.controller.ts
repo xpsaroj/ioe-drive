@@ -52,12 +52,11 @@ export class SubjectController {
      * Get subjects list for showing in resource upload form based on program, year, and semester.
      * - GET /api/subjects/upload?programId=&year=&semester=
      */
-    async getSubjectsForUpload(req: Request, res: Response, next: NextFunction) {
+    async getSubjectsForResourceUpload(req: Request, res: Response, next: NextFunction) {
         const programId = Number(req.query.programId);
-        const year = req.query.year as Year;
         const semester = req.query.semester as Semester;
         try {
-            const subjects = await subjectService.getSubjectsForUpload(programId, year, semester);
+            const subjects = await subjectService.getSubjectsForUpload(programId, semester);
             return sendSuccessResponse(res, subjects);
         } catch (e) {
             next(e);

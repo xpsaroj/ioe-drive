@@ -31,7 +31,7 @@ router.get(
 router.get(
     "/upload",
     validate(getSubjectsForUploadSchema),
-    subjectController.getSubjectsForUpload.bind(subjectController)
+    subjectController.getSubjectsForResourceUpload.bind(subjectController)
 );
 
 /**

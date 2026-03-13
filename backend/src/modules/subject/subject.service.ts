@@ -87,13 +87,12 @@ export class SubjectService {
      * @param semester Semester 
      * @returns List of subjects for upload
      */
-    async getSubjectsForUpload(programId: number, year: Year, semester: Semester) {
+    async getSubjectsForUpload(programId: number, semester: Semester) {
         return await db
             .query.subjectOfferingsTable
             .findMany({
                 where: (fields, { eq, and }) => and(
                     eq(fields.programId, programId),
-                    eq(fields.year, year),
                     eq(fields.semester, semester),
                 ),
                 columns: {
