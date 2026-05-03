@@ -1,6 +1,7 @@
 "use client"
+import Link from "next/link";
 import { useState } from "react";
-import { ChevronRight, ChevronDown } from "lucide-react";
+import { ChevronRight, ChevronDown, ChevronLeft } from "lucide-react";
 
 import { SubjectDetails } from "@/components/common/offering";
 import { SubjectTabs, ResourceList } from "@/components/common/resources";
@@ -26,8 +27,12 @@ const CurrentResourcesPage = () => {
 
     if (offeringsPending) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-background text-foreground md:p-8 p-6 max-w-7xl mx-auto">
-                <div className="flex flex-col items-center justify-center">
+            <div className="min-h-screen flex flex-col bg-background text-foreground md:p-8 p-6 max-w-7xl mx-auto">
+                <Link href="/resources" className="inline-flex items-center gap-1 text-sm text-foreground-secondary hover:text-foreground transition-colors mb-6 w-fit">
+                    <ChevronLeft className="w-4 h-4" />
+                    Back to Hub
+                </Link>
+                <div className="flex-1 flex items-center justify-center">
                     <Loader text="Loading resources. Please wait." />
                 </div>
             </div>
@@ -36,16 +41,26 @@ const CurrentResourcesPage = () => {
 
     if (error) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-background text-foreground md:p-8 p-6 max-w-7xl mx-auto">
-                <p className="text-red-500">Something went wrong. Please try again later.</p>
+            <div className="min-h-screen flex flex-col bg-background text-foreground md:p-8 p-6 max-w-7xl mx-auto">
+                <Link href="/resources" className="inline-flex items-center gap-1 text-sm text-foreground-secondary hover:text-foreground transition-colors mb-6 w-fit">
+                    <ChevronLeft className="w-4 h-4" />
+                    Back to Hub
+                </Link>
+                <div className="flex-1 flex items-center justify-center">
+                    <p className="text-red-500">Something went wrong. Please try again later.</p>
+                </div>
             </div>
         )
     }
 
     if (!subjectOfferings || subjectOfferings.length === 0) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-background text-foreground md:p-8 p-6 max-w-7xl mx-auto">
-                <div className="flex flex-col items-center justify-center gap-2 max-w-xl text-center">
+            <div className="min-h-screen flex flex-col bg-background text-foreground md:p-8 p-6 max-w-7xl mx-auto">
+                <Link href="/resources" className="inline-flex items-center gap-1 text-sm text-foreground-secondary hover:text-foreground transition-colors mb-6 w-fit">
+                    <ChevronLeft className="w-4 h-4" />
+                    Back to Hub
+                </Link>
+                <div className="flex-1 flex flex-col items-center justify-center gap-2 max-w-xl text-center">
                     <p className="text-red-500">
                         Oops. Looks like there are no resources available.
                     </p>
@@ -65,6 +80,10 @@ const CurrentResourcesPage = () => {
 
     return (
         <div className="min-h-screen bg-background text-foreground max-w-7xl mx-auto md:px-8 px-6 md:space-y-8 space-y-6">
+            <Link href="/resources" className="inline-flex items-center gap-1 text-sm text-foreground-secondary hover:text-foreground transition-colors mb-2 mt-6 md:mt-8">
+                <ChevronLeft className="w-4 h-4" />
+                Back to Hub
+            </Link>
             <div className="sticky md:top-0 md:pt-8 pt-6 bg-background/40 backdrop-blur-sm border-b">
                 <SubjectTabs
                     subjects={subjectOfferings}
