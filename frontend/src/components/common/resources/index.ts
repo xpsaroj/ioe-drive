@@ -5,3 +5,7 @@ export { default as ResourceCardSkeleton } from "./ResourceCardSkeleton";
 export { default as ResourceFileItem } from "./ResourceFileItem";
 export { default as ResourceFileList } from "./ResourceFileList";
 export { default as MimeTypeBadge } from "./MimeTypeBadge";
+export { default as UploadedResourceCard } from "./UploadedResourceCard";
+export { default as RecentResourceCard } from "./RecentResourceCard";
+export { default as UploadedResourceList } from "./UploadedResourceList";
+export { default as ArchivedResourceCard } from "./ArchivedResourceCard";
