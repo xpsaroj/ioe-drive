@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 
-import type { Semester, Year } from "../../db/schema.js";
+import type { Semester } from "../../db/schema.js";
 import { sendSuccessResponse } from "../../lib/response.js";
 import { subjectService } from "./subject.service.js";
 

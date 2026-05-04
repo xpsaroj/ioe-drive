@@ -113,10 +113,11 @@ const CurrentResourcesPage = () => {
                 <div className="flex flex-row items-center gap-2">
                     <Button
                         variant="ghost"
-                        size="sm"
+                        size="xs"
                         iconOnly
-                        icon={showSubjectDetails ? <ChevronDown /> : <ChevronRight />}
+                        icon={showSubjectDetails ? <ChevronDown className="size-4" /> : <ChevronRight className="size-4" />}
                         onClick={() => setShowSubjectDetails((prev) => !prev)}
+                        className="border border-border"
                     />
                     <h3 className="text-lg">Subject Details</h3>
                 </div>

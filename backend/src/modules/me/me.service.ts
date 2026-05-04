@@ -59,6 +59,7 @@ export class MeService {
                             fullName: true,
                         }
                     },
+                    files: true,
                 }
             });
     }
@@ -87,6 +88,7 @@ export class MeService {
                                     fullName: true,
                                 }
                             },
+                            files: true,
                         }
                     }
                 },
@@ -119,6 +121,7 @@ export class MeService {
                                     fullName: true,
                                 }
                             },
+                            files: true,
                         }
                     }
                 },

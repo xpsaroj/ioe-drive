@@ -117,6 +117,7 @@ export const recentNotes: RecentNote[] = [
       subjectId: 301,
       createdAt: "2026-02-20T10:15:00Z",
       updatedAt: "2026-02-20T10:15:00Z",
+      files: [],
       subject: {
         id: 301,
         code: "CS301",
@@ -156,6 +157,7 @@ export const recentNotes: RecentNote[] = [
       subjectId: 302,
       createdAt: "2026-02-18T09:00:00Z",
       updatedAt: "2026-02-19T11:45:00Z",
+      files: [],
       subject: {
         id: 302,
         code: "CS302",
@@ -196,6 +198,7 @@ export const recentNotes: RecentNote[] = [
       subjectId: 303,
       createdAt: "2026-02-15T14:20:00Z",
       updatedAt: "2026-02-16T10:00:00Z",
+      files: [],
       subject: {
         id: 303,
         code: "CS303",
@@ -236,6 +239,7 @@ export const recentNotes: RecentNote[] = [
       subjectId: 304,
       createdAt: "2026-02-12T08:30:00Z",
       updatedAt: "2026-02-12T08:30:00Z",
+      files: [],
       subject: {
         id: 304,
         code: "CS304",
@@ -276,6 +280,7 @@ export const recentNotes: RecentNote[] = [
       subjectId: 305,
       createdAt: "2026-02-10T13:10:00Z",
       updatedAt: "2026-02-11T09:00:00Z",
+      files: [],
       subject: {
         id: 305,
         code: "CS305",

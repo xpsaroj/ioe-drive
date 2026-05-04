@@ -1,7 +1,7 @@
 import { asc } from "drizzle-orm"
 
 import { db } from "../../db/index.js";
-import type { Semester, Year } from "../../db/schema.js";
+import type { Semester } from "../../db/schema.js";
 import { NotFoundError } from "../../lib/errors.js";
 
 /**

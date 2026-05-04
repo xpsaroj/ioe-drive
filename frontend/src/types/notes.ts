@@ -31,6 +31,7 @@ export interface NoteWithFiles extends Note {
 export interface UploadedNote extends Note {
     subject: SubjectWithProgramAndMarks;
     uploader?: Omit<User, "email" | "clerkUserId">;
+    files: NoteFile[];
 }
 
 export interface RecentNote {
