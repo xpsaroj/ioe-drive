@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import clsx from "clsx";
+import { cn } from "@/utils/cn"
 
 export type ButtonVariant =
     | "primary"
@@ -8,7 +8,7 @@ export type ButtonVariant =
     | "ghost"
     | "outline"
     | "destructive";
-export type ButtonSize = "sm" | "md" | "lg";
+export type ButtonSize = "xs" | "sm" | "md" | "lg";
 
 export interface ButtonProps
     extends React.ButtonHTMLAttributes<HTMLButtonElement> {
@@ -38,7 +38,7 @@ export interface ButtonProps
  * Button
  * - supports optional icon (left/right)
  * - wraps in Next.js Link when href provided
- * - 5 variants, 3 sizes
+ * - 5 variants, 4 sizes
  * - Black & white theme aligned with Tailwind v4 design system
  */
 const variantStyles: Record<ButtonVariant, string> = {
@@ -64,6 +64,7 @@ const variantStyles: Record<ButtonVariant, string> = {
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
+    xs: "text-xs px-2 py-1 gap-1 h-6",
     sm: "text-sm px-3 py-1.5 gap-1.5 h-8",
     md: "text-sm px-4 py-2 gap-2 h-10",
     lg: "text-base px-6 py-2.5 gap-2.5 h-12",
@@ -73,6 +74,7 @@ const base =
     "inline-flex items-center justify-center font-medium rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:pointer-events-none cursor-pointer select-none transition-all duration-200";
 
 const iconOnlySize: Record<ButtonSize, string> = {
+    xs: "p-1.5 h-6 w-6",
     sm: "p-2 h-8 w-8",
     md: "p-2.5 h-10 w-10",
     lg: "p-3 h-12 w-12",
@@ -98,7 +100,7 @@ const Button = React.forwardRef<HTMLElement, ButtonProps>(
         ref
     ) => {
         const isIconOnly = iconOnly || (!children && !!icon);
-        const classes = clsx(
+        const classes = cn(
             base,
             variantStyles[variant],
             isIconOnly ? iconOnlySize[size] : sizeStyles[size],

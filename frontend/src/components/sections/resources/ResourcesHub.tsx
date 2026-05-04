@@ -3,7 +3,7 @@ import Link from "next/link";
 import { BookOpen, Clock, Archive, Upload, Share2, ChevronRight } from "lucide-react";
 import { ContainerBox } from "@/components/ui/ContainerBox";
 import Button from "@/components/ui/Button";
-import { useMe, useRecentNotes } from "@/hooks/queries/use-me";
+import { useMe, useRecentNotes, useArchivedNotes } from "@/hooks/queries/use-me";
 import { SemesterLabel } from "@/types";
 
 interface ResourceOptionProps {
@@ -48,9 +48,11 @@ const ResourceOption = ({
 const ResourcesHub = () => {
     const { data: userData, /* isLoading */ } = useMe();
     const { data: recentNotes = [] } = useRecentNotes();
+    const { data: archivedNotes = [] } = useArchivedNotes();
     const profile = userData?.profile;
 
-    const displayedRecentNotes = (recentNotes || []).slice(0, 3);
+    const displayedRecentNotes = (recentNotes || []).slice(0, 2);
+    const displayedArchivedNotes = (archivedNotes || []).slice(0, 2);
 
     return (
         <div className="space-y-8">
@@ -67,7 +69,7 @@ const ResourcesHub = () => {
 
             <div className="flex md:flex-row flex-col gap-8">
                 {/* Library Items */}
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2 2xl:flex-1">
                     {/* Current Semester - Featured */}
                     <Link
                         href={profile?.program && profile?.semester ? "/resources/current" : "#"}
@@ -127,8 +129,9 @@ const ResourcesHub = () => {
                     />
                 </div>
 
-                {/* Sidebar - Recently Accessed Notes */}
-                <div className="hidden md:block flex-1">
+                {/* Sidebar */}
+                <div className="hidden md:flex flex-col flex-1 gap-6">
+                    {/* Recently Accessed Notes */}
                     <ContainerBox title="Recently Accessed" comment="Your study journey">
                         {displayedRecentNotes && displayedRecentNotes.length > 0 ? (
                             <div className="flex flex-col gap-2">
@@ -165,6 +168,48 @@ const ResourcesHub = () => {
                                     size="sm"
                                 >
                                     Explore Notes
+                                </Button>
+                            </div>
+                        )}
+                    </ContainerBox>
+
+                    {/* Recently Archived Notes */}
+                    <ContainerBox title="Recently Saved" comment="Your bookmarks">
+                        {displayedArchivedNotes && displayedArchivedNotes.length > 0 ? (
+                            <div className="flex flex-col gap-2">
+                                {displayedArchivedNotes.map((noteItem) => (
+                                    <Link key={noteItem.noteId} href={`/resources/current`}>
+                                        <div className="p-3 rounded-lg border border-border hover:border-border-hover hover:bg-background-secondary transition-all duration-300 cursor-pointer group">
+                                            <p className="text-sm font-medium text-foreground truncate group-hover:text-accent transition-colors">
+                                                {noteItem.note?.title || "Untitled"}
+                                            </p>
+                                            <p className="text-xs text-foreground-secondary mt-1 truncate">
+                                                By {noteItem.note?.uploader?.fullName || "Unknown"}
+                                            </p>
+                                        </div>
+                                    </Link>
+                                ))}
+                                <Button
+                                    variant="outline"
+                                    className="w-full mt-4 text-foreground-secondary hover:text-foreground"
+                                    href="/resources/me/bookmarks"
+                                    size="sm"
+                                >
+                                    View All Saved
+                                </Button>
+                            </div>
+                        ) : (
+                            <div className="text-center py-6">
+                                <p className="text-sm text-foreground-secondary">
+                                    No saved notes yet.
+                                </p>
+                                <Button
+                                    variant="ghost"
+                                    className="w-full mt-4 text-foreground-secondary hover:text-foreground"
+                                    href="/resources/current"
+                                    size="sm"
+                                >
+                                    Start Saving
                                 </Button>
                             </div>
                         )}

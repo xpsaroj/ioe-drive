@@ -1,5 +1,4 @@
 "use client"
-import Link from "next/link";
 import { useState } from "react";
 import { ChevronRight, ChevronDown, ChevronLeft } from "lucide-react";
 
@@ -28,10 +27,14 @@ const CurrentResourcesPage = () => {
     if (offeringsPending) {
         return (
             <div className="min-h-screen flex flex-col bg-background text-foreground md:p-8 p-6 max-w-7xl mx-auto">
-                <Link href="/resources" className="inline-flex items-center gap-1 text-sm text-foreground-secondary hover:text-foreground transition-colors mb-6 w-fit">
-                    <ChevronLeft className="w-4 h-4" />
+                <Button
+                    href="/resources"
+                    variant="ghost"
+                    icon={<ChevronLeft className="size-4" />}
+                    className="text-foreground-secondary hover:bg-transparent text-sm hover:text-foreground gap-0.5 hover:gap-1.5 p-0 max-w-min"
+                >
                     Back to Hub
-                </Link>
+                </Button>
                 <div className="flex-1 flex items-center justify-center">
                     <Loader text="Loading resources. Please wait." />
                 </div>
@@ -42,10 +45,14 @@ const CurrentResourcesPage = () => {
     if (error) {
         return (
             <div className="min-h-screen flex flex-col bg-background text-foreground md:p-8 p-6 max-w-7xl mx-auto">
-                <Link href="/resources" className="inline-flex items-center gap-1 text-sm text-foreground-secondary hover:text-foreground transition-colors mb-6 w-fit">
-                    <ChevronLeft className="w-4 h-4" />
+                <Button
+                    href="/resources"
+                    variant="ghost"
+                    icon={<ChevronLeft className="size-4" />}
+                    className="text-foreground-secondary hover:bg-transparent text-sm hover:text-foreground gap-0.5 hover:gap-1.5 p-0 max-w-min"
+                >
                     Back to Hub
-                </Link>
+                </Button>
                 <div className="flex-1 flex items-center justify-center">
                     <p className="text-red-500">Something went wrong. Please try again later.</p>
                 </div>
@@ -56,23 +63,29 @@ const CurrentResourcesPage = () => {
     if (!subjectOfferings || subjectOfferings.length === 0) {
         return (
             <div className="min-h-screen flex flex-col bg-background text-foreground md:p-8 p-6 max-w-7xl mx-auto">
-                <Link href="/resources" className="inline-flex items-center gap-1 text-sm text-foreground-secondary hover:text-foreground transition-colors mb-6 w-fit">
-                    <ChevronLeft className="w-4 h-4" />
+                <Button
+                    href="/resources"
+                    variant="ghost"
+                    icon={<ChevronLeft className="size-4" />}
+                    className="text-foreground-secondary hover:bg-transparent text-sm hover:text-foreground gap-0.5 hover:gap-1.5 p-0 max-w-min"
+                >
                     Back to Hub
-                </Link>
-                <div className="flex-1 flex flex-col items-center justify-center gap-2 max-w-xl text-center">
-                    <p className="text-red-500">
-                        Oops. Looks like there are no resources available.
-                    </p>
-                    <p className="text-sm text-foreground-secondary">
-                        Make sure you have set your program and semester in your profile.
-                        Update your profile with the required information to get subject details and notes for the subjects in your current semester and program.
-                    </p>
-                    <Button
-                        href="/profile"
-                    >
-                        Update Profile
-                    </Button>
+                </Button>
+                <div className="flex-1 border flex items-center justify-center rounded-lg">
+                    <div className="flex-1 flex flex-col items-center justify-center gap-2 max-w-xl text-center">
+                        <p className="text-red-500">
+                            Oops. Looks like there are no resources available.
+                        </p>
+                        <p className="text-sm text-foreground-secondary">
+                            Make sure you have set your program and semester in your profile.
+                            Update your profile with the required information to get subject details and notes for the subjects in your current semester and program.
+                        </p>
+                        <Button
+                            href="/profile"
+                        >
+                            Update Profile
+                        </Button>
+                    </div>
                 </div>
             </div>
         )
@@ -80,15 +93,20 @@ const CurrentResourcesPage = () => {
 
     return (
         <div className="min-h-screen bg-background text-foreground max-w-7xl mx-auto md:px-8 px-6 md:space-y-8 space-y-6">
-            <Link href="/resources" className="inline-flex items-center gap-1 text-sm text-foreground-secondary hover:text-foreground transition-colors mb-2 mt-6 md:mt-8">
-                <ChevronLeft className="w-4 h-4" />
-                Back to Hub
-            </Link>
-            <div className="sticky md:top-0 md:pt-8 pt-6 bg-background/40 backdrop-blur-sm border-b">
+            <div className="sticky md:top-0 md:pt-8 flex items-start justify-between pt-6 bg-background/40 backdrop-blur-sm border-b">
                 <SubjectTabs
                     subjects={subjectOfferings}
                     onSubjectSelect={(subject) => setSelectedSubject(subject)}
                 />
+
+                <Button
+                    href="/resources"
+                    variant="ghost"
+                    icon={<ChevronLeft className="size-4" />}
+                    className="text-foreground-secondary hover:bg-transparent text-sm hover:text-foreground gap-0.5 hover:gap-1.5 p-0"
+                >
+                    Back to Hub
+                </Button>
             </div>
 
             <div>
