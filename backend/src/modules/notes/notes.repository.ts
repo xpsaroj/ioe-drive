@@ -78,9 +78,9 @@ export class NotesRepository {
                 where: eq(notesTable.id, noteId),
                 with: {
                     files: true,
-                    subject: {
+                    subjectOffering: {
                         with: {
-                            program: true,
+                            subject: true,
                         }
                     },
                     uploader: {
@@ -95,17 +95,28 @@ export class NotesRepository {
 
     /**
      * Find notes by subject ID.
-     * @param subjectId - ID of the subject to find notes for.
+     * @param offeringId - ID of the subject offering to find notes for.
      * @returns An array of notes for the given subject ID.
      */
-    async findBySubjectId(subjectId: number) {
+    async findByOfferingId(offeringId: number) {
         return await db
             .query
             .notesTable
             .findMany({
-                where: eq(notesTable.subjectId, subjectId),
+                where: eq(notesTable.offeringId, offeringId),
                 with: {
                     files: true,
+                    subjectOffering: {
+                        with: {
+                            subject: true,
+                        }
+                    },
+                    uploader: {
+                        columns: {
+                            id: true,
+                            fullName: true,
+                        }
+                    },
                 }
             });
     }

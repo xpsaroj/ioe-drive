@@ -4,10 +4,10 @@ export const createNoteSchema = z.object({
     body: z.object({
         title: z.string().min(3, "Title must be at least 3 characters long"),
         description: z.string().min(10, "Description must be at least 10 characters long"),
-        subjectId: z.coerce
+        offeringId: z.coerce
             .number()
             .int()
-            .positive("Subject ID must be a positive integer"),
+            .positive("Subject Offering ID must be a positive integer"),
     }),
 });
 
@@ -21,7 +21,7 @@ export const updateNoteSchema = z.object({
     body: z.object({
         title: z.string().min(3).optional(),
         description: z.string().min(10).optional(),
-        subjectId: z.coerce.number().int().positive().optional(),
+        offeringId: z.coerce.number().int().positive().optional(),
     }).refine(
         (data) => Object.keys(data).length > 0,
         { message: "At least one field must be provided for update" }
@@ -37,12 +37,12 @@ export const getNoteByIdSchema = z.object({
     }),
 });
 
-export const getNotesBySubjectIdSchema = z.object({
+export const getNotesBySubjectOfferingIdSchema = z.object({
     query: z.object({
-        subjectId: z.coerce
+        offeringId: z.coerce
             .number()
             .int()
-            .positive("Subject ID must be a positive integer"),
+            .positive("Subject Offering ID must be a positive integer"),
     }),
 });
 

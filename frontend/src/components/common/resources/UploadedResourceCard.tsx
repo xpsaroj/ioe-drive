@@ -6,7 +6,7 @@ interface Props {
 }
 
 const UploadedNoteCard = ({ item }: Props) => {
-    const { title, description, subject, uploader } = item;
+    const { title, description, subjectOffering, uploader } = item;
 
     return (
         <div className="md:border py-3 md:p-6 md:rounded-md">
@@ -14,7 +14,7 @@ const UploadedNoteCard = ({ item }: Props) => {
             <p className="text-sm text-foreground-secondary">{description}</p>
 
             <p className="text-xs text-foreground-tertiary mt-1">
-                {subject.code} • {subject.name}
+                {subjectOffering.subject.code} • {subjectOffering.subject.name}
             </p>
 
             {uploader && (

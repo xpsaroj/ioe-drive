@@ -5,7 +5,7 @@ import type { UpdateNoteInput } from '@/lib/validators/notes';
 export const notesKeys = {
     all: ['notes'] as const,
     byId: (id: number) => ['notes', id] as const,
-    bySubjectId: (subjectId?: number) => ['notes', 'subject', subjectId] as const,
+    bySubjectOfferingId: (offeringId?: number) => ['notes', 'subject-offering', offeringId] as const,
 };
 
 export function useNote(noteId: number) {
@@ -21,20 +21,21 @@ export function useNote(noteId: number) {
     });
 }
 
-export function useNotesBySubjectId(subjectId?: number) {
+export function useNotesBySubjectOfferingId(offeringId?: number) {
     return useQuery({
-        queryKey: notesKeys.bySubjectId(subjectId),
+        queryKey: notesKeys.bySubjectOfferingId(offeringId),
         queryFn: async () => {
-            if (!subjectId) {
-                throw new Error('Subject ID is required to fetch notes');
+            if (!offeringId) {
+                throw new Error('Subject Offering ID is required to fetch notes');
             }
-            const response = await notesApi.getNotesBySubject(subjectId);
+            const response = await notesApi.getNotesBySubjectOffering(offeringId);
             if (!response.success) {
                 throw new Error(response.error || 'Failed to fetch notes for subject');
             }
+            console.log('Fetched notes for offeringId', offeringId, response.data);
             return response.data;
         },
-        enabled: !!subjectId,
+        enabled: !!offeringId,
         staleTime: 10 * 60 * 1000,
     });
 }
@@ -52,7 +53,7 @@ export function useCreateNote() {
         onSuccess: (response) => {
             queryClient.invalidateQueries({ queryKey: notesKeys.all });
             queryClient.invalidateQueries({
-                queryKey: notesKeys.bySubjectId(response.data.subjectId)
+                queryKey: notesKeys.bySubjectOfferingId(response.data.offeringId)
             });
         },
     });

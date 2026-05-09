@@ -48,9 +48,9 @@ export class MeService {
             .findMany({
                 where: eq(notesTable.uploadedBy, userId),
                 with: {
-                    subject: {
+                    subjectOffering: {
                         with: {
-                            program: true,
+                            subject: true,
                         }
                     },
                     uploader: {
@@ -77,9 +77,9 @@ export class MeService {
                 with: {
                     note: {
                         with: {
-                            subject: {
+                            subjectOffering: {
                                 with: {
-                                    program: true,
+                                    subject: true,
                                 }
                             },
                             uploader: {
@@ -110,9 +110,9 @@ export class MeService {
                 with: {
                     note: {
                         with: {
-                            subject: {
+                            subjectOffering: {
                                 with: {
-                                    program: true,
+                                    subject: true,
                                 }
                             },
                             uploader: {

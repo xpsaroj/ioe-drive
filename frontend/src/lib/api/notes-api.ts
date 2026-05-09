@@ -1,5 +1,5 @@
 import { apiClient } from "./api-client";
-import type { ApiResponse, Note, NoteWithFiles, UploadedNote } from "@/types";
+import type { ApiResponse, Note, UploadedNote } from "@/types";
 import type { UpdateNoteInput } from "../validators/notes";
 
 const NOTES_API_BASE_URL = "/notes";
@@ -17,10 +17,10 @@ export const notesApi = {
         return apiClient.get<ApiResponse<UploadedNote>>(`${NOTES_API_BASE_URL}/${noteId}`);
     },
 
-    async getNotesBySubject(subjectId: number): Promise<ApiResponse<NoteWithFiles[]>> {
+    async getNotesBySubjectOffering(offeringId: number): Promise<ApiResponse<UploadedNote[]>> {
         const params = new URLSearchParams({
-            subjectId: subjectId.toString()
+            offeringId: offeringId.toString()
         });
-        return apiClient.get<ApiResponse<NoteWithFiles[]>>(`${NOTES_API_BASE_URL}?${params.toString()}`);
+        return apiClient.get<ApiResponse<UploadedNote[]>>(`${NOTES_API_BASE_URL}?${params.toString()}`);
     },
 }

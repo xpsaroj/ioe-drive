@@ -108,205 +108,275 @@ export const recentNotes: RecentNote[] = [
   {
     id: 1,
     userId: 101,
-    noteId: 5001,
-    accessedAt: "2026-02-25T14:32:00Z",
+    noteId: 1001,
+    accessedAt: "2026-05-10T08:30:00Z",
+
     note: {
-      id: 5001,
-      title: "OS – Process Scheduling",
-      description: "CPU scheduling algorithms and examples",
-      subjectId: 301,
-      createdAt: "2026-02-20T10:15:00Z",
-      updatedAt: "2026-02-20T10:15:00Z",
-      files: [],
-      subject: {
-        id: 301,
-        code: "CS301",
-        name: "Operating Systems",
-        programId: 10,
-        hardnessLevel: SubjectHardnessLevel.HARD,
-        program: {
-          id: 10,
-          code: "CSE",
-          name: "Computer Science & Engineering",
-          totalYears: 4,
-        },
-        marks: {
-          id: 901,
-          subjectId: 301,
-          theoryAssessment: 30,
-          theoryFinal: 70,
-          practicalAssessment: 25,
-          practicalFinal: 50,
-        },
-      },
-      uploader: {
+      id: 1001,
+      title: "DSA Complete Notes",
+      description: "Stacks, queues, trees and graph algorithms.",
+      offeringId: 201,
+      uploadedBy: 11,
+      createdAt: "2026-05-01T09:00:00Z",
+      updatedAt: "2026-05-03T12:00:00Z",
+
+      subjectOffering: {
         id: 201,
-        fullName: "Aarav Sharma",
+        subjectId: 301,
+        semester: "3",
+        year: "2",
+        programId: 1,
+        isElective: false,
+
+        subject: {
+          id: 301,
+          code: "CSC202",
+          name: "Data Structures and Algorithms",
+          programId: 1,
+          hardnessLevel: SubjectHardnessLevel.HARD,
+          description: "Core DSA concepts",
+          syllabusUrl: "https://example.com/dsa"
+        }
       },
-    },
+
+      uploader: {
+        id: 11,
+        fullName: "Sujan Karki"
+      },
+
+      files: [
+        {
+          id: 5001,
+          noteId: 1001,
+          originalFileName: "dsa-notes.pdf",
+          blobName: "notes/dsa-notes.pdf",
+          mimeType: "application/pdf",
+          fileUrl: "https://cdn.example.com/dsa-notes.pdf",
+          fileSize: 2450000,
+          compressedSize: 1800000,
+          compressionMethod: "gzip",
+          uploadedAt: "2026-05-01T09:10:00Z"
+        }
+      ]
+    }
   },
+
   {
     id: 2,
     userId: 101,
-    noteId: 5002,
-    accessedAt: "2026-02-24T18:10:00Z",
+    noteId: 1002,
+    accessedAt: "2026-05-09T14:15:00Z",
+
     note: {
-      id: 5002,
-      title: "DBMS – Normalization",
-      description: "1NF to BCNF with examples",
-      subjectId: 302,
-      createdAt: "2026-02-18T09:00:00Z",
-      updatedAt: "2026-02-19T11:45:00Z",
-      files: [],
-      subject: {
-        id: 302,
-        code: "CS302",
-        name: "Database Management Systems",
-        programId: 10,
-        hardnessLevel: SubjectHardnessLevel.MEDIUM,
-        program: {
-          id: 10,
-          code: "CSE",
-          name: "Computer Science & Engineering",
-          totalYears: 4,
-          syllabusUrl: "https://example.com/syllabus/cse",
-        },
-        marks: {
-          id: 902,
-          subjectId: 302,
-          theoryAssessment: 25,
-          theoryFinal: 75,
-          practicalAssessment: 30,
-          practicalFinal: 50,
-        },
-      },
-      uploader: {
+      id: 1002,
+      title: "Computer Networks Notes",
+      description: "OSI model and TCP/IP.",
+      offeringId: 202,
+      uploadedBy: 12,
+      createdAt: "2026-04-28T10:00:00Z",
+      updatedAt: "2026-04-29T11:20:00Z",
+
+      subjectOffering: {
         id: 202,
-        fullName: "Neha Verma",
+        subjectId: 302,
+        semester: "4",
+        year: "2",
+        programId: 1,
+        isElective: false,
+
+        subject: {
+          id: 302,
+          code: "CSC301",
+          name: "Computer Networks",
+          programId: 1,
+          hardnessLevel: SubjectHardnessLevel.MEDIUM,
+          description: "Network models and protocols"
+        }
       },
-    },
+
+      uploader: {
+        id: 12,
+        fullName: "Aashish Sharma"
+      },
+
+      files: [
+        {
+          id: 5002,
+          noteId: 1002,
+          originalFileName: "computer-networks.pdf",
+          blobName: "notes/computer-networks.pdf",
+          mimeType: "application/pdf",
+          fileUrl: "https://cdn.example.com/computer-networks.pdf",
+          fileSize: 1980000,
+          compressedSize: null,
+          compressionMethod: null,
+          uploadedAt: "2026-04-28T10:10:00Z"
+        }
+      ]
+    }
   },
+
   {
     id: 3,
     userId: 101,
-    noteId: 5003,
-    accessedAt: "2026-02-23T21:40:00Z",
+    noteId: 1003,
+    accessedAt: "2026-05-08T17:45:00Z",
+
     note: {
-      id: 5003,
-      title: "CN – TCP/IP Model",
-      description: "Layered architecture and protocols",
-      subjectId: 303,
-      createdAt: "2026-02-15T14:20:00Z",
-      updatedAt: "2026-02-16T10:00:00Z",
-      files: [],
-      subject: {
-        id: 303,
-        code: "CS303",
-        name: "Computer Networks",
-        programId: 10,
-        hardnessLevel: SubjectHardnessLevel.MEDIUM,
-        program: {
-          id: 10,
-          code: "CSE",
-          name: "Computer Science & Engineering",
-          totalYears: 4,
-          syllabusUrl: "https://example.com/syllabus/cse",
-        },
-        marks: {
-          id: 903,
-          subjectId: 303,
-          theoryAssessment: 28,
-          theoryFinal: 72,
-          practicalAssessment: 20,
-          practicalFinal: 50,
-        },
-      },
-      uploader: {
+      id: 1003,
+      title: "Operating System Deadlocks",
+      description: "Deadlock prevention and avoidance.",
+      offeringId: 203,
+      uploadedBy: 13,
+      createdAt: "2026-04-20T08:30:00Z",
+      updatedAt: "2026-04-22T09:15:00Z",
+
+      subjectOffering: {
         id: 203,
-        fullName: "Rohit Mehta",
+        subjectId: 303,
+        semester: "4",
+        year: "2",
+        programId: 1,
+        isElective: false,
+
+        subject: {
+          id: 303,
+          code: "CSC302",
+          name: "Operating System",
+          programId: 1,
+          hardnessLevel: SubjectHardnessLevel.VERY_HARD,
+          description: "Processes and memory management"
+        }
       },
-    },
+
+      uploader: {
+        id: 13,
+        fullName: "Nischal Thapa"
+      },
+
+      files: [
+        {
+          id: 5003,
+          noteId: 1003,
+          originalFileName: "os-deadlocks.pdf",
+          blobName: "notes/os-deadlocks.pdf",
+          mimeType: "application/pdf",
+          fileUrl: "https://cdn.example.com/os-deadlocks.pdf",
+          fileSize: 2200000,
+          compressedSize: 1600000,
+          compressionMethod: "zip",
+          uploadedAt: "2026-04-20T08:45:00Z"
+        }
+      ]
+    }
   },
+
   {
     id: 4,
     userId: 101,
-    noteId: 5004,
-    accessedAt: "2026-02-22T16:05:00Z",
+    noteId: 1004,
+    accessedAt: "2026-05-07T13:10:00Z",
+
     note: {
-      id: 5004,
-      title: "SE – Software Development Life Cycle",
-      description: "SDLC models and comparisons",
-      subjectId: 304,
-      createdAt: "2026-02-12T08:30:00Z",
-      updatedAt: "2026-02-12T08:30:00Z",
-      files: [],
-      subject: {
-        id: 304,
-        code: "CS304",
-        name: "Software Engineering",
-        programId: 10,
-        hardnessLevel: SubjectHardnessLevel.EASY,
-        program: {
-          id: 10,
-          code: "CSE",
-          name: "Computer Science & Engineering",
-          totalYears: 4,
-          syllabusUrl: "https://example.com/syllabus/cse",
-        },
-        marks: {
-          id: 904,
-          subjectId: 304,
-          theoryAssessment: 35,
-          theoryFinal: 65,
-          practicalAssessment: 30,
-          practicalFinal: 50,
-        },
-      },
-      uploader: {
+      id: 1004,
+      title: "DBMS Normalization Guide",
+      description: "1NF to BCNF with examples.",
+      offeringId: 204,
+      uploadedBy: 14,
+      createdAt: "2026-04-18T11:00:00Z",
+      updatedAt: "2026-04-18T12:00:00Z",
+
+      subjectOffering: {
         id: 204,
-        fullName: "Simran Kaur",
+        subjectId: 304,
+        semester: "3",
+        year: "2",
+        programId: 1,
+        isElective: false,
+
+        subject: {
+          id: 304,
+          code: "CSC303",
+          name: "Database Management System",
+          programId: 1,
+          hardnessLevel: SubjectHardnessLevel.MEDIUM
+        }
       },
-    },
+
+      uploader: {
+        id: 14,
+        fullName: "Prerana Joshi"
+      },
+
+      files: [
+        {
+          id: 5004,
+          noteId: 1004,
+          originalFileName: "dbms-normalization.pdf",
+          blobName: "notes/dbms-normalization.pdf",
+          mimeType: "application/pdf",
+          fileUrl: "https://cdn.example.com/dbms-normalization.pdf",
+          fileSize: 1700000,
+          compressedSize: 1200000,
+          compressionMethod: "gzip",
+          uploadedAt: "2026-04-18T11:10:00Z"
+        }
+      ]
+    }
   },
+
   {
     id: 5,
     userId: 101,
-    noteId: 5005,
-    accessedAt: "2026-02-21T11:55:00Z",
+    noteId: 1005,
+    accessedAt: "2026-05-06T19:25:00Z",
+
     note: {
-      id: 5005,
-      title: "TOC – Finite Automata",
-      description: "DFA, NFA, and state transitions",
-      subjectId: 305,
-      createdAt: "2026-02-10T13:10:00Z",
-      updatedAt: "2026-02-11T09:00:00Z",
-      files: [],
-      subject: {
-        id: 305,
-        code: "CS305",
-        name: "Theory of Computation",
-        programId: 10,
-        hardnessLevel: SubjectHardnessLevel.VERY_HARD,
-        program: {
-          id: 10,
-          code: "CSE",
-          name: "Computer Science & Engineering",
-          totalYears: 4,
-          syllabusUrl: "https://example.com/syllabus/cse",
-        },
-        marks: {
-          id: 905,
-          subjectId: 305,
-          theoryAssessment: 20,
-          theoryFinal: 80,
-          practicalAssessment: 0,
-          practicalFinal: 0,
-        },
-      },
-      uploader: {
+      id: 1005,
+      title: "Software Engineering Agile Notes",
+      description: "Agile, Scrum and SDLC models.",
+      offeringId: 205,
+      uploadedBy: 15,
+      createdAt: "2026-04-10T14:00:00Z",
+      updatedAt: "2026-04-11T09:30:00Z",
+
+      subjectOffering: {
         id: 205,
-        fullName: "Kunal Singh",
+        subjectId: 305,
+        semester: "5",
+        year: "3",
+        programId: 1,
+        isElective: true,
+
+        subject: {
+          id: 305,
+          code: "CSC404",
+          name: "Software Engineering",
+          programId: 1,
+          hardnessLevel: SubjectHardnessLevel.EASY,
+          syllabusUrl: "https://example.com/se"
+        }
       },
-    },
-  },
+
+      uploader: {
+        id: 15,
+        fullName: "Ritika Lama"
+      },
+
+      files: [
+        {
+          id: 5005,
+          noteId: 1005,
+          originalFileName: "software-engineering.pdf",
+          blobName: "notes/software-engineering.pdf",
+          mimeType: "application/pdf",
+          fileUrl: "https://cdn.example.com/software-engineering.pdf",
+          fileSize: 1500000,
+          compressedSize: null,
+          compressionMethod: null,
+          uploadedAt: "2026-04-10T14:15:00Z"
+        }
+      ]
+    }
+  }
 ];

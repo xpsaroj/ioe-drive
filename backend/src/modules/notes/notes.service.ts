@@ -17,16 +17,16 @@ export class NotesService {
      */
     async createNote(userId: number, noteData: Omit<CreateNoteInput, 'uploadedBy'>, noteFiles: Express.Multer.File[]) {
         const existingSubject = await db
-            .query.subjectsTable
+            .query.subjectOfferingsTable
             .findFirst({
-                where: (fields, { eq }) => eq(fields.id, noteData.subjectId),
+                where: (fields, { eq }) => eq(fields.id, noteData.offeringId),
                 columns: {
                     id: true,
                 }
             })
 
         if (!existingSubject) {
-            throw new NotFoundError("Subject not found");
+            throw new NotFoundError("Subject offering not found");
         }
 
         const noteToCreate = {
@@ -94,12 +94,12 @@ export class NotesService {
     }
 
     /**
-     * Find notes by subject ID.
-     * @param subjectId - ID of the subject to find notes for.
-     * @returns An array of notes for the given subject ID.
+     * Find notes by subject offering ID.
+     * @param offeringId - ID of the subject offering to find notes for.
+     * @returns An array of notes for the given subject offering ID.
      */
-    async findNotesBySubjectId(subjectId: number) {
-        return await notesRepository.findBySubjectId(subjectId);
+    async findNotesByOfferingId(offeringId: number) {
+        return await notesRepository.findByOfferingId(offeringId);
     }
 }
 

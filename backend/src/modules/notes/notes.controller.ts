@@ -81,17 +81,17 @@ export class NotesController {
     }
 
     /**
-     * Get all notes for a specific subject.
-     * - GET /api/notes?subjectId=<subjectId>
+     * Get all notes for a specific subject offering.
+     * - GET /api/notes?offeringId=<offeringId>
      */
-    async getNotesBySubjectId(
+    async getNotesBySubjectOfferingId(
         req: Request,
         res: Response,
         next: NextFunction
     ) {
         try {
-            const subjectId = Number(req.query.subjectId);
-            const notes = await notesService.findNotesBySubjectId(subjectId);
+            const offeringId = Number(req.query.offeringId);
+            const notes = await notesService.findNotesByOfferingId(offeringId);
             return sendSuccessResponse(res, notes);
         } catch (e) {
             next(e);

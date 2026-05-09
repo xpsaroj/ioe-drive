@@ -1,11 +1,11 @@
 import type { User } from "./user";
-import type { SubjectWithProgramAndMarks } from "./academics";
+import type { Subject, SubjectOffering } from "./academics";
 
 export interface Note {
     id: number;
     title: string;
     description: string;
-    subjectId: number;
+    offeringId: number;
     uploadedBy?: number;
     createdAt: string;
     updatedAt: string;
@@ -29,7 +29,10 @@ export interface NoteWithFiles extends Note {
 }
 
 export interface UploadedNote extends Note {
-    subject: SubjectWithProgramAndMarks;
+    subjectOffering: SubjectOffering & {
+        subject: Subject;
+    }
+
     uploader?: Omit<User, "email" | "clerkUserId">;
     files: NoteFile[];
 }

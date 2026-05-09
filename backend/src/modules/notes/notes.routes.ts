@@ -4,7 +4,7 @@ import { notesController } from "./notes.controller.js";
 import { validate } from "../../middlewares/validate.middleware.js";
 import { requireAuth } from "../../middlewares/auth.middleware.js";
 import { upload } from "../../middlewares/upload.js";
-import { createNoteSchema, updateNoteSchema, getNoteByIdSchema, getNotesBySubjectIdSchema } from "./notes.dto.js";
+import { createNoteSchema, updateNoteSchema, getNoteByIdSchema, getNotesBySubjectOfferingIdSchema } from "./notes.dto.js";
 
 /**
  * Notes-related routes.
@@ -49,13 +49,13 @@ router.get(
 )
 
 /**
- * GET /api/notes?subjectId=<subjectId>
- * - Get notes by subject ID
+ * GET /api/notes?offeringId=<offeringId>
+ * - Get notes by subject offering ID
  */
 router.get(
     "/",
-    validate(getNotesBySubjectIdSchema),
-    notesController.getNotesBySubjectId.bind(notesController)
+    validate(getNotesBySubjectOfferingIdSchema),
+    notesController.getNotesBySubjectOfferingId.bind(notesController)
 )
 
 export default router;

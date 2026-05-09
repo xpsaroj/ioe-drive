@@ -10,8 +10,8 @@ interface Props {
 
 const RecentResourceCard = ({ item }: Props) => {
     const { note, accessedAt } = item;
-    const { files = [] } = note;
-    
+    const { files = [], subjectOffering } = note;
+
     const createdAt = new Date(note.createdAt);
     const formattedCreatedAt = createdAt.toLocaleDateString(undefined, {
         year: "numeric",
@@ -47,9 +47,12 @@ const RecentResourceCard = ({ item }: Props) => {
                             </div>
                         )}
 
-                        <p className="text-xs text-foreground-secondary">
-                            {note.subject.code} • {note.subject.name}
-                        </p>
+                        <Link
+                            href={`/offerings/${subjectOffering.id}`}
+                            className="text-xs text-foreground-secondary hover:underline hover:text-foreground"
+                        >
+                            {subjectOffering?.subject?.code} • {subjectOffering?.subject?.name}
+                        </Link>
                     </div>
                 </div>
             </div>

@@ -18,7 +18,7 @@ type FormValues = {
     programId: string;
     type: string;
     semester: Semester | "";
-    subjectId: string;
+    offeringId: string;
     file: File | null;
 };
 
@@ -48,7 +48,7 @@ export const ResourceUploadForm: React.FC = () => {
             programId: "",
             type: "",
             semester: "",
-            subjectId: "",
+            offeringId: "",
             file: null,
         },
     });
@@ -85,7 +85,7 @@ export const ResourceUploadForm: React.FC = () => {
         const formData = new FormData();
         formData.append("title", data.title);
         formData.append("description", data.description);
-        formData.append("subjectId", data.subjectId);
+        formData.append("offeringId", data.offeringId);
         formData.append("noteFile", data.file);
         mutate(formData, {
             onSuccess: () => {
@@ -196,7 +196,7 @@ export const ResourceUploadForm: React.FC = () => {
                                 onChange={(e) => {
                                     field.onChange(e);
                                     setValue("semester", "");
-                                    setValue("subjectId", "");
+                                    setValue("offeringId", "");
                                 }}
                                 options={programs.map((prog) => ({
                                     value: String(prog.id),
@@ -245,7 +245,7 @@ export const ResourceUploadForm: React.FC = () => {
                                 disabled={!selectedProgramId || isUploading}
                                 onChange={(e) => {
                                     field.onChange(e);
-                                    setValue("subjectId", "");
+                                    setValue("offeringId", "");
                                 }}
                                 options={Object.keys(SemesterLabel).map((sem) => ({
                                     value: sem,
@@ -259,7 +259,7 @@ export const ResourceUploadForm: React.FC = () => {
                     {/* Subject */}
                     <Controller
                         control={control}
-                        name="subjectId"
+                        name="offeringId"
                         rules={{ required: "Subject is required" }}
                         render={({ field }) => (
                             <Select
@@ -272,12 +272,12 @@ export const ResourceUploadForm: React.FC = () => {
                                             : "Select Subject"
                                 }
                                 value={field.value}
-                                error={errors.subjectId?.message}
+                                error={errors.offeringId?.message}
                                 disabled={!bothSelected || subjectsFetching || isUploading}
                                 onChange={field.onChange}
                                 options={
                                     subjects?.map((offering) => ({
-                                        value: String(offering.subject.id),
+                                        value: String(offering.id),
                                         label: `${offering.subject.code} - ${offering.subject.name}${offering.isElective ? " (Elective)" : ""}`,
                                     })) ?? []
                                 }

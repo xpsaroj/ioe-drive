@@ -42,7 +42,7 @@ const UserResourceList = <T,>({
     }
 
     return (
-        <div className="border md:p-6 p-0 px-6 py-3 rounded-lg bg-white flex flex-col md:gap-6 divide-y divide-border">
+        <div className="border md:p-6 p-0 px-6 py-3 rounded-lg bg-white flex flex-col md:gap-6">
             {data.map((item, index) => (
                 <div key={index}>{renderItem(item)}</div>
             ))}

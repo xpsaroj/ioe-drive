@@ -1,6 +1,7 @@
 "use client"
 import { use } from "react"
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useNote } from "@/hooks/queries/use-notes";
 import { ChevronLeft, User2 } from "lucide-react";
 import Button from "@/components/ui/Button";
@@ -69,7 +70,7 @@ const ResourcePage = ({
         return <NotFoundReturn />
     }
 
-    const { files = [] } = note;
+    const { files = [], subjectOffering } = note;
     const createdAt = new Date(note.createdAt);
     const formattedCreatedAt = createdAt.toLocaleDateString(undefined, {
         year: "numeric",
@@ -93,8 +94,13 @@ const ResourcePage = ({
 
             <div className="flex flex-col justify-center border gap-1 rounded-lg py-3 md:p-6">
                 <div className="mb-3 pb-3 border-b">
-                    <h2 className="text-xl font-semibold">{note.subject.name} Resources</h2>
-                    <p className="text-sm text-foreground-secondary">{note.subject.code} • {note.subject.name}</p>
+                    <h2 className="text-xl font-semibold">{subjectOffering.subject.name} Resources</h2>
+                    <Link
+                        href={`/offerings/${subjectOffering.id}`}
+                        className="text-sm text-foreground-secondary hover:underline hover:text-foreground"
+                    >
+                        {subjectOffering.subject.code} • {subjectOffering.subject.name}
+                    </Link>
                 </div>
 
                 <div className="border-b pb-3 mb-3">

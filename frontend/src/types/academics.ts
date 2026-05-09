@@ -91,7 +91,7 @@ export interface SubjectOfferingWithSubject extends SubjectOfferingWithProgram {
 }
 
 export interface SubjectForUploadForm {
-    id: string;
+    id: number;
     isElective: boolean;
     subject: {
         id: number;

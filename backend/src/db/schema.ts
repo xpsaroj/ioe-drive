@@ -116,8 +116,8 @@ export const notesTable = pgTable("notes", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     title: text("title").notNull(),
     description: text("description").notNull(),
-    subjectId: integer("subject_id")
-        .references(() => subjectsTable.id)
+    offeringId: integer("offering_id")
+        .references(() => subjectOfferingsTable.id)
         .notNull(),
     uploadedBy: integer("uploaded_by")
         .references(() => usersTable.id, { onDelete: "set null" }),
@@ -125,7 +125,7 @@ export const notesTable = pgTable("notes", {
     updatedAt: timestamp("updated_at").defaultNow().notNull().$onUpdate(() => new Date()),
 },
     (table) => [
-        index("idx_notes_subject_id").on(table.subjectId),
+        index("idx_notes_subject_id").on(table.offeringId),
         index("idx_notes_uploaded_by").on(table.uploadedBy),
     ]
 );
@@ -237,9 +237,9 @@ export const profileRelations = relations(profilesTable, ({ one }) => ({
 }));
 
 export const noteRelations = relations(notesTable, ({ one, many }) => ({
-    subject: one(subjectsTable, {
-        fields: [notesTable.subjectId],
-        references: [subjectsTable.id]
+    subjectOffering: one(subjectOfferingsTable, {
+        fields: [notesTable.offeringId],
+        references: [subjectOfferingsTable.id]
     }),
     uploader: one(usersTable, {
         fields: [notesTable.uploadedBy],
