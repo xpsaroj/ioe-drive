@@ -78,6 +78,17 @@ export class NotesRepository {
                 where: eq(notesTable.id, noteId),
                 with: {
                     files: true,
+                    subject: {
+                        with: {
+                            program: true,
+                        }
+                    },
+                    uploader: {
+                        columns: {
+                            id: true,
+                            fullName: true,
+                        }
+                    },
                 }
             });
     }

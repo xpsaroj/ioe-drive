@@ -7,7 +7,6 @@ import { useRecentNotes } from "@/hooks/queries/use-me";
 
 const MyRecentNotesPage = () => {
     const { data: recentNotes, isPending, error } = useRecentNotes();
-    console.log("Recent Notes:", recentNotes);
 
     if (isPending) {
         return (
