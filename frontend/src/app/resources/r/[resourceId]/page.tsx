@@ -83,10 +83,10 @@ const ResourcePage = ({
                 <Button
                     icon={<ChevronLeft className="size-4" />}
                     iconOnly
-                    href="/resources"
                     variant="ghost"
                     size="xs"
                     className="border border-border"
+                    onClick={() => router.back()}
                 />
                 <h1 className="text-xl md:text-2xl font-medium">Resource Details</h1>
             </div>

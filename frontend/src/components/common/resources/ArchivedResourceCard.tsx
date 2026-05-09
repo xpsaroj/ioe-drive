@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { ArchivedNote } from "@/types";
 import ResourceFileList from "./ResourceFileList";
 import { getRelativeTime } from "@/utils/time";
@@ -27,7 +28,7 @@ const ArchivedResourceCard = ({ item }: Props) => {
             <div className="md:flex justify-between items-start">
                 <div className="space-y-4">
                     <div>
-                        <h3 className="text-lg font-semibold">{note.title}</h3>
+                        <Link href={`/resources/r/${note.id}`} className="text-lg font-semibold hover:underline decoration-2 underline-offset-3">{note.title}</Link>
                         <p className="text-sm text-foreground-secondary">
                             {note.description}
                         </p>
