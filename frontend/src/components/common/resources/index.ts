@@ -9,3 +9,4 @@ export { default as UploadedResourceCard } from "./UploadedResourceCard";
 export { default as RecentResourceCard } from "./RecentResourceCard";
 export { default as UploadedResourceList } from "./UploadedResourceList";
 export { default as ArchivedResourceCard } from "./ArchivedResourceCard";
+export { default as ResourcePageStateHandler } from "./ResourcePageStateHandler";

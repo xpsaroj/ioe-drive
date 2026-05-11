@@ -2,21 +2,22 @@
 import { use } from "react"
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useNote } from "@/hooks/queries/use-notes";
 import { ChevronLeft, User2 } from "lucide-react";
+
+import { useNote } from "@/hooks/queries/use-notes";
 import Button from "@/components/ui/Button";
-import Loader from "@/components/ui/Loader";
+import { PageStateHandler } from "@/components/layout";
 import { ResourceFileList } from "@/components/common/resources";
 
-interface ResourcePageProps {
+interface ResourceDetailPageProps {
     params: Promise<{
         resourceId: string;
     }>
 }
 
-const ResourcePage = ({
+const ResourceDetailPage = ({
     params
-}: ResourcePageProps) => {
+}: ResourceDetailPageProps) => {
     const { resourceId: rId } = use(params);
     const resourceId = Number(rId);
 
@@ -24,50 +25,40 @@ const ResourcePage = ({
 
     const { data: note, isPending, error } = useNote(resourceId);
 
-    if (isPending) {
-        return (
-            <div className="min-h-screen flex flex-col bg-background text-foreground md:p-8 p-6 max-w-7xl mx-auto">
-                <div className="flex items-center gap-2 mb-4">
-                    <Button
-                        icon={<ChevronLeft className="size-4" />}
-                        iconOnly
-                        variant="ghost"
-                        size="xs"
-                        className="border border-border"
-                        onClick={() => router.back()}
-                    />
-                    <h1 className="text-xl md:text-2xl font-medium">Resource Details</h1>
-                </div>
-                <div className="flex-1 flex items-center justify-center border rounded-lg">
-                    <Loader text="Loading resource details. Please wait." />
-                </div>
-            </div>
-        )
-    }
+    const header = (
+        <div className="flex items-center gap-2 mb-4">
+            <Button
+                icon={<ChevronLeft className="size-4" />}
+                iconOnly
+                variant="ghost"
+                size="xs"
+                className="border border-border"
+                onClick={() => router.back()}
+            />
+            <h1 className="text-xl md:text-2xl font-medium">Resource Details</h1>
+        </div>
+    )
 
-    if (error) {
-        return (
-            <div className="min-h-screen flex flex-col bg-background text-foreground md:p-8 p-6 max-w-7xl mx-auto">
-                <div className="flex items-center gap-2 mb-4">
-                    <Button
-                        icon={<ChevronLeft className="size-4" />}
-                        iconOnly
-                        variant="ghost"
-                        size="xs"
-                        className="border border-border"
-                        onClick={() => router.back()}
-                    />
-                    <h1 className="text-xl md:text-2xl font-medium">Resource Details</h1>
-                </div>
-                <div className="flex-1 flex items-center justify-center border rounded-lg">
-                    <p className="text-red-500">Something went wrong. Please try again later.</p>
-                </div>
-            </div>
-        )
-    }
+    const emptyContent = (
+        <div className="flex flex-col justify-center items-center">
+            <p className="text-4xl">404</p>
+            <p className="text-foreground-secondary">The resource you are looking for does not exist.</p>
+        </div>
+    )
 
     if (!resourceId || isNaN(resourceId) || !note) {
-        return <NotFoundReturn />
+        return (
+            <PageStateHandler
+                isPending={isPending}
+                error={error}
+                isEmpty={true}
+                header={header}
+                loaderText="Loading resource details. Please wait."
+                emptyContent={emptyContent}
+            >
+                {null}
+            </PageStateHandler>
+        );
     }
 
     const { files = [], subjectOffering } = note;
@@ -78,20 +69,16 @@ const ResourcePage = ({
         day: "numeric",
     });
 
-    return (
-        <div className="min-h-screen flex flex-col bg-background text-foreground md:p-8 p-6 max-w-7xl mx-auto">
-            <div className="flex items-center gap-2 mb-4">
-                <Button
-                    icon={<ChevronLeft className="size-4" />}
-                    iconOnly
-                    variant="ghost"
-                    size="xs"
-                    className="border border-border"
-                    onClick={() => router.back()}
-                />
-                <h1 className="text-xl md:text-2xl font-medium">Resource Details</h1>
-            </div>
 
+    return (
+        <PageStateHandler
+            isPending={isPending}
+            error={error}
+            isEmpty={!note}
+            loaderText="Loading resource details. Please wait."
+            header={header}
+            emptyContent={emptyContent}
+        >
             <div className="flex flex-col justify-center border gap-1 rounded-lg py-3 md:p-6">
                 <div className="mb-3 pb-3 border-b">
                     <h2 className="text-xl font-semibold">{subjectOffering.subject.name} Resources</h2>
@@ -122,30 +109,8 @@ const ResourcePage = ({
                 <p className="text-foreground border-b pb-3 mb-3">{note.description}</p>
                 <ResourceFileList resourceFiles={files} />
             </div>
-        </div>
+        </PageStateHandler>
     )
 }
 
-export default ResourcePage;
-
-const NotFoundReturn = () => {
-    const router = useRouter();
-    return (
-        <div className="min-h-screen flex flex-col bg-background text-foreground md:p-8 p-6 max-w-7xl mx-auto">
-            <div className="flex items-center gap-2 mb-4">
-                <Button
-                    icon={<ChevronLeft className="size-4" />}
-                    iconOnly
-                    variant="ghost"
-                    size="xs"
-                    className="border border-border"
-                    onClick={() => router.back()}
-                />
-                <h1 className="text-xl md:text-2xl font-medium">Resource Details</h1>
-            </div>
-            <div className="flex-1 flex items-center justify-center border rounded-lg">
-                <p className="text-gray-500">The resource you are looking for does not exist.</p>
-            </div>
-        </div>
-    )
-}
+export default ResourceDetailPage;
