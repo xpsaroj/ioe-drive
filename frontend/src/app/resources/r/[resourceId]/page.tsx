@@ -2,12 +2,13 @@
 import { use } from "react"
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ChevronLeft, User2 } from "lucide-react";
+import { ChevronLeft } from "lucide-react";
 
 import { useNote } from "@/hooks/queries/use-notes";
 import Button from "@/components/ui/Button";
 import { PageStateHandler } from "@/components/layout";
 import { ResourceFileList } from "@/components/common/resources";
+import { UploaderInfo } from "@/components/common/user";
 
 interface ResourceDetailPageProps {
     params: Promise<{
@@ -94,15 +95,10 @@ const ResourceDetailPage = ({
                     <h3 className="text-xl font-bold">{note.title}</h3>
 
                     <div className="text-xs text-foreground-tertiary flex items-center gap-1 mt-3">
-                        {note.uploader && (
-                            <div className="text-xs text-foreground-tertiary flex items-center gap-1">
-                                <User2 className="inline size-6 rounded-full border p-1.5 box-content" />
-                                <div className="flex flex-col">
-                                    <span className="text-foreground-secondary">{note.uploader.fullName}</span>
-                                    <span>{formattedCreatedAt}</span>
-                                </div>
-                            </div>
-                        )}
+                        <UploaderInfo
+                            user={note.uploader}
+                            subtitle={formattedCreatedAt}
+                        />
                     </div>
                 </div>
 

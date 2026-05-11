@@ -77,17 +77,44 @@ export class NotesRepository {
             .findFirst({
                 where: eq(notesTable.id, noteId),
                 with: {
-                    files: true,
                     subjectOffering: {
+                        columns: {
+                            id: true,
+                            subjectId: true,
+                        },
                         with: {
-                            subject: true,
+                            subject: {
+                                columns: {
+                                    id: true,
+                                    code: true,
+                                    name: true,
+                                },
+                            },
                         }
                     },
                     uploader: {
                         columns: {
                             id: true,
                             fullName: true,
+                        },
+                        with: {
+                            profile: {
+                                columns: {
+                                    id: true,
+                                    userId: true,
+                                    profilePictureUrl: true,
+                                }
+                            }
                         }
+                    },
+                    files: {
+                        columns: {
+                            id: true,
+                            noteId: true,
+                            fileUrl: true,
+                            originalFileName: true,
+                            mimeType: true,
+                        },
                     },
                 }
             });
@@ -105,17 +132,44 @@ export class NotesRepository {
             .findMany({
                 where: eq(notesTable.offeringId, offeringId),
                 with: {
-                    files: true,
                     subjectOffering: {
+                        columns: {
+                            id: true,
+                            subjectId: true,
+                        },
                         with: {
-                            subject: true,
+                            subject: {
+                                columns: {
+                                    id: true,
+                                    code: true,
+                                    name: true,
+                                },
+                            },
                         }
                     },
                     uploader: {
                         columns: {
                             id: true,
                             fullName: true,
+                        },
+                        with: {
+                            profile: {
+                                columns: {
+                                    id: true,
+                                    userId: true,
+                                    profilePictureUrl: true,
+                                }
+                            }
                         }
+                    },
+                    files: {
+                        columns: {
+                            id: true,
+                            noteId: true,
+                            fileUrl: true,
+                            originalFileName: true,
+                            mimeType: true,
+                        },
                     },
                 }
             });
