@@ -1,6 +1,6 @@
 import React from "react";
 import Badge, { BadgeProps } from "@/components/ui/Badge";
-import { SubjectHardnessLevel } from "@/types";
+import { SubjectHardnessLevel } from "@/types/entities";
 
 const hardnessColorMap: Record<
     SubjectHardnessLevel,

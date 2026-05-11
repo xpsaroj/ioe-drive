@@ -2,7 +2,7 @@ import ProgramCard from "./ProgramCard";
 import SubjectDetails from "./SubjectDetails";
 import AcademicTermInfo from "./AcademicTermInfo";
 
-import type { SubjectOfferingWithSubject } from "@/types";
+import type { SubjectOfferingWithSubject } from "@/types/entities";
 
 const SubjectOfferingDetails = ({ offering }: { offering: SubjectOfferingWithSubject }) => {
     const { subject, program, year, semester, isElective } = offering;

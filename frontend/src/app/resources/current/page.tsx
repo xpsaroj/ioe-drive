@@ -9,7 +9,7 @@ import Loader from "@/components/ui/Loader";
 import { useMe } from "@/hooks/queries/use-me";
 import { useSubjectOfferings } from "@/hooks/queries/use-academics";
 import { useNotesBySubjectOfferingId } from "@/hooks/queries/use-notes";
-import { SubjectOfferingWithSubject } from "@/types";
+import { SubjectOfferingWithSubject } from "@/types/entities";
 
 const CurrentResourcesPage = () => {
     const { data: userData } = useMe();

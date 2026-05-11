@@ -1,5 +1,6 @@
 import { apiClient } from "./api-client";
-import type { ApiResponse, Program, Semester, SubjectOfferingWithSubject, SubjectForUploadForm } from "@/types";
+import type { Program, Semester, SubjectOfferingWithSubject, SubjectForUploadForm } from "@/types/entities";
+import type { ApiResponse } from "@/types/api";
 
 export interface SubjectsFilters {
     programId: number;

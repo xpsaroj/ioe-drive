@@ -1,10 +1,11 @@
 import Link from "next/link";
-import type { UploadedNote } from "@/types";
+
+import type { NoteCard } from "@/types/api";
 import ResourceFileList from "./ResourceFileList";
-import { User2 } from "lucide-react";
+import { UploaderInfo } from "@/components/common/user";
 
 interface Props {
-    item: UploadedNote;
+    item: NoteCard;
 }
 
 const UploadedNoteCard = ({ item }: Props) => {
@@ -31,15 +32,10 @@ const UploadedNoteCard = ({ item }: Props) => {
                     <ResourceFileList resourceFiles={files} />
 
                     <div className="flex justify-between items-end mt-4">
-                        {item.uploader && (
-                            <div className="text-xs text-foreground-tertiary flex items-center gap-1">
-                                <User2 className="inline size-6 rounded-full border p-1.5 box-content" />
-                                <div className="flex flex-col">
-                                    <span className="text-foreground-secondary">{item.uploader.fullName}</span>
-                                    <span>{formattedCreatedAt}</span>
-                                </div>
-                            </div>
-                        )}
+                        <UploaderInfo
+                            user={item.uploader}
+                            subtitle={formattedCreatedAt}
+                        />
 
                         <Link
                             href={`/offerings/${subjectOffering.id}`}

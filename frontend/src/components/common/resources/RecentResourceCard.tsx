@@ -1,11 +1,12 @@
 import Link from "next/link";
-import type { RecentNote } from "@/types";
-import ResourceFileList from "./ResourceFileList";
+
+import type { RecentNoteItem } from "@/types/api";
 import { getRelativeTime } from "@/utils/time";
-import { User2 } from "lucide-react";
+import ResourceFileList from "./ResourceFileList";
+import { UploaderInfo } from "@/components/common/user";
 
 interface Props {
-    item: RecentNote;
+    item: RecentNoteItem;
 }
 
 const RecentResourceCard = ({ item }: Props) => {
@@ -37,15 +38,10 @@ const RecentResourceCard = ({ item }: Props) => {
                     <ResourceFileList resourceFiles={files} />
 
                     <div className="flex justify-between items-end mt-4">
-                        {note.uploader && (
-                            <div className="text-xs text-foreground-tertiary flex items-center gap-1">
-                                <User2 className="inline size-6 rounded-full border p-1.5 box-content" />
-                                <div className="flex flex-col">
-                                    <span className="text-foreground-secondary">{note.uploader.fullName}</span>
-                                    <span>{formattedCreatedAt}</span>
-                                </div>
-                            </div>
-                        )}
+                        <UploaderInfo
+                            user={note.uploader}
+                            subtitle={formattedCreatedAt}
+                        />
 
                         <Link
                             href={`/offerings/${subjectOffering.id}`}

@@ -1,8 +1,8 @@
 import ResourceFileItem from "./ResourceFileItem";
-import type { NoteFile } from "@/types";
+import type { NoteFileSummary } from "@/types/api";
 
 interface ResourceFileListProps {
-    resourceFiles: NoteFile[];
+    resourceFiles: NoteFileSummary[];
     loading?: boolean;
     error?: string | null;
 }

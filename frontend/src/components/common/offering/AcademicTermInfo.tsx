@@ -1,4 +1,4 @@
-import type { SubjectOffering } from "@/types";
+import type { SubjectOffering } from "@/types/entities";
 
 const AcademicTermInfo = ({ year, semester, isElective }: Omit<SubjectOffering, "id" | "subjectId" | "programId">) => {
 

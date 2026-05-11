@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-import type { Program } from "@/types";
+import type { Program } from "@/types/entities";
 
 const ProgramCard = ({ program }: { program: Program }) => {
     const { code, name, totalYears, syllabusUrl } = program;

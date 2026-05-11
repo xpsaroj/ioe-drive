@@ -4,7 +4,7 @@ import { UserButton, ClerkLoading, ClerkLoaded, useClerk } from "@clerk/nextjs";
 import { useRef } from "react";
 
 import { useMe } from "@/hooks/queries/use-me";
-import { SemesterLabel } from "@/types";
+import { SemesterLabel } from "@/types/entities";
 
 export const User = () => {
     const { user } = useClerk();

@@ -2,7 +2,7 @@ import { useAuth } from "@clerk/nextjs";
 import { useQuery } from "@tanstack/react-query";
 
 import { academicsApi } from "@/lib/api/academics-api";
-import type { Semester } from "@/types";
+import type { Semester } from "@/types/entities";
 
 export const academicsKeys = {
     all: ["academics"] as const,

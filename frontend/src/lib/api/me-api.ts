@@ -1,5 +1,6 @@
 import { apiClient } from "./api-client";
-import type { UserProfile, ApiResponse, UploadedNote, RecentNote, ArchivedNote, EmptyApiResponse, Profile } from "@/types";
+import type { UserProfile, Profile } from "@/types/entities";
+import type { ApiResponse, EmptyApiResponse, NoteCard, RecentNoteItem, ArchivedNoteItem } from "@/types/api";
 
 const ME_API_BASE_URL = "/me";
 
@@ -12,19 +13,19 @@ export const meApi = {
         return apiClient.patch<EmptyApiResponse>(`${ME_API_BASE_URL}`, profileData);
     },
 
-    async getUploadedNotes(): Promise<ApiResponse<UploadedNote[]>> {
-        return apiClient.get<ApiResponse<UploadedNote[]>>(`${ME_API_BASE_URL}/notes`);
+    async getUploadedNotes(): Promise<ApiResponse<NoteCard[]>> {
+        return apiClient.get<ApiResponse<NoteCard[]>>(`${ME_API_BASE_URL}/notes`);
     },
 
-    async getRecentNotes(): Promise<ApiResponse<RecentNote[]>> {
-        return apiClient.get<ApiResponse<RecentNote[]>>(`${ME_API_BASE_URL}/recent-notes`);
+    async getRecentNotes(): Promise<ApiResponse<RecentNoteItem[]>> {
+        return apiClient.get<ApiResponse<RecentNoteItem[]>>(`${ME_API_BASE_URL}/recent-notes`);
     },
 
     /**
      * Fetches the archived/bookmarked notes of the currently authenticated user.
      */
-    async getArchivedNotes(): Promise<ApiResponse<ArchivedNote[]>> {
-        return apiClient.get<ApiResponse<ArchivedNote[]>>(`${ME_API_BASE_URL}/archived-notes`);
+    async getArchivedNotes(): Promise<ApiResponse<ArchivedNoteItem[]>> {
+        return apiClient.get<ApiResponse<ArchivedNoteItem[]>>(`${ME_API_BASE_URL}/archived-notes`);
     },
 
     /**

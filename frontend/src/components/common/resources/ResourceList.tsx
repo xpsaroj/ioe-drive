@@ -1,9 +1,9 @@
 import ResourceCard from "./ResourceCard";
 import ResourceCardSkeleton from "./ResourceCardSkeleton";
-import type { NoteWithFiles } from "@/types"
+import type { NoteCard } from "@/types/api"
 
 interface ResourceListProps {
-    resources: NoteWithFiles[];
+    resources: NoteCard[];
     loading?: boolean;
     error?: string;
 }

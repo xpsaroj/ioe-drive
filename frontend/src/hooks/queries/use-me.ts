@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 import { meApi } from '@/lib/api/me-api';
 import { academicsKeys } from './use-academics';
-import type { Profile, UserProfile } from '@/types';
+import type { Profile, UserProfile } from '@/types/entities';
 
 export const meKeys = {
     all: ['me'] as const,

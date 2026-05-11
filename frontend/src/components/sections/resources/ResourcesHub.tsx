@@ -4,7 +4,7 @@ import { BookOpen, Clock, Archive, Upload, Share2, ChevronRight } from "lucide-r
 import { ContainerBox } from "@/components/ui/ContainerBox";
 import Button from "@/components/ui/Button";
 import { useMe, useRecentNotes, useArchivedNotes } from "@/hooks/queries/use-me";
-import { SemesterLabel } from "@/types";
+import { SemesterLabel } from "@/types/entities";
 
 interface ResourceOptionProps {
     icon: React.ReactNode;

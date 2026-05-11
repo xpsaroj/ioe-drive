@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { ContainerBox } from "@/components/ui/ContainerBox";
 import Table, { Column } from "@/components/ui/Table";
-import { SubjectOfferingWithSubject } from "@/types/academics";
+import { SubjectOfferingWithSubject } from "@/types/entities/academics";
 
 import { useMe } from "@/hooks/queries/use-me";
 import { useSubjectOfferings } from "@/hooks/queries/use-academics";

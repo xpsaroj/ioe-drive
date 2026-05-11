@@ -1,5 +1,6 @@
 import { apiClient } from "./api-client";
-import type { ApiResponse, Note, UploadedNote } from "@/types";
+import type { Note } from "@/types/entities";
+import type { ApiResponse, NoteCard } from "@/types/api";
 import type { UpdateNoteInput } from "../validators/notes";
 
 const NOTES_API_BASE_URL = "/notes";
@@ -13,14 +14,14 @@ export const notesApi = {
         return apiClient.patch<ApiResponse<Note>>(`${NOTES_API_BASE_URL}/${noteId}`, noteData);
     },
 
-    async getNoteById(noteId: number): Promise<ApiResponse<UploadedNote>> {
-        return apiClient.get<ApiResponse<UploadedNote>>(`${NOTES_API_BASE_URL}/${noteId}`);
+    async getNoteById(noteId: number): Promise<ApiResponse<NoteCard>> {
+        return apiClient.get<ApiResponse<NoteCard>>(`${NOTES_API_BASE_URL}/${noteId}`);
     },
 
-    async getNotesBySubjectOffering(offeringId: number): Promise<ApiResponse<UploadedNote[]>> {
+    async getNotesBySubjectOffering(offeringId: number): Promise<ApiResponse<NoteCard[]>> {
         const params = new URLSearchParams({
             offeringId: offeringId.toString()
         });
-        return apiClient.get<ApiResponse<UploadedNote[]>>(`${NOTES_API_BASE_URL}?${params.toString()}`);
+        return apiClient.get<ApiResponse<NoteCard[]>>(`${NOTES_API_BASE_URL}?${params.toString()}`);
     },
 }

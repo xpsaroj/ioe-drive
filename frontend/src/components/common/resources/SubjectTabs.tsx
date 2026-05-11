@@ -1,4 +1,4 @@
-import { SubjectOfferingWithSubject } from "@/types"
+import { SubjectOfferingWithSubject } from "@/types/entities"
 import Select from "@/components/ui/Select"
 
 interface SubjectTabsProps {

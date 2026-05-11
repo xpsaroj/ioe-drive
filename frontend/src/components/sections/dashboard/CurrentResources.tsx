@@ -4,7 +4,7 @@ import { BookOpen } from "lucide-react";
 import { ContainerBox } from "@/components/ui/ContainerBox";
 import Button from "@/components/ui/Button";
 import { useMe } from "@/hooks/queries/use-me";
-import { SemesterLabel } from "@/types";
+import { SemesterLabel } from "@/types/entities";
 
 const CurrentResources = () => {
     const { data: userData, isLoading } = useMe();

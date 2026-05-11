@@ -1,5 +1,5 @@
-import { SubjectHardnessLevel } from "@/types/academics"
-import { RecentNote } from "@/types/notes";
+import { SubjectHardnessLevel } from "@/types/entities/academics"
+import { RecentNote } from "@/types/entities/notes";
 
 export const users = [
   {

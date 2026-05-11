@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 import { useForm, Controller } from "react-hook-form"
 
-import { Semester, SemesterLabel } from "@/types"
+import { Semester, SemesterLabel } from "@/types/entities"
 import { usePrograms } from "@/hooks/queries/use-academics"
 import { useMe } from "@/hooks/queries/use-me"
 import { useUpdateProfile } from "@/hooks/queries/use-me"

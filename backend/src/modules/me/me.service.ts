@@ -49,17 +49,44 @@ export class MeService {
                 where: eq(notesTable.uploadedBy, userId),
                 with: {
                     subjectOffering: {
+                        columns: {
+                            id: true,
+                            subjectId: true,
+                        },
                         with: {
-                            subject: true,
+                            subject: {
+                                columns: {
+                                    id: true,
+                                    code: true,
+                                    name: true,
+                                },
+                            },
                         }
                     },
                     uploader: {
                         columns: {
                             id: true,
                             fullName: true,
+                        },
+                        with: {
+                            profile: {
+                                columns: {
+                                    id: true,
+                                    userId: true,
+                                    profilePictureUrl: true,
+                                }
+                            }
                         }
                     },
-                    files: true,
+                    files: {
+                        columns: {
+                            id: true,
+                            noteId: true,
+                            fileUrl: true,
+                            originalFileName: true,
+                            mimeType: true,
+                        },
+                    },
                 }
             });
     }
@@ -78,17 +105,44 @@ export class MeService {
                     note: {
                         with: {
                             subjectOffering: {
+                                columns: {
+                                    id: true,
+                                    subjectId: true,
+                                },
                                 with: {
-                                    subject: true,
+                                    subject: {
+                                        columns: {
+                                            id: true,
+                                            code: true,
+                                            name: true,
+                                        },
+                                    },
                                 }
                             },
                             uploader: {
                                 columns: {
                                     id: true,
                                     fullName: true,
+                                },
+                                with: {
+                                    profile: {
+                                        columns: {
+                                            id: true,
+                                            userId: true,
+                                            profilePictureUrl: true,
+                                        }
+                                    }
                                 }
                             },
-                            files: true,
+                            files: {
+                                columns: {
+                                    id: true,
+                                    noteId: true,
+                                    fileUrl: true,
+                                    originalFileName: true,
+                                    mimeType: true,
+                                },
+                            },
                         }
                     }
                 },
@@ -111,17 +165,44 @@ export class MeService {
                     note: {
                         with: {
                             subjectOffering: {
+                                columns: {
+                                    id: true,
+                                    subjectId: true,
+                                },
                                 with: {
-                                    subject: true,
+                                    subject: {
+                                        columns: {
+                                            id: true,
+                                            code: true,
+                                            name: true,
+                                        },
+                                    },
                                 }
                             },
                             uploader: {
                                 columns: {
                                     id: true,
                                     fullName: true,
+                                },
+                                with: {
+                                    profile: {
+                                        columns: {
+                                            id: true,
+                                            userId: true,
+                                            profilePictureUrl: true,
+                                        }
+                                    }
                                 }
                             },
-                            files: true,
+                            files: {
+                                columns: {
+                                    id: true,
+                                    noteId: true,
+                                    fileUrl: true,
+                                    originalFileName: true,
+                                    mimeType: true,
+                                },
+                            },
                         }
                     }
                 },

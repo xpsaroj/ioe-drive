@@ -10,7 +10,7 @@ import Loader from "@/components/ui/Loader";
 import { ContainerBox } from "@/components/ui/ContainerBox";
 import { usePrograms, useSubjectsForUpload } from "@/hooks/queries/use-academics";
 import { useCreateNote } from "@/hooks/queries/use-notes";
-import { Semester, SemesterLabel } from "@/types";
+import { Semester, SemesterLabel } from "@/types/entities";
 
 type FormValues = {
     title: string;

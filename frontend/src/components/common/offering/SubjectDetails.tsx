@@ -3,7 +3,7 @@ import Link from "next/link";
 import ProgramCard from "./ProgramCard";
 import SubjectHardnessBadge from "./SubjectHardnessBadge";
 import Table, { Column } from "@/components/ui/Table";
-import type { SubjectWithProgramAndMarks, Marks } from "@/types";
+import type { SubjectWithProgramAndMarks, Marks } from "@/types/entities";
 
 const SubjectDetails = ({ subject }: { subject: SubjectWithProgramAndMarks }) => {
     const { code, name, description, syllabusUrl, hardnessLevel, program } = subject;
