@@ -34,10 +34,15 @@ export class UserService {
                             semester: true,
                             college: true,
                             profilePictureUrl: true,
-                            createdAt: true,
                         },
                         with: {
-                            program: true,
+                            program: {
+                                columns: {
+                                    id: true,
+                                    name: true,
+                                    code: true,
+                                }
+                            }
                         }
                     },
                 }

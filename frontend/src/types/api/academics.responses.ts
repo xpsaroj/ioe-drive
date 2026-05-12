@@ -8,3 +8,9 @@ export interface SubjectOfferingSummary {
     id: number;
     subjectId: number
 }
+
+export interface ProgramSummary {
+    id: number;
+    name: string;
+    code: string;
+}

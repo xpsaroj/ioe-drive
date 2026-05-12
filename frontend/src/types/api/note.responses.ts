@@ -1,5 +1,5 @@
-import { UserSummary } from "./user.responses";
-import { SubjectSummary, SubjectOfferingSummary } from "./subject.responses";
+import { UploaderSummary } from "./user.responses";
+import { SubjectSummary, SubjectOfferingSummary } from "./academics.responses";
 
 export interface NoteFileSummary {
     id: number;
@@ -23,7 +23,7 @@ export interface NoteCard {
         subject: SubjectSummary;
     }
 
-    uploader?: UserSummary;
+    uploader?: UploaderSummary;
     files: NoteFileSummary[];
 }
 

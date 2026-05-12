@@ -1,15 +1,16 @@
+import Link from "next/link";
 import { User2 } from "lucide-react";
 
-import { UserSummary } from "@/types/api";
+import { UploaderSummary } from "@/types/api";
 import UserAvatar from "./UserAvatar";
 
 interface UploaderInfoProps {
-    user?: UserSummary;
+    user?: UploaderSummary;
     subtitle?: string;
 }
 
 const UploaderInfo = ({ user, subtitle }: UploaderInfoProps) => {
-    if (!user || !user.id) {
+    if (!user || !user?.id) {
         return (
             <div className="text-xs text-foreground-tertiary flex items-center gap-1 group">
                 <User2
@@ -24,12 +25,20 @@ const UploaderInfo = ({ user, subtitle }: UploaderInfoProps) => {
     }
 
     return (
-        <UserAvatar
-            userId={user.id}
-            fullName={user.fullName}
-            avatarUrl={user.profile?.profilePictureUrl}
-            subtitle={subtitle}
-        />
+        <Link
+            href={`/users/${user.id}`}
+            className="text-xs text-foreground-tertiary flex items-center gap-1 group"
+        >
+            <UserAvatar
+                fullName={user.fullName}
+                avatarUrl={user.profile?.profilePictureUrl}
+                size={"sm"}
+            />
+            <div className="flex flex-col">
+                <span className="text-foreground group-hover:underline">{user.fullName}</span>
+                <span>{subtitle}</span>
+            </div>
+        </Link>
     )
 }
 
