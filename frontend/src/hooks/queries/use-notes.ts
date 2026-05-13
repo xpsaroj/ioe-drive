@@ -6,6 +6,7 @@ export const notesKeys = {
     all: ['notes'] as const,
     byId: (id: number) => ['notes', id] as const,
     bySubjectOfferingId: (offeringId?: number) => ['notes', 'subject-offering', offeringId] as const,
+    byUploaderId: (uploaderId?: number) => ['notes', 'uploader', uploaderId] as const,
 };
 
 export function useNote(noteId: number) {
@@ -32,7 +33,7 @@ export function useNotesBySubjectOfferingId(offeringId?: number) {
             if (!response.success) {
                 throw new Error(response.error || 'Failed to fetch notes for subject');
             }
-            console.log('Fetched notes for offeringId', offeringId, response.data);
+
             return response.data;
         },
         enabled: !!offeringId,
@@ -74,5 +75,24 @@ export function useUpdateNote(noteId: number) {
             // Invalidate list queries
             queryClient.invalidateQueries({ queryKey: notesKeys.all });
         },
+    });
+}
+
+export function useNotesByUploaderId(uploaderId?: number) {
+    return useQuery({
+        queryKey: notesKeys.byUploaderId(uploaderId),
+        queryFn: async () => {
+            if (!uploaderId) {
+                throw new Error('Uploader ID is required to fetch notes');
+            }
+            const response = await notesApi.getNotesByUploader(uploaderId);
+            if (!response.success) {
+                throw new Error(response.error || 'Failed to fetch notes for uploader');
+            }
+            
+            return response.data;
+        },
+        enabled: !!uploaderId,
+        staleTime: 10 * 60 * 1000,
     });
 }

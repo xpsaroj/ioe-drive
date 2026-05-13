@@ -37,14 +37,27 @@ export const getNoteByIdSchema = z.object({
     }),
 });
 
-export const getNotesBySubjectOfferingIdSchema = z.object({
+export const getNotesSchema = z.object({
     query: z.object({
         offeringId: z.coerce
             .number()
             .int()
-            .positive("Subject Offering ID must be a positive integer"),
-    }),
+            .positive("Subject Offering ID must be a positive integer")
+            .optional(),
+
+        userId: z.coerce
+            .number()
+            .int()
+            .positive("User ID must be a positive integer")
+            .optional(),
+    }).refine(
+        (data) => data.offeringId || data.userId,
+        {
+            message: "Either offeringId or userId must be provided",
+        }
+    ),
 });
+
 
 export type CreateNoteInput = z.infer<typeof createNoteSchema>["body"] & { uploadedBy: number };
 export type UpdateNoteInput = z.infer<typeof updateNoteSchema>["body"];

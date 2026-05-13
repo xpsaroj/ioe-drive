@@ -121,16 +121,31 @@ export class NotesRepository {
     }
 
     /**
-     * Find notes by subject ID.
-     * @param offeringId - ID of the subject offering to find notes for.
-     * @returns An array of notes for the given subject ID.
+     * Find notes by subject offering ID or user ID.
+     * @param filters - Filters for finding notes.
+     * @returns An array of notes for the given subject offering ID or user ID.
      */
-    async findByOfferingId(offeringId: number) {
+    async findMany(filters: {
+        offeringId?: number;
+        userId?: number;
+    }) {
+        const conditions = [];
+
+        if (filters.offeringId) {
+            conditions.push(eq(notesTable.offeringId, filters.offeringId));
+        }
+
+        if (filters.userId) {
+            conditions.push(eq(notesTable.uploadedBy, filters.userId));
+        }
+
+        const whereClause = conditions.length > 0 ? and(...conditions) : undefined;;
+
         return await db
             .query
             .notesTable
             .findMany({
-                where: eq(notesTable.offeringId, offeringId),
+                where: whereClause,
                 with: {
                     subjectOffering: {
                         columns: {

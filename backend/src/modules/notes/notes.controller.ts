@@ -81,17 +81,27 @@ export class NotesController {
     }
 
     /**
-     * Get all notes for a specific subject offering.
-     * - GET /api/notes?offeringId=<offeringId>
+     * Get all notes filtered by subject offering ID or user ID.
+     * - GET /api/notes?offeringId=<offeringId>&userId=<userId>
      */
-    async getNotesBySubjectOfferingId(
+    async getNotes(
         req: Request,
         res: Response,
         next: NextFunction
     ) {
         try {
-            const offeringId = Number(req.query.offeringId);
-            const notes = await notesService.findNotesByOfferingId(offeringId);
+            const filters: { offeringId?: number; userId?: number } = {};
+
+            if (req.query.offeringId) {
+                filters.offeringId = Number(req.query.offeringId);
+            }
+
+            if (req.query.userId) {
+                filters.userId = Number(req.query.userId);
+            }
+
+            const notes = await notesService.findNotes(filters);
+
             return sendSuccessResponse(res, notes);
         } catch (e) {
             next(e);

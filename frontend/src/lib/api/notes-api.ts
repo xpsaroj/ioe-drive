@@ -24,4 +24,11 @@ export const notesApi = {
         });
         return apiClient.get<ApiResponse<NoteCard[]>>(`${NOTES_API_BASE_URL}?${params.toString()}`);
     },
+
+    async getNotesByUploader(uploaderId: number): Promise<ApiResponse<NoteCard[]>> {
+        const params = new URLSearchParams({
+            userId: uploaderId.toString()
+        });
+        return apiClient.get<ApiResponse<NoteCard[]>>(`${NOTES_API_BASE_URL}?${params.toString()}`);
+    },
 }

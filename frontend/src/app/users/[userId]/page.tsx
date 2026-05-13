@@ -2,9 +2,11 @@
 import { use } from "react"
 
 import { useUserById } from "@/hooks/queries/use-user"
+import { useNotesByUploaderId } from "@/hooks/queries/use-notes"
 import { PageStateHandler } from "@/components/layout"
 import { UserAvatar } from "@/components/common/user"
 import { SemesterLabel } from "@/types/entities"
+import { UploadedResourceList, UploadedResourceCard } from "@/components/common/resources";
 
 interface UserDetailsPageProps {
     params: Promise<{
@@ -16,8 +18,17 @@ const UserDetailsPage = ({ params }: UserDetailsPageProps) => {
     const { userId: uId } = use(params)
     const userId = Number(uId);
 
-    const { data: user, isPending, error } = useUserById(userId);
-    console.log("User:", user)
+    const {
+        data: user,
+        isPending: userPending,
+        error: userLoadError
+    } = useUserById(userId);
+
+    const {
+        data: resources,
+        isPending: resourcesPending,
+        error: resourcesLoadError
+    } = useNotesByUploaderId(userId);
 
     const emptyContent = (
         <div className="flex flex-col justify-center items-center">
@@ -29,8 +40,8 @@ const UserDetailsPage = ({ params }: UserDetailsPageProps) => {
     if (!userId || isNaN(userId) || !user) {
         return (
             <PageStateHandler
-                isPending={isPending}
-                error={error}
+                isPending={userPending}
+                error={userLoadError}
                 isEmpty={true}
                 loaderText="Loading user details. Please wait."
                 emptyContent={emptyContent}
@@ -50,92 +61,117 @@ const UserDetailsPage = ({ params }: UserDetailsPageProps) => {
 
     return (
         <PageStateHandler
-            isPending={isPending}
-            error={error}
+            isPending={userPending}
+            error={userLoadError}
             isEmpty={!user}
             loaderText="Loading user details. Please wait."
             emptyContent={emptyContent}
         >
             {user && (
-                <div className="flex flex-col justify-center border gap-6 rounded-lg py-3 md:p-6">
-                    <div className="flex flex-col md:flex-row md:items-center gap-6">
-                        <UserAvatar
-                            fullName={user.fullName}
-                            avatarUrl={profile?.profilePictureUrl}
-                            size={"xl"}
-                        />
+                <div className="space-y-8">
+                    <div className="flex flex-col justify-center border gap-6 rounded-lg py-3 md:p-6">
+                        <div className="flex flex-col md:flex-row md:items-center gap-6">
+                            <UserAvatar
+                                fullName={user.fullName}
+                                avatarUrl={profile?.profilePictureUrl}
+                                size={"xl"}
+                            />
 
-                        <div className="space-y-2">
-                            <div>
-                                <h1 className="text-2xl md:text-3xl font-semibold">
-                                    {user.fullName}
-                                </h1>
-                                <p className="text-sm text-foreground-secondary">
-                                    Joined on {formattedCreatedAt}
+                            <div className="space-y-2">
+                                <div>
+                                    <h1 className="text-2xl md:text-3xl font-semibold">
+                                        {user.fullName}
+                                    </h1>
+                                    <p className="text-sm text-foreground-secondary">
+                                        Joined on {formattedCreatedAt}
+                                    </p>
+                                </div>
+
+                                {profile?.bio && (
+                                    <p className="text-sm md:text-base text-foreground-secondary max-w-2xl leading-relaxed">
+                                        {profile.bio}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div className="border rounded-lg p-4">
+                                <p className="text-xs uppercase tracking-wide text-foreground-tertiary mb-1">
+                                    Program
+                                </p>
+
+                                {profile?.program ? (
+                                    <div>
+                                        <p className="font-medium">
+                                            {profile.program.name}
+                                        </p>
+                                        <p className="text-sm text-foreground-secondary">
+                                            {profile.program.code}
+                                        </p>
+                                    </div>
+                                ) : (
+                                    <p className="text-sm text-foreground-secondary">
+                                        Not specified
+                                    </p>
+                                )}
+                            </div>
+
+                            <div className="border rounded-lg p-4">
+                                <p className="text-xs uppercase tracking-wide text-foreground-tertiary mb-1">
+                                    Semester
+                                </p>
+
+                                <p className="font-medium">
+                                    {profile?.semester
+                                        ? `${SemesterLabel[profile.semester]} Semester`
+                                        : "Not specified"}
                                 </p>
                             </div>
 
-                            {profile?.bio && (
-                                <p className="text-sm md:text-base text-foreground-secondary max-w-2xl leading-relaxed">
-                                    {profile.bio}
+                            <div className="border rounded-lg p-4">
+                                <p className="text-xs uppercase tracking-wide text-foreground-tertiary mb-1">
+                                    College
                                 </p>
-                            )}
+
+                                <p className="font-medium">
+                                    {profile?.college || "Not specified"}
+                                </p>
+                            </div>
                         </div>
-                    </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div className="border rounded-lg p-4">
-                            <p className="text-xs uppercase tracking-wide text-foreground-tertiary mb-1">
-                                Program
-                            </p>
-
-                            {profile?.program ? (
-                                <div>
-                                    <p className="font-medium">
-                                        {profile.program.name}
-                                    </p>
-                                    <p className="text-sm text-foreground-secondary">
-                                        {profile.program.code}
-                                    </p>
-                                </div>
-                            ) : (
+                        {!profile?.bio && (
+                            <div className="border rounded-lg p-4">
                                 <p className="text-sm text-foreground-secondary">
-                                    Not specified
+                                    This user has not added a bio yet.
                                 </p>
-                            )}
-                        </div>
-
-                        <div className="border rounded-lg p-4">
-                            <p className="text-xs uppercase tracking-wide text-foreground-tertiary mb-1">
-                                Semester
-                            </p>
-
-                            <p className="font-medium">
-                                {profile?.semester
-                                    ? `${SemesterLabel[profile.semester]} Semester`
-                                    : "Not specified"}
-                            </p>
-                        </div>
-
-                        <div className="border rounded-lg p-4">
-                            <p className="text-xs uppercase tracking-wide text-foreground-tertiary mb-1">
-                                College
-                            </p>
-
-                            <p className="font-medium">
-                                {profile?.college || "Not specified"}
-                            </p>
-                        </div>
+                            </div>
+                        )}
                     </div>
 
-                    {!profile?.bio && (
-                        <div className="border rounded-lg p-4">
-                            <p className="text-sm text-foreground-secondary">
-                                This user has not added a bio yet.
-                            </p>
-                        </div>
-                    )}
-
+                    <PageStateHandler
+                        isPending={resourcesPending}
+                        error={resourcesLoadError}
+                        isEmpty={resources ? resources.length === 0 : true}
+                        loaderText="Loading user's uploaded notes. Please wait."
+                        emptyContent={
+                            <div className="flex flex-col justify-center items-center">
+                                <p className="text-2xl">No notes uploaded yet.</p>
+                                <p className="text-foreground-secondary">This user has not uploaded any notes.</p>
+                            </div>
+                        }
+                        containerClassName=""
+                        header={
+                            <h2 className="text-xl font-medium mb-2">
+                                Uploaded Notes
+                            </h2>
+                        }
+                    >
+                        <UploadedResourceList
+                            data={resources || []}
+                            renderItem={(item) => <UploadedResourceCard item={item} />}
+                        />
+                    </PageStateHandler>
                 </div>
             )}
         </PageStateHandler>

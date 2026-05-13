@@ -94,12 +94,15 @@ export class NotesService {
     }
 
     /**
-     * Find notes by subject offering ID.
-     * @param offeringId - ID of the subject offering to find notes for.
-     * @returns An array of notes for the given subject offering ID.
+     * Find notes by subject offering ID or user ID.
+     * @param filters - Filters for finding notes.
+     * @returns An array of notes matching the filters.
      */
-    async findNotesByOfferingId(offeringId: number) {
-        return await notesRepository.findByOfferingId(offeringId);
+    async findNotes(filters: {
+        offeringId?: number;
+        userId?: number;
+    }) {
+        return await notesRepository.findMany(filters);
     }
 }
 
