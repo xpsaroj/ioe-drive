@@ -1,6 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useWatch } from "react-hook-form";
 import { CloudUpload } from "lucide-react";
 
 import Select from "@/components/ui/Select";
@@ -38,7 +38,6 @@ export const ResourceUploadForm: React.FC = () => {
         control,
         register,
         setValue,
-        watch,
         reset,
         formState: { errors },
     } = useForm<FormValues>({
@@ -53,9 +52,20 @@ export const ResourceUploadForm: React.FC = () => {
         },
     });
 
-    const file = watch("file");
-    const selectedProgramId = watch("programId");
-    const selectedSemester = watch("semester");
+    const file = useWatch({
+        control,
+        name: "file",
+    });
+
+    const selectedProgramId = useWatch({
+        control,
+        name: "programId",
+    });
+
+    const selectedSemester = useWatch({
+        control,
+        name: "semester",
+    });
 
     const {
         data: subjects,

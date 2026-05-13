@@ -6,7 +6,7 @@ import { ResourcesHub } from "@/components/sections/resources";
 
 const ResourcesPage = () => {
   const { isSignedIn } = useAuth();
-  const { data: userData, isPending: userPending } = useMe();
+  const { /* data: userData,  */isPending: userPending } = useMe();
 
   if (userPending) {
     return (
