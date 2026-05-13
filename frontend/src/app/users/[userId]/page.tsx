@@ -6,7 +6,7 @@ import { useNotesByUploaderId } from "@/hooks/queries/use-notes"
 import { PageStateHandler } from "@/components/layout"
 import { UserAvatar } from "@/components/common/user"
 import { SemesterLabel } from "@/types/entities"
-import { UploadedResourceList, UploadedResourceCard } from "@/components/common/resources";
+import { ResourceList, UploadedResourceCard } from "@/components/common/resources";
 
 interface UserDetailsPageProps {
     params: Promise<{
@@ -167,8 +167,8 @@ const UserDetailsPage = ({ params }: UserDetailsPageProps) => {
                             </h2>
                         }
                     >
-                        <UploadedResourceList
-                            data={resources || []}
+                        <ResourceList
+                            resources={resources || []}
                             renderItem={(item) => <UploadedResourceCard item={item} />}
                         />
                     </PageStateHandler>

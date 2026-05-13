@@ -3,7 +3,7 @@ import { useState } from "react";
 import { ChevronRight, ChevronDown, ChevronLeft } from "lucide-react";
 
 import { SubjectDetails } from "@/components/common/offering";
-import { SubjectTabs, ResourceList } from "@/components/common/resources";
+import { SubjectTabs, ResourceList, ResourceCard } from "@/components/common/resources";
 import Button from "@/components/ui/Button";
 import Loader from "@/components/ui/Loader";
 import { useMe } from "@/hooks/queries/use-me";
@@ -133,7 +133,13 @@ const CurrentResourcesPage = () => {
                 <ResourceList
                     resources={resources || []}
                     loading={resourcesLoading}
-                    error={resourcesError ? "Failed to load resources" : undefined}
+                    error={resourcesError ? "Failed to load resources" : null}
+                    renderItem={(resource) =>
+                        <ResourceCard
+                            resource={resource}
+                        />
+                    }
+                    emptyMessage="No resources available for this subject."
                 />
             </div>
         </div>

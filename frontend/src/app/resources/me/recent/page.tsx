@@ -1,5 +1,5 @@
 "use client"
-import { UploadedResourceList, RecentResourceCard, ResourcePageStateHandler } from "@/components/common/resources";
+import { ResourceList, RecentResourceCard, ResourcePageStateHandler } from "@/components/common/resources";
 import { useRecentNotes } from "@/hooks/queries/use-me";
 
 const MyRecentNotesPage = () => {
@@ -17,8 +17,8 @@ const MyRecentNotesPage = () => {
             emptyButtonText="Explore Current Semester Notes"
             emptyButtonHref="/resources/current"
         >
-            <UploadedResourceList
-                data={recentNotes || []}
+            <ResourceList
+                resources={recentNotes || []}
                 renderItem={(item) => <RecentResourceCard item={item} />}
             />
         </ResourcePageStateHandler>

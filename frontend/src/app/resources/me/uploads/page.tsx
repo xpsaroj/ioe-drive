@@ -1,5 +1,5 @@
 "use client"
-import { UploadedResourceList, UploadedResourceCard, ResourcePageStateHandler } from "@/components/common/resources";
+import { ResourceList, UploadedResourceCard, ResourcePageStateHandler } from "@/components/common/resources";
 import { useUploadedNotes } from "@/hooks/queries/use-me";
 
 const MyUploadedNotesPage = () => {
@@ -17,8 +17,8 @@ const MyUploadedNotesPage = () => {
             emptyButtonText="Share Resources"
             emptyButtonHref="/resources/share"
         >
-            <UploadedResourceList
-                data={uploadedNotes || []}
+            <ResourceList
+                resources={uploadedNotes || []}
                 renderItem={(item) => <UploadedResourceCard item={item} />}
             />
         </ResourcePageStateHandler>

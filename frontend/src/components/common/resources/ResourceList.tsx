@@ -1,14 +1,22 @@
-import ResourceCard from "./ResourceCard";
-import ResourceCardSkeleton from "./ResourceCardSkeleton";
-import type { NoteCard } from "@/types/api"
+import type { ReactNode } from "react";
 
-interface ResourceListProps {
-    resources: NoteCard[];
+import ResourceCardSkeleton from "./ResourceCardSkeleton";
+
+interface ResourceListProps<T> {
+    resources: T[];
     loading?: boolean;
-    error?: string;
+    error?: string | null;
+    renderItem: (item: T) => ReactNode;
+    emptyMessage?: string;
 }
 
-const ResourceList = ({ resources, loading, error }: ResourceListProps) => {
+const ResourceList = <T,>({
+    resources,
+    loading,
+    error,
+    renderItem,
+    emptyMessage = "No resources found.",
+}: ResourceListProps<T>) => {
     if (loading) {
         return (
             <div className="border md:p-6 p-0 px-6 py-3 rounded-lg bg-white flex flex-col md:gap-6 divide-y divide-border">
@@ -22,7 +30,7 @@ const ResourceList = ({ resources, loading, error }: ResourceListProps) => {
     if (error) {
         return (
             <div className="border p-6 rounded-lg bg-white flex flex-col gap-6">
-                <p className="text-error text-sm">Error loading resources. Please try again.</p>
+                <p className="text-error text-sm">{error}</p>
             </div>
         )
     }
@@ -30,15 +38,17 @@ const ResourceList = ({ resources, loading, error }: ResourceListProps) => {
     if (!resources || resources.length === 0) {
         return (
             <div className="border p-6 rounded-lg bg-white flex flex-col gap-6">
-                <p className="text-sm text-foreground-tertiary">No resources found for this subject.</p>
+                <p className="text-sm text-foreground-tertiary">{emptyMessage}</p>
             </div>
         )
     }
 
     return (
         <div className="border md:p-6 p-0 px-6 py-3 rounded-lg bg-white flex flex-col md:gap-6 divide-y divide-border">
-            {resources.map((resource) => (
-                <ResourceCard key={resource.id} resource={resource} />
+            {resources.map((resource, index) => (
+                <div key={index}>
+                    {renderItem(resource)}
+                </div>
             ))}
         </div>
     )
