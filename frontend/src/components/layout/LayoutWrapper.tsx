@@ -1,6 +1,7 @@
 "use client";
 import { useAuth } from "@clerk/nextjs"
 import { usePathname } from "next/navigation";
+import { Toaster } from "sonner";
 
 import Navbar from "./Navbar";
 import MobileNav from "./MobileNav";
@@ -20,6 +21,7 @@ const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
             <div className="flex-1">
                 {children}
             </div>
+            <Toaster richColors position="top-right" />
             {pagesWithFooter.includes(pathname) && (
                 <Footer />
             )}
@@ -34,7 +36,7 @@ const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
             <div className="md:hidden">
                 <MobileNav />
             </div>
-
+            <Toaster richColors position="top-right" />
             <div className="md:flex-1 flex flex-col min-h-screen">
                 <div className="flex-1">
                     {children}
