@@ -4,14 +4,17 @@ This guide provides instructions on how to set up the development environment fo
 ## Prerequisites
 Before you begin, ensure you have the following installed on your machine:
 - Node.js (version 22 or higher)
-- PostgreSQL (version 17 or higher)
+- PostgreSQL (version 16 or higher)
 - Git
+- Docker (optional, for containerized setup)
+- Docker compose (optional, for containerized setup)
 
-## Backend Setup
-### Setup Instructions
-1. **Navigate to the Backend Directory**:
+## Setting Up the Project (Without Docker)
+### Server Configuration
+#### Setup Instructions
+1. **Navigate to the server directory**:
    ```bash
-   cd backend
+   cd apps/server
    ```
 
 2. **Install Dependencies**:
@@ -51,32 +54,40 @@ Before you begin, ensure you have the following installed on your machine:
    npm run db:migrate
    ```
 
-5. **Start the Backend Server**:
+5. **Seed Programs and Subjects**:
+   ```bash
+   npm run db:seed-programs
+   npm run db:seed-subjects
+   ```
+
+5. **Start the development server**:
    ```bash
    npm run dev
    ```
 
-### Linting and Building
-- To lint the backend code:
+#### Linting and Building
+- To lint the server code:
   ```bash
   npm run lint
   ```
-- To build the backend code:
+- To build the server code:
   ```bash
   npm run build
   ```
 
-### Running Production Build Locally
-- To run the production build of the backend locally:
+#### Running Production Build Locally
+- To run the production build of the server locally:
   ```bash
   npm run start
   ```
 
-## Frontend Setup
-### Setup Instructions
+---
+
+### Client (Web) Configuration
+#### Setup Instructions
 1. **Navigate to the Frontend Directory**:
    ```bash
-   cd frontend
+   cd apps/web
    ```
 
 2. **Install Dependencies**:
@@ -106,7 +117,7 @@ Before you begin, ensure you have the following installed on your machine:
    npm run dev
    ```
 
-### Linting and Building
+#### Linting and Building
 - To lint the frontend code:
   ```bash
   npm run lint
@@ -116,8 +127,48 @@ Before you begin, ensure you have the following installed on your machine:
   npm run build
   ```
 
-### Running Production Build Locally
+#### Running Production Build Locally
 - To run the production build of the frontend locally:
   ```bash
   npm run start
   ```
+
+## Setting Up the Project (using Docker)
+1. **Ensure Docker and Docker Compose are installed** on your machine.
+   ```bash
+   docker --version
+   docker-compose --version
+   ```
+
+2. **Configure Environment Variables**:
+   Copy the `.env.example` file to `.env` and fill in the required environment variables.
+   ```bash
+   cp .env.example .env
+   ```
+
+3. **Run Docker Compose** 
+   ```bash
+   docker-compose up --build
+   # or npm run docker:up
+   ```
+
+4. **Run Database Migrations**:
+   ```bash
+   # after the containers are up and running,
+   docker-compose exec server npm run db:migrate
+   # or npm run db:migrate
+   ```
+
+5. **Seed Programs and Subjects**:
+   ```bash
+   docker-compose exec server npm run db:seed-programs
+   docker-compose exec server npm run db:seed-subjects
+   # or npm run db:seed-programs
+   # or npm run db:seed-subjects
+   ```
+
+6. **Push Database Schema to Database**:
+   ```bash
+   docker-compose exec server npm run db:push
+   # or npm run db:push
+   ```

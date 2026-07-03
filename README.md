@@ -33,44 +33,57 @@ IOE Drive is designed to facilitate the sharing of academic resources among IOE 
 ```
 ioe-drive/
 ├── .github/
-│   └── workflows/              # GitHub Actions workflows
+│   └── workflows/
 │
-├── frontend/                   # Frontend code
-│   ├── public/                 # Static assets
-│   ├── src/                    # Source code for the frontend
-│   │   ├── app/                # Next.js App Router files
-│   │   ├── components/         # Reusable React components
-│   │   ├── constants/          # Constants used across the frontend
-│   │   ├── context/            # React context for state management
-│   │   ├── lib/                # Utility functions and libraries
-│   │   │   ├── api/            # API client for backend communication
-│   │   │   ├── store/          # Redux store configuration
-│   │   │   ├── validators/     # Zod schemas for validation
-│   │   └── types/              # TypeScript types
-│   └── package.json
+├── apps/
+│   ├── server/                      # Backend application
+│   │   ├── src/
+│   │   │   ├── config/
+│   │   │   ├── db/
+│   │   │   │   ├── migrations/
+│   │   │   │   └── seeders/
+│   │   │   ├── lib/
+│   │   │   ├── middlewares/
+│   │   │   ├── modules/
+│   │   │   │   ├── health/
+│   │   │   │   ├── notes/
+│   │   │   │   ├── subject/
+│   │   │   │   └── ...
+│   │   │   ├── routes/
+│   │   │   ├── types/
+│   │   │   ├── utils/
+│   │   │   ├── server.ts
+│   │   │   └── index.ts
+│   │   ├── Dockerfile
+│   │   └── package.json
+│   │
+│   └── web/                         # Frontend application
+│       ├── public/
+│       ├── src/
+│       │   ├── app/
+│       │   ├── components/
+│       │   │   ├── common/
+│       │   │   ├── forms/
+│       │   │   ├── layout/
+│       │   │   └── ui/
+│       │   ├── constants/
+│       │   ├── context/
+│       │   ├── hooks/
+│       │   ├── lib/
+│       │   │   ├── api/
+│       │   │   └── validators/
+│       │   ├── providers/
+│       │   ├── types/
+│       │   └── utils/
+│       ├── Dockerfile
+│       └── package.json
 │
-├── backend/                    # Backend code
-│   ├── src/                    # Source code for the backend
-│   │   ├── config/             # Configuration files (e.g., env, clerk config)
-│   │   ├── db/                 # Drizzle ORM, database and migration files
-│   │   ├── lib/                # Utility functions and libraries
-│   │   ├── middlewares/        # Middlewares for auth, error handling, etc.
-│   │   ├── modules/            # Feature modules
-│   │   │   ├── department/     # Department related code
-│   │   │   ├── health/         # Health check related code
-│   │   │   ├── me/             # User profile related code
-│   │   │   ├── notes/          # Notes related code
-│   │   │   ├── subject/        # Subject related code
-│   │   │   ├── user/           # User management related code
-│   │   │   └── webhook/        # Webhook related code
-│   │   ├── routes/             # Express route definitions
-│   │   ├── types/              # TypeScript types
-│   │   ├── utils/              # Utility functions
-│   │   ├── server.ts           # Express server setup
-│   │   ├── index.ts            # App entry point
-│   ├── types/                  # Global TypeScript types
-│   └── package.json
-└── README.md
+├── docs/
+├── docker-compose.yml
+├── CONTRIBUTING.md
+├── LICENSE
+├── README.md
+└── SETUP.md
 ```
 
 ## Contributing
