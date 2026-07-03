@@ -1,14 +1,14 @@
-name: Backend PR Checks
+name: Server PR Checks
 
 on:
   pull_request:
     branches:
       - main
     paths:
-      - 'backend/**'
+      - 'apps/server/**'
 
 jobs:
-  backend-ci:
+  server-ci:
     runs-on: ubuntu-latest
 
     steps:
@@ -22,16 +22,16 @@ jobs:
 
       - name: Install dependencies
         run: npm install
-        working-directory: backend
+        working-directory: apps/server
 
       - name: Run lint
         run: npm run lint
-        working-directory: backend
+        working-directory: apps/server
 
       - name: Run typecheck
         run: npm run typecheck
-        working-directory: backend
+        working-directory: apps/server
 
-      - name: Build backend
+      - name: Build server
         run: npm run build
-        working-directory: backend
+        working-directory: apps/server
