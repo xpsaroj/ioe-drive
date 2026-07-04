@@ -26,6 +26,11 @@ export const resourcesApi = {
         return apiClient.delete<EmptyApiResponse>(`${RESOURCES_API_BASE_URL}/${resourceId}/files/${fileId}`);
     },
 
+    async getFileDownloadUrl(resourceId: number, fileId: number, forceDownload = false): Promise<ApiResponse<{ url: string }>> {
+        const query = forceDownload ? "?download=true" : "";
+        return apiClient.get<ApiResponse<{ url: string }>>(`${RESOURCES_API_BASE_URL}/${resourceId}/files/${fileId}/download-url${query}`);
+    },
+
     async getResourceById(resourceId: number): Promise<ApiResponse<ResourceSummary>> {
         return apiClient.get<ApiResponse<ResourceSummary>>(`${RESOURCES_API_BASE_URL}/${resourceId}`);
     },

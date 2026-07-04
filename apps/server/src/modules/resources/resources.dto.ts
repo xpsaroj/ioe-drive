@@ -54,6 +54,24 @@ export const removeResourceFileSchema = z.object({
     }),
 });
 
+export const getFileDownloadUrlSchema = z.object({
+    params: z.object({
+        resourceId: z.coerce
+            .number()
+            .int()
+            .positive("Resource ID must be a positive integer"),
+        fileId: z.coerce
+            .number()
+            .int()
+            .positive("File ID must be a positive integer"),
+    }),
+    query: z.object({
+        // Not z.coerce.boolean() - that coerces any non-empty string (including
+        // the string "false") to true, since Boolean("false") is true in JS.
+        download: z.enum(["true", "false"]).optional(),
+    }),
+});
+
 export const getResourcesSchema = z.object({
     query: z.object({
         offeringId: z.coerce

@@ -140,6 +140,27 @@ export class ResourcesController {
     }
 
     /**
+     * Get a short-lived signed URL for downloading/previewing a file.
+     * - GET /api/resources/:resourceId/files/:fileId/download-url
+     */
+    async getFileDownloadUrl(
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            const resourceId = Number(req.params.resourceId);
+            const fileId = Number(req.params.fileId);
+            const forceDownload = req.query.download === "true";
+
+            const url = await resourcesService.getFileDownloadUrl(resourceId, fileId, forceDownload);
+            return sendSuccessResponse(res, { url });
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    /**
      * Get resource details by resource ID.
      * - GET /api/resources/:resourceId
      */

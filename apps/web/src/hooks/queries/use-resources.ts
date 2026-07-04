@@ -8,6 +8,7 @@ export const resourcesKeys = {
     byId: (id: number) => ['resources', id] as const,
     bySubjectOfferingId: (offeringId?: number) => ['resources', 'subject-offering', offeringId] as const,
     byUploaderId: (uploaderId?: number) => ['resources', 'uploader', uploaderId] as const,
+    fileDownloadUrl: (resourceId: number, fileId: number) => ['resources', resourceId, 'files', fileId, 'download-url'] as const,
 };
 
 export function useResource(resourceId: number) {
@@ -134,6 +135,49 @@ export function useRemoveResourceFile(resourceId: number) {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: resourcesKeys.byId(resourceId) });
+        },
+    });
+}
+
+/**
+ * Fetches a short-lived signed URL to view/download a specific file. The URL expires
+ * after a while (see the server's generateSasUrl), so this is deliberately never
+ * treated as long-lived cache: refetchOnMount "always" guarantees a fresh, valid URL
+ * every time the preview page (re)mounts, and staleTime 0 means it's never served
+ * from cache without at least attempting a refetch.
+ */
+export function useFileDownloadUrl(resourceId: number, fileId?: number) {
+    return useQuery({
+        queryKey: resourcesKeys.fileDownloadUrl(resourceId, fileId ?? -1),
+        queryFn: async () => {
+            if (!fileId) {
+                throw new Error('File ID is required to fetch a download URL');
+            }
+            const response = await resourcesApi.getFileDownloadUrl(resourceId, fileId);
+            if (!response.success) {
+                throw new Error(response.error || 'Failed to fetch download URL');
+            }
+            return response.data;
+        },
+        enabled: !!resourceId && !!fileId,
+        staleTime: 0,
+        refetchOnMount: 'always',
+    });
+}
+
+/**
+ * Requests a forced-download (Content-Disposition: attachment) signed URL for a file,
+ * on demand - only called when the user actually clicks "Download", rather than
+ * generating one eagerly alongside the inline preview URL that most visits won't need.
+ */
+export function useDownloadFile(resourceId: number) {
+    return useMutation({
+        mutationFn: async (fileId: number) => {
+            const response = await resourcesApi.getFileDownloadUrl(resourceId, fileId, true);
+            if (!response.success) {
+                throw new Error(response.error || 'Failed to get download link');
+            }
+            return response.data.url;
         },
     });
 }

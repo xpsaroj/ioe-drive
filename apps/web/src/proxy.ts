@@ -7,6 +7,7 @@ const isProtectedRoute = createRouteMatcher([
     // "/resources(.*)" is intentionally public - browsing resources doesn't require sign-in
     "/resources/share(.*)",
     "/resources/r/(.*)/edit(.*)",
+    "/resources/r/(.*)/files/(.*)",
     "/library(.*)",
     "/community(.*)",
     "/marketplace(.*)",

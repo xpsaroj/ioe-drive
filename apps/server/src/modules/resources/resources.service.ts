@@ -1,6 +1,6 @@
 import { resourcesRepository } from "./resources.repository.js";
 import type { CreateResourceInput, UpdateResourceInput } from "./resources.dto.js";
-import { generateBlobName, uploadToAzure, deleteFromAzure } from "../../utils/azure.js";
+import { generateBlobName, uploadToAzure, deleteFromAzure, generateSasUrl } from "../../utils/azure.js";
 import { NotFoundError } from "../../lib/errors.js";
 import { db } from "../../db/index.js";
 
@@ -168,6 +168,35 @@ export class ResourcesService {
 
         await deleteFromAzure(file.blobName);
         await resourcesRepository.deleteFile(fileId);
+    }
+
+    /**
+     * Get a short-lived signed URL for downloading/previewing a file. Any signed-in
+     * user can call this for any resource's file (unlike edit/delete, downloading
+     * isn't restricted to the resource's uploader - resources are meant to be shared).
+     * @param resourceId - ID of the resource the file belongs to.
+     * @param fileId - ID of the file to generate a URL for.
+     * @param forceDownload - When true, the URL prompts a save-as download under the
+     *   file's original name; when false, it's suitable for inline display (e.g. in an
+     *   <img>/<iframe>) while still carrying the original name as a hint.
+     * @returns A signed URL, valid for a short time.
+     */
+    async getFileDownloadUrl(resourceId: number, fileId: number, forceDownload = false) {
+        const file = await resourcesRepository.findFile(resourceId, fileId);
+
+        if (!file) {
+            throw new NotFoundError("File not found");
+        }
+
+        // Strip characters that could break the Content-Disposition header's syntax
+        // (originalFileName is user-supplied, from whatever the browser reported at
+        // upload time).
+        const safeFileName = file.originalFileName.replace(/["\r\n]/g, "");
+        const disposition = forceDownload ? "attachment" : "inline";
+
+        return await generateSasUrl(file.blobName, {
+            contentDisposition: `${disposition}; filename="${safeFileName}"`,
+        });
     }
 
     /**

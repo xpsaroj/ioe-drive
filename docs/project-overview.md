@@ -1,6 +1,6 @@
 # IOE Drive - Project Overview
 
-This document is a snapshot of the project as of 2026-07-03. It exists so that anyone
+This document is a snapshot of the project as of 2026-07-05. It exists so that anyone
 (including future contributors and AI assistants) can get oriented quickly without having
 to re-read the entire codebase. Update it as the project evolves; treat it as living
 documentation rather than a historical record.
@@ -267,8 +267,11 @@ Mounted in `apps/server/src/server.ts` / `apps/server/src/routes/index.ts`:
   uploader), `DELETE /:resourceId` (auth, must be the uploader; also deletes the
   resource's files from Azure Blob Storage), `POST /:resourceId/files` (auth, must be
   the uploader; attach more files, same multipart shape as creation),
-  `DELETE /:resourceId/files/:fileId` (auth, must be the uploader). See section 11 for
-  ownership enforcement details and the frontend built on these.
+  `DELETE /:resourceId/files/:fileId` (auth, must be the uploader),
+  `GET /:resourceId/files/:fileId/download-url?download=true|false` (auth, any signed-in
+  user — not owner-gated) returns a short-lived Azure SAS URL for that file. See section
+  11 for ownership enforcement details and section 12 for the preview page built on this
+  endpoint.
 - `/api/programs` — `GET /`, list all programs.
 - `/api/subjects` — `GET /?programId=&semester=`, `GET /:subjectId`,
   `GET /upload?programId=&semester=` (subject list scoped for the upload form).
@@ -350,7 +353,30 @@ Bugs found and fixed while building this:
   why toasts stayed white in dark mode; `LayoutWrapper` now passes
   `theme={resolvedTheme ?? "system"}` from `next-themes`.
 
-## 12. Known discrepancies / rough edges worth knowing about
+## 12. File preview
+
+`/resources/r/[resourceId]/files/[fileId]` previews a single file inline instead of
+linking straight to a download (the link from `ResourceFileItem` used to point at a
+route that never existed).
+
+- The container is private, so the backend never hands out a permanent public URL.
+  `resourcesService.getFileDownloadUrl` generates a 15-minute Azure SAS URL per request,
+  with `Content-Disposition` set to `inline` (in-page preview) or `attachment` (forced
+  download via the page's Download button), and the filename sanitized into the header.
+  Any signed-in user can preview/download any resource's files — this endpoint
+  deliberately isn't owner-gated, unlike edit/delete.
+- The frontend (`useFileDownloadUrl`) always refetches on mount with `staleTime: 0`,
+  since the URL genuinely expires and stale-while-revalidate caching would risk handing
+  back a dead link.
+- PDFs render in a plain `<iframe>`, JPEG/PNG in a plain `<img>` (next/image's optimizer
+  is a poor fit for a URL that's only valid for minutes); other MIME types show a
+  "download to view" message instead of attempting inline preview.
+- A side panel (resource details + a switcher between the resource's other files) sits
+  next to the preview and can be collapsed entirely — when hidden, it's removed from the
+  layout so the preview pane takes the full width, and a small floating button
+  (absolutely positioned, not part of the flex layout) brings it back.
+
+## 13. Known discrepancies / rough edges worth knowing about
 
 - **README deployment target is stale.** `README.md` says the API deploys to Render;
   the actual CI (`.github/workflows/deploy-server.yml`) deploys to a self-managed VM over
@@ -378,7 +404,7 @@ Bugs found and fixed while building this:
 - **No tests.** Neither app has a test suite configured today (CI only lints,
   typechecks, and builds).
 
-## 13. Local development
+## 14. Local development
 
 Two paths, both documented in `SETUP.md`:
 
@@ -409,7 +435,7 @@ typecheck, build) and `apps/web` (lint, build) that only trigger on changes unde
 respective path, a `merge-gatekeeper` workflow that requires those checks to pass before
 merge, and a deploy workflow for the server on push to `main`.
 
-## 14. Where things stand, in one paragraph
+## 15. Where things stand, in one paragraph
 
 The core "browse, upload, edit, and delete resources, scoped by program/semester/subject"
 loop is fully built end-to-end, consistently under the "resources" name from the
@@ -420,7 +446,9 @@ browse page that works for guests and defaults from a signed-in user's profile w
 Resource owners can edit a resource's details/subject, delete it entirely, or add/remove
 individual files after the fact, all gated by ownership checks enforced server-side.
 Personal views (recent, bookmarked, uploaded) now live under their own auth-required
-`/library` space, separate from the shared `/resources` browsing/sharing surface. The
-whole site supports light/dark/system theming, including Clerk's own hosted UI.
+`/library` space, separate from the shared `/resources` browsing/sharing surface. Any
+signed-in user can preview or download a resource's files inline via short-lived signed
+URLs, rather than only ever seeing a raw download link. The whole site supports
+light/dark/system theming, including Clerk's own hosted UI.
 Community, Market/Marketplace and Alumni are still placeholder destinations with no
 logic yet; see `todo.md` for what's next.

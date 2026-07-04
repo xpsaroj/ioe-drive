@@ -4,7 +4,7 @@ import { resourcesController } from "./resources.controller.js";
 import { validate } from "../../middlewares/validate.middleware.js";
 import { requireAuth } from "../../middlewares/auth.middleware.js";
 import { upload } from "../../middlewares/upload.js";
-import { createResourceSchema, updateResourceSchema, getResourceByIdSchema, getResourcesSchema, removeResourceFileSchema } from "./resources.dto.js";
+import { createResourceSchema, updateResourceSchema, getResourceByIdSchema, getResourcesSchema, removeResourceFileSchema, getFileDownloadUrlSchema } from "./resources.dto.js";
 
 /**
  * Resources-related routes.
@@ -15,6 +15,7 @@ import { createResourceSchema, updateResourceSchema, getResourceByIdSchema, getR
  * - DELETE /:resourceId                 - Delete an existing resource (requires authentication)
  * - POST /:resourceId/files             - Add files to an existing resource (requires authentication)
  * - DELETE /:resourceId/files/:fileId   - Remove a file from a resource (requires authentication)
+ * - GET /:resourceId/files/:fileId/download-url - Get a short-lived signed download URL (requires authentication)
  */
 const router = Router();
 
@@ -73,6 +74,18 @@ router.delete(
     requireAuth,
     validate(removeResourceFileSchema),
     resourcesController.removeResourceFile.bind(resourcesController)
+)
+
+/**
+ * GET /api/resources/:resourceId/files/:fileId/download-url
+ * - Get a short-lived signed download URL for a file (requires authentication - any
+ *   signed-in user, not just the resource's uploader)
+ */
+router.get(
+    "/:resourceId/files/:fileId/download-url",
+    requireAuth,
+    validate(getFileDownloadUrlSchema),
+    resourcesController.getFileDownloadUrl.bind(resourcesController)
 )
 
 /**

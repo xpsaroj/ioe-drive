@@ -204,7 +204,7 @@ export class ResourcesRepository {
      * into a different resource than the one the caller is authorized for).
      * @param resourceId - ID of the resource the file should belong to.
      * @param fileId - ID of the file to look up.
-     * @returns The file's id and blob name, or undefined.
+     * @returns The file's id, blob name, and original file name, or undefined.
      */
     async findFile(resourceId: number, fileId: number) {
         return await db
@@ -218,6 +218,7 @@ export class ResourcesRepository {
                 columns: {
                     id: true,
                     blobName: true,
+                    originalFileName: true,
                 },
             });
     }
