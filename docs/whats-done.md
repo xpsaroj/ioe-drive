@@ -9,7 +9,9 @@ A quick, high-level list of what already works. For the full picture see
   profiles, resources + files, recently-accessed and bookmarked tracking, webhook
   idempotency.
 - Seed data for all IOE engineering programs (plus the SH service department) and their
-  new-syllabus subjects/offerings, keyed so seeders can be safely re-run.
+  new-syllabus subjects/offerings, keyed so seeders can be safely re-run. A separate
+  `db:seed-resources` script seeds sample resources (with fake, non-Azure files) for one
+  subject per semester per program, for local development/testing.
 - Clerk authentication end to end: protected routes on the web app, `requireAuth` on the
   API, and a webhook that keeps a local `users`/`profiles` mirror in sync with Clerk.
 - Resources generalized from the old "notes-only" model: DB tables, API routes

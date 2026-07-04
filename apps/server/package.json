@@ -16,6 +16,7 @@
     "db:generate": "drizzle-kit generate",
     "db:seed-programs": "tsx src/db/seeders/seed-programs.ts",
     "db:seed-subjects": "tsx src/db/seeders/seed-subjects.ts",
+    "db:seed-resources": "tsx src/db/seeders/seed-resources.ts",
     "db:sync-clerk-users": "tsx src/db/seeders/sync-clerk-users.ts"
   },
   "engines": {

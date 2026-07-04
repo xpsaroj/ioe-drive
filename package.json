@@ -9,6 +9,7 @@
         "db:migrate": "docker compose exec server npm run db:migrate",
         "db:push": "docker compose exec server npm run db:push",
         "db:seed-programs": "docker compose exec server npm run db:seed-programs",
-        "db:seed-subjects": "docker compose exec server npm run db:seed-subjects"
+        "db:seed-subjects": "docker compose exec server npm run db:seed-subjects",
+        "db:seed-resources": "docker compose exec server npm run db:seed-resources"
     }
 }

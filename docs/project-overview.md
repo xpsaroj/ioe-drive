@@ -297,7 +297,13 @@ Two paths, both documented in `SETUP.md`:
 Seed data lives in `apps/server/data/{programs,subjects,subject-offerings}.json` — 13
 programs (12 engineering programs + SH) and 428 subjects sourced from IOE's published
 new-syllabus curriculum pages, keyed by program code so the seeders can be re-run
-idempotently (`onConflictDoNothing` throughout).
+idempotently (`onConflictDoNothing` throughout). `db:sync-clerk-users` backfills local
+`users`/`profiles` rows from a Clerk *development* instance. `db:seed-resources` seeds a
+handful of sample resources for local development/testing: for every program except SH,
+one subject per semester gets 5 resources, each with 5 fake files - no real uploads, no
+Azure calls, just placeholder blob names/URLs/sizes. Unlike the other seeders it is not
+idempotent (it doesn't check for previously seeded resources), so it assumes a clean
+`resources` table.
 
 CI (`.github/workflows/`): separate PR-check workflows for `apps/server` (lint,
 typecheck, build) and `apps/web` (lint, build) that only trigger on changes under their
