@@ -5,6 +5,9 @@ This document is a snapshot of the project as of 2026-07-03. It exists so that a
 to re-read the entire codebase. Update it as the project evolves; treat it as living
 documentation rather than a historical record.
 
+See `whats-done.md` for a short list of what already works, and `todo.md` for planned
+work and known rough edges.
+
 ## 1. What this project is
 
 IOE Drive is a collaborative resource-sharing platform for students of the Institute of
@@ -48,7 +51,7 @@ ioe-drive/
 ├── apps/
 │   ├── server/     Express + Drizzle ORM API (apps/server/src)
 │   └── web/         Next.js 16 App Router frontend (apps/web/src)
-├── docs/            Project documentation (this file lives here)
+├── docs/            Project documentation (this file, whats-done.md, todo.md)
 ├── .github/workflows/  CI (lint/typecheck/build) + deploy
 ├── docker-compose.yml  Local dev stack: postgres, server, web
 ├── SETUP.md         Manual (non-Docker) and Docker setup instructions
@@ -122,11 +125,9 @@ the correct granularity for a program/semester-scoped resource library.
 
 ## 5. Naming: "notes" vs "resources" (important, in-progress)
 
-The product concept has been renamed from "notes" to the more general "resources"
-(notes, past questions, assessment papers, lab sheets, books, etc.), and a `type` field
-is intended to distinguish these — see `notes.txt`, entry dated 2026-03-08:
-"generalize notes as resources in the db and the server and the client accordingly...
-add a type field and rename notes => resources, note_files => resource_files".
+The product concept is being renamed from "notes" to the more general "resources"
+(notes, past questions, assessment papers, lab sheets, books, etc.), with a `type` field
+intended to distinguish these. This is tracked in `todo.md`.
 
 This rename is **not done in the database, backend, or frontend types layer**:
 - DB tables are still `notes` / `note_files` / `user_recent_notes` /
@@ -144,16 +145,15 @@ It **is** partially done at the UI/routing layer only:
   `UploadedResourceCard`, `RecentResourceCard`, `ArchivedResourceCard`, etc. — but these
   components still consume the `Note`-shaped types/API responses underneath.
 
-A related, separately-tracked rename (`notes.txt`, entry dated 2026-05-03): "archived"
-should become "bookmarked"/"favourite" in user-facing language, since "archived" reads as
-old/inactive rather than saved. This is also only partially applied: the route is
-`/resources/me/bookmarks` and UI copy says "bookmark"/"saved", but the DB table
-(`user_archived_notes`), API paths (`/api/me/archived-notes`,
-`/api/me/notes/:noteId/archive`), and frontend types (`ArchivedNote`) are still
-"archived" throughout.
+A related, separately-tracked rename: "archived" should become "bookmarked"/"favourite"
+in user-facing language, since "archived" reads as old/inactive rather than saved. This
+is also only partially applied: the route is `/resources/me/bookmarks` and UI copy says
+"bookmark"/"saved", but the DB table (`user_archived_notes`), API paths
+(`/api/me/archived-notes`, `/api/me/notes/:noteId/archive`), and frontend types
+(`ArchivedNote`) are still "archived" throughout.
 
 Both renames are good candidates for a first real feature/refactor pass — they are
-well-understood, scoped, and touch DB, API and frontend consistently.
+well-understood, scoped, and touch DB, API and frontend consistently. See `todo.md`.
 
 ## 6. Auth model
 
@@ -240,11 +240,11 @@ generation, virus scanning, or compression exists yet (the `compressedSize`/
   other module (`program`, `subject`, `user`, `me`, `webhook`) queries Drizzle directly
   from its service. Not necessarily wrong for their current simplicity, but worth a
   conscious decision before it grows further.
-- **Rate limiting is IP-only.** `notes.txt` (2026-03-05 entry) describes a planned
-  hybrid limiter (higher, per-`userId` limits for authenticated users; stricter per-IP
-  limits for guests) specifically to avoid punishing campus NAT/shared-IP situations
-  (a real concern for IOE hostel/lab wifi). The current implementation in
-  `server.ts` is a single flat 500 req/15min limiter keyed by IP for everyone.
+- **Rate limiting is IP-only.** A hybrid limiter (higher, per-`userId` limits for
+  authenticated users; stricter per-IP limits for guests) is planned, to avoid punishing
+  campus NAT/shared-IP situations (a real concern for IOE hostel/lab wifi). The current
+  implementation in `server.ts` is a single flat 500 req/15min limiter keyed by IP for
+  everyone. Tracked in `todo.md`.
 - **Placeholder nav destinations.** `Community`, `Market` (nav) / `Marketplace` (proxy.ts
   route matcher — inconsistent naming between the two), and `Alumni` all exist as nav
   items and protected routes but their pages (`apps/web/src/app/{community,market,alumni}/page.tsx`)
