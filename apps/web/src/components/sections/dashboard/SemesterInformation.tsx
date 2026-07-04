@@ -18,7 +18,7 @@ const SemesterInformation = () => {
       key: "code",
       label: "CODE",
       render: (item) => (
-        <span className="text-sm text-gray-500">{item.subject.code}</span>
+        <span className="text-sm text-foreground-secondary">{item.subject.code}</span>
       ),
     },
     {

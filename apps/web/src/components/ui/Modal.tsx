@@ -46,7 +46,7 @@ export default function Modal({
         >
             <div
                 className={clsx(
-                    'bg-white rounded-lg w-full shadow-xl animate-in zoom-in-95 duration-200',
+                    'bg-card-background rounded-lg w-full shadow-xl animate-in zoom-in-95 duration-200',
                     {
                         'max-w-sm': size === 'sm',
                         'max-w-md': size === 'md',
@@ -55,13 +55,13 @@ export default function Modal({
                     }
                 )}
             >
-                <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                    <h2 className="text-xl font-bold text-gray-900">{title}</h2>
+                <div className="flex items-center justify-between p-6 border-b border-border">
+                    <h2 className="text-xl font-bold text-foreground">{title}</h2>
                     <button
                         onClick={onClose}
                         disabled={preventCloseOnOutsideClick}
                         className={clsx(
-                            'text-gray-400 hover:text-gray-600 transition-colors',
+                            'text-foreground-tertiary hover:text-foreground-secondary transition-colors',
                             'disabled:opacity-50 disabled:cursor-not-allowed'
                         )}
                         aria-label="Close modal"

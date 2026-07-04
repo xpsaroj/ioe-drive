@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+/*
+ * Tailwind v4 defaults `dark:` to the `prefers-color-scheme` media query. We use
+ * next-themes to toggle a `.dark` class on <html> instead (system/light/dark, with
+ * manual override), so `dark:` needs to respond to that class rather than the OS
+ * preference. See https://tailwindcss.com/docs/dark-mode.
+ */
+@custom-variant dark (&:where(.dark, .dark *));
+
 @theme {
     /* ===== Background Colors ===== */
     --color-background: #ffffff;
@@ -230,6 +238,155 @@
     /* Skeleton loading highlight */
 }
 
+/*
+ * ===== Dark theme =====
+ * Overrides every token above for `.dark` (applied to <html> by next-themes). Since
+ * every component in this app is already built on these semantic tokens rather than
+ * literal Tailwind colors, this single block is enough to re-theme the whole site -
+ * no component-level `dark:` classes needed for anything that already uses a token.
+ */
+.dark {
+    /* ===== Background Colors ===== */
+    --color-background: #0a0a0a;
+    --color-background-secondary: #141414;
+    --color-background-tertiary: #1c1c1c;
+    --color-background-hover: #242424;
+    --color-background-active: #2e2e2e;
+
+    /* ===== Foreground/Text Colors ===== */
+    --color-foreground: #fafafa;
+    --color-foreground-secondary: #a3a3a3;
+    --color-foreground-tertiary: #757575;
+    --color-foreground-muted: #595959;
+    --color-foreground-inverse: #0a0a0a;
+
+    /* ===== Border Colors ===== */
+    --color-border: #2e2e2e;
+    --color-border-secondary: #3d3d3d;
+    --color-border-hover: #ffffff;
+    --color-border-focus: #ffffff;
+
+    /* ===== Accent Colors ===== */
+    --color-accent: #ffffff;
+    --color-accent-hover: #e5e5e5;
+    --color-accent-active: #cccccc;
+    --color-accent-foreground: #0a0a0a;
+
+    /* ===== Status/Semantic Colors ===== */
+    /* Success - Green (one step lighter than the light theme for contrast on dark bg) */
+    --color-success: #22c55e;
+    --color-success-hover: #16a34a;
+    --color-success-light: #052e16;
+    --color-success-foreground: #ffffff;
+
+    /* Error - Red */
+    --color-error: #ef4444;
+    --color-error-hover: #dc2626;
+    --color-error-light: #450a0a;
+    --color-error-foreground: #ffffff;
+
+    /* Warning - Amber/Yellow */
+    --color-warning: #fbbf24;
+    --color-warning-hover: #f59e0b;
+    --color-warning-light: #451a03;
+    --color-warning-foreground: #000000;
+
+    /* Info - Blue */
+    --color-info: #38bdf8;
+    --color-info-hover: #0ea5e9;
+    --color-info-light: #082f49;
+    --color-info-foreground: #ffffff;
+
+    /* ===== Interactive Elements ===== */
+    --color-link: #4c9aff;
+    --color-link-hover: #7db8ff;
+    --color-link-visited: #b088f9;
+
+    /* ===== Component-Specific Colors ===== */
+    --color-input-background: #141414;
+    --color-input-border: #2e2e2e;
+    --color-input-focus: #ffffff;
+    --color-input-disabled: #1c1c1c;
+    --color-input-placeholder: #757575;
+
+    /* Primary Button - White (inverted from black in light theme) */
+    --color-button-primary: #ffffff;
+    --color-button-primary-hover: #e5e5e5;
+    --color-button-primary-active: #cccccc;
+    --color-button-primary-text: #0a0a0a;
+
+    /* Secondary Button - Dark surface with light text */
+    --color-button-secondary: #1f1f1f;
+    --color-button-secondary-hover: #292929;
+    --color-button-secondary-active: #333333;
+    --color-button-secondary-text: #fafafa;
+
+    /* Ghost Button */
+    --color-button-ghost-hover: #1f1f1f;
+
+    /* Destructive Button - Red */
+    --color-button-destructive: #ef4444;
+    --color-button-destructive-hover: #dc2626;
+    --color-button-destructive-active: #b91c1c;
+    --color-button-destructive-text: #ffffff;
+
+    /* ===== Overlay & Shadow Colors ===== */
+    /* Overlays stay black - they dim the backdrop regardless of theme */
+    --color-overlay: rgba(0, 0, 0, 0.5);
+    --color-overlay-light: rgba(0, 0, 0, 0.1);
+
+    --color-shadow: rgba(0, 0, 0, 0.4);
+    --color-shadow-md: rgba(0, 0, 0, 0.5);
+    --color-shadow-lg: rgba(0, 0, 0, 0.6);
+
+    /* ===== Divider Colors ===== */
+    --color-divider: #2e2e2e;
+    --color-divider-strong: #3d3d3d;
+
+    /* ===== Selection Colors ===== */
+    --color-selection-background: #ffffff;
+    --color-selection-foreground: #0a0a0a;
+
+    /* ===== Badge/Tag Colors ===== */
+    --color-badge-background: #1c1c1c;
+    --color-badge-foreground: #fafafa;
+    --color-badge-border: #2e2e2e;
+
+    /* Colored Badges - dark-tinted background with a light, matching text color */
+    --color-badge-success: #052e16;
+    --color-badge-success-text: #4ade80;
+    --color-badge-error: #450a0a;
+    --color-badge-error-text: #f87171;
+    --color-badge-warning: #451a03;
+    --color-badge-warning-text: #fbbf24;
+    --color-badge-info: #082f49;
+    --color-badge-info-text: #38bdf8;
+
+    /* ===== Card Colors ===== */
+    --color-card-background: #141414;
+    --color-card-border: #2e2e2e;
+    --color-card-hover: #1c1c1c;
+
+    /* ===== Header/Footer Colors ===== */
+    --color-header-background: rgba(10, 10, 10, 0.8);
+    --color-header-border: #2e2e2e;
+    --color-footer-background: #141414;
+
+    /* ===== Code Block Colors ===== */
+    --color-code-background: #1c1c1c;
+    --color-code-foreground: #eb5757;
+    --color-code-block-background: #141414;
+    --color-code-block-border: #2e2e2e;
+
+    /* ===== Focus Ring ===== */
+    --color-focus-ring: #4c9aff;
+    --color-focus-ring-offset: #0a0a0a;
+
+    /* ===== Loading/Skeleton ===== */
+    --color-skeleton-base: #1c1c1c;
+    --color-skeleton-highlight: #262626;
+}
+
 /* ===== Global Styles ===== */
 @layer base {
     * {
@@ -258,10 +415,10 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-    background: #d4d4d4;
+    background: var(--color-border-secondary);
     border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background: #a3a3a3;
+    background: var(--color-foreground-tertiary);
 }

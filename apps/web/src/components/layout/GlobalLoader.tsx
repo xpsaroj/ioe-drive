@@ -20,7 +20,7 @@ export default function GlobalLoader({
 
             <ClerkFailed>
                 <div className="fixed inset-0 flex items-center justify-center bg-background z-50">
-                    <div className="text-red-500">Something went wrong. Please refresh the page.</div>
+                    <div className="text-error">Something went wrong. Please refresh the page.</div>
                 </div>
             </ClerkFailed>
 

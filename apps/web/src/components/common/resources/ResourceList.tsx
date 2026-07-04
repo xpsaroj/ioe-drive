@@ -19,7 +19,7 @@ const ResourceList = <T,>({
 }: ResourceListProps<T>) => {
     if (loading) {
         return (
-            <div className="border md:p-6 p-0 px-6 py-3 rounded-lg bg-white flex flex-col md:gap-6 divide-y divide-border">
+            <div className="border md:p-6 p-0 px-6 py-3 rounded-lg bg-card-background flex flex-col md:gap-6 divide-y divide-border">
                 {Array.from({ length: 3 }).map((_, index) => (
                     <ResourceCardSkeleton key={index} />
                 ))}
@@ -29,7 +29,7 @@ const ResourceList = <T,>({
 
     if (error) {
         return (
-            <div className="border p-6 rounded-lg bg-white flex flex-col gap-6">
+            <div className="border p-6 rounded-lg bg-card-background flex flex-col gap-6">
                 <p className="text-error text-sm">{error}</p>
             </div>
         )
@@ -37,14 +37,14 @@ const ResourceList = <T,>({
 
     if (!resources || resources.length === 0) {
         return (
-            <div className="border p-6 rounded-lg bg-white flex flex-col gap-6">
+            <div className="border p-6 rounded-lg bg-card-background flex flex-col gap-6">
                 <p className="text-sm text-foreground-tertiary">{emptyMessage}</p>
             </div>
         )
     }
 
     return (
-        <div className="border md:p-6 p-0 px-6 py-3 rounded-lg bg-white flex flex-col md:gap-6 divide-y divide-border">
+        <div className="border md:p-6 p-0 px-6 py-3 rounded-lg bg-card-background flex flex-col md:gap-6 divide-y divide-border">
             {resources.map((resource, index) => (
                 <div key={index}>
                     {renderItem(resource)}

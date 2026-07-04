@@ -90,7 +90,7 @@ const OnBoardingPage = () => {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background text-foreground md:p-8 p-6 max-w-7xl mx-auto">
                 <div className="flex flex-col items-center justify-center">
-                    <p className="text-red-500">Something went wrong. Please try again later.</p>
+                    <p className="text-error">Something went wrong. Please try again later.</p>
                     <div className="flex space-x-4">
                         <Button variant="secondary" className="mt-4" onClick={() => router.refresh()}>
                             Refresh Page

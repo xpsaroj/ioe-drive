@@ -59,17 +59,17 @@ ioe-drive/
 ```
 
 There is no shared package between `apps/server` and `apps/web` — types are duplicated by
-hand on each side (see section 8).
+hand on each side (see section 9).
 
 ## 3. Architecture and tech stack
 
 - **Style**: client-server, REST API consumed by a Next.js frontend.
 - **Frontend**: Next.js 16 (App Router), React 19, Tailwind CSS v4, TanStack Query v5 for
   server state, React Hook Form + Zod for forms, Clerk for auth, Lucide icons, `sonner`
-  for toasts.
+  for toasts, `next-themes` + `@clerk/themes` for light/dark theming (see section 7).
 - **Backend**: Node 22, Express 5, layered as Controller -> Service -> Repository
   (repository layer only exists for `resources` today; other modules query Drizzle
-  directly from the service layer — see section 7).
+  directly from the service layer — see section 11).
 - **Database**: PostgreSQL 16, Drizzle ORM + drizzle-kit for schema/migrations.
 - **Auth**: Clerk (`@clerk/express` on the API, `@clerk/nextjs` on the web app), with a
   Clerk webhook keeping a local `users`/`profiles` mirror in sync.
@@ -100,7 +100,7 @@ Tables:
   This is the entity most of the app actually filters/browses by (not `subjects` or
   `programs` directly), since the same subject can be offered to multiple programs.
 - `users` — id, clerkUserId (unique), fullName, email; mirrors Clerk, created/updated via
-  webhook (see section 7).
+  webhook (see section 8).
 - `profiles` — one-to-one with users; bio, programId, semester, college,
   profilePictureUrl. When both `programId` and `semester` are set, the `/resources`
   browse page uses them to default its filter for that signed-in user (see section 6).
@@ -117,7 +117,7 @@ Tables:
 - `user_bookmarked_resources` — per-user bookmarks, unique on (userId, resourceId),
   capped at 10 when listed.
 - `webhook_events` — svixId primary key + eventType, used purely for Clerk webhook
-  idempotency (see section 7).
+  idempotency (see section 8).
 
 Eleven migrations exist (`0000`..`0010`). Notable history visible in the migrations:
 subjects.code widened to varchar(15) (`0008`); `notes.subject_id` renamed to
@@ -178,14 +178,50 @@ things tied to them).
   `/library/recent`, `/library/bookmarks`, `/library/uploads` are the corresponding full
   list pages (moved from the old `/resources/me/*`).
 - `proxy.ts` explicitly protects `/library(.*)` and `/resources/share(.*)`, while leaving
-  `/resources` itself (browsing) and `/resources/r/[resourceId]` public — see section 7.
+  `/resources` itself (browsing) and `/resources/r/[resourceId]` public — see section 8.
 - **Bugfix along the way**: `useSubjectOfferings` (the hook backing subject/resource
   browsing) was gated with `enabled: isSignedIn`, silently blocking guests from browsing
   at all even though the backing `/api/subjects` endpoint never required auth. That gate
   is removed, so the public-browsing intent actually holds now (this also retires the
   discrepancy that used to be tracked here about `/resources` blocking guests).
 
-## 7. Auth model
+## 7. Theming: light/dark mode
+
+The web app supports light, dark, and system (OS-preference-following) themes.
+
+- **Token-based color system**: `apps/web/src/app/globals.css` defines every color as a
+  `--color-*` CSS variable inside a Tailwind v4 `@theme` block, and components are built
+  on semantic Tailwind classes (`bg-background`, `text-foreground-secondary`,
+  `border-border`, etc.) rather than literal colors (`bg-white`, `text-gray-500`). A
+  `.dark { ... }` block overrides every one of those tokens with dark-mode equivalents.
+- **Tailwind v4's `dark:` variant** defaults to the `prefers-color-scheme` media query;
+  this project overrides that with `@custom-variant dark (&:where(.dark, .dark *));` so
+  `dark:` instead responds to a `.dark` class, which is what actually gets toggled (see
+  next point). A few genuinely-literal color usages that aren't meant to react to the
+  theme automatically (severity-tinted badges like `SubjectHardnessBadge`/
+  `MimeTypeBadge`, and the black backdrop dimmers behind `Modal`/`MobileNav`) use
+  explicit `dark:` classes or are left as literal black on purpose.
+- **`next-themes`** (`apps/web/src/providers/theme-provider.tsx`) manages the `.dark`
+  class on `<html>` based on system preference or an explicit user choice, persisted to
+  localStorage. Root layout (`app/layout.tsx`) sets `suppressHydrationWarning` on
+  `<html>`, since next-themes updates that element before React hydrates.
+  `apps/web/src/components/ui/ThemeToggle.tsx` is the light/dark toggle button, present
+  in the desktop `Navbar`, `MobileNav`, and the signed-out marketing `Header`.
+- **`@clerk/themes`** (`apps/web/src/providers/clerk-theme-provider.tsx`) wraps
+  `ClerkProvider` and passes Clerk's own `dark` base theme when the site is in dark
+  mode, so Clerk's hosted UI (sign-in, sign-up, user profile, user button) matches
+  rather than always rendering light.
+- **`apps/web/src/hooks/use-mounted.ts`**: a shared hook (via `useSyncExternalStore`,
+  not a `useEffect` + `setState` pair - this project's lint config flags that pattern)
+  used anywhere theme-dependent output needs to avoid a hydration mismatch (the actual
+  resolved theme isn't known until the client has mounted). `Logo`, `ThemeToggle`, and
+  `ClerkThemeProvider` all use it to render a neutral/default appearance for the very
+  first render, then the real theme-aware output right after.
+- `Logo`'s `theme` prop is now optional and auto-picks the correct light/dark logo
+  variant to match the site's current theme; pass it explicitly only when a specific
+  variant is needed regardless of theme.
+
+## 8. Auth model
 
 Clerk is the identity provider on both sides.
 
@@ -214,7 +250,7 @@ Clerk is the identity provider on both sides.
   anything under `/me` or `/users` requires auth. There is no role/admin concept yet —
   every authenticated user has identical permissions.
 
-## 8. API surface (apps/server)
+## 9. API surface (apps/server)
 
 Mounted in `apps/server/src/server.ts` / `apps/server/src/routes/index.ts`:
 
@@ -234,7 +270,7 @@ Mounted in `apps/server/src/server.ts` / `apps/server/src/routes/index.ts`:
   `GET /upload?programId=&semester=` (subject list scoped for the upload form).
 
 All routes under `/api` share one rate limiter: 500 req / 15 min, keyed by IP (not by
-user — see section 10). Responses follow a consistent envelope
+user — see section 11). Responses follow a consistent envelope
 (`{ success, data?, message?, error? }`) via `sendSuccessResponse`/`sendErrorResponse` in
 `lib/response.ts`, and errors are centralized through `ApiError` subclasses in
 `lib/errors.ts` plus a global `errorHandler` that also special-cases `ZodError` and
@@ -243,7 +279,7 @@ user — see section 10). Responses follow a consistent envelope
 Validation is Zod-based per-route via a generic `validate(schema)` middleware that
 validates `{ params, query, body }` together.
 
-## 9. File uploads
+## 10. File uploads
 
 `middlewares/upload.ts` configures Multer with in-memory storage, a 10 MB per-file limit,
 max 5 files per request, and an allow-list of MIME types: PDF, `.doc`/`.docx`, JPEG, PNG.
@@ -254,7 +290,7 @@ filename and MIME type are persisted per-file in `resource_files`. No image/PDF 
 generation, virus scanning, or compression exists yet (the `compressedSize`/
 `compressionMethod` columns are placeholders for future work).
 
-## 10. Known discrepancies / rough edges worth knowing about
+## 11. Known discrepancies / rough edges worth knowing about
 
 - **README deployment target is stale.** `README.md` says the API deploys to Render;
   the actual CI (`.github/workflows/deploy-server.yml`) deploys to a self-managed VM over
@@ -282,7 +318,7 @@ generation, virus scanning, or compression exists yet (the `compressedSize`/
 - **No tests.** Neither app has a test suite configured today (CI only lints,
   typechecks, and builds).
 
-## 11. Local development
+## 12. Local development
 
 Two paths, both documented in `SETUP.md`:
 
@@ -310,7 +346,7 @@ typecheck, build) and `apps/web` (lint, build) that only trigger on changes unde
 respective path, a `merge-gatekeeper` workflow that requires those checks to pass before
 merge, and a deploy workflow for the server on push to `main`.
 
-## 12. Where things stand, in one paragraph
+## 13. Where things stand, in one paragraph
 
 The core "browse and upload resources, scoped by program/semester/subject" loop is fully
 built end-to-end, consistently under the "resources" name from the database up through
@@ -319,6 +355,7 @@ questions/assessments/lab sheets/books/other, Clerk-authenticated upload with
 Azure-backed file storage, and a unified `/resources` browse page that works for guests
 and defaults from a signed-in user's profile when set. Personal views (recent,
 bookmarked, uploaded) now live under their own auth-required `/library` space, separate
-from the shared `/resources` browsing/sharing surface. Community, Market/Marketplace and
-Alumni are still placeholder destinations with no logic yet; see `todo.md` for what's
+from the shared `/resources` browsing/sharing surface. The whole site supports
+light/dark/system theming, including Clerk's own hosted UI. Community, Market/Marketplace
+and Alumni are still placeholder destinations with no logic yet; see `todo.md` for what's
 next.

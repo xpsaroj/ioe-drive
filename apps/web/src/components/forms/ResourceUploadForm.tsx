@@ -121,7 +121,7 @@ export const ResourceUploadForm: React.FC = () => {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
                 <div className="flex flex-col items-center justify-center">
-                    <p className="text-red-500">Something went wrong. Please try again later.</p>
+                    <p className="text-error">Something went wrong. Please try again later.</p>
                     <div className="flex space-x-4">
                         <Button variant="primary" className="mt-4" onClick={() => router.back()}>
                             Go Back

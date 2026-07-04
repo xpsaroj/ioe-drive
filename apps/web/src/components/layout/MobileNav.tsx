@@ -6,6 +6,7 @@ import { Menu, X } from "lucide-react"
 
 import { SearchBar } from "@/components/layout"
 import Button from "@/components/ui/Button"
+import ThemeToggle from "@/components/ui/ThemeToggle"
 import Logo from "@/components/Logo"
 import { User } from "../User"
 
@@ -54,15 +55,18 @@ export default function MobileNav() {
                 >
                     <div className="flex items-center justify-between px-4 py-3 border-b">
                         <div>
-                            <Logo size={2} theme="dark" />
+                            <Logo size={2} />
                         </div>
-                        <button
-                            onClick={() => setMenuOpen(false)}
-                            aria-label="Close menu"
-                            className="rounded-full border-none py-2 px-1"
-                        >
-                            <X className="w-5 h-5 rounded-full" />
-                        </button>
+                        <div className="flex items-center gap-1">
+                            <ThemeToggle />
+                            <button
+                                onClick={() => setMenuOpen(false)}
+                                aria-label="Close menu"
+                                className="rounded-full border-none py-2 px-1"
+                            >
+                                <X className="w-5 h-5 rounded-full" />
+                            </button>
+                        </div>
                     </div>
 
                     <div className="px-3">

@@ -5,7 +5,7 @@ import { recentResources } from "@/data/demo-data";
 const RecentAccessItem = ({ title, author }: { title: string; author: string }) => (
   <div className="border rounded-lg p-2 px-3 cursor-pointer hover:bg-background-tertiary transition duration-150">
     <p className="overflow-hidden whitespace-nowrap text-ellipsis">{title}</p>
-    <p className="text-xs text-black/65"> By {author}</p>
+    <p className="text-xs text-foreground-secondary"> By {author}</p>
   </div>
 );
 

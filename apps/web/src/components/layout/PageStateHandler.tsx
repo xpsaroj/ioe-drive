@@ -115,7 +115,7 @@ const PageStateHandler = ({
                 {header}
                 <div className={stateContainerClassName}>
                     {errorContent || (
-                        <p className="text-red-500">Something went wrong. Please try again later.</p>
+                        <p className="text-error">Something went wrong. Please try again later.</p>
                     )}
                 </div>
             </div>

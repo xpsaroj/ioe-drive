@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
-import { ClerkProvider } from '@clerk/nextjs';
 
 import "./globals.css";
+import { ThemeProvider } from "@/providers/theme-provider";
+import { ClerkThemeProvider } from "@/providers/clerk-theme-provider";
 import { ClerkApiProvider } from "@/providers/ClerkApiProvider";
 import { QueryProvider } from '@/providers/query-provider';
 import { AuthStateWatcher } from "@/context/AuthStateWatcher";
@@ -23,23 +24,25 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`bg-background text-foreground min-h-screen ${outfit.className}`}>
-        <ClerkProvider>
-          <ClerkApiProvider>
-            <QueryProvider>
-              <AuthStateWatcher>
-                <AppDataInitializer>
-                  <GlobalLoader>
-                    <LayoutWrapper>
-                      {children}
-                    </LayoutWrapper>
-                  </GlobalLoader>
-                </AppDataInitializer>
-              </AuthStateWatcher>
-            </QueryProvider>
-          </ClerkApiProvider>
-        </ClerkProvider>
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          <ClerkThemeProvider>
+            <ClerkApiProvider>
+              <QueryProvider>
+                <AuthStateWatcher>
+                  <AppDataInitializer>
+                    <GlobalLoader>
+                      <LayoutWrapper>
+                        {children}
+                      </LayoutWrapper>
+                    </GlobalLoader>
+                  </AppDataInitializer>
+                </AuthStateWatcher>
+              </QueryProvider>
+            </ClerkApiProvider>
+          </ClerkThemeProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

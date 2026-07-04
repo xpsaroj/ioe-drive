@@ -7,7 +7,7 @@ const ProgramCard = ({ program }: { program: Program }) => {
 
     return (
         <div
-            className="border p-6 rounded-lg bg-white"
+            className="border p-6 rounded-lg bg-card-background"
         >
             <p className="text-xl font-bold">{code}</p>
             <div className="flex flex-col md:flex-row justify-between">
@@ -16,7 +16,7 @@ const ProgramCard = ({ program }: { program: Program }) => {
             </div>
             {syllabusUrl && (
                 <p className="text-sm">Syllabus: {" "}
-                    <Link href={syllabusUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                    <Link href={syllabusUrl} target="_blank" rel="noopener noreferrer" className="text-link hover:text-link-hover hover:underline">
                         {code} Syllabus (IOE)
                     </Link>
                 </p>

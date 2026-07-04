@@ -32,9 +32,9 @@ const ProfilePage = () => {
                 {/* Profile Settings */}
                 <div className="flex flex-col items-start justify-start w-full">
                     <h2 className="text-xl font-bold mb-4">Profile Details</h2>
-                    <div className="w-full flex flex-row divide-x divide-gray-400/70 rounded-xl border border-gray-400/70 shadow-[0_8px_30px_rgb(0,0,0,0.18)]">
+                    <div className="w-full flex flex-row divide-x divide-border-secondary rounded-xl border border-border-secondary shadow-[0_8px_30px_var(--color-shadow-lg)]">
                         {/* Profile Tabs: View or Edit */}
-                        <div className="px-4 py-6 min-w-56 bg-gray-200/60 rounded-l-xl">
+                        <div className="px-4 py-6 min-w-56 bg-background-tertiary rounded-l-xl">
                             <div className="px-2">
                                 <h2 className="text-xl font-bold">Profile</h2>
                                 <span className="text-sm text-secondary">Manage your profile info.</span>
@@ -45,13 +45,13 @@ const ProfilePage = () => {
                                     className={`w-full text-start px-3 py-1 rounded-md cursor-pointer ${activeTab === "view" ? "bg-primary/15" : "hover:bg-primary/5"} transition-all duration-300`}
                                     onClick={() => setActiveTab("view")}
                                 >
-                                    <User2 className="size-4 mr-1 inline text-black border rounded-full" /> Profile
+                                    <User2 className="size-4 mr-1 inline text-foreground border rounded-full" /> Profile
                                 </button>
                                 <button
                                     className={`w-full text-start px-3 py-1 rounded-md cursor-pointer ${activeTab === "edit" ? "bg-primary/15" : "hover:bg-primary/5"} transition-all duration-300`}
                                     onClick={() => setActiveTab("edit")}
                                 >
-                                    <Pencil className="size-4 mr-1 inline text-black" /> Edit Profile
+                                    <Pencil className="size-4 mr-1 inline text-foreground" /> Edit Profile
                                 </button>
                             </div>
                         </div>
@@ -60,10 +60,10 @@ const ProfilePage = () => {
                         <div className="p-6 flex-1">
                             <div>
                                 <h3 className="text-lg font-semibold">Profile info</h3>
-                                <hr className="mt-3 text-gray-300/70" />
+                                <hr className="mt-3 text-border" />
                             </div>
 
-                            <div className="w-full divide-y divide-gray-300/70">
+                            <div className="w-full divide-y divide-border">
                                 {
                                     profileDetails.map((detail) => (
                                         <div key={detail.label} className="flex flex-row gap-10 py-4">

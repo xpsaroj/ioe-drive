@@ -28,5 +28,7 @@ A quick, high-level list of what already works. For the full picture see
   when set), resource detail page, upload form, profile/onboarding, navbar/mobile nav.
 - Personal space split out under `/library` (recent, bookmarks, uploads, auth-required),
   separate from the shared/generic `/resources` browsing and sharing surface.
+- Light/dark/system theming across the whole web app (`next-themes`), including Clerk's
+  own hosted UI (`@clerk/themes`), on top of the existing token-based color system.
 - Centralized API error handling, request validation (Zod), and basic IP-based rate
   limiting.

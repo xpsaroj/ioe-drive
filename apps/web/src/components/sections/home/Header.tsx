@@ -1,5 +1,6 @@
 import Logo from "@/components/Logo";
 import Button from "@/components/ui/Button";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 
 /**
  * Header with logo and primary actions for home page
@@ -7,9 +8,11 @@ import Button from "@/components/ui/Button";
 export default function Header() {
     return (
         <header>
-            <div className="container mx-auto flex items-center justify-between py-4 px-6 border-b border-gray-300">
-                <Logo size={3} theme="dark" bg={false} />
-                <div className="flex space-x-6">
+            <div className="container mx-auto flex items-center justify-between py-4 px-6 border-b border-border">
+                <Logo size={3} bg={false} />
+                <div className="flex items-center space-x-6">
+                    <ThemeToggle />
+
                     <Button
                         variant="secondary"
                         size="md"

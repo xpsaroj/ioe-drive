@@ -162,7 +162,7 @@ const ResourcesBrowseContent = () => {
                 </div>
             ) : offeringsError ? (
                 <div className="flex-1 flex items-center justify-center py-16">
-                    <p className="text-red-500">Something went wrong. Please try again later.</p>
+                    <p className="text-error">Something went wrong. Please try again later.</p>
                 </div>
             ) : !hasOfferings ? (
                 <div className="flex-1 border flex items-center justify-center rounded-lg py-16">

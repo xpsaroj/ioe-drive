@@ -5,6 +5,7 @@ import { PanelLeftOpen, PanelRightOpen } from "lucide-react";
 
 import { SearchBar } from "@/components/layout"
 import Button from "@/components/ui/Button"
+import ThemeToggle from "@/components/ui/ThemeToggle"
 import Logo from "@/components/Logo"
 import { User } from "../User"
 
@@ -23,7 +24,7 @@ export default function Navbar() {
       <Button
         variant="ghost"
         size="sm"
-        className={`absolute top-2.5 ${showDesktopNav ? "right-2" : "-right-9"} hidden p-0 md:flex items-center justify-center backdrop-blur-sm border`}
+        className={`absolute top-3 ${showDesktopNav ? "right-2" : "-right-9"} hidden p-0 md:flex items-center justify-center backdrop-blur-sm border`}
         onClick={() => setShowDesktopNav(!showDesktopNav)}
         icon={showDesktopNav ? <PanelRightOpen className="size-5" /> : <PanelLeftOpen className="size-5" />}
         iconOnly
@@ -32,9 +33,14 @@ export default function Navbar() {
       <div className={`${showDesktopNav ? "w-64 block" : "hidden"}`}>
         <div className="flex flex-col gap-4 overflow-hidden h-screen">
           <div className="pt-3 px-3 flex flex-col gap-4">
-            <div className="px-3 flex flex-row gap-2 items-center">
-              <Logo theme="dark" size={2} bg={false} />
-              IOE Drive
+            <div className="px-3 flex flex-row gap-2 items-center justify-between">
+              <div className="flex flex-row gap-2 items-center">
+                <Logo size={2} bg={false} />
+                IOE Drive
+              </div>
+              <div className="me-4">
+                <ThemeToggle />
+              </div>
             </div>
 
             <div>

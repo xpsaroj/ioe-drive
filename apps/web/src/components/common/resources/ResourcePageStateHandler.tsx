@@ -34,7 +34,7 @@ const ResourcePageStateHandler = ({
             <Button
                 icon={<ChevronLeft className="size-4" />}
                 iconOnly
-                href="/resources"
+                href="/library"
                 variant="ghost"
                 size="xs"
                 className="border border-border"

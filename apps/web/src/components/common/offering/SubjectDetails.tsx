@@ -30,7 +30,7 @@ const SubjectDetails = ({ subject }: { subject: SubjectWithProgramAndMarks }) =>
 
     return (
         <div
-            className="border p-6 rounded-lg bg-white"
+            className="border p-6 rounded-lg bg-card-background"
         >
             <div className="flex justify-between items-center">
                 <h2 className="text-lg font-bold">{code}</h2>
@@ -45,7 +45,7 @@ const SubjectDetails = ({ subject }: { subject: SubjectWithProgramAndMarks }) =>
             )}
             {syllabusUrl && (
                 <p className="text-sm">Syllabus: {" "}
-                    <Link href={syllabusUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">
+                    <Link href={syllabusUrl} target="_blank" rel="noopener noreferrer" className="text-link hover:text-link-hover hover:underline">
                         {code} Syllabus (IOE)
                     </Link>
                 </p>
