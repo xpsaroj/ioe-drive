@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { resourcesApi } from '@/lib/api/resources-api';
+import { meKeys } from './use-me';
 import type { UpdateResourceInput } from '@/lib/validators/resources';
 
 export const resourcesKeys = {
@@ -67,13 +68,72 @@ export function useUpdateResource(resourceId: number) {
         mutationFn: (resourceData: UpdateResourceInput) =>
             resourcesApi.updateResource(resourceId, resourceData),
         onSuccess: (response) => {
-            // Update the specific resource in cache
             if (!response.success) {
                 throw new Error(response.error || 'Failed to update resource');
             }
-            queryClient.setQueryData(resourcesKeys.byId(resourceId), response.data);
+            // The PATCH response is just the bare updated row (no files/subjectOffering/
+            // uploader joined in, unlike GET) - don't write it directly into the
+            // full-detail cache slot, or anything reading resource.files/subjectOffering
+            // off that cache will break until the next real refetch. Invalidate instead
+            // so the next read refetches the complete shape.
+            queryClient.invalidateQueries({ queryKey: resourcesKeys.byId(resourceId) });
             // Invalidate list queries
             queryClient.invalidateQueries({ queryKey: resourcesKeys.all });
+            // The edited resource may show up in the current user's uploads list too
+            queryClient.invalidateQueries({ queryKey: meKeys.uploadedResources });
+        },
+    });
+}
+
+export function useDeleteResource() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (resourceId: number) => {
+            const response = await resourcesApi.deleteResource(resourceId);
+            if (!response.success) {
+                throw new Error(response.error || 'Failed to delete resource');
+            }
+            return response;
+        },
+        onSuccess: (_response, resourceId) => {
+            queryClient.removeQueries({ queryKey: resourcesKeys.byId(resourceId) });
+            queryClient.invalidateQueries({ queryKey: resourcesKeys.all });
+            queryClient.invalidateQueries({ queryKey: meKeys.uploadedResources });
+        },
+    });
+}
+
+export function useAddResourceFiles(resourceId: number) {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (formData: FormData) => {
+            const response = await resourcesApi.addResourceFiles(resourceId, formData);
+            if (!response.success) {
+                throw new Error(response.error || 'Failed to add files');
+            }
+            return response;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: resourcesKeys.byId(resourceId) });
+        },
+    });
+}
+
+export function useRemoveResourceFile(resourceId: number) {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (fileId: number) => {
+            const response = await resourcesApi.removeResourceFile(resourceId, fileId);
+            if (!response.success) {
+                throw new Error(response.error || 'Failed to remove file');
+            }
+            return response;
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: resourcesKeys.byId(resourceId) });
         },
     });
 }

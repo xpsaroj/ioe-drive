@@ -1,6 +1,6 @@
 import { apiClient } from "./api-client";
 import type { Resource } from "@/types/entities";
-import type { ApiResponse, ResourceSummary } from "@/types/api";
+import type { ApiResponse, EmptyApiResponse, ResourceSummary } from "@/types/api";
 import type { UpdateResourceInput } from "../validators/resources";
 
 const RESOURCES_API_BASE_URL = "/resources";
@@ -12,6 +12,18 @@ export const resourcesApi = {
 
     async updateResource(resourceId: number, resourceData: UpdateResourceInput): Promise<ApiResponse<Resource>> {
         return apiClient.patch<ApiResponse<Resource>>(`${RESOURCES_API_BASE_URL}/${resourceId}`, resourceData);
+    },
+
+    async deleteResource(resourceId: number): Promise<EmptyApiResponse> {
+        return apiClient.delete<EmptyApiResponse>(`${RESOURCES_API_BASE_URL}/${resourceId}`);
+    },
+
+    async addResourceFiles(resourceId: number, formData: FormData): Promise<EmptyApiResponse> {
+        return apiClient.postForm<EmptyApiResponse>(`${RESOURCES_API_BASE_URL}/${resourceId}/files`, formData);
+    },
+
+    async removeResourceFile(resourceId: number, fileId: number): Promise<EmptyApiResponse> {
+        return apiClient.delete<EmptyApiResponse>(`${RESOURCES_API_BASE_URL}/${resourceId}/files/${fileId}`);
     },
 
     async getResourceById(resourceId: number): Promise<ApiResponse<ResourceSummary>> {

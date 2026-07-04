@@ -5,9 +5,10 @@ import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 
 import { useResource } from "@/hooks/queries/use-resources";
+import { useMe } from "@/hooks/queries/use-me";
 import Button from "@/components/ui/Button";
 import { PageStateHandler } from "@/components/layout";
-import { ResourceFileList } from "@/components/common/resources";
+import { ResourceFileList, EditResourceButton, DeleteResourceButton } from "@/components/common/resources";
 import { UploaderInfo } from "@/components/common/user";
 
 interface ResourceDetailPageProps {
@@ -25,6 +26,8 @@ const ResourceDetailPage = ({
     const router = useRouter();
 
     const { data: resource, isPending, error } = useResource(resourceId);
+    const { data: userData } = useMe();
+    const isOwner = !!userData && !!resource?.uploadedBy && userData.id === resource.uploadedBy;
 
     const header = (
         <div className="flex items-center gap-2 mb-4">
@@ -92,7 +95,19 @@ const ResourceDetailPage = ({
                 </div>
 
                 <div className="border-b pb-3 mb-3">
-                    <h3 className="text-xl font-bold">{resource.title}</h3>
+                    <div className="flex items-start justify-between gap-2">
+                        <h3 className="text-xl font-bold">{resource.title}</h3>
+
+                        {isOwner && (
+                            <div className="flex items-center gap-1 shrink-0 border p-0.5 rounded-lg">
+                                <EditResourceButton resource={resource} />
+                                <DeleteResourceButton
+                                    resourceId={resource.id}
+                                    onDeleted={() => router.push("/library/uploads")}
+                                />
+                            </div>
+                        )}
+                    </div>
 
                     <div className="text-xs text-foreground-tertiary flex items-center gap-1 mt-3">
                         <UploaderInfo

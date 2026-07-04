@@ -236,6 +236,31 @@
     /* Skeleton loading background */
     --color-skeleton-highlight: #ececec;
     /* Skeleton loading highlight */
+
+    /* ===== Animations ===== */
+    /* Used by Modal (backdrop fade + panel scale-in). Kept short/subtle on purpose. */
+    --animate-fade-in: fade-in 0.15s ease-out;
+    --animate-scale-in: scale-in 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+
+    @keyframes fade-in {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes scale-in {
+        from {
+            opacity: 0;
+            transform: scale(0.96);
+        }
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
 }
 
 /*

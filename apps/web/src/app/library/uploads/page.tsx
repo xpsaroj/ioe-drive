@@ -19,7 +19,7 @@ const MyUploadedResourcesPage = () => {
         >
             <ResourceList
                 resources={uploadedResources || []}
-                renderItem={(item) => <UploadedResourceCard item={item} />}
+                renderItem={(item) => <UploadedResourceCard item={item} showOwnerActions />}
             />
         </ResourcePageStateHandler>
     )

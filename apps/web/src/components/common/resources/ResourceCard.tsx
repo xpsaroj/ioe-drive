@@ -7,11 +7,17 @@ import { UploaderInfo } from "@/components/common/user";
 interface ResourceCardProps {
     resource: ResourceSummary;
     meta?: string;
+    /**
+     * Optional action buttons (e.g. edit/delete for the resource's owner), rendered
+     * next to the title.
+     */
+    actions?: React.ReactNode;
 }
 
 const ResourceCard = ({
     resource,
-    meta
+    meta,
+    actions,
 }: ResourceCardProps) => {
     const {
         title,
@@ -37,14 +43,22 @@ const ResourceCard = ({
             )}
 
             <div className="md-flex justify-between items-start space-y-4">
-                <div>
-                    <Link
-                        href={`/resources/r/${resource.id}`}
-                        className="text-lg font-semibold hover:underline decoration-2 underline-offset-3"
-                    >
-                        {title}
-                    </Link>
-                    <p className="text-foreground-secondary text-sm">{description}</p>
+                <div className="flex items-start justify-between gap-2">
+                    <div>
+                        <Link
+                            href={`/resources/r/${resource.id}`}
+                            className="text-lg font-semibold hover:underline decoration-2 underline-offset-3"
+                        >
+                            {title}
+                        </Link>
+                        <p className="text-foreground-secondary text-sm">{description}</p>
+                    </div>
+
+                    {actions && (
+                        <div className="flex items-center gap-1 shrink-0">
+                            {actions}
+                        </div>
+                    )}
                 </div>
 
                 <ResourceFileList resourceFiles={files} />

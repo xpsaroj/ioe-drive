@@ -24,3 +24,8 @@ export async function generateBlobName(originalName: string) {
     const random = crypto.randomUUID();
     return `${random}${ext}`;
 }
+
+export async function deleteFromAzure(blobName: string) {
+    const blockBlob = containerClient.getBlockBlobClient(blobName);
+    await blockBlob.deleteIfExists();
+}

@@ -31,6 +31,17 @@ export default function Modal({
         };
     }, [isOpen]);
 
+    useEffect(() => {
+        if (!isOpen || preventCloseOnOutsideClick) return;
+
+        const handleKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') onClose();
+        };
+
+        document.addEventListener('keydown', handleKeyDown);
+        return () => document.removeEventListener('keydown', handleKeyDown);
+    }, [isOpen, preventCloseOnOutsideClick, onClose]);
+
     if (!isOpen) return null;
 
     const handleBackdropClick = (e: React.MouseEvent) => {
@@ -41,12 +52,12 @@ export default function Modal({
 
     return (
         <div
-            className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-in fade-in duration-200"
+            className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50 p-4 animate-fade-in"
             onClick={handleBackdropClick}
         >
             <div
                 className={clsx(
-                    'bg-card-background rounded-lg w-full shadow-xl animate-in zoom-in-95 duration-200',
+                    'bg-card-background rounded-lg w-full shadow-xl animate-scale-in',
                     {
                         'max-w-sm': size === 'sm',
                         'max-w-md': size === 'md',

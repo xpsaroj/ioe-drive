@@ -4,14 +4,17 @@ import { resourcesController } from "./resources.controller.js";
 import { validate } from "../../middlewares/validate.middleware.js";
 import { requireAuth } from "../../middlewares/auth.middleware.js";
 import { upload } from "../../middlewares/upload.js";
-import { createResourceSchema, updateResourceSchema, getResourceByIdSchema, getResourcesSchema } from "./resources.dto.js";
+import { createResourceSchema, updateResourceSchema, getResourceByIdSchema, getResourcesSchema, removeResourceFileSchema } from "./resources.dto.js";
 
 /**
  * Resources-related routes.
  *
  * Routes:
- * - POST /                      - Create a new resource (requires authentication)
- * - PATCH /:resourceId          - Update an existing resource (requires authentication)
+ * - POST /                              - Create a new resource (requires authentication)
+ * - PATCH /:resourceId                  - Update an existing resource (requires authentication)
+ * - DELETE /:resourceId                 - Delete an existing resource (requires authentication)
+ * - POST /:resourceId/files             - Add files to an existing resource (requires authentication)
+ * - DELETE /:resourceId/files/:fileId   - Remove a file from a resource (requires authentication)
  */
 const router = Router();
 
@@ -36,6 +39,40 @@ router.patch(
     requireAuth,
     validate(updateResourceSchema),
     resourcesController.updateResource.bind(resourcesController)
+)
+
+/**
+ * DELETE /api/resources/:resourceId
+ * - Delete an existing resource (requires authentication)
+ */
+router.delete(
+    "/:resourceId",
+    requireAuth,
+    validate(getResourceByIdSchema),
+    resourcesController.deleteResource.bind(resourcesController)
+)
+
+/**
+ * POST /api/resources/:resourceId/files
+ * - Add files to an existing resource (requires authentication)
+ */
+router.post(
+    "/:resourceId/files",
+    requireAuth,
+    upload.array("resourceFile", 5), // Max 5 files per request
+    validate(getResourceByIdSchema),
+    resourcesController.addResourceFiles.bind(resourcesController)
+)
+
+/**
+ * DELETE /api/resources/:resourceId/files/:fileId
+ * - Remove a file from a resource (requires authentication)
+ */
+router.delete(
+    "/:resourceId/files/:fileId",
+    requireAuth,
+    validate(removeResourceFileSchema),
+    resourcesController.removeResourceFile.bind(resourcesController)
 )
 
 /**

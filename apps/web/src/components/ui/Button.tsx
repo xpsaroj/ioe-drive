@@ -130,6 +130,8 @@ const Button = React.forwardRef<HTMLElement, ButtonProps>(
                     href={href}
                     className={classes}
                     target={href.startsWith("http") ? "_blank" : undefined}
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    {...(rest as any)}
                 >
                     {content}
                 </Link>

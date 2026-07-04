@@ -41,6 +41,19 @@ export const getResourceByIdSchema = z.object({
     }),
 });
 
+export const removeResourceFileSchema = z.object({
+    params: z.object({
+        resourceId: z.coerce
+            .number()
+            .int()
+            .positive("Resource ID must be a positive integer"),
+        fileId: z.coerce
+            .number()
+            .int()
+            .positive("File ID must be a positive integer"),
+    }),
+});
+
 export const getResourcesSchema = z.object({
     query: z.object({
         offeringId: z.coerce

@@ -18,8 +18,9 @@ A quick, high-level list of what already works. For the full picture see
   (`/api/resources`, `/api/me/resources`, etc.), and frontend types/hooks/components all
   renamed to the generic "resource" concept, with a required `type` field (note, past
   question, assessment, lab sheet, book, other) and a data-preserving rename migration.
-- Resource CRUD: create/update/list/detail, with multi-file upload straight to Azure Blob
-  Storage.
+- Full resource CRUD: create/update/delete/list/detail, with multi-file upload straight
+  to Azure Blob Storage, plus adding/removing individual files on an existing resource.
+  Editing and deleting are only available to a resource's owner, enforced server-side.
 - Per-user "recently accessed" and "bookmarked" resource tracking (the old "archived"
   naming was renamed to "bookmarked" end to end, DB through UI).
 - Profile management: program, semester, college, bio, onboarding flow.

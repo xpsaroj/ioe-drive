@@ -69,7 +69,7 @@ hand on each side (see section 9).
   for toasts, `next-themes` + `@clerk/themes` for light/dark theming (see section 7).
 - **Backend**: Node 22, Express 5, layered as Controller -> Service -> Repository
   (repository layer only exists for `resources` today; other modules query Drizzle
-  directly from the service layer — see section 11).
+  directly from the service layer — see section 12).
 - **Database**: PostgreSQL 16, Drizzle ORM + drizzle-kit for schema/migrations.
 - **Auth**: Clerk (`@clerk/express` on the API, `@clerk/nextjs` on the web app), with a
   Clerk webhook keeping a local `users`/`profiles` mirror in sync.
@@ -264,13 +264,17 @@ Mounted in `apps/server/src/server.ts` / `apps/server/src/routes/index.ts`:
 - `/api/resources` — `GET /` (filter by `offeringId` or `userId`, at least one required),
   `GET /:resourceId`, `POST /` (auth + multipart upload, field name `resourceFile`, up to
   5 files, body includes the required `type`), `PATCH /:resourceId` (auth, must be the
-  uploader).
+  uploader), `DELETE /:resourceId` (auth, must be the uploader; also deletes the
+  resource's files from Azure Blob Storage), `POST /:resourceId/files` (auth, must be
+  the uploader; attach more files, same multipart shape as creation),
+  `DELETE /:resourceId/files/:fileId` (auth, must be the uploader). See section 11 for
+  ownership enforcement details and the frontend built on these.
 - `/api/programs` — `GET /`, list all programs.
 - `/api/subjects` — `GET /?programId=&semester=`, `GET /:subjectId`,
   `GET /upload?programId=&semester=` (subject list scoped for the upload form).
 
 All routes under `/api` share one rate limiter: 500 req / 15 min, keyed by IP (not by
-user — see section 11). Responses follow a consistent envelope
+user — see section 12). Responses follow a consistent envelope
 (`{ success, data?, message?, error? }`) via `sendSuccessResponse`/`sendErrorResponse` in
 `lib/response.ts`, and errors are centralized through `ApiError` subclasses in
 `lib/errors.ts` plus a global `errorHandler` that also special-cases `ZodError` and
@@ -290,7 +294,63 @@ filename and MIME type are persisted per-file in `resource_files`. No image/PDF 
 generation, virus scanning, or compression exists yet (the `compressedSize`/
 `compressionMethod` columns are placeholders for future work).
 
-## 11. Known discrepancies / rough edges worth knowing about
+## 11. Resource editing, deletion, and file management
+
+Beyond create/read, resources can now be edited, deleted, and have their files managed
+after the fact:
+
+- `DELETE /api/resources/:resourceId` deletes the resource, removes its files from Azure
+  Blob Storage, and (via the FK's cascade) their `resource_files` rows.
+- `POST /api/resources/:resourceId/files` attaches one or more newly uploaded files to an
+  existing resource (same Multer/Azure path as creation, up to 5 files per request —
+  there's no cap on how many times this can be called, so a resource's total file count
+  isn't hard-limited the way creation's 5-file cap might suggest).
+- `DELETE /api/resources/:resourceId/files/:fileId` removes a single file (Azure blob +
+  row), scoped to the given `resourceId` so a file id can't be used to reach into a
+  different resource than the one the caller is authorized for.
+- All of the above, plus `PATCH`, share a `ResourcesService#assertOwnership` check: if the
+  resource doesn't exist or isn't owned by the requesting user, a 404 is returned either
+  way (not 403), so a non-owner can't distinguish "doesn't exist" from "isn't yours."
+
+Frontend:
+- Editing moved from an in-page modal to a dedicated page,
+  `/resources/r/[resourceId]/edit` (auth-required via `proxy.ts`, and further gated
+  in-page to the resource's actual uploader — a signed-in non-owner sees a plain "you
+  can't edit this" message instead of the form). The edit form
+  (`components/forms/ResourceEditForm.tsx`) reuses the same Program -> Semester ->
+  Subject cascading selects as the upload form, prefilled via `useSubjectDetails` (a
+  resource's own summary only carries its offering id, not the offering's
+  program/semester needed to seed those selects).
+- Below the form, `ResourceFilesManager` lists current files with a per-file delete
+  button plus an "Add Files" control — both act immediately as their own mutations,
+  independent of the "Save Changes" button.
+- `EditResourceButton`/`DeleteResourceButton` appear next to a resource's title on its
+  detail page, and on each card in `/library/uploads`, only when the viewer is the
+  resource's uploader (`UploadedResourceCard`'s `showOwnerActions` prop, only ever
+  passed `true` from the uploads list — the same card is reused on other users' public
+  profiles, where it must stay hidden).
+
+Bugs found and fixed while building this:
+- `useUpdateResource`'s success handler used to write the `PATCH` response directly into
+  the resource-detail query cache via `setQueryData`. That response is just the bare
+  updated row (no joined `files`/`subjectOffering`/`uploader`, unlike `GET`), so anything
+  reading those fields off the cache — including the still-mounted edit page immediately
+  after a save — would crash. Fixed by invalidating that cache key instead of
+  overwriting it, so a complete shape is refetched via `GET` rather than a partial one
+  ever being exposed.
+- `Modal`'s `animate-in`/`fade-in`/`zoom-in-95` classes were dead (no such Tailwind
+  plugin/utility exists in this project) — it never actually animated despite looking
+  styled for it. Real `--animate-fade-in`/`--animate-scale-in` keyframes were registered
+  via Tailwind v4's native `@theme` animation syntax; `Modal` also now closes on Escape
+  (respecting `preventCloseOnOutsideClick`).
+- `Button`'s `href` mode (renders as a `Link`) silently dropped every prop except
+  `className`/`target` (e.g. `aria-label`, `onClick`) — fixed by forwarding the rest of
+  the props through, after confirming no existing usage relied on that gap.
+- `sonner`'s `<Toaster>` defaults its `theme` prop to `"light"` when not set, which is
+  why toasts stayed white in dark mode; `LayoutWrapper` now passes
+  `theme={resolvedTheme ?? "system"}` from `next-themes`.
+
+## 12. Known discrepancies / rough edges worth knowing about
 
 - **README deployment target is stale.** `README.md` says the API deploys to Render;
   the actual CI (`.github/workflows/deploy-server.yml`) deploys to a self-managed VM over
@@ -318,7 +378,7 @@ generation, virus scanning, or compression exists yet (the `compressedSize`/
 - **No tests.** Neither app has a test suite configured today (CI only lints,
   typechecks, and builds).
 
-## 12. Local development
+## 13. Local development
 
 Two paths, both documented in `SETUP.md`:
 
@@ -328,7 +388,10 @@ Two paths, both documented in `SETUP.md`:
 - **With Docker** (root `docker-compose.yml`, services `pg`, `server`, `web`): a single
   root `.env` drives everything (see `.env.example`); root `package.json` exposes
   `npm run docker:up|start|stop|down|logs` and proxied `db:*` scripts that run inside the
-  `server` container via `docker compose exec`.
+  `server` container via `docker compose exec`. Both app Dockerfiles run as the image's
+  built-in non-root `node` user (uid/gid 1000) rather than root, since `apps/server` and
+  `apps/web` are bind-mounted into their containers for live editing — running as root
+  used to leave files like `.next` root-owned on the host, breaking host-side commands.
 
 Seed data lives in `apps/server/data/{programs,subjects,subject-offerings}.json` — 13
 programs (12 engineering programs + SH) and 428 subjects sourced from IOE's published
@@ -346,16 +409,18 @@ typecheck, build) and `apps/web` (lint, build) that only trigger on changes unde
 respective path, a `merge-gatekeeper` workflow that requires those checks to pass before
 merge, and a deploy workflow for the server on push to `main`.
 
-## 13. Where things stand, in one paragraph
+## 14. Where things stand, in one paragraph
 
-The core "browse and upload resources, scoped by program/semester/subject" loop is fully
-built end-to-end, consistently under the "resources" name from the database up through
-the UI: seeded curriculum data, a required `type` field distinguishing notes/past
-questions/assessments/lab sheets/books/other, Clerk-authenticated upload with
-Azure-backed file storage, and a unified `/resources` browse page that works for guests
-and defaults from a signed-in user's profile when set. Personal views (recent,
-bookmarked, uploaded) now live under their own auth-required `/library` space, separate
-from the shared `/resources` browsing/sharing surface. The whole site supports
-light/dark/system theming, including Clerk's own hosted UI. Community, Market/Marketplace
-and Alumni are still placeholder destinations with no logic yet; see `todo.md` for what's
-next.
+The core "browse, upload, edit, and delete resources, scoped by program/semester/subject"
+loop is fully built end-to-end, consistently under the "resources" name from the
+database up through the UI: seeded curriculum data, a required `type` field
+distinguishing notes/past questions/assessments/lab sheets/books/other,
+Clerk-authenticated upload with Azure-backed file storage, and a unified `/resources`
+browse page that works for guests and defaults from a signed-in user's profile when set.
+Resource owners can edit a resource's details/subject, delete it entirely, or add/remove
+individual files after the fact, all gated by ownership checks enforced server-side.
+Personal views (recent, bookmarked, uploaded) now live under their own auth-required
+`/library` space, separate from the shared `/resources` browsing/sharing surface. The
+whole site supports light/dark/system theming, including Clerk's own hosted UI.
+Community, Market/Marketplace and Alumni are still placeholder destinations with no
+logic yet; see `todo.md` for what's next.

@@ -63,6 +63,83 @@ export class ResourcesController {
     }
 
     /**
+     * Delete an existing resource.
+     * - DELETE /api/resources/:resourceId
+     */
+    async deleteResource(
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            const userId = req.authUser?.id;
+
+            if (!userId) {
+                throw new UnauthorizedError("User not authenticated");
+            }
+
+            const resourceId = Number(req.params.resourceId);
+
+            await resourcesService.deleteResource(userId, resourceId);
+            return sendSuccessResponse(res, null, "Resource deleted successfully");
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    /**
+     * Add one or more files to an existing resource.
+     * - POST /api/resources/:resourceId/files
+     */
+    async addResourceFiles(
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            const userId = req.authUser?.id;
+
+            if (!userId) {
+                throw new UnauthorizedError("User not authenticated");
+            }
+
+            const resourceId = Number(req.params.resourceId);
+            const files = req.files as Express.Multer.File[];
+
+            await resourcesService.addResourceFiles(userId, resourceId, files);
+            return sendSuccessResponse(res, null, "Files added successfully");
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    /**
+     * Remove a single file from a resource.
+     * - DELETE /api/resources/:resourceId/files/:fileId
+     */
+    async removeResourceFile(
+        req: Request,
+        res: Response,
+        next: NextFunction
+    ) {
+        try {
+            const userId = req.authUser?.id;
+
+            if (!userId) {
+                throw new UnauthorizedError("User not authenticated");
+            }
+
+            const resourceId = Number(req.params.resourceId);
+            const fileId = Number(req.params.fileId);
+
+            await resourcesService.removeResourceFile(userId, resourceId, fileId);
+            return sendSuccessResponse(res, null, "File removed successfully");
+        } catch (e) {
+            next(e);
+        }
+    }
+
+    /**
      * Get resource details by resource ID.
      * - GET /api/resources/:resourceId
      */
