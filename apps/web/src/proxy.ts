@@ -4,7 +4,9 @@ import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 // Routes that require authentication - Allowing Resources routes for non-logged-in users too
 const isProtectedRoute = createRouteMatcher([
     "/dashboard(.*)",
-    // "/resources(.*)",
+    // "/resources(.*)" is intentionally public - browsing resources doesn't require sign-in
+    "/resources/share(.*)",
+    "/library(.*)",
     "/community(.*)",
     "/marketplace(.*)",
     "/alumni(.*)",

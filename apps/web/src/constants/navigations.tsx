@@ -1,4 +1,4 @@
-import { LayoutDashboard, NotebookPen, UsersRound, Store, GraduationCap, LucideIcon } from "lucide-react";
+import { LayoutDashboard, NotebookPen, Library, UsersRound, Store, GraduationCap, LucideIcon } from "lucide-react";
 
 export interface NavigationItem {
     name: string;
@@ -12,6 +12,7 @@ export interface NavigationItem {
 export const NAVIGATION_ITEMS: NavigationItem[] = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Resources', href: '/resources', icon: NotebookPen },
+    { name: 'My Library', href: '/library', icon: Library },
     { name: 'Community', href: '/community', icon: UsersRound },
     { name: 'Market', href: '/market', icon: Store },
     { name: 'Alumni', href: '/alumni', icon: GraduationCap },

@@ -31,7 +31,7 @@ const CurrentResources = () => {
                     variant="primary"
                     className="w-full"
                     disabled={!profile || isLoading}
-                    href="/resources/current"
+                    href="/resources"
                     icon={<BookOpen className="w-4 h-4" />}
                 >
                     View Resources

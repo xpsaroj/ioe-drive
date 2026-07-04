@@ -11,7 +11,7 @@ const SubjectTabs = ({
     onSubjectSelect,
 }: SubjectTabsProps) => {
     return (
-        <div className="flex w-full md:w-1/2 pb-2">
+        <div className="sm:w-72">
             <Select
                 label="Subject"
                 helperText="Select a subject to view its available resources."

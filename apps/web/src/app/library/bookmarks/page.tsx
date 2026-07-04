@@ -14,8 +14,8 @@ const MyBookmarkedResourcesPage = () => {
             loaderText="Loading bookmarked resources. Please wait."
             emptyTitle="Oops. Looks like you haven't bookmarked any resources yet."
             emptyDescription="Click the bookmark icon on resources to save them for later. Once you bookmark resources, you'll be able to see them here."
-            emptyButtonText="Explore Current Semester Resources"
-            emptyButtonHref="/resources/current"
+            emptyButtonText="Explore Resources"
+            emptyButtonHref="/resources"
         >
             <ResourceList
                 resources={bookmarkedResources || []}

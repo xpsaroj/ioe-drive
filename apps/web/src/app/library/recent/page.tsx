@@ -14,8 +14,8 @@ const MyRecentResourcesPage = () => {
             loaderText="Loading recent resources. Please wait."
             emptyTitle="Oops. Looks like you haven't viewed any resources recently."
             emptyDescription="Start exploring resources for your subjects to see them here."
-            emptyButtonText="Explore Current Semester Resources"
-            emptyButtonHref="/resources/current"
+            emptyButtonText="Explore Resources"
+            emptyButtonHref="/resources"
         >
             <ResourceList
                 resources={recentResources || []}

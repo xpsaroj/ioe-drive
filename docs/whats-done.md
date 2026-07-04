@@ -21,7 +21,10 @@ A quick, high-level list of what already works. For the full picture see
 - Per-user "recently accessed" and "bookmarked" resource tracking (the old "archived"
   naming was renamed to "bookmarked" end to end, DB through UI).
 - Profile management: program, semester, college, bio, onboarding flow.
-- Core frontend surfaces: dashboard, resources hub, current-semester resource browsing,
-  resource detail page, upload form, profile/onboarding, navbar/mobile nav.
+- Core frontend surfaces: dashboard, a unified `/resources` browse page (works for
+  guests and signed-in users, defaults to the signed-in user's own program/semester
+  when set), resource detail page, upload form, profile/onboarding, navbar/mobile nav.
+- Personal space split out under `/library` (recent, bookmarks, uploads, auth-required),
+  separate from the shared/generic `/resources` browsing and sharing surface.
 - Centralized API error handling, request validation (Zod), and basic IP-based rate
   limiting.

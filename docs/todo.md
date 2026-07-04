@@ -19,8 +19,6 @@ essays here once something is actively being worked on.
 
 ## Frontend
 
-- [ ] Fix `/resources` so it's actually public the way `proxy.ts` intends — the page
-      component currently blocks unsigned-in users itself, contradicting the middleware.
 - [ ] Build out the placeholder destinations: Community, Market/Marketplace, Alumni,
       Offerings list page — all currently one-line stub pages linked from the nav.
 

@@ -13,8 +13,6 @@ export const academicsKeys = {
 };
 
 export function useSubjectOfferings(programId?: number, semester?: Semester) {
-    const { isSignedIn } = useAuth();
-
     return useQuery({
         queryKey: academicsKeys.subjectOfferings(programId, semester),
         queryFn: async () => {
@@ -27,7 +25,7 @@ export function useSubjectOfferings(programId?: number, semester?: Semester) {
             }
             return response.data;
         },
-        enabled: isSignedIn && !!programId && !!semester,
+        enabled: !!programId && !!semester,
         staleTime: 20 * 60 * 1000,
         gcTime: 30 * 60 * 1000,
     });
