@@ -139,12 +139,21 @@ export function useRemoveResourceFile(resourceId: number) {
     });
 }
 
+// Keep a few minutes of safety margin below the server's actual SAS expiry
+// (generateSasUrl's default `expiresInMinutes`, apps/server/src/utils/azure.ts) so a
+// cached URL is always refetched well before it could actually go dead. gcTime is
+// overridden alongside it (the global default is only 10 min) - gcTime below staleTime
+// would evict the cache before it even has a chance to be reused.
+const FILE_DOWNLOAD_URL_STALE_TIME = 13 * 60 * 1000;
+const FILE_DOWNLOAD_URL_GC_TIME = 14 * 60 * 1000;
+
 /**
- * Fetches a short-lived signed URL to view/download a specific file. The URL expires
- * after a while (see the server's generateSasUrl), so this is deliberately never
- * treated as long-lived cache: refetchOnMount "always" guarantees a fresh, valid URL
- * every time the preview page (re)mounts, and staleTime 0 means it's never served
- * from cache without at least attempting a refetch.
+ * Fetches a short-lived signed URL to view/download a specific file. staleTime is set
+ * just under the server's actual SAS expiry (see the consts above) rather than 0, so
+ * revisiting the same file shortly after (e.g. navigating back then re-opening it)
+ * reuses the cached URL instead of hitting the backend and re-downloading the file from
+ * Azure every time - while still guaranteeing a fresh URL is fetched well before the
+ * cached one could actually expire.
  */
 export function useFileDownloadUrl(resourceId: number, fileId?: number) {
     return useQuery({
@@ -160,8 +169,8 @@ export function useFileDownloadUrl(resourceId: number, fileId?: number) {
             return response.data;
         },
         enabled: !!resourceId && !!fileId,
-        staleTime: 0,
-        refetchOnMount: 'always',
+        staleTime: FILE_DOWNLOAD_URL_STALE_TIME,
+        gcTime: FILE_DOWNLOAD_URL_GC_TIME,
     });
 }
 
