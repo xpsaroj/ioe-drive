@@ -15,10 +15,12 @@ import { relations } from "drizzle-orm";
 export const SemesterEnum = pgEnum("semester_enum", ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10"]);
 export const YearEnum = pgEnum("year_enum", ["1", "2", "3", "4", "5"]);
 export const SubjectHardnessLevelEnum = pgEnum("subject_hardness_level_enum", ["EASY", "MEDIUM", "HARD", "VERY_HARD"]);
+export const ResourceTypeEnum = pgEnum("resource_type_enum", ["NOTE", "PAST_QUESTION", "ASSESSMENT", "LAB_SHEET", "BOOK", "OTHER"]);
 
 export type Semester = (typeof SemesterEnum.enumValues)[number];
 export type Year = (typeof YearEnum.enumValues)[number];
 export type SubjectHardnessLevel = (typeof SubjectHardnessLevelEnum.enumValues)[number];
+export type ResourceType = (typeof ResourceTypeEnum.enumValues)[number];
 
 // Tables
 export const webhookEventsTable = pgTable("webhook_events", {
@@ -112,10 +114,11 @@ export const profilesTable = pgTable("profiles", {
     updatedAt: timestamp("updated_at").defaultNow().notNull().$onUpdate(() => new Date()),
 });
 
-export const notesTable = pgTable("notes", {
+export const resourcesTable = pgTable("resources", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     title: text("title").notNull(),
     description: text("description").notNull(),
+    type: ResourceTypeEnum("type").notNull(),
     offeringId: integer("offering_id")
         .references(() => subjectOfferingsTable.id)
         .notNull(),
@@ -125,15 +128,15 @@ export const notesTable = pgTable("notes", {
     updatedAt: timestamp("updated_at").defaultNow().notNull().$onUpdate(() => new Date()),
 },
     (table) => [
-        index("idx_notes_subject_id").on(table.offeringId),
-        index("idx_notes_uploaded_by").on(table.uploadedBy),
+        index("idx_resources_offering_id").on(table.offeringId),
+        index("idx_resources_uploaded_by").on(table.uploadedBy),
     ]
 );
 
-export const noteFilesTable = pgTable("note_files", {
+export const resourceFilesTable = pgTable("resource_files", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
-    noteId: integer("note_id")
-        .references(() => notesTable.id, { onDelete: "cascade" })
+    resourceId: integer("resource_id")
+        .references(() => resourcesTable.id, { onDelete: "cascade" })
         .notNull(),
     fileUrl: text("file_url").notNull(),
     fileSize: integer("file_size").notNull(),
@@ -145,45 +148,45 @@ export const noteFilesTable = pgTable("note_files", {
     uploadedAt: timestamp("uploaded_at").defaultNow().notNull(),
 },
     (table) => [
-        index("idx_note_files_note_id").on(table.noteId),
+        index("idx_resource_files_resource_id").on(table.resourceId),
     ]
 );
 
-export const userRecentNotesTable = pgTable("user_recent_notes", {
+export const userRecentResourcesTable = pgTable("user_recent_resources", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     userId: integer("user_id")
         .references(() => usersTable.id, { onDelete: "cascade" })
         .notNull(),
-    noteId: integer("note_id")
-        .references(() => notesTable.id, { onDelete: "cascade" })
+    resourceId: integer("resource_id")
+        .references(() => resourcesTable.id, { onDelete: "cascade" })
         .notNull(),
     accessedAt: timestamp("accessed_at").defaultNow().notNull(),
 },
     (table) => [
-        unique("unique_user_recent_note").on(
+        unique("unique_user_recent_resource").on(
             table.userId,
-            table.noteId
+            table.resourceId
         ),
-        index("idx_user_recent_notes_user_id").on(table.userId),
+        index("idx_user_recent_resources_user_id").on(table.userId),
     ]
 );
 
-export const userArchivedNotesTable = pgTable("user_archived_notes", {
+export const userBookmarkedResourcesTable = pgTable("user_bookmarked_resources", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     userId: integer("user_id")
         .references(() => usersTable.id, { onDelete: "cascade" })
         .notNull(),
-    noteId: integer("note_id")
-        .references(() => notesTable.id, { onDelete: "cascade" })
+    resourceId: integer("resource_id")
+        .references(() => resourcesTable.id, { onDelete: "cascade" })
         .notNull(),
-    archivedAt: timestamp("archived_at").defaultNow().notNull(),
+    bookmarkedAt: timestamp("bookmarked_at").defaultNow().notNull(),
 },
     (table) => [
-        unique("unique_user_archived_note").on(
+        unique("unique_user_bookmarked_resource").on(
             table.userId,
-            table.noteId
+            table.resourceId
         ),
-        index("idx_user_archived_notes_user_id").on(table.userId),
+        index("idx_user_bookmarked_resources_user_id").on(table.userId),
     ]
 );
 
@@ -204,7 +207,7 @@ export const subjectRelations = relations(subjectsTable, ({ many, one }) => ({
         fields: [subjectsTable.id],
         references: [marksTable.subjectId]
     }),
-    notes: many(notesTable),
+    resources: many(resourcesTable),
 }));
 
 export const subjectOfferingRelations = relations(subjectOfferingsTable, ({ one }) => ({
@@ -220,9 +223,9 @@ export const subjectOfferingRelations = relations(subjectOfferingsTable, ({ one 
 
 export const userRelations = relations(usersTable, ({ one, many }) => ({
     profile: one(profilesTable),
-    notes: many(notesTable),
-    recentNotes: many(userRecentNotesTable),
-    archivedNotes: many(userArchivedNotesTable),
+    resources: many(resourcesTable),
+    recentResources: many(userRecentResourcesTable),
+    bookmarkedResources: many(userBookmarkedResourcesTable),
 }));
 
 export const profileRelations = relations(profilesTable, ({ one }) => ({
@@ -236,43 +239,43 @@ export const profileRelations = relations(profilesTable, ({ one }) => ({
     }),
 }));
 
-export const noteRelations = relations(notesTable, ({ one, many }) => ({
+export const resourceRelations = relations(resourcesTable, ({ one, many }) => ({
     subjectOffering: one(subjectOfferingsTable, {
-        fields: [notesTable.offeringId],
+        fields: [resourcesTable.offeringId],
         references: [subjectOfferingsTable.id]
     }),
     uploader: one(usersTable, {
-        fields: [notesTable.uploadedBy],
+        fields: [resourcesTable.uploadedBy],
         references: [usersTable.id]
     }),
-    files: many(noteFilesTable),
+    files: many(resourceFilesTable),
 }));
 
-export const noteFileRelations = relations(noteFilesTable, ({ one }) => ({
-    note: one(notesTable, {
-        fields: [noteFilesTable.noteId],
-        references: [notesTable.id]
+export const resourceFileRelations = relations(resourceFilesTable, ({ one }) => ({
+    resource: one(resourcesTable, {
+        fields: [resourceFilesTable.resourceId],
+        references: [resourcesTable.id]
     }),
 }));
 
-export const userRecentNoteRelations = relations(userRecentNotesTable, ({ one }) => ({
+export const userRecentResourceRelations = relations(userRecentResourcesTable, ({ one }) => ({
     user: one(usersTable, {
-        fields: [userRecentNotesTable.userId],
+        fields: [userRecentResourcesTable.userId],
         references: [usersTable.id]
     }),
-    note: one(notesTable, {
-        fields: [userRecentNotesTable.noteId],
-        references: [notesTable.id]
+    resource: one(resourcesTable, {
+        fields: [userRecentResourcesTable.resourceId],
+        references: [resourcesTable.id]
     }),
 }));
 
-export const userArchivedNoteRelations = relations(userArchivedNotesTable, ({ one }) => ({
+export const userBookmarkedResourceRelations = relations(userBookmarkedResourcesTable, ({ one }) => ({
     user: one(usersTable, {
-        fields: [userArchivedNotesTable.userId],
+        fields: [userBookmarkedResourcesTable.userId],
         references: [usersTable.id]
     }),
-    note: one(notesTable, {
-        fields: [userArchivedNotesTable.noteId],
-        references: [notesTable.id]
+    resource: one(resourcesTable, {
+        fields: [userBookmarkedResourcesTable.resourceId],
+        references: [resourcesTable.id]
     }),
 }));

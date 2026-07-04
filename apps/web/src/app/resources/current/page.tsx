@@ -8,7 +8,7 @@ import Button from "@/components/ui/Button";
 import Loader from "@/components/ui/Loader";
 import { useMe } from "@/hooks/queries/use-me";
 import { useSubjectOfferings } from "@/hooks/queries/use-academics";
-import { useNotesBySubjectOfferingId } from "@/hooks/queries/use-notes";
+import { useResourcesBySubjectOfferingId } from "@/hooks/queries/use-resources";
 import { SubjectOfferingWithSubject } from "@/types/entities";
 
 const CurrentResourcesPage = () => {
@@ -22,7 +22,7 @@ const CurrentResourcesPage = () => {
 
     const currentSubject = selectedSubject?.subject ?? subjectOfferings?.[0]?.subject;
 
-    const { data: resources, isLoading: resourcesLoading, error: resourcesError } = useNotesBySubjectOfferingId(selectedSubject?.id ?? subjectOfferings?.[0]?.id);
+    const { data: resources, isLoading: resourcesLoading, error: resourcesError } = useResourcesBySubjectOfferingId(selectedSubject?.id ?? subjectOfferings?.[0]?.id);
 
     if (offeringsPending) {
         return (

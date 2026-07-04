@@ -1,18 +1,20 @@
 import { UploaderSummary } from "./user.responses";
 import { SubjectSummary, SubjectOfferingSummary } from "./academics.responses";
+import { ResourceType } from "../entities";
 
-export interface NoteFileSummary {
+export interface ResourceFileSummary {
     id: number;
-    noteId: number;
+    resourceId: number;
     fileUrl: string;
     originalFileName: string;
     mimeType: string;
 }
 
-export interface NoteCard {
+export interface ResourceSummary {
     id: number;
     title: string;
     description: string;
+    type: ResourceType;
     createdAt: string;
     updatedAt: string;
 
@@ -24,23 +26,23 @@ export interface NoteCard {
     }
 
     uploader?: UploaderSummary;
-    files: NoteFileSummary[];
+    files: ResourceFileSummary[];
 }
 
-export interface RecentNoteItem {
+export interface RecentResourceItem {
     id: number;
     userId: number;
-    noteId: number;
+    resourceId: number;
     accessedAt: string;
 
-    note: NoteCard;
+    resource: ResourceSummary;
 }
 
-export interface ArchivedNoteItem {
+export interface BookmarkedResourceItem {
     id: number;
     userId: number;
-    noteId: number;
-    archivedAt: string;
+    resourceId: number;
+    bookmarkedAt: string;
 
-    note: NoteCard;
+    resource: ResourceSummary;
 }

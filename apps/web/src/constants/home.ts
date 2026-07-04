@@ -17,7 +17,7 @@ export const features: Feature[] = [
         description: "Ask questions, share tips, and interact with seniors and juniors through comments and discussions.",
     },
     {
-        title: "Personal Archive",
+        title: "My Library",
         description: "Save your uploads, bookmarks, and downloaded materials in one organized, easily accessible place.",
     }
 ]

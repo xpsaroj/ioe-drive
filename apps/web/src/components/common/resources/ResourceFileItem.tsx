@@ -1,13 +1,13 @@
 import Link from "next/link";
 
 import MimeTypeBadge from "./MimeTypeBadge";
-import { NoteFileSummary } from "@/types/api";
+import { ResourceFileSummary } from "@/types/api";
 
-interface NoteFileProps {
-    file: NoteFileSummary;
+interface ResourceFileItemProps {
+    file: ResourceFileSummary;
 }
 
-const NoteFile = ({ file }: NoteFileProps) => {
+const ResourceFileItem = ({ file }: ResourceFileItemProps) => {
     const { id: fileId, originalFileName, mimeType } = file;
 
     return (
@@ -18,4 +18,4 @@ const NoteFile = ({ file }: NoteFileProps) => {
     )
 }
 
-export default NoteFile;
+export default ResourceFileItem;

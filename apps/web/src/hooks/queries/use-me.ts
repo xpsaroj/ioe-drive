@@ -8,9 +8,9 @@ import type { Profile, UserProfile } from '@/types/entities';
 export const meKeys = {
     all: ['me'] as const,
     user: ['me', 'user'] as const,
-    uploadedNotes: ['me', 'uploaded-notes'] as const,
-    recentNotes: ['me', 'recent-notes'] as const,
-    archivedNotes: ['me', 'archived-notes'] as const,
+    uploadedResources: ['me', 'uploaded-resources'] as const,
+    recentResources: ['me', 'recent-resources'] as const,
+    bookmarkedResources: ['me', 'bookmarked-resources'] as const,
 };
 
 export function useMe() {
@@ -70,15 +70,15 @@ export function useUpdateProfile() {
     });
 }
 
-export function useUploadedNotes() {
+export function useUploadedResources() {
     const { isSignedIn } = useAuth();
 
     return useQuery({
-        queryKey: meKeys.uploadedNotes,
+        queryKey: meKeys.uploadedResources,
         queryFn: async () => {
-            const response = await meApi.getUploadedNotes();
+            const response = await meApi.getUploadedResources();
             if (!response.success) {
-                throw new Error(response.error ?? 'Failed to fetch uploaded notes.');
+                throw new Error(response.error ?? 'Failed to fetch uploaded resources.');
             }
             return response.data;
         },
@@ -86,15 +86,15 @@ export function useUploadedNotes() {
     });
 }
 
-export function useRecentNotes() {
+export function useRecentResources() {
     const { isSignedIn } = useAuth();
 
     return useQuery({
-        queryKey: meKeys.recentNotes,
+        queryKey: meKeys.recentResources,
         queryFn: async () => {
-            const response = await meApi.getRecentNotes();
+            const response = await meApi.getRecentResources();
             if (!response.success) {
-                throw new Error(response.error ?? 'Failed to fetch recent notes.');
+                throw new Error(response.error ?? 'Failed to fetch recent resources.');
             }
             return response.data;
         },
@@ -102,15 +102,15 @@ export function useRecentNotes() {
     });
 }
 
-export function useArchivedNotes() {
+export function useBookmarkedResources() {
     const { isSignedIn } = useAuth();
 
     return useQuery({
-        queryKey: meKeys.archivedNotes,
+        queryKey: meKeys.bookmarkedResources,
         queryFn: async () => {
-            const response = await meApi.getArchivedNotes();
+            const response = await meApi.getBookmarkedResources();
             if (!response.success) {
-                throw new Error(response.error ?? 'Failed to fetch archived notes.');
+                throw new Error(response.error ?? 'Failed to fetch bookmarked resources.');
             }
             return response.data;
         },
@@ -118,25 +118,25 @@ export function useArchivedNotes() {
     });
 }
 
-export function useArchiveNote() {
+export function useBookmarkResource() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (noteId: string) => meApi.markNoteAsArchived(noteId),
+        mutationFn: (resourceId: string) => meApi.markResourceAsBookmarked(resourceId),
         onSuccess: () => {
-            // Invalidate archived notes to refetch
-            queryClient.invalidateQueries({ queryKey: meKeys.archivedNotes });
+            // Invalidate bookmarked resources to refetch
+            queryClient.invalidateQueries({ queryKey: meKeys.bookmarkedResources });
         },
     });
 }
 
-export function useUnarchiveNote() {
+export function useUnbookmarkResource() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (noteId: string) => meApi.unmarkNoteAsArchived(noteId),
+        mutationFn: (resourceId: string) => meApi.unmarkResourceAsBookmarked(resourceId),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: meKeys.archivedNotes });
+            queryClient.invalidateQueries({ queryKey: meKeys.bookmarkedResources });
         },
     });
 }

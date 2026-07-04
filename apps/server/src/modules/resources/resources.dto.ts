@@ -1,9 +1,12 @@
 import { z } from "zod";
 
-export const createNoteSchema = z.object({
+import { ResourceTypeEnum } from "../../db/schema.js";
+
+export const createResourceSchema = z.object({
     body: z.object({
         title: z.string().min(3, "Title must be at least 3 characters long"),
         description: z.string().min(10, "Description must be at least 10 characters long"),
+        type: z.enum(ResourceTypeEnum.enumValues),
         offeringId: z.coerce
             .number()
             .int()
@@ -11,16 +14,17 @@ export const createNoteSchema = z.object({
     }),
 });
 
-export const updateNoteSchema = z.object({
+export const updateResourceSchema = z.object({
     params: z.object({
-        noteId: z.coerce
+        resourceId: z.coerce
             .number()
             .int()
-            .positive("Note ID must be a positive integer"),
+            .positive("Resource ID must be a positive integer"),
     }),
     body: z.object({
         title: z.string().min(3).optional(),
         description: z.string().min(10).optional(),
+        type: z.enum(ResourceTypeEnum.enumValues).optional(),
         offeringId: z.coerce.number().int().positive().optional(),
     }).refine(
         (data) => Object.keys(data).length > 0,
@@ -28,16 +32,16 @@ export const updateNoteSchema = z.object({
     ),
 });
 
-export const getNoteByIdSchema = z.object({
+export const getResourceByIdSchema = z.object({
     params: z.object({
-        noteId: z.coerce
+        resourceId: z.coerce
             .number()
             .int()
-            .positive("Note ID must be a positive integer"),
+            .positive("Resource ID must be a positive integer"),
     }),
 });
 
-export const getNotesSchema = z.object({
+export const getResourcesSchema = z.object({
     query: z.object({
         offeringId: z.coerce
             .number()
@@ -59,5 +63,5 @@ export const getNotesSchema = z.object({
 });
 
 
-export type CreateNoteInput = z.infer<typeof createNoteSchema>["body"] & { uploadedBy: number };
-export type UpdateNoteInput = z.infer<typeof updateNoteSchema>["body"];
+export type CreateResourceInput = z.infer<typeof createResourceSchema>["body"] & { uploadedBy: number };
+export type UpdateResourceInput = z.infer<typeof updateResourceSchema>["body"];

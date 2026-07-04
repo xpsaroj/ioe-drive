@@ -1,20 +1,20 @@
 import { z } from "zod"
 
-export const markNoteAsRecentlyAccessedSchema = z.object({
+export const markResourceAsRecentlyAccessedSchema = z.object({
     params: z.object({
-        noteId: z.coerce.number().int().positive("Note ID must be a positive integer"),
+        resourceId: z.coerce.number().int().positive("Resource ID must be a positive integer"),
     }),
 })
 
-export const markNoteAsArchivedSchema = z.object({
+export const markResourceAsBookmarkedSchema = z.object({
     params: z.object({
-        noteId: z.coerce.number().int().positive("Note ID must be a positive integer"),
+        resourceId: z.coerce.number().int().positive("Resource ID must be a positive integer"),
     }),
 })
 
-export const unmarkNoteAsArchivedSchema = z.object({
+export const unmarkResourceAsBookmarkedSchema = z.object({
     params: z.object({
-        noteId: z.coerce.number().int().positive("Note ID must be a positive integer"),
+        resourceId: z.coerce.number().int().positive("Resource ID must be a positive integer"),
     }),
 })
 

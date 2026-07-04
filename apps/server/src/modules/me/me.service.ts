@@ -1,7 +1,7 @@
 import { eq, desc, and } from "drizzle-orm";
 
 import { db } from "../../db/index.js";
-import { notesTable, userRecentNotesTable, userArchivedNotesTable } from "../../db/schema.js";
+import { resourcesTable, userRecentResourcesTable, userBookmarkedResourcesTable } from "../../db/schema.js";
 import { profilesTable } from "../../db/schema.js";
 import { NotFoundError } from "../../lib/errors.js";
 import type { UpdateProfileInput } from "./me.dto.js";
@@ -38,15 +38,15 @@ export class MeService {
     }
 
     /**
-     * Retrieves all notes uploaded by the currently authenticated user.
+     * Retrieves all resources uploaded by the currently authenticated user.
      * @param userId Currently authenticated user's id
-     * @returns Notes uploaded by the user
+     * @returns Resources uploaded by the user
      */
-    async getUploadedNotes(userId: number) {
+    async getUploadedResources(userId: number) {
         return await db
-            .query.notesTable
+            .query.resourcesTable
             .findMany({
-                where: eq(notesTable.uploadedBy, userId),
+                where: eq(resourcesTable.uploadedBy, userId),
                 with: {
                     subjectOffering: {
                         columns: {
@@ -81,7 +81,7 @@ export class MeService {
                     files: {
                         columns: {
                             id: true,
-                            noteId: true,
+                            resourceId: true,
                             fileUrl: true,
                             originalFileName: true,
                             mimeType: true,
@@ -92,17 +92,17 @@ export class MeService {
     }
 
     /**
-     * Retrieves the recently accessed notes of the currently authenticated user.
+     * Retrieves the recently accessed resources of the currently authenticated user.
      * @param userId Currently authenticated user's id
-     * @returns Recently accessed notes by the user
+     * @returns Recently accessed resources by the user
      */
-    async getRecentlyAccessedNotes(userId: number) {
+    async getRecentlyAccessedResources(userId: number) {
         return await db
-            .query.userRecentNotesTable
+            .query.userRecentResourcesTable
             .findMany({
-                where: eq(userRecentNotesTable.userId, userId),
+                where: eq(userRecentResourcesTable.userId, userId),
                 with: {
-                    note: {
+                    resource: {
                         with: {
                             subjectOffering: {
                                 columns: {
@@ -137,7 +137,7 @@ export class MeService {
                             files: {
                                 columns: {
                                     id: true,
-                                    noteId: true,
+                                    resourceId: true,
                                     fileUrl: true,
                                     originalFileName: true,
                                     mimeType: true,
@@ -146,23 +146,23 @@ export class MeService {
                         }
                     }
                 },
-                orderBy: [desc(userRecentNotesTable.accessedAt)],
+                orderBy: [desc(userRecentResourcesTable.accessedAt)],
                 limit: 5,
             });
     }
 
     /**
-     * Retrieves the archived/bookmarked notes of the currently authenticated user.
+     * Retrieves the bookmarked resources of the currently authenticated user.
      * @param userId Currently authenticated user's id
-     * @returns Archived notes by the user
+     * @returns Bookmarked resources by the user
      */
-    async getArchivedNotes(userId: number) {
+    async getBookmarkedResources(userId: number) {
         return await db
-            .query.userArchivedNotesTable
+            .query.userBookmarkedResourcesTable
             .findMany({
-                where: eq(userArchivedNotesTable.userId, userId),
+                where: eq(userBookmarkedResourcesTable.userId, userId),
                 with: {
-                    note: {
+                    resource: {
                         with: {
                             subjectOffering: {
                                 columns: {
@@ -197,7 +197,7 @@ export class MeService {
                             files: {
                                 columns: {
                                     id: true,
-                                    noteId: true,
+                                    resourceId: true,
                                     fileUrl: true,
                                     originalFileName: true,
                                     mimeType: true,
@@ -206,38 +206,38 @@ export class MeService {
                         }
                     }
                 },
-                orderBy: [desc(userArchivedNotesTable.archivedAt)],
+                orderBy: [desc(userBookmarkedResourcesTable.bookmarkedAt)],
                 limit: 10,
             });
     }
 
     /**
-     * Marks a note as recently accessed by the user.
+     * Marks a resource as recently accessed by the user.
      * @param userId User ID
-     * @param noteId Note ID
+     * @param resourceId Resource ID
      */
-    async markNoteAsRecentlyAccessed(userId: number, noteId: number) {
-        const existingNote = await db
-            .query.notesTable
+    async markResourceAsRecentlyAccessed(userId: number, resourceId: number) {
+        const existingResource = await db
+            .query.resourcesTable
             .findFirst({
-                where: eq(notesTable.id, noteId),
+                where: eq(resourcesTable.id, resourceId),
             });
 
-        if (!existingNote) {
-            throw new NotFoundError("Note not found");
+        if (!existingResource) {
+            throw new NotFoundError("Resource not found");
         }
 
         const now = new Date();
 
         await db
-            .insert(userRecentNotesTable)
+            .insert(userRecentResourcesTable)
             .values({
                 userId,
-                noteId,
+                resourceId,
                 accessedAt: now,
             })
             .onConflictDoUpdate({
-                target: [userRecentNotesTable.userId, userRecentNotesTable.noteId],
+                target: [userRecentResourcesTable.userId, userRecentResourcesTable.resourceId],
                 set: {
                     accessedAt: now,
                 },
@@ -245,45 +245,45 @@ export class MeService {
     }
 
     /**
-     * Marks a note as archived/bookmarked by the user.
+     * Marks a resource as bookmarked by the user.
      * @param userId User ID
-     * @param noteId Note ID
+     * @param resourceId Resource ID
      */
-    async markNoteAsArchived(userId: number, noteId: number) {
-        const existingNote = await db
-            .query.notesTable
+    async markResourceAsBookmarked(userId: number, resourceId: number) {
+        const existingResource = await db
+            .query.resourcesTable
             .findFirst({
-                where: eq(notesTable.id, noteId),
+                where: eq(resourcesTable.id, resourceId),
             });
 
-        if (!existingNote) {
-            throw new NotFoundError("Note not found");
+        if (!existingResource) {
+            throw new NotFoundError("Resource not found");
         }
 
         const now = new Date();
 
         await db
-            .insert(userArchivedNotesTable)
+            .insert(userBookmarkedResourcesTable)
             .values({
                 userId,
-                noteId,
-                archivedAt: now,
+                resourceId,
+                bookmarkedAt: now,
             })
             .onConflictDoNothing();
     }
 
     /**
-     * Unmarks a note as archived/bookmarked by the user.
+     * Unmarks a resource as bookmarked by the user.
      * @param userId User ID
-     * @param noteId Note ID
+     * @param resourceId Resource ID
      */
-    async unmarkNoteAsArchived(userId: number, noteId: number) {
+    async unmarkResourceAsBookmarked(userId: number, resourceId: number) {
         await db
-            .delete(userArchivedNotesTable)
+            .delete(userBookmarkedResourcesTable)
             .where(
                 and(
-                    eq(userArchivedNotesTable.userId, userId),
-                    eq(userArchivedNotesTable.noteId, noteId)
+                    eq(userBookmarkedResourcesTable.userId, userId),
+                    eq(userBookmarkedResourcesTable.resourceId, resourceId)
                 )
             );
     }
@@ -291,7 +291,7 @@ export class MeService {
     /**
      * Updates the currently authenticated user's profile.
      * @param userId User ID
-     * @param noteId Note ID
+     * @param data Profile fields to update
      */
     async updateProfile(userId: number, data: Partial<UpdateProfileInput>) {
         return await db.transaction(async (tx) => {

@@ -1,8 +1,8 @@
 import ResourceCard from "./ResourceCard";
-import type { NoteCard } from "@/types/api";
+import type { ResourceSummary } from "@/types/api";
 
 interface Props {
-    item: NoteCard;
+    item: ResourceSummary;
 }
 
 const UploadedResourceCard = ({ item }: Props) => {

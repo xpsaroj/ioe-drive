@@ -1,28 +1,28 @@
 "use client"
-import { ResourceList, ArchivedResourceCard, ResourcePageStateHandler } from "@/components/common/resources";
-import { useArchivedNotes } from "@/hooks/queries/use-me";
+import { ResourceList, BookmarkedResourceCard, ResourcePageStateHandler } from "@/components/common/resources";
+import { useBookmarkedResources } from "@/hooks/queries/use-me";
 
-const MyBookmarkedNotesPage = () => {
-    const { data: archivedNotes, isPending, error } = useArchivedNotes();
+const MyBookmarkedResourcesPage = () => {
+    const { data: bookmarkedResources, isPending, error } = useBookmarkedResources();
 
     return (
         <ResourcePageStateHandler
-            title="My Archived Notes"
+            title="My Bookmarked Resources"
             isPending={isPending}
             error={error}
-            isEmpty={!archivedNotes || archivedNotes.length === 0}
-            loaderText="Loading archived notes. Please wait."
-            emptyTitle="Oops. Looks like you haven't archived any notes yet."
-            emptyDescription="Click the bookmark icon on notes to save them for later. Once you archive notes, you'll be able to see them here."
-            emptyButtonText="Explore Current Semester Notes"
+            isEmpty={!bookmarkedResources || bookmarkedResources.length === 0}
+            loaderText="Loading bookmarked resources. Please wait."
+            emptyTitle="Oops. Looks like you haven't bookmarked any resources yet."
+            emptyDescription="Click the bookmark icon on resources to save them for later. Once you bookmark resources, you'll be able to see them here."
+            emptyButtonText="Explore Current Semester Resources"
             emptyButtonHref="/resources/current"
         >
             <ResourceList
-                resources={archivedNotes || []}
-                renderItem={(item) => <ArchivedResourceCard item={item} />}
+                resources={bookmarkedResources || []}
+                renderItem={(item) => <BookmarkedResourceCard item={item} />}
             />
         </ResourcePageStateHandler>
     )
 }
 
-export default MyBookmarkedNotesPage;
+export default MyBookmarkedResourcesPage;

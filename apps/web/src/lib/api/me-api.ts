@@ -1,6 +1,6 @@
 import { apiClient } from "./api-client";
 import type { UserProfile, Profile } from "@/types/entities";
-import type { ApiResponse, EmptyApiResponse, NoteCard, RecentNoteItem, ArchivedNoteItem } from "@/types/api";
+import type { ApiResponse, EmptyApiResponse, ResourceSummary, RecentResourceItem, BookmarkedResourceItem } from "@/types/api";
 
 const ME_API_BASE_URL = "/me";
 
@@ -13,39 +13,39 @@ export const meApi = {
         return apiClient.patch<EmptyApiResponse>(`${ME_API_BASE_URL}`, profileData);
     },
 
-    async getUploadedNotes(): Promise<ApiResponse<NoteCard[]>> {
-        return apiClient.get<ApiResponse<NoteCard[]>>(`${ME_API_BASE_URL}/notes`);
+    async getUploadedResources(): Promise<ApiResponse<ResourceSummary[]>> {
+        return apiClient.get<ApiResponse<ResourceSummary[]>>(`${ME_API_BASE_URL}/resources`);
     },
 
-    async getRecentNotes(): Promise<ApiResponse<RecentNoteItem[]>> {
-        return apiClient.get<ApiResponse<RecentNoteItem[]>>(`${ME_API_BASE_URL}/recent-notes`);
-    },
-
-    /**
-     * Fetches the archived/bookmarked notes of the currently authenticated user.
-     */
-    async getArchivedNotes(): Promise<ApiResponse<ArchivedNoteItem[]>> {
-        return apiClient.get<ApiResponse<ArchivedNoteItem[]>>(`${ME_API_BASE_URL}/archived-notes`);
+    async getRecentResources(): Promise<ApiResponse<RecentResourceItem[]>> {
+        return apiClient.get<ApiResponse<RecentResourceItem[]>>(`${ME_API_BASE_URL}/recent-resources`);
     },
 
     /**
-     * Adds the note to the user's `recently accessed` list.
+     * Fetches the bookmarked resources of the currently authenticated user.
      */
-    async markNoteAsRecentlyAccessed(noteId: string): Promise<EmptyApiResponse> {
-        return apiClient.post<EmptyApiResponse>(`${ME_API_BASE_URL}/notes/${noteId}/recent`);
+    async getBookmarkedResources(): Promise<ApiResponse<BookmarkedResourceItem[]>> {
+        return apiClient.get<ApiResponse<BookmarkedResourceItem[]>>(`${ME_API_BASE_URL}/bookmarked-resources`);
     },
 
     /**
-     * Archives/bookmarks a note for the user.
+     * Adds the resource to the user's `recently accessed` list.
      */
-    async markNoteAsArchived(noteId: string): Promise<EmptyApiResponse> {
-        return apiClient.post<EmptyApiResponse>(`${ME_API_BASE_URL}/notes/${noteId}/archive`);
+    async markResourceAsRecentlyAccessed(resourceId: string): Promise<EmptyApiResponse> {
+        return apiClient.post<EmptyApiResponse>(`${ME_API_BASE_URL}/resources/${resourceId}/recent`);
     },
 
     /**
-     * Unmarks a note as archived by the user.
+     * Bookmarks a resource for the user.
      */
-    async unmarkNoteAsArchived(noteId: string): Promise<EmptyApiResponse> {
-        return apiClient.delete<EmptyApiResponse>(`${ME_API_BASE_URL}/notes/${noteId}/archive`);
+    async markResourceAsBookmarked(resourceId: string): Promise<EmptyApiResponse> {
+        return apiClient.post<EmptyApiResponse>(`${ME_API_BASE_URL}/resources/${resourceId}/bookmark`);
+    },
+
+    /**
+     * Unbookmarks a resource for the user.
+     */
+    async unmarkResourceAsBookmarked(resourceId: string): Promise<EmptyApiResponse> {
+        return apiClient.delete<EmptyApiResponse>(`${ME_API_BASE_URL}/resources/${resourceId}/bookmark`);
     },
 }

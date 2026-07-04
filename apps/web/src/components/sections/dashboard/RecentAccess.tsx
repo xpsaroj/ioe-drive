@@ -1,6 +1,6 @@
 "use client";
 import { ContainerBox } from "@/components/ui/ContainerBox";
-import { recentNotes } from "@/data/demo-data";
+import { recentResources } from "@/data/demo-data";
 
 const RecentAccessItem = ({ title, author }: { title: string; author: string }) => (
   <div className="border rounded-lg p-2 px-3 cursor-pointer hover:bg-background-tertiary transition duration-150">
@@ -12,16 +12,16 @@ const RecentAccessItem = ({ title, author }: { title: string; author: string }) 
 const RecentAccess = () => {
   return (
     <ContainerBox
-      title="Recently accessed notes"
-      comment="Jump back to your notes and continue where you left off."
+      title="Recently accessed resources"
+      comment="Jump back to your resources and continue where you left off."
       className="md:min-w-xs flex-1"
     >
       <div className="space-y-3">
-        {recentNotes.slice(0, 2).map((noteItem) => (
+        {recentResources.slice(0, 2).map((resourceItem) => (
           <RecentAccessItem
-            key={noteItem.noteId}
-            title={noteItem.note.title}
-            author={noteItem.note.uploader?.fullName || "Unknown"}
+            key={resourceItem.resourceId}
+            title={resourceItem.resource.title}
+            author={resourceItem.resource.uploader?.fullName || "Unknown"}
           />
         ))}
       </div>

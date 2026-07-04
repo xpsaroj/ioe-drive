@@ -2,7 +2,7 @@
 import { use } from "react"
 
 import { useUserById } from "@/hooks/queries/use-user"
-import { useNotesByUploaderId } from "@/hooks/queries/use-notes"
+import { useResourcesByUploaderId } from "@/hooks/queries/use-resources"
 import { PageStateHandler } from "@/components/layout"
 import { UserAvatar } from "@/components/common/user"
 import { SemesterLabel } from "@/types/entities"
@@ -28,7 +28,7 @@ const UserDetailsPage = ({ params }: UserDetailsPageProps) => {
         data: resources,
         isPending: resourcesPending,
         error: resourcesLoadError
-    } = useNotesByUploaderId(userId);
+    } = useResourcesByUploaderId(userId);
 
     const emptyContent = (
         <div className="flex flex-col justify-center items-center">
@@ -153,17 +153,17 @@ const UserDetailsPage = ({ params }: UserDetailsPageProps) => {
                         isPending={resourcesPending}
                         error={resourcesLoadError}
                         isEmpty={resources ? resources.length === 0 : true}
-                        loaderText="Loading user's uploaded notes. Please wait."
+                        loaderText="Loading user's uploaded resources. Please wait."
                         emptyContent={
                             <div className="flex flex-col justify-center items-center">
-                                <p className="text-2xl">No notes uploaded yet.</p>
-                                <p className="text-foreground-secondary">This user has not uploaded any notes.</p>
+                                <p className="text-2xl">No resources uploaded yet.</p>
+                                <p className="text-foreground-secondary">This user has not uploaded any resources.</p>
                             </div>
                         }
                         containerClassName=""
                         header={
                             <h2 className="text-xl font-medium mb-2">
-                                Uploaded Notes
+                                Uploaded Resources
                             </h2>
                         }
                     >

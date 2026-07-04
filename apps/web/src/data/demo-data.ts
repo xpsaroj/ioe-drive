@@ -1,5 +1,5 @@
 import { SubjectHardnessLevel } from "@/types/entities/academics"
-import { RecentNote } from "@/types/entities/notes";
+import { RecentResource, ResourceType } from "@/types/entities/resources";
 
 export const users = [
   {
@@ -30,70 +30,6 @@ export const subjects = [
   { id: 2, code: "CS102", name: "Algorithms", departmentId: 1, createdAt: "2025-12-01", updatedAt: "2025-12-01" },
 ];
 
-export const notes = [
-  {
-    id: 1,
-    title: "Data Structures Notes",
-    description: "Stacks, Queues, Linked List...",
-    subjectId: 1,
-    uploadedBy: 1,
-    createdAt: "2025-12-01",
-    updatedAt: "2025-12-01",
-  },
-  {
-    id: 2,
-    title: "Algorithms Notes",
-    description: "Sorting, Searching, Graphs...",
-    subjectId: 2,
-    uploadedBy: 2,
-    createdAt: "2025-12-02",
-    updatedAt: "2025-12-02",
-  },
-];
-
-export const noteFiles = [
-  { id: 1, noteId: 1, fileUrl: "/notes/ds.pdf", fileSize: 1024, compressedSize: 512, compressionMethod: "zip", fileType: "pdf", uploadedAt: "2025-12-01" },
-  { id: 2, noteId: 2, fileUrl: "/notes/algo.pdf", fileSize: 2048, compressedSize: 1024, compressionMethod: "zip", fileType: "pdf", uploadedAt: "2025-12-02" },
-];
-
-export const userRecentNotes = [
-  { noteId: 1, noteTitle: "Data Structures Notes", uploader: "John Doe", accessedAt: new Date().toISOString() },
-  { noteId: 2, noteTitle: "Algorithms Notes", uploader: "Jane Smith", accessedAt: new Date().toISOString() },
-  { noteId: 3, noteTitle: "Electromagnetism Notes", uploader: "Jane Smith", accessedAt: new Date().toISOString() },
-];
-
-export const userArchivedNotes = [
-  {
-    noteId: 1,
-    noteTitle: "Data Communications Notes",
-    subject: "Data Communication",
-    fileType: "PDF",
-    remarks: "Pages 6–37 are important",
-  },
-  {
-    noteId: 2,
-    noteTitle: "Instrumentation Insights",
-    subject: "Instrumentation",
-    fileType: "Insight",
-    remarks: "Well explained diagrams",
-  },
-  {
-    noteId: 3,
-    noteTitle: "Electromagnetics Book",
-    subject: "EM",
-    fileType: "Book",
-    remarks: "Focus on chapter 3 and 4",
-  },
-  {
-    noteId: 4,
-    noteTitle: "Question Bank – Electrodynamics",
-    subject: "Electrodynamics",
-    fileType: "PDF",
-    remarks: "Practice all solved examples",
-  },
-];
-
-
 export const semesterDataByUser = [
   { subject: "Data Structures", examType: "BOTH", marks: "100+50", remarks: "Good" },
   { subject: "Algorithms", examType: "BOTH", marks: "100+50", remarks: "Excellent" },
@@ -104,17 +40,18 @@ export const upcomingExamsByUser = [
   { date: "2082/02/06", subject: "Instrumentation", type: "Board Exam", marks: "60", addedBy: "Acchividhu Aryal" },
 ];
 
-export const recentNotes: RecentNote[] = [
+export const recentResources: RecentResource[] = [
   {
     id: 1,
     userId: 101,
-    noteId: 1001,
+    resourceId: 1001,
     accessedAt: "2026-05-10T08:30:00Z",
 
-    note: {
+    resource: {
       id: 1001,
       title: "DSA Complete Notes",
       description: "Stacks, queues, trees and graph algorithms.",
+      type: ResourceType.NOTE,
       offeringId: 201,
       uploadedBy: 11,
       createdAt: "2026-05-01T09:00:00Z",
@@ -147,9 +84,9 @@ export const recentNotes: RecentNote[] = [
       files: [
         {
           id: 5001,
-          noteId: 1001,
+          resourceId: 1001,
           originalFileName: "dsa-notes.pdf",
-          blobName: "notes/dsa-notes.pdf",
+          blobName: "resources/dsa-notes.pdf",
           mimeType: "application/pdf",
           fileUrl: "https://cdn.example.com/dsa-notes.pdf",
           fileSize: 2450000,
@@ -164,13 +101,14 @@ export const recentNotes: RecentNote[] = [
   {
     id: 2,
     userId: 101,
-    noteId: 1002,
+    resourceId: 1002,
     accessedAt: "2026-05-09T14:15:00Z",
 
-    note: {
+    resource: {
       id: 1002,
       title: "Computer Networks Notes",
       description: "OSI model and TCP/IP.",
+      type: ResourceType.NOTE,
       offeringId: 202,
       uploadedBy: 12,
       createdAt: "2026-04-28T10:00:00Z",
@@ -202,9 +140,9 @@ export const recentNotes: RecentNote[] = [
       files: [
         {
           id: 5002,
-          noteId: 1002,
+          resourceId: 1002,
           originalFileName: "computer-networks.pdf",
-          blobName: "notes/computer-networks.pdf",
+          blobName: "resources/computer-networks.pdf",
           mimeType: "application/pdf",
           fileUrl: "https://cdn.example.com/computer-networks.pdf",
           fileSize: 1980000,
@@ -219,13 +157,14 @@ export const recentNotes: RecentNote[] = [
   {
     id: 3,
     userId: 101,
-    noteId: 1003,
+    resourceId: 1003,
     accessedAt: "2026-05-08T17:45:00Z",
 
-    note: {
+    resource: {
       id: 1003,
       title: "Operating System Deadlocks",
       description: "Deadlock prevention and avoidance.",
+      type: ResourceType.NOTE,
       offeringId: 203,
       uploadedBy: 13,
       createdAt: "2026-04-20T08:30:00Z",
@@ -257,9 +196,9 @@ export const recentNotes: RecentNote[] = [
       files: [
         {
           id: 5003,
-          noteId: 1003,
+          resourceId: 1003,
           originalFileName: "os-deadlocks.pdf",
-          blobName: "notes/os-deadlocks.pdf",
+          blobName: "resources/os-deadlocks.pdf",
           mimeType: "application/pdf",
           fileUrl: "https://cdn.example.com/os-deadlocks.pdf",
           fileSize: 2200000,
@@ -274,13 +213,14 @@ export const recentNotes: RecentNote[] = [
   {
     id: 4,
     userId: 101,
-    noteId: 1004,
+    resourceId: 1004,
     accessedAt: "2026-05-07T13:10:00Z",
 
-    note: {
+    resource: {
       id: 1004,
       title: "DBMS Normalization Guide",
       description: "1NF to BCNF with examples.",
+      type: ResourceType.NOTE,
       offeringId: 204,
       uploadedBy: 14,
       createdAt: "2026-04-18T11:00:00Z",
@@ -311,9 +251,9 @@ export const recentNotes: RecentNote[] = [
       files: [
         {
           id: 5004,
-          noteId: 1004,
+          resourceId: 1004,
           originalFileName: "dbms-normalization.pdf",
-          blobName: "notes/dbms-normalization.pdf",
+          blobName: "resources/dbms-normalization.pdf",
           mimeType: "application/pdf",
           fileUrl: "https://cdn.example.com/dbms-normalization.pdf",
           fileSize: 1700000,
@@ -328,13 +268,14 @@ export const recentNotes: RecentNote[] = [
   {
     id: 5,
     userId: 101,
-    noteId: 1005,
+    resourceId: 1005,
     accessedAt: "2026-05-06T19:25:00Z",
 
-    note: {
+    resource: {
       id: 1005,
       title: "Software Engineering Agile Notes",
       description: "Agile, Scrum and SDLC models.",
+      type: ResourceType.NOTE,
       offeringId: 205,
       uploadedBy: 15,
       createdAt: "2026-04-10T14:00:00Z",
@@ -366,9 +307,9 @@ export const recentNotes: RecentNote[] = [
       files: [
         {
           id: 5005,
-          noteId: 1005,
+          resourceId: 1005,
           originalFileName: "software-engineering.pdf",
-          blobName: "notes/software-engineering.pdf",
+          blobName: "resources/software-engineering.pdf",
           mimeType: "application/pdf",
           fileUrl: "https://cdn.example.com/software-engineering.pdf",
           fileSize: 1500000,

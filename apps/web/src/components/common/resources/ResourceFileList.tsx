@@ -1,8 +1,8 @@
 import ResourceFileItem from "./ResourceFileItem";
-import type { NoteFileSummary } from "@/types/api";
+import type { ResourceFileSummary } from "@/types/api";
 
 interface ResourceFileListProps {
-    resourceFiles: NoteFileSummary[];
+    resourceFiles: ResourceFileSummary[];
     loading?: boolean;
     error?: string | null;
 }
@@ -31,7 +31,7 @@ const ResourceFileList = ({
     if (!resourceFiles || resourceFiles.length === 0) {
         return (
             <div>
-                <p className="text-xs text-foreground-tertiary">No files attached to this note.</p>
+                <p className="text-xs text-foreground-tertiary">No files attached to this resource.</p>
             </div>
         )
     }

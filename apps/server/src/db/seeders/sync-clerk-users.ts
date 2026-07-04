@@ -55,7 +55,7 @@ async function syncUsers() {
                         })
                         .returning();
 
-                    userId = user.id;
+                    userId = user!.id;
 
                     console.log(`Created user: ${email ?? clerkUser.id}`);
                 } else {
@@ -68,7 +68,7 @@ async function syncUsers() {
                         .where(eq(usersTable.id, existingUser.id))
                         .returning();
 
-                    userId = user.id;
+                    userId = user!.id;
 
                     console.log(`Updated user: ${email ?? clerkUser.id}`);
                 }

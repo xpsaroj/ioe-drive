@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 
-import { useNote } from "@/hooks/queries/use-notes";
+import { useResource } from "@/hooks/queries/use-resources";
 import Button from "@/components/ui/Button";
 import { PageStateHandler } from "@/components/layout";
 import { ResourceFileList } from "@/components/common/resources";
@@ -24,7 +24,7 @@ const ResourceDetailPage = ({
 
     const router = useRouter();
 
-    const { data: note, isPending, error } = useNote(resourceId);
+    const { data: resource, isPending, error } = useResource(resourceId);
 
     const header = (
         <div className="flex items-center gap-2 mb-4">
@@ -47,7 +47,7 @@ const ResourceDetailPage = ({
         </div>
     )
 
-    if (!resourceId || isNaN(resourceId) || !note) {
+    if (!resourceId || isNaN(resourceId) || !resource) {
         return (
             <PageStateHandler
                 isPending={isPending}
@@ -62,8 +62,8 @@ const ResourceDetailPage = ({
         );
     }
 
-    const { files = [], subjectOffering } = note;
-    const createdAt = new Date(note.createdAt);
+    const { files = [], subjectOffering } = resource;
+    const createdAt = new Date(resource.createdAt);
     const formattedCreatedAt = createdAt.toLocaleDateString(undefined, {
         year: "numeric",
         month: "short",
@@ -75,7 +75,7 @@ const ResourceDetailPage = ({
         <PageStateHandler
             isPending={isPending}
             error={error}
-            isEmpty={!note}
+            isEmpty={!resource}
             loaderText="Loading resource details. Please wait."
             header={header}
             emptyContent={emptyContent}
@@ -92,17 +92,17 @@ const ResourceDetailPage = ({
                 </div>
 
                 <div className="border-b pb-3 mb-3">
-                    <h3 className="text-xl font-bold">{note.title}</h3>
+                    <h3 className="text-xl font-bold">{resource.title}</h3>
 
                     <div className="text-xs text-foreground-tertiary flex items-center gap-1 mt-3">
                         <UploaderInfo
-                            user={note.uploader}
+                            user={resource.uploader}
                             subtitle={formattedCreatedAt}
                         />
                     </div>
                 </div>
 
-                <p className="text-foreground border-b pb-3 mb-3">{note.description}</p>
+                <p className="text-foreground border-b pb-3 mb-3">{resource.description}</p>
                 <ResourceFileList resourceFiles={files} />
             </div>
         </PageStateHandler>

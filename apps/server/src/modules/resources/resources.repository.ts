@@ -1,37 +1,37 @@
 import { eq, and } from "drizzle-orm";
 
 import { db } from "../../db/index.js";
-import { noteFilesTable, notesTable } from "../../db/schema.js";
-import type { CreateNoteInput, UpdateNoteInput } from "./notes.dto.js";
+import { resourceFilesTable, resourcesTable } from "../../db/schema.js";
+import type { CreateResourceInput, UpdateResourceInput } from "./resources.dto.js";
 import type { FileMetaData } from "../../types/file.js";
 
 /**
- * Notes Repository
- * - Handles all database operations related to notes.
+ * Resources Repository
+ * - Handles all database operations related to resources.
  */
-export class NotesRepository {
+export class ResourcesRepository {
     /**
-     * Create a new note in the database.
-     * @param noteData - Data for the new note.
-     * @returns The created note.
+     * Create a new resource in the database.
+     * @param resourceData - Data for the new resource.
+     * @returns The created resource.
      */
-    async create(noteData: CreateNoteInput, files: FileMetaData[]) {
+    async create(resourceData: CreateResourceInput, files: FileMetaData[]) {
         return await db.transaction(async (tx) => {
-            const [createdNote] = await tx
-                .insert(notesTable)
-                .values(noteData)
+            const [createdResource] = await tx
+                .insert(resourcesTable)
+                .values(resourceData)
                 .returning();
 
-            if (!createdNote) {
-                throw new Error("Failed to create note");
+            if (!createdResource) {
+                throw new Error("Failed to create resource");
             }
 
             if (files.length > 0) {
                 await tx
-                    .insert(noteFilesTable)
+                    .insert(resourceFilesTable)
                     .values(
                         files.map((file) => ({
-                            noteId: createdNote.id,
+                            resourceId: createdResource.id,
                             fileUrl: file.url,
                             fileSize: file.size,
                             blobName: file.blobName,
@@ -40,42 +40,42 @@ export class NotesRepository {
                         }))
                     )
             }
-            return createdNote;
+            return createdResource;
         })
     }
 
     /**
-     * Update an existing note in the database.
-     * @param noteId - ID of the note to update.
-     * @param userId - ID of the user updating the note.
-     * @param updateData - Data to update the note with.
-     * @returns The updated note.
+     * Update an existing resource in the database.
+     * @param resourceId - ID of the resource to update.
+     * @param userId - ID of the user updating the resource.
+     * @param updateData - Data to update the resource with.
+     * @returns The updated resource.
      */
-    async update(noteId: number, userId: number, updateData: UpdateNoteInput) {
-        const [updatedNote] = await db
-            .update(notesTable)
+    async update(resourceId: number, userId: number, updateData: UpdateResourceInput) {
+        const [updatedResource] = await db
+            .update(resourcesTable)
             .set(updateData)
             .where(
                 and(
-                    eq(notesTable.id, noteId),
-                    eq(notesTable.uploadedBy, userId)
+                    eq(resourcesTable.id, resourceId),
+                    eq(resourcesTable.uploadedBy, userId)
                 )
             )
             .returning();
-        return updatedNote;
+        return updatedResource;
     }
 
     /**
-     * Find a note by its ID.
-     * @param noteId - ID of the note to find.
-     * @returns The found note or undefined.
+     * Find a resource by its ID.
+     * @param resourceId - ID of the resource to find.
+     * @returns The found resource or undefined.
      */
-    async findById(noteId: number) {
+    async findById(resourceId: number) {
         return await db
             .query
-            .notesTable
+            .resourcesTable
             .findFirst({
-                where: eq(notesTable.id, noteId),
+                where: eq(resourcesTable.id, resourceId),
                 with: {
                     subjectOffering: {
                         columns: {
@@ -110,7 +110,7 @@ export class NotesRepository {
                     files: {
                         columns: {
                             id: true,
-                            noteId: true,
+                            resourceId: true,
                             fileUrl: true,
                             originalFileName: true,
                             mimeType: true,
@@ -121,9 +121,9 @@ export class NotesRepository {
     }
 
     /**
-     * Find notes by subject offering ID or user ID.
-     * @param filters - Filters for finding notes.
-     * @returns An array of notes for the given subject offering ID or user ID.
+     * Find resources by subject offering ID or user ID.
+     * @param filters - Filters for finding resources.
+     * @returns An array of resources for the given subject offering ID or user ID.
      */
     async findMany(filters: {
         offeringId?: number;
@@ -132,18 +132,18 @@ export class NotesRepository {
         const conditions = [];
 
         if (filters.offeringId) {
-            conditions.push(eq(notesTable.offeringId, filters.offeringId));
+            conditions.push(eq(resourcesTable.offeringId, filters.offeringId));
         }
 
         if (filters.userId) {
-            conditions.push(eq(notesTable.uploadedBy, filters.userId));
+            conditions.push(eq(resourcesTable.uploadedBy, filters.userId));
         }
 
         const whereClause = conditions.length > 0 ? and(...conditions) : undefined;;
 
         return await db
             .query
-            .notesTable
+            .resourcesTable
             .findMany({
                 where: whereClause,
                 with: {
@@ -180,7 +180,7 @@ export class NotesRepository {
                     files: {
                         columns: {
                             id: true,
-                            noteId: true,
+                            resourceId: true,
                             fileUrl: true,
                             originalFileName: true,
                             mimeType: true,
@@ -191,4 +191,4 @@ export class NotesRepository {
     }
 }
 
-export const notesRepository = new NotesRepository();
+export const resourcesRepository = new ResourcesRepository();

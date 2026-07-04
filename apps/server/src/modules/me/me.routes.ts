@@ -2,7 +2,7 @@ import { Router } from "express";
 
 import { requireAuth } from "../../middlewares/auth.middleware.js"
 import { validate } from "../../middlewares/validate.middleware.js";
-import { markNoteAsRecentlyAccessedSchema, markNoteAsArchivedSchema, unmarkNoteAsArchivedSchema, updateProfileSchema } from "./me.dto.js"
+import { markResourceAsRecentlyAccessedSchema, markResourceAsBookmarkedSchema, unmarkResourceAsBookmarkedSchema, updateProfileSchema } from "./me.dto.js"
 import { meController } from "./me.controller.js";
 
 /**
@@ -10,13 +10,13 @@ import { meController } from "./me.controller.js";
  * All routes require authentication.
  *
  * Routes:
- * - GET /                                              - Get the currently authenticated user's profile
- * - GET /notes                                         - Get notes uploaded by the current user
- * - GET /recent-notes                                  - Get recently accessed notes by the current user
- * - GET /archived-notes                                - Get bookmarked/archived notes by the current user
- * - POST /notes/:noteId/recent                         - Mark a note as recently accessed by the current user
- * - POST /notes/:noteId/archive                        - Mark a note as bookmarked/archived by the current user
- * - DELETE /notes/:noteId/archive                      - Unmark a note as bookmarked/archived by the current user
+ * - GET /                                                  - Get the currently authenticated user's profile
+ * - GET /resources                                         - Get resources uploaded by the current user
+ * - GET /recent-resources                                  - Get recently accessed resources by the current user
+ * - GET /bookmarked-resources                               - Get bookmarked resources by the current user
+ * - POST /resources/:resourceId/recent                     - Mark a resource as recently accessed by the current user
+ * - POST /resources/:resourceId/bookmark                    - Bookmark a resource for the current user
+ * - DELETE /resources/:resourceId/bookmark                  - Unbookmark a resource for the current user
  */
 const router = Router();
 
@@ -43,60 +43,60 @@ router.patch(
 );
 
 /**
- * Get /api/me/notes
- * - Get notes uploaded by the current user
+ * Get /api/me/resources
+ * - Get resources uploaded by the current user
  */
 router.get(
-    "/notes",
-    meController.getCurrentUserUploadedNotes.bind(meController)
+    "/resources",
+    meController.getCurrentUserUploadedResources.bind(meController)
 );
 
 /**
- * Get /api/me/recent-notes
- * - Get recently accessed notes by the current user
+ * Get /api/me/recent-resources
+ * - Get recently accessed resources by the current user
  */
 router.get(
-    "/recent-notes",
-    meController.getCurrentUserRecentNotes.bind(meController)
-);
-
-/** 
- * Get /api/me/archived-notes
- * - Get bookmarked/archived notes by the current user
- */
-router.get(
-    "/archived-notes",
-    meController.getCurrentUserArchivedNotes.bind(meController)
+    "/recent-resources",
+    meController.getCurrentUserRecentResources.bind(meController)
 );
 
 /**
- * POST /api/me/notes/:noteId/recent
- * - Mark a note as recently accessed by the current user
+ * Get /api/me/bookmarked-resources
+ * - Get bookmarked resources by the current user
+ */
+router.get(
+    "/bookmarked-resources",
+    meController.getCurrentUserBookmarkedResources.bind(meController)
+);
+
+/**
+ * POST /api/me/resources/:resourceId/recent
+ * - Mark a resource as recently accessed by the current user
  */
 router.post(
-    "/notes/:noteId/recent",
-    validate(markNoteAsRecentlyAccessedSchema),
-    meController.markNoteAsRecentlyAccessed.bind(meController)
+    "/resources/:resourceId/recent",
+    validate(markResourceAsRecentlyAccessedSchema),
+    meController.markResourceAsRecentlyAccessed.bind(meController)
 );
 
 /**
- * POST /api/me/notes/:noteId/archive
- * - Mark a note as bookmarked/archived by the current user
+ * POST /api/me/resources/:resourceId/bookmark
+ * - Bookmark a resource for the current user
  */
 router.post(
-    "/notes/:noteId/archive",
-    validate(markNoteAsArchivedSchema),
-    meController.markNoteAsArchived.bind(meController)
+    "/resources/:resourceId/bookmark",
+    validate(markResourceAsBookmarkedSchema),
+    meController.markResourceAsBookmarked.bind(meController)
 );
 
 /**
- * DELETE /api/me/notes/:noteId/archive
- * - Unmark a note as bookmarked/archived by the current user
+ * DELETE /api/me/resources/:resourceId/bookmark
+ * - Unbookmark a resource for the current user
  */
 router.delete(
-    "/notes/:noteId/archive",
-    validate(unmarkNoteAsArchivedSchema),
-    meController.unmarkNoteAsArchived.bind(meController)
+    "/resources/:resourceId/bookmark",
+    validate(unmarkResourceAsBookmarkedSchema),
+    meController.unmarkResourceAsBookmarked.bind(meController)
 );
 
 export default router;

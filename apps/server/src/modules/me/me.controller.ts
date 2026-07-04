@@ -21,76 +21,76 @@ export class MeController {
         }
     }
 
-    async getCurrentUserUploadedNotes(req: Request, res: Response, next: NextFunction) {
+    async getCurrentUserUploadedResources(req: Request, res: Response, next: NextFunction) {
         try {
             const userId = req.authUser?.id;
             if (!userId) throw new UnauthorizedError("User not authenticated");
 
-            const uploadedNotes = await meService.getUploadedNotes(userId);
-            return sendSuccessResponse(res, uploadedNotes);
+            const uploadedResources = await meService.getUploadedResources(userId);
+            return sendSuccessResponse(res, uploadedResources);
         } catch (e) {
             next(e);
         }
     }
 
-    async getCurrentUserRecentNotes(req: Request, res: Response, next: NextFunction) {
+    async getCurrentUserRecentResources(req: Request, res: Response, next: NextFunction) {
         try {
             const userId = req.authUser?.id;
             if (!userId) throw new UnauthorizedError("User not authenticated");
 
-            const recentNotes = await meService.getRecentlyAccessedNotes(userId);
-            return sendSuccessResponse(res, recentNotes);
+            const recentResources = await meService.getRecentlyAccessedResources(userId);
+            return sendSuccessResponse(res, recentResources);
         } catch (e) {
             next(e);
         }
     }
 
-    async getCurrentUserArchivedNotes(req: Request, res: Response, next: NextFunction) {
+    async getCurrentUserBookmarkedResources(req: Request, res: Response, next: NextFunction) {
         try {
             const userId = req.authUser?.id;
             if (!userId) throw new UnauthorizedError("User not authenticated");
 
-            const archivedNotes = await meService.getArchivedNotes(userId);
-            return sendSuccessResponse(res, archivedNotes);
+            const bookmarkedResources = await meService.getBookmarkedResources(userId);
+            return sendSuccessResponse(res, bookmarkedResources);
         } catch (e) {
             next(e);
         }
     }
 
-    async markNoteAsRecentlyAccessed(req: Request, res: Response, next: NextFunction) {
+    async markResourceAsRecentlyAccessed(req: Request, res: Response, next: NextFunction) {
         try {
             const userId = req.authUser?.id;
-            const noteId = Number(req.params.noteId);
+            const resourceId = Number(req.params.resourceId);
             if (!userId) throw new UnauthorizedError("User not authenticated");
 
-            await meService.markNoteAsRecentlyAccessed(userId, noteId);
-            return sendSuccessResponse(res, null, "Note marked as recently accessed");
+            await meService.markResourceAsRecentlyAccessed(userId, resourceId);
+            return sendSuccessResponse(res, null, "Resource marked as recently accessed");
         } catch (e) {
             next(e);
         }
     }
 
-    async markNoteAsArchived(req: Request, res: Response, next: NextFunction) {
+    async markResourceAsBookmarked(req: Request, res: Response, next: NextFunction) {
         try {
             const userId = req.authUser?.id;
-            const noteId = Number(req.params.noteId);
+            const resourceId = Number(req.params.resourceId);
             if (!userId) throw new UnauthorizedError("User not authenticated");
 
-            await meService.markNoteAsArchived(userId, noteId);
-            return sendSuccessResponse(res, null, "Note marked as archived");
+            await meService.markResourceAsBookmarked(userId, resourceId);
+            return sendSuccessResponse(res, null, "Resource bookmarked");
         } catch (e) {
             next(e);
         }
     }
 
-    async unmarkNoteAsArchived(req: Request, res: Response, next: NextFunction) {
+    async unmarkResourceAsBookmarked(req: Request, res: Response, next: NextFunction) {
         try {
             const userId = req.authUser?.id;
-            const noteId = Number(req.params.noteId);
+            const resourceId = Number(req.params.resourceId);
             if (!userId) throw new UnauthorizedError("User not authenticated");
 
-            await meService.unmarkNoteAsArchived(userId, noteId);
-            return sendSuccessResponse(res, null, "Note unmarked as archived");
+            await meService.unmarkResourceAsBookmarked(userId, resourceId);
+            return sendSuccessResponse(res, null, "Resource unbookmarked");
         } catch (e) {
             next(e);
         }

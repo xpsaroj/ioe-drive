@@ -1,11 +1,11 @@
 import Link from "next/link";
 
 import ResourceFileList from "./ResourceFileList";
-import type { NoteCard } from "@/types/api";
+import type { ResourceSummary } from "@/types/api";
 import { UploaderInfo } from "@/components/common/user";
 
 interface ResourceCardProps {
-    resource: NoteCard;
+    resource: ResourceSummary;
     meta?: string;
 }
 

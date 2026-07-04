@@ -1,28 +1,28 @@
 "use client"
 import { ResourceList, RecentResourceCard, ResourcePageStateHandler } from "@/components/common/resources";
-import { useRecentNotes } from "@/hooks/queries/use-me";
+import { useRecentResources } from "@/hooks/queries/use-me";
 
-const MyRecentNotesPage = () => {
-    const { data: recentNotes, isPending, error } = useRecentNotes();
+const MyRecentResourcesPage = () => {
+    const { data: recentResources, isPending, error } = useRecentResources();
 
     return (
         <ResourcePageStateHandler
-            title="My Recent Notes"
+            title="My Recent Resources"
             isPending={isPending}
             error={error}
-            isEmpty={!recentNotes || recentNotes.length === 0}
-            loaderText="Loading recent notes. Please wait."
-            emptyTitle="Oops. Looks like you haven't viewed any notes recently."
-            emptyDescription="Start exploring notes for your subjects to see them here."
-            emptyButtonText="Explore Current Semester Notes"
+            isEmpty={!recentResources || recentResources.length === 0}
+            loaderText="Loading recent resources. Please wait."
+            emptyTitle="Oops. Looks like you haven't viewed any resources recently."
+            emptyDescription="Start exploring resources for your subjects to see them here."
+            emptyButtonText="Explore Current Semester Resources"
             emptyButtonHref="/resources/current"
         >
             <ResourceList
-                resources={recentNotes || []}
+                resources={recentResources || []}
                 renderItem={(item) => <RecentResourceCard item={item} />}
             />
         </ResourcePageStateHandler>
     )
 }
 
-export default MyRecentNotesPage;
+export default MyRecentResourcesPage;

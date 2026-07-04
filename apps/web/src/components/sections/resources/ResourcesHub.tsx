@@ -1,9 +1,9 @@
 "use client";
 import Link from "next/link";
-import { BookOpen, Clock, Archive, Upload, Share2, ChevronRight } from "lucide-react";
+import { BookOpen, Clock, Bookmark, Upload, Share2, ChevronRight } from "lucide-react";
 import { ContainerBox } from "@/components/ui/ContainerBox";
 import Button from "@/components/ui/Button";
-import { useMe, useRecentNotes, useArchivedNotes } from "@/hooks/queries/use-me";
+import { useMe, useRecentResources, useBookmarkedResources } from "@/hooks/queries/use-me";
 import { SemesterLabel } from "@/types/entities";
 
 interface ResourceOptionProps {
@@ -47,12 +47,12 @@ const ResourceOption = ({
 
 const ResourcesHub = () => {
     const { data: userData, /* isLoading */ } = useMe();
-    const { data: recentNotes = [] } = useRecentNotes();
-    const { data: archivedNotes = [] } = useArchivedNotes();
+    const { data: recentResources = [] } = useRecentResources();
+    const { data: bookmarkedResources = [] } = useBookmarkedResources();
     const profile = userData?.profile;
 
-    const displayedRecentNotes = (recentNotes || []).slice(0, 2);
-    const displayedArchivedNotes = (archivedNotes || []).slice(0, 2);
+    const displayedRecentResources = (recentResources || []).slice(0, 2);
+    const displayedBookmarkedResources = (bookmarkedResources || []).slice(0, 2);
 
     return (
         <div className="space-y-8">
@@ -101,22 +101,22 @@ const ResourcesHub = () => {
                     {/* Other Options */}
                     <ResourceOption
                         icon={<Clock className="w-5 h-5" />}
-                        title="Recent Notes"
-                        description="Continue where you left off. Jump back to your recently viewed notes."
+                        title="Recent Resources"
+                        description="Continue where you left off. Jump back to your recently viewed resources."
                         href="/resources/me/recent"
                     />
 
                     <ResourceOption
-                        icon={<Archive className="w-5 h-5" />}
-                        title="Archived Notes"
-                        description="Your saved and bookmarked notes for quick reference and study."
+                        icon={<Bookmark className="w-5 h-5" />}
+                        title="Bookmarked Resources"
+                        description="Your saved and bookmarked resources for quick reference and study."
                         href="/resources/me/bookmarks"
                     />
 
                     <ResourceOption
                         icon={<Upload className="w-5 h-5" />}
                         title="My Uploads"
-                        description="Track and manage all the notes and resources you've shared."
+                        description="Track and manage all the resources you've shared."
                         href="/resources/me/uploads"
                     />
 
@@ -131,18 +131,18 @@ const ResourcesHub = () => {
 
                 {/* Sidebar */}
                 <div className="hidden md:flex flex-col flex-1 gap-6">
-                    {/* Recently Accessed Notes */}
+                    {/* Recently Accessed Resources */}
                     <ContainerBox title="Recently Accessed" comment="Your study journey">
-                        {displayedRecentNotes && displayedRecentNotes.length > 0 ? (
+                        {displayedRecentResources && displayedRecentResources.length > 0 ? (
                             <div className="flex flex-col gap-2">
-                                {displayedRecentNotes.map((noteItem) => (
-                                    <Link key={noteItem.noteId} href={`/resources/current`}>
+                                {displayedRecentResources.map((resourceItem) => (
+                                    <Link key={resourceItem.resourceId} href={`/resources/current`}>
                                         <div className="p-3 rounded-lg border border-border hover:border-border-hover hover:bg-background-secondary transition-all duration-300 cursor-pointer group">
                                             <p className="text-sm font-medium text-foreground truncate group-hover:text-accent transition-colors">
-                                                {noteItem.note?.title || "Untitled"}
+                                                {resourceItem.resource?.title || "Untitled"}
                                             </p>
                                             <p className="text-xs text-foreground-secondary mt-1 truncate">
-                                                By {noteItem.note?.uploader?.fullName || "Unknown"}
+                                                By {resourceItem.resource?.uploader?.fullName || "Unknown"}
                                             </p>
                                         </div>
                                     </Link>
@@ -159,7 +159,7 @@ const ResourcesHub = () => {
                         ) : (
                             <div className="text-center py-6">
                                 <p className="text-sm text-foreground-secondary">
-                                    No recently accessed notes yet.
+                                    No recently accessed resources yet.
                                 </p>
                                 <Button
                                     variant="ghost"
@@ -167,24 +167,24 @@ const ResourcesHub = () => {
                                     href="/resources/current"
                                     size="sm"
                                 >
-                                    Explore Notes
+                                    Explore Resources
                                 </Button>
                             </div>
                         )}
                     </ContainerBox>
 
-                    {/* Recently Archived Notes */}
+                    {/* Recently Bookmarked Resources */}
                     <ContainerBox title="Recently Saved" comment="Your bookmarks">
-                        {displayedArchivedNotes && displayedArchivedNotes.length > 0 ? (
+                        {displayedBookmarkedResources && displayedBookmarkedResources.length > 0 ? (
                             <div className="flex flex-col gap-2">
-                                {displayedArchivedNotes.map((noteItem) => (
-                                    <Link key={noteItem.noteId} href={`/resources/current`}>
+                                {displayedBookmarkedResources.map((resourceItem) => (
+                                    <Link key={resourceItem.resourceId} href={`/resources/current`}>
                                         <div className="p-3 rounded-lg border border-border hover:border-border-hover hover:bg-background-secondary transition-all duration-300 cursor-pointer group">
                                             <p className="text-sm font-medium text-foreground truncate group-hover:text-accent transition-colors">
-                                                {noteItem.note?.title || "Untitled"}
+                                                {resourceItem.resource?.title || "Untitled"}
                                             </p>
                                             <p className="text-xs text-foreground-secondary mt-1 truncate">
-                                                By {noteItem.note?.uploader?.fullName || "Unknown"}
+                                                By {resourceItem.resource?.uploader?.fullName || "Unknown"}
                                             </p>
                                         </div>
                                     </Link>
@@ -201,7 +201,7 @@ const ResourcesHub = () => {
                         ) : (
                             <div className="text-center py-6">
                                 <p className="text-sm text-foreground-secondary">
-                                    No saved notes yet.
+                                    No saved resources yet.
                                 </p>
                                 <Button
                                     variant="ghost"
@@ -224,11 +224,11 @@ const ResourcesHub = () => {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="p-4 rounded-lg bg-background-secondary border">
                             <p className="text-sm text-foreground font-medium">Organize & Save</p>
-                            <p className="text-xs text-foreground-secondary mt-2">Bookmark important notes and create your personal library for quick access.</p>
+                            <p className="text-xs text-foreground-secondary mt-2">Bookmark important resources and create your personal library for quick access.</p>
                         </div>
                         <div className="p-4 rounded-lg bg-background-secondary border">
                             <p className="text-sm text-foreground font-medium">Share & Contribute</p>
-                            <p className="text-xs text-foreground-secondary mt-2">Upload your notes to help peers learn. Your contribution makes a difference.</p>
+                            <p className="text-xs text-foreground-secondary mt-2">Upload your resources to help peers learn. Your contribution makes a difference.</p>
                         </div>
                     </div>
                 </div>

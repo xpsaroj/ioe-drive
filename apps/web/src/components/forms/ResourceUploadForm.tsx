@@ -9,14 +9,14 @@ import Button from "@/components/ui/Button";
 import Loader from "@/components/ui/Loader";
 import { ContainerBox } from "@/components/ui/ContainerBox";
 import { usePrograms, useSubjectsForUpload } from "@/hooks/queries/use-academics";
-import { useCreateNote } from "@/hooks/queries/use-notes";
-import { Semester, SemesterLabel } from "@/types/entities";
+import { useCreateResource } from "@/hooks/queries/use-resources";
+import { Semester, SemesterLabel, ResourceType, ResourceTypeLabel } from "@/types/entities";
 
 type FormValues = {
     title: string;
     description: string;
     programId: string;
-    type: string;
+    type: ResourceType | "";
     semester: Semester | "";
     offeringId: string;
     file: File | null;
@@ -31,7 +31,7 @@ export const ResourceUploadForm: React.FC = () => {
         isPending: isUploading,
         error: uploadError,
         isSuccess: uploadSuccess,
-    } = useCreateNote();
+    } = useCreateResource();
 
     const {
         handleSubmit,
@@ -96,7 +96,8 @@ export const ResourceUploadForm: React.FC = () => {
         formData.append("title", data.title);
         formData.append("description", data.description);
         formData.append("offeringId", data.offeringId);
-        formData.append("noteFile", data.file);
+        formData.append("type", data.type);
+        formData.append("resourceFile", data.file);
         mutate(formData, {
             onSuccess: () => {
                 reset()
@@ -135,7 +136,7 @@ export const ResourceUploadForm: React.FC = () => {
 
     return (
         <ContainerBox
-            title="Upload Notes"
+            title="Upload Resource"
             comment="Make sure to keep the resource name relevant to the file you are uploading."
             className="bg-background-secondary mx-auto p-8"
         >
@@ -212,7 +213,7 @@ export const ResourceUploadForm: React.FC = () => {
                                     value: String(prog.id),
                                     label: `${prog.code} - ${prog.name}`,
                                 }))}
-                                helperText="Select the program to which you want the note be uploaded to."
+                                helperText="Select the program to which you want the resource be uploaded to."
                             />
                         )}
                     />
@@ -230,11 +231,11 @@ export const ResourceUploadForm: React.FC = () => {
                                 error={errors.type?.message}
                                 disabled={isUploading}
                                 onChange={field.onChange}
-                                options={["Notes", "Past Question", "Book"].map((type) => ({
+                                options={Object.values(ResourceType).map((type) => ({
                                     value: type,
-                                    label: type,
+                                    label: ResourceTypeLabel[type],
                                 }))}
-                                helperText="The type of the resource (notes, past question, book)."
+                                helperText="The type of resource you're sharing."
                             />
                         )}
                     />
