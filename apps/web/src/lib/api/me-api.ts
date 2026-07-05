@@ -1,6 +1,7 @@
 import { apiClient } from "./api-client";
+import { appendPaginationParams, type PaginationParams } from "./pagination";
 import type { UserProfile, Profile } from "@/types/entities";
-import type { ApiResponse, EmptyApiResponse, ResourceSummary, RecentResourceItem, BookmarkedResourceItem } from "@/types/api";
+import type { ApiResponse, EmptyApiResponse, PaginatedApiResponse, ResourceSummary, RecentResourceItem, BookmarkedResourceItem } from "@/types/api";
 
 const ME_API_BASE_URL = "/me";
 
@@ -13,19 +14,22 @@ export const meApi = {
         return apiClient.patch<EmptyApiResponse>(`${ME_API_BASE_URL}`, profileData);
     },
 
-    async getUploadedResources(): Promise<ApiResponse<ResourceSummary[]>> {
-        return apiClient.get<ApiResponse<ResourceSummary[]>>(`${ME_API_BASE_URL}/resources`);
+    async getUploadedResources(pagination?: PaginationParams): Promise<PaginatedApiResponse<ResourceSummary>> {
+        const params = appendPaginationParams(new URLSearchParams(), pagination).toString();
+        return apiClient.get<PaginatedApiResponse<ResourceSummary>>(`${ME_API_BASE_URL}/resources${params ? `?${params}` : ""}`);
     },
 
-    async getRecentResources(): Promise<ApiResponse<RecentResourceItem[]>> {
-        return apiClient.get<ApiResponse<RecentResourceItem[]>>(`${ME_API_BASE_URL}/recent-resources`);
+    async getRecentResources(pagination?: PaginationParams): Promise<PaginatedApiResponse<RecentResourceItem>> {
+        const params = appendPaginationParams(new URLSearchParams(), pagination).toString();
+        return apiClient.get<PaginatedApiResponse<RecentResourceItem>>(`${ME_API_BASE_URL}/recent-resources${params ? `?${params}` : ""}`);
     },
 
     /**
      * Fetches the bookmarked resources of the currently authenticated user.
      */
-    async getBookmarkedResources(): Promise<ApiResponse<BookmarkedResourceItem[]>> {
-        return apiClient.get<ApiResponse<BookmarkedResourceItem[]>>(`${ME_API_BASE_URL}/bookmarked-resources`);
+    async getBookmarkedResources(pagination?: PaginationParams): Promise<PaginatedApiResponse<BookmarkedResourceItem>> {
+        const params = appendPaginationParams(new URLSearchParams(), pagination).toString();
+        return apiClient.get<PaginatedApiResponse<BookmarkedResourceItem>>(`${ME_API_BASE_URL}/bookmarked-resources${params ? `?${params}` : ""}`);
     },
 
     /**

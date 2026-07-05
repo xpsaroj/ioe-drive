@@ -112,14 +112,14 @@ Tables:
   blobName, mimeType, plus unused-so-far `compressedSize`/`compressionMethod` columns
   (no compression is implemented yet).
 - `user_recent_resources` — per-user "recently accessed" tracking, unique on (userId,
-  resourceId), used for the dashboard and `/library` "Recently Accessed" lists (capped
-  at 10 in the service layer via `ORDER BY accessed_at DESC LIMIT 10`; nothing is ever
-  deleted from the table itself - fine at this project's scale since the row count per
-  user is bounded by distinct resources ever viewed, not by view count).
+  resourceId), used for the dashboard and `/library` "Recently Accessed" lists (paginated,
+  see section 9; nothing is ever deleted from the table itself - fine at this project's
+  scale since the row count per user is bounded by distinct resources ever viewed, not by
+  view count).
 - `user_bookmarked_resources` — per-user bookmarks, unique on (userId, resourceId). The
-  `/library/bookmarks` list itself is capped at 10 (pagination planned, see `todo.md`),
-  but checking whether a given resource is bookmarked (for the bookmark icon shown on
-  every resource card) goes through a separate, uncapped IDs-only endpoint instead.
+  `/library/bookmarks` list itself is paginated (see section 9), but checking whether a
+  given resource is bookmarked (for the bookmark icon shown on every resource card) goes
+  through a separate, uncapped IDs-only endpoint instead.
 - `webhook_events` — svixId primary key + eventType, used purely for Clerk webhook
   idempotency (see section 8).
 
@@ -261,16 +261,16 @@ Mounted in `apps/server/src/server.ts` / `apps/server/src/routes/index.ts`:
 - `GET /health` — liveness check, mounted outside `/api` and outside the rate limiter.
 - `POST /api/webhooks/clerk` — Clerk webhook receiver, mounted before `express.json()`
   since svix signature verification needs the raw body.
-- `/api/me/*` (auth required) — get/update own profile, list own uploaded resources,
-  list recently-accessed resources, list bookmarked resources, list every bookmarked
-  resource ID (uncapped, IDs only - `GET /bookmarked-resource-ids`, backs the bookmark
-  icon shown on every resource card), mark/unmark a resource as recently-accessed or
-  bookmarked. The mark-as-recently-accessed call is now actually triggered from the
-  frontend (a resource's detail page and its file preview page both fire it) - the
-  endpoint existed for a while but nothing called it.
+- `/api/me/*` (auth required) — get/update own profile, list own uploaded resources
+  (paginated), list recently-accessed resources (paginated), list bookmarked resources
+  (paginated), list every bookmarked resource ID (uncapped, IDs only -
+  `GET /bookmarked-resource-ids`, backs the bookmark icon shown on every resource card),
+  mark/unmark a resource as recently-accessed or bookmarked. The mark-as-recently-accessed
+  call is now actually triggered from the frontend (a resource's detail page and its file
+  preview page both fire it) - the endpoint existed for a while but nothing called it.
 - `/api/users/:userId` (auth required) — fetch another user's public-ish profile.
 - `/api/resources` — `GET /` (filter by `offeringId` or `userId`, at least one required,
-  sorted newest-first by `createdAt`; same for `/api/me/resources`),
+  paginated, sorted newest-first by `createdAt`; same for `/api/me/resources`),
   `GET /:resourceId`, `POST /` (auth + multipart upload, field name `resourceFile`, up to
   5 files, body includes the required `type`), `PATCH /:resourceId` (auth, must be the
   uploader), `DELETE /:resourceId` (auth, must be the uploader; also deletes the
@@ -281,19 +281,37 @@ Mounted in `apps/server/src/server.ts` / `apps/server/src/routes/index.ts`:
   user — not owner-gated) returns a short-lived Azure SAS URL for that file. See section
   11 for ownership enforcement details and section 12 for the preview page built on this
   endpoint.
-- `/api/programs` — `GET /`, list all programs.
+- `/api/programs` — `GET /`, list all programs (small, fixed set - not paginated).
 - `/api/subjects` — `GET /?programId=&semester=`, `GET /:subjectId`,
-  `GET /upload?programId=&semester=` (subject list scoped for the upload form).
+  `GET /upload?programId=&semester=` (subject list scoped for the upload form; always a
+  small per-program/semester subset - not paginated).
 
 All routes under `/api` share one rate limiter: 500 req / 15 min, keyed by IP (not by
 user — see section 12). Responses follow a consistent envelope
-(`{ success, data?, message?, error? }`) via `sendSuccessResponse`/`sendErrorResponse` in
-`lib/response.ts`, and errors are centralized through `ApiError` subclasses in
-`lib/errors.ts` plus a global `errorHandler` that also special-cases `ZodError` and
-`MulterError`.
+(`{ success, data?, message?, error?, meta? }`) via `sendSuccessResponse`/
+`sendErrorResponse` in `lib/response.ts`, and errors are centralized through `ApiError`
+subclasses in `lib/errors.ts` plus a global `errorHandler` that also special-cases
+`ZodError` and `MulterError`.
 
 Validation is Zod-based per-route via a generic `validate(schema)` middleware that
 validates `{ params, query, body }` together.
+
+**Pagination**: `GET /api/resources`, `GET /api/me/resources`,
+`GET /api/me/recent-resources`, and `GET /api/me/bookmarked-resources` accept `page`/
+`limit` query params (default `page=1`, `limit=10`, `limit` capped at 100 by Zod) and
+return `meta: { page, limit, total, totalPages, hasNextPage, hasPrevPage }` alongside
+`data`, built by a shared `lib/pagination.ts` helper (`parsePagination`/
+`buildPaginationMeta`). Recently-accessed and bookmarked resources are no longer
+hard-capped at 10 overall - that fixed cap was replaced by this pagination. `me.service`'s
+`getUploadedResources` delegates straight to `resourcesRepository.findMany({ userId })`
+rather than duplicating the same query, since `GET /api/me/resources` and
+`GET /api/resources?userId=` were already an exact duplicate before pagination was added.
+On the frontend, `usePageParam` (`apps/web/src/hooks/use-page-param.ts`) keeps the current
+page in the URL (`?page=`, consistent with how `/resources` already keeps its program/
+semester filter there) and a shared `<Pagination>` component
+(`apps/web/src/components/common/Pagination.tsx`) renders the numbered-pages control,
+reused across `/resources`, `/library/uploads`, `/library/bookmarks`, `/library/recent`,
+and another user's public profile uploads list.
 
 ## 10. File uploads
 
@@ -457,7 +475,10 @@ individual files after the fact, all gated by ownership checks enforced server-s
 Personal views (recent, bookmarked, uploaded) now live under their own auth-required
 `/library` space, separate from the shared `/resources` browsing/sharing surface. Any
 signed-in user can preview or download a resource's files inline via short-lived signed
-URLs, rather than only ever seeing a raw download link. The whole site supports
-light/dark/system theming, including Clerk's own hosted UI.
+URLs, rather than only ever seeing a raw download link. Every list that can grow
+unbounded (`/resources`, `/library/uploads`, `/library/bookmarks`, `/library/recent`, and
+another user's public uploads) is now paginated, sharing one backend helper and one
+frontend `<Pagination>` component. The whole site supports light/dark/system theming,
+including Clerk's own hosted UI.
 Community, Market/Marketplace and Alumni are still placeholder destinations with no
 logic yet; see `todo.md` for what's next.

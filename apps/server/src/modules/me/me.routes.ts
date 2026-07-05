@@ -2,7 +2,7 @@ import { Router } from "express";
 
 import { requireAuth } from "../../middlewares/auth.middleware.js"
 import { validate } from "../../middlewares/validate.middleware.js";
-import { markResourceAsRecentlyAccessedSchema, markResourceAsBookmarkedSchema, unmarkResourceAsBookmarkedSchema, updateProfileSchema } from "./me.dto.js"
+import { getPaginatedListSchema, markResourceAsRecentlyAccessedSchema, markResourceAsBookmarkedSchema, unmarkResourceAsBookmarkedSchema, updateProfileSchema } from "./me.dto.js"
 import { meController } from "./me.controller.js";
 
 /**
@@ -49,6 +49,7 @@ router.patch(
  */
 router.get(
     "/resources",
+    validate(getPaginatedListSchema),
     meController.getCurrentUserUploadedResources.bind(meController)
 );
 
@@ -58,6 +59,7 @@ router.get(
  */
 router.get(
     "/recent-resources",
+    validate(getPaginatedListSchema),
     meController.getCurrentUserRecentResources.bind(meController)
 );
 
@@ -67,6 +69,7 @@ router.get(
  */
 router.get(
     "/bookmarked-resources",
+    validate(getPaginatedListSchema),
     meController.getCurrentUserBookmarkedResources.bind(meController)
 );
 

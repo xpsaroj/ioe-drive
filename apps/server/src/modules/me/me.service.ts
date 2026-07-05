@@ -1,10 +1,57 @@
-import { eq, desc, and } from "drizzle-orm";
+import { eq, desc, and, count } from "drizzle-orm";
 
 import { db } from "../../db/index.js";
 import { resourcesTable, userRecentResourcesTable, userBookmarkedResourcesTable } from "../../db/schema.js";
 import { profilesTable } from "../../db/schema.js";
 import { NotFoundError } from "../../lib/errors.js";
+import { resourcesRepository } from "../resources/resources.repository.js";
 import type { UpdateProfileInput } from "./me.dto.js";
+
+/**
+ * Shared `with` shape for a resource joined off of another table (recent/bookmarked),
+ * matching the fields `resourcesRepository.findMany` selects for a bare resource query.
+ */
+const resourceSummaryRelations = {
+    subjectOffering: {
+        columns: {
+            id: true,
+            subjectId: true,
+        },
+        with: {
+            subject: {
+                columns: {
+                    id: true,
+                    code: true,
+                    name: true,
+                },
+            },
+        }
+    },
+    uploader: {
+        columns: {
+            id: true,
+            fullName: true,
+        },
+        with: {
+            profile: {
+                columns: {
+                    id: true,
+                    userId: true,
+                    profilePictureUrl: true,
+                }
+            }
+        }
+    },
+    files: {
+        columns: {
+            id: true,
+            resourceId: true,
+            fileUrl: true,
+            originalFileName: true,
+            mimeType: true,
+        },
+    },
+} as const;
 
 /**
  * Me Service
@@ -38,178 +85,69 @@ export class MeService {
     }
 
     /**
-     * Retrieves all resources uploaded by the currently authenticated user.
+     * Retrieves resources uploaded by the currently authenticated user, paginated.
+     * Delegates to `resourcesRepository.findMany` since this is the exact same query as
+     * `GET /api/resources?userId=` - the "me" module just fixes the filter to the caller.
      * @param userId Currently authenticated user's id
-     * @returns Resources uploaded by the user
+     * @param pagination Limit/offset to apply
+     * @returns The page of uploaded resources plus the total count.
      */
-    async getUploadedResources(userId: number) {
-        return await db
-            .query.resourcesTable
-            .findMany({
-                where: eq(resourcesTable.uploadedBy, userId),
-                orderBy: [desc(resourcesTable.createdAt)],
-                with: {
-                    subjectOffering: {
-                        columns: {
-                            id: true,
-                            subjectId: true,
-                        },
-                        with: {
-                            subject: {
-                                columns: {
-                                    id: true,
-                                    code: true,
-                                    name: true,
-                                },
-                            },
-                        }
-                    },
-                    uploader: {
-                        columns: {
-                            id: true,
-                            fullName: true,
-                        },
-                        with: {
-                            profile: {
-                                columns: {
-                                    id: true,
-                                    userId: true,
-                                    profilePictureUrl: true,
-                                }
-                            }
-                        }
-                    },
-                    files: {
-                        columns: {
-                            id: true,
-                            resourceId: true,
-                            fileUrl: true,
-                            originalFileName: true,
-                            mimeType: true,
-                        },
-                    },
-                }
-            });
+    async getUploadedResources(userId: number, pagination: { limit: number; offset: number }) {
+        return await resourcesRepository.findMany({ userId }, pagination);
     }
 
     /**
-     * Retrieves the recently accessed resources of the currently authenticated user.
+     * Retrieves the recently accessed resources of the currently authenticated user,
+     * paginated (no longer hard-capped at 10 - that was the old fixed page size).
      * @param userId Currently authenticated user's id
-     * @returns Recently accessed resources by the user
+     * @param pagination Limit/offset to apply
+     * @returns The page of recently accessed resources plus the total count.
      */
-    async getRecentlyAccessedResources(userId: number) {
-        return await db
-            .query.userRecentResourcesTable
-            .findMany({
-                where: eq(userRecentResourcesTable.userId, userId),
-                with: {
-                    resource: {
-                        with: {
-                            subjectOffering: {
-                                columns: {
-                                    id: true,
-                                    subjectId: true,
-                                },
-                                with: {
-                                    subject: {
-                                        columns: {
-                                            id: true,
-                                            code: true,
-                                            name: true,
-                                        },
-                                    },
-                                }
-                            },
-                            uploader: {
-                                columns: {
-                                    id: true,
-                                    fullName: true,
-                                },
-                                with: {
-                                    profile: {
-                                        columns: {
-                                            id: true,
-                                            userId: true,
-                                            profilePictureUrl: true,
-                                        }
-                                    }
-                                }
-                            },
-                            files: {
-                                columns: {
-                                    id: true,
-                                    resourceId: true,
-                                    fileUrl: true,
-                                    originalFileName: true,
-                                    mimeType: true,
-                                },
-                            },
-                        }
-                    }
-                },
-                orderBy: [desc(userRecentResourcesTable.accessedAt)],
-                limit: 10,
-            });
+    async getRecentlyAccessedResources(userId: number, pagination: { limit: number; offset: number }) {
+        const [items, totalResult] = await Promise.all([
+            db
+                .query.userRecentResourcesTable
+                .findMany({
+                    where: eq(userRecentResourcesTable.userId, userId),
+                    with: { resource: { with: resourceSummaryRelations } },
+                    orderBy: [desc(userRecentResourcesTable.accessedAt)],
+                    limit: pagination.limit,
+                    offset: pagination.offset,
+                }),
+            db
+                .select({ total: count() })
+                .from(userRecentResourcesTable)
+                .where(eq(userRecentResourcesTable.userId, userId)),
+        ]);
+
+        return { items, total: totalResult[0]?.total ?? 0 };
     }
 
     /**
-     * Retrieves the bookmarked resources of the currently authenticated user.
+     * Retrieves the bookmarked resources of the currently authenticated user, paginated
+     * (no longer hard-capped at 10 - that was the old fixed page size).
      * @param userId Currently authenticated user's id
-     * @returns Bookmarked resources by the user
+     * @param pagination Limit/offset to apply
+     * @returns The page of bookmarked resources plus the total count.
      */
-    async getBookmarkedResources(userId: number) {
-        return await db
-            .query.userBookmarkedResourcesTable
-            .findMany({
-                where: eq(userBookmarkedResourcesTable.userId, userId),
-                with: {
-                    resource: {
-                        with: {
-                            subjectOffering: {
-                                columns: {
-                                    id: true,
-                                    subjectId: true,
-                                },
-                                with: {
-                                    subject: {
-                                        columns: {
-                                            id: true,
-                                            code: true,
-                                            name: true,
-                                        },
-                                    },
-                                }
-                            },
-                            uploader: {
-                                columns: {
-                                    id: true,
-                                    fullName: true,
-                                },
-                                with: {
-                                    profile: {
-                                        columns: {
-                                            id: true,
-                                            userId: true,
-                                            profilePictureUrl: true,
-                                        }
-                                    }
-                                }
-                            },
-                            files: {
-                                columns: {
-                                    id: true,
-                                    resourceId: true,
-                                    fileUrl: true,
-                                    originalFileName: true,
-                                    mimeType: true,
-                                },
-                            },
-                        }
-                    }
-                },
-                orderBy: [desc(userBookmarkedResourcesTable.bookmarkedAt)],
-                limit: 10,
-            });
+    async getBookmarkedResources(userId: number, pagination: { limit: number; offset: number }) {
+        const [items, totalResult] = await Promise.all([
+            db
+                .query.userBookmarkedResourcesTable
+                .findMany({
+                    where: eq(userBookmarkedResourcesTable.userId, userId),
+                    with: { resource: { with: resourceSummaryRelations } },
+                    orderBy: [desc(userBookmarkedResourcesTable.bookmarkedAt)],
+                    limit: pagination.limit,
+                    offset: pagination.offset,
+                }),
+            db
+                .select({ total: count() })
+                .from(userBookmarkedResourcesTable)
+                .where(eq(userBookmarkedResourcesTable.userId, userId)),
+        ]);
+
+        return { items, total: totalResult[0]?.total ?? 0 };
     }
 
     /**

@@ -1,9 +1,16 @@
 "use client"
-import { ResourceList, RecentResourceCard, ResourcePageStateHandler } from "@/components/common/resources";
-import { useRecentResources } from "@/hooks/queries/use-me";
+import { Suspense } from "react";
 
-const MyRecentResourcesPage = () => {
-    const { data: recentResources, isPending, error } = useRecentResources();
+import { ResourceList, RecentResourceCard, ResourcePageStateHandler } from "@/components/common/resources";
+import Pagination from "@/components/common/Pagination";
+import Loader from "@/components/ui/Loader";
+import { useRecentResources } from "@/hooks/queries/use-me";
+import { usePageParam } from "@/hooks/use-page-param";
+
+const MyRecentResourcesContent = () => {
+    const { page, setPage } = usePageParam();
+    const { data, isPending, error, isPlaceholderData } = useRecentResources(page);
+    const recentResources = data?.items;
 
     return (
         <ResourcePageStateHandler
@@ -17,12 +24,32 @@ const MyRecentResourcesPage = () => {
             emptyButtonText="Explore Resources"
             emptyButtonHref="/resources"
         >
-            <ResourceList
-                resources={recentResources || []}
-                renderItem={(item) => <RecentResourceCard item={item} />}
-            />
+            <div className="space-y-6">
+                <ResourceList
+                    resources={recentResources || []}
+                    renderItem={(item) => <RecentResourceCard item={item} />}
+                />
+                <Pagination
+                    page={page}
+                    totalPages={data?.meta?.totalPages ?? 1}
+                    onPageChange={setPage}
+                    disabled={isPlaceholderData}
+                />
+            </div>
         </ResourcePageStateHandler>
     )
+}
+
+const MyRecentResourcesPage = () => {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+                <Loader text="Loading recent resources. Please wait." />
+            </div>
+        }>
+            <MyRecentResourcesContent />
+        </Suspense>
+    );
 }
 
 export default MyRecentResourcesPage;

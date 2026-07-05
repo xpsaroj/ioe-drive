@@ -1,10 +1,13 @@
 import type { Response } from "express";
 
+import type { PaginationMeta } from "./pagination.js";
+
 export interface ApiResponse<T = unknown> {
     success: boolean;
     data?: T;
     message?: string;
     error?: string;
+    meta?: PaginationMeta;
 }
 
 /**
@@ -13,13 +16,15 @@ export interface ApiResponse<T = unknown> {
  * @param data The data to send in the response
  * @param message Optional message
  * @param statusCode HTTP status code (default: 200)
+ * @param meta Optional pagination metadata, for paginated list endpoints
  * @returns Response
  */
 export const sendSuccessResponse = <T>(
     res: Response,
     data: T,
     message?: string,
-    statusCode: number = 200
+    statusCode: number = 200,
+    meta?: PaginationMeta
 ): Response => {
     const response: ApiResponse<T> = {
         success: true,
@@ -28,6 +33,10 @@ export const sendSuccessResponse = <T>(
 
     if (message) {
         response.message = message;
+    }
+
+    if (meta) {
+        response.meta = meta;
     }
 
     return res.status(statusCode).json(response);

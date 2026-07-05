@@ -1,9 +1,16 @@
 "use client"
-import { ResourceList, UploadedResourceCard, ResourcePageStateHandler } from "@/components/common/resources";
-import { useUploadedResources } from "@/hooks/queries/use-me";
+import { Suspense } from "react";
 
-const MyUploadedResourcesPage = () => {
-    const { data: uploadedResources, isPending, error } = useUploadedResources();
+import { ResourceList, UploadedResourceCard, ResourcePageStateHandler } from "@/components/common/resources";
+import Pagination from "@/components/common/Pagination";
+import Loader from "@/components/ui/Loader";
+import { useUploadedResources } from "@/hooks/queries/use-me";
+import { usePageParam } from "@/hooks/use-page-param";
+
+const MyUploadedResourcesContent = () => {
+    const { page, setPage } = usePageParam();
+    const { data, isPending, error, isPlaceholderData } = useUploadedResources(page);
+    const uploadedResources = data?.items;
 
     return (
         <ResourcePageStateHandler
@@ -17,12 +24,32 @@ const MyUploadedResourcesPage = () => {
             emptyButtonText="Share Resources"
             emptyButtonHref="/resources/share"
         >
-            <ResourceList
-                resources={uploadedResources || []}
-                renderItem={(item) => <UploadedResourceCard item={item} showOwnerActions />}
-            />
+            <div className="space-y-6">
+                <ResourceList
+                    resources={uploadedResources || []}
+                    renderItem={(item) => <UploadedResourceCard item={item} showOwnerActions />}
+                />
+                <Pagination
+                    page={page}
+                    totalPages={data?.meta?.totalPages ?? 1}
+                    onPageChange={setPage}
+                    disabled={isPlaceholderData}
+                />
+            </div>
         </ResourcePageStateHandler>
     )
+}
+
+const MyUploadedResourcesPage = () => {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+                <Loader text="Loading uploaded resources. Please wait." />
+            </div>
+        }>
+            <MyUploadedResourcesContent />
+        </Suspense>
+    );
 }
 
 export default MyUploadedResourcesPage;

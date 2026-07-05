@@ -215,15 +215,19 @@ export class ResourcesService {
     }
 
     /**
-     * Find resources by subject offering ID or user ID.
+     * Find resources by subject offering ID or user ID, paginated.
      * @param filters - Filters for finding resources.
-     * @returns An array of resources matching the filters.
+     * @param pagination - Limit/offset to apply.
+     * @returns The page of matching resources plus the total count matching the filters.
      */
-    async findResources(filters: {
-        offeringId?: number;
-        userId?: number;
-    }) {
-        return await resourcesRepository.findMany(filters);
+    async findResources(
+        filters: {
+            offeringId?: number;
+            userId?: number;
+        },
+        pagination: { limit: number; offset: number }
+    ) {
+        return await resourcesRepository.findMany(filters, pagination);
     }
 }
 

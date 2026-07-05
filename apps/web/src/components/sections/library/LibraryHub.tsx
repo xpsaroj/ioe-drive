@@ -37,11 +37,11 @@ const LibraryOption = ({
 );
 
 const LibraryHub = () => {
-    const { data: recentResources = [] } = useRecentResources();
-    const { data: bookmarkedResources = [] } = useBookmarkedResources();
+    const { data: recentResourcesData } = useRecentResources();
+    const { data: bookmarkedResourcesData } = useBookmarkedResources();
 
-    const displayedRecentResources = (recentResources || []).slice(0, 2);
-    const displayedBookmarkedResources = (bookmarkedResources || []).slice(0, 2);
+    const displayedRecentResources = (recentResourcesData?.items ?? []).slice(0, 2);
+    const displayedBookmarkedResources = (bookmarkedResourcesData?.items ?? []).slice(0, 2);
 
     return (
         <div className="space-y-8">

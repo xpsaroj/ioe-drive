@@ -1,6 +1,7 @@
 import { apiClient } from "./api-client";
+import { appendPaginationParams, type PaginationParams } from "./pagination";
 import type { Resource } from "@/types/entities";
-import type { ApiResponse, EmptyApiResponse, ResourceSummary } from "@/types/api";
+import type { ApiResponse, EmptyApiResponse, PaginatedApiResponse, ResourceSummary } from "@/types/api";
 import type { UpdateResourceInput } from "../validators/resources";
 
 const RESOURCES_API_BASE_URL = "/resources";
@@ -35,17 +36,19 @@ export const resourcesApi = {
         return apiClient.get<ApiResponse<ResourceSummary>>(`${RESOURCES_API_BASE_URL}/${resourceId}`);
     },
 
-    async getResourcesBySubjectOffering(offeringId: number): Promise<ApiResponse<ResourceSummary[]>> {
+    async getResourcesBySubjectOffering(offeringId: number, pagination?: PaginationParams): Promise<PaginatedApiResponse<ResourceSummary>> {
         const params = new URLSearchParams({
             offeringId: offeringId.toString()
         });
-        return apiClient.get<ApiResponse<ResourceSummary[]>>(`${RESOURCES_API_BASE_URL}?${params.toString()}`);
+        appendPaginationParams(params, pagination);
+        return apiClient.get<PaginatedApiResponse<ResourceSummary>>(`${RESOURCES_API_BASE_URL}?${params.toString()}`);
     },
 
-    async getResourcesByUploader(uploaderId: number): Promise<ApiResponse<ResourceSummary[]>> {
+    async getResourcesByUploader(uploaderId: number, pagination?: PaginationParams): Promise<PaginatedApiResponse<ResourceSummary>> {
         const params = new URLSearchParams({
             userId: uploaderId.toString()
         });
-        return apiClient.get<ApiResponse<ResourceSummary[]>>(`${RESOURCES_API_BASE_URL}?${params.toString()}`);
+        appendPaginationParams(params, pagination);
+        return apiClient.get<PaginatedApiResponse<ResourceSummary>>(`${RESOURCES_API_BASE_URL}?${params.toString()}`);
     },
 }

@@ -1,5 +1,5 @@
 import { useAuth } from '@clerk/nextjs';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 
 import { meApi } from '@/lib/api/me-api';
 import { academicsKeys } from './use-academics';
@@ -8,9 +8,16 @@ import type { Profile, UserProfile } from '@/types/entities';
 export const meKeys = {
     all: ['me'] as const,
     user: ['me', 'user'] as const,
-    uploadedResources: ['me', 'uploaded-resources'] as const,
-    recentResources: ['me', 'recent-resources'] as const,
-    bookmarkedResources: ['me', 'bookmarked-resources'] as const,
+    // Called with no `page` to get a stable prefix for invalidating every page at once.
+    uploadedResources: (page?: number) => page === undefined
+        ? ['me', 'uploaded-resources'] as const
+        : ['me', 'uploaded-resources', page] as const,
+    recentResources: (page?: number) => page === undefined
+        ? ['me', 'recent-resources'] as const
+        : ['me', 'recent-resources', page] as const,
+    bookmarkedResources: (page?: number) => page === undefined
+        ? ['me', 'bookmarked-resources'] as const
+        : ['me', 'bookmarked-resources', page] as const,
     bookmarkedResourceIds: ['me', 'bookmarked-resource-ids'] as const,
 };
 
@@ -71,51 +78,54 @@ export function useUpdateProfile() {
     });
 }
 
-export function useUploadedResources() {
+export function useUploadedResources(page: number = 1) {
     const { isSignedIn } = useAuth();
 
     return useQuery({
-        queryKey: meKeys.uploadedResources,
+        queryKey: meKeys.uploadedResources(page),
         queryFn: async () => {
-            const response = await meApi.getUploadedResources();
+            const response = await meApi.getUploadedResources({ page });
             if (!response.success) {
                 throw new Error(response.error ?? 'Failed to fetch uploaded resources.');
             }
-            return response.data;
+            return { items: response.data, meta: response.meta };
         },
         enabled: isSignedIn,
+        placeholderData: keepPreviousData,
     });
 }
 
-export function useRecentResources() {
+export function useRecentResources(page: number = 1) {
     const { isSignedIn } = useAuth();
 
     return useQuery({
-        queryKey: meKeys.recentResources,
+        queryKey: meKeys.recentResources(page),
         queryFn: async () => {
-            const response = await meApi.getRecentResources();
+            const response = await meApi.getRecentResources({ page });
             if (!response.success) {
                 throw new Error(response.error ?? 'Failed to fetch recent resources.');
             }
-            return response.data;
+            return { items: response.data, meta: response.meta };
         },
         enabled: isSignedIn,
+        placeholderData: keepPreviousData,
     });
 }
 
-export function useBookmarkedResources() {
+export function useBookmarkedResources(page: number = 1) {
     const { isSignedIn } = useAuth();
 
     return useQuery({
-        queryKey: meKeys.bookmarkedResources,
+        queryKey: meKeys.bookmarkedResources(page),
         queryFn: async () => {
-            const response = await meApi.getBookmarkedResources();
+            const response = await meApi.getBookmarkedResources({ page });
             if (!response.success) {
                 throw new Error(response.error ?? 'Failed to fetch bookmarked resources.');
             }
-            return response.data;
+            return { items: response.data, meta: response.meta };
         },
         enabled: isSignedIn,
+        placeholderData: keepPreviousData,
     });
 }
 
@@ -152,7 +162,7 @@ export function useMarkResourceAsRecentlyAccessed() {
     return useMutation({
         mutationFn: (resourceId: string) => meApi.markResourceAsRecentlyAccessed(resourceId),
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: meKeys.recentResources });
+            queryClient.invalidateQueries({ queryKey: meKeys.recentResources() });
         },
     });
 }
@@ -185,7 +195,7 @@ export function useBookmarkResource() {
 
         onSettled: () => {
             queryClient.invalidateQueries({ queryKey: meKeys.bookmarkedResourceIds });
-            queryClient.invalidateQueries({ queryKey: meKeys.bookmarkedResources });
+            queryClient.invalidateQueries({ queryKey: meKeys.bookmarkedResources() });
         },
     });
 }
@@ -216,7 +226,7 @@ export function useUnbookmarkResource() {
 
         onSettled: () => {
             queryClient.invalidateQueries({ queryKey: meKeys.bookmarkedResourceIds });
-            queryClient.invalidateQueries({ queryKey: meKeys.bookmarkedResources });
+            queryClient.invalidateQueries({ queryKey: meKeys.bookmarkedResources() });
         },
     });
 }

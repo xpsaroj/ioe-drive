@@ -1,10 +1,13 @@
 "use client"
-import { use } from "react"
+import { Suspense, use } from "react"
 
 import { useUserById } from "@/hooks/queries/use-user"
 import { useResourcesByUploaderId } from "@/hooks/queries/use-resources"
+import { usePageParam } from "@/hooks/use-page-param"
 import { PageStateHandler } from "@/components/layout"
 import { UserAvatar } from "@/components/common/user"
+import Pagination from "@/components/common/Pagination"
+import Loader from "@/components/ui/Loader"
 import { SemesterLabel } from "@/types/entities"
 import { ResourceList, UploadedResourceCard } from "@/components/common/resources";
 
@@ -14,9 +17,8 @@ interface UserDetailsPageProps {
     }>
 }
 
-const UserDetailsPage = ({ params }: UserDetailsPageProps) => {
-    const { userId: uId } = use(params)
-    const userId = Number(uId);
+const UserDetailsContent = ({ userId }: { userId: number }) => {
+    const { page, setPage } = usePageParam();
 
     const {
         data: user,
@@ -25,10 +27,12 @@ const UserDetailsPage = ({ params }: UserDetailsPageProps) => {
     } = useUserById(userId);
 
     const {
-        data: resources,
+        data: resourcesData,
         isPending: resourcesPending,
-        error: resourcesLoadError
-    } = useResourcesByUploaderId(userId);
+        error: resourcesLoadError,
+        isPlaceholderData: resourcesPlaceholder,
+    } = useResourcesByUploaderId(userId, page);
+    const resources = resourcesData?.items;
 
     const emptyContent = (
         <div className="flex flex-col justify-center items-center">
@@ -167,15 +171,38 @@ const UserDetailsPage = ({ params }: UserDetailsPageProps) => {
                             </h2>
                         }
                     >
-                        <ResourceList
-                            resources={resources || []}
-                            renderItem={(item) => <UploadedResourceCard item={item} />}
-                        />
+                        <div className="space-y-6">
+                            <ResourceList
+                                resources={resources || []}
+                                renderItem={(item) => <UploadedResourceCard item={item} />}
+                            />
+                            <Pagination
+                                page={page}
+                                totalPages={resourcesData?.meta?.totalPages ?? 1}
+                                onPageChange={setPage}
+                                disabled={resourcesPlaceholder}
+                            />
+                        </div>
                     </PageStateHandler>
                 </div>
             )}
         </PageStateHandler>
     )
+}
+
+const UserDetailsPage = ({ params }: UserDetailsPageProps) => {
+    const { userId: uId } = use(params)
+    const userId = Number(uId);
+
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+                <Loader text="Loading user details. Please wait." />
+            </div>
+        }>
+            <UserDetailsContent userId={userId} />
+        </Suspense>
+    );
 }
 
 export default UserDetailsPage;

@@ -24,10 +24,15 @@ A quick, high-level list of what already works. For the full picture see
   Resource listings (browse, uploader-filtered, "My Uploads") sort newest-first.
 - Per-user "recently accessed" and "bookmarked" resource tracking (the old "archived"
   naming was renamed to "bookmarked" end to end, DB through UI). Visiting a resource's
-  detail page or a file within it now actually marks it as recently accessed (top 10
-  shown, ordered by last access). A bookmark toggle button now appears on every resource
-  card and the detail page (any signed-in user, not just the uploader), backed by a
-  bulk "bookmarked resource IDs" endpoint and optimistic UI updates.
+  detail page or a file within it now actually marks it as recently accessed, ordered by
+  last access. A bookmark toggle button now appears on every resource card and the detail
+  page (any signed-in user, not just the uploader), backed by a bulk "bookmarked resource
+  IDs" endpoint and optimistic UI updates.
+- Pagination (`page`/`limit` query params, numbered-pages UI) on every list that grows
+  unbounded: `/resources` browse, `/library/uploads`, `/library/bookmarks`,
+  `/library/recent`, and another user's public uploads list. Shared on the backend via a
+  `lib/pagination.ts` helper and response `meta`, and on the frontend via a shared
+  `<Pagination>` component and URL-synced page state (`?page=`).
 - Profile management: program, semester, college, bio, onboarding flow.
 - Core frontend surfaces: dashboard, a unified `/resources` browse page (works for
   guests and signed-in users, defaults to the signed-in user's own program/semester

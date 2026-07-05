@@ -1,5 +1,15 @@
 import { z } from "zod"
 
+import { paginationQueryShape } from "../../lib/pagination.js";
+
+/**
+ * Shared query schema for /me's paginated list endpoints (uploaded/recent/bookmarked
+ * resources) - all three take only page/limit, no other filters.
+ */
+export const getPaginatedListSchema = z.object({
+    query: z.object(paginationQueryShape),
+});
+
 export const markResourceAsRecentlyAccessedSchema = z.object({
     params: z.object({
         resourceId: z.coerce.number().int().positive("Resource ID must be a positive integer"),

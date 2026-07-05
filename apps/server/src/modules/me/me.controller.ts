@@ -2,6 +2,7 @@ import type { Request, Response, NextFunction } from 'express';
 import { meService } from './me.service.js';
 import { UnauthorizedError } from '../../lib/errors.js';
 import { sendSuccessResponse } from '../../lib/response.js';
+import { buildPaginationMeta, parsePagination } from '../../lib/pagination.js';
 import { type UpdateProfileInput } from './me.dto.js';
 
 /**
@@ -26,8 +27,9 @@ export class MeController {
             const userId = req.authUser?.id;
             if (!userId) throw new UnauthorizedError("User not authenticated");
 
-            const uploadedResources = await meService.getUploadedResources(userId);
-            return sendSuccessResponse(res, uploadedResources);
+            const { page, limit, offset } = parsePagination(req.query);
+            const { items, total } = await meService.getUploadedResources(userId, { limit, offset });
+            return sendSuccessResponse(res, items, undefined, 200, buildPaginationMeta(page, limit, total));
         } catch (e) {
             next(e);
         }
@@ -38,8 +40,9 @@ export class MeController {
             const userId = req.authUser?.id;
             if (!userId) throw new UnauthorizedError("User not authenticated");
 
-            const recentResources = await meService.getRecentlyAccessedResources(userId);
-            return sendSuccessResponse(res, recentResources);
+            const { page, limit, offset } = parsePagination(req.query);
+            const { items, total } = await meService.getRecentlyAccessedResources(userId, { limit, offset });
+            return sendSuccessResponse(res, items, undefined, 200, buildPaginationMeta(page, limit, total));
         } catch (e) {
             next(e);
         }
@@ -50,8 +53,9 @@ export class MeController {
             const userId = req.authUser?.id;
             if (!userId) throw new UnauthorizedError("User not authenticated");
 
-            const bookmarkedResources = await meService.getBookmarkedResources(userId);
-            return sendSuccessResponse(res, bookmarkedResources);
+            const { page, limit, offset } = parsePagination(req.query);
+            const { items, total } = await meService.getBookmarkedResources(userId, { limit, offset });
+            return sendSuccessResponse(res, items, undefined, 200, buildPaginationMeta(page, limit, total));
         } catch (e) {
             next(e);
         }

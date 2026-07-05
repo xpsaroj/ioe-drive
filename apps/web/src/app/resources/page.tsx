@@ -1,11 +1,12 @@
 "use client"
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { ChevronRight, ChevronDown } from "lucide-react";
 
 import { SubjectDetails } from "@/components/common/offering";
 import { SubjectTabs, ResourceList, ResourceCard } from "@/components/common/resources";
+import Pagination from "@/components/common/Pagination";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
 import Loader from "@/components/ui/Loader";
@@ -13,6 +14,7 @@ import { useAuth } from "@clerk/nextjs";
 import { useMe } from "@/hooks/queries/use-me";
 import { usePrograms, useSubjectOfferings } from "@/hooks/queries/use-academics";
 import { useResourcesBySubjectOfferingId } from "@/hooks/queries/use-resources";
+import { usePageParam } from "@/hooks/use-page-param";
 import { Semester, SemesterLabel, SubjectOfferingWithSubject } from "@/types/entities";
 
 const ResourcesBrowseContent = () => {
@@ -64,7 +66,32 @@ const ResourcesBrowseContent = () => {
     const { data: subjectOfferings, error: offeringsError, isPending: offeringsPending } = useSubjectOfferings(programId, semester);
 
     const currentSubject = selectedSubject?.subject ?? subjectOfferings?.[0]?.subject;
-    const { data: resources, isLoading: resourcesLoading, error: resourcesError } = useResourcesBySubjectOfferingId(selectedSubject?.id ?? subjectOfferings?.[0]?.id);
+    const currentOfferingId = selectedSubject?.id ?? subjectOfferings?.[0]?.id;
+
+    const { page, setPage } = usePageParam();
+    // Reset back to page 1 whenever the selected subject actually changes (not on the
+    // initial mount's undefined -> loaded transition), so switching subjects never
+    // leaves the user stranded on a page number the new subject doesn't have, while
+    // still letting a shared ?page=N link work on first load.
+    const previousOfferingIdRef = useRef<number | undefined>(undefined);
+    useEffect(() => {
+        if (
+            previousOfferingIdRef.current !== undefined &&
+            previousOfferingIdRef.current !== currentOfferingId
+        ) {
+            setPage(1);
+        }
+        previousOfferingIdRef.current = currentOfferingId;
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currentOfferingId]);
+
+    const {
+        data: resourcesData,
+        isLoading: resourcesLoading,
+        error: resourcesError,
+        isPlaceholderData: resourcesPlaceholder,
+    } = useResourcesBySubjectOfferingId(currentOfferingId, page);
+    const resources = resourcesData?.items;
 
     const updateFilter = (next: { programId?: string; semester?: string }) => {
         const params = new URLSearchParams(searchParams.toString());
@@ -191,7 +218,7 @@ const ResourcesBrowseContent = () => {
                         )}
                     </div>
 
-                    <div className="pb-6 md:pb-8">
+                    <div className="pb-6 md:pb-8 space-y-6">
                         <h3 className="text-lg">Available Resources</h3>
                         <ResourceList
                             resources={resources || []}
@@ -203,6 +230,12 @@ const ResourcesBrowseContent = () => {
                                 />
                             }
                             emptyMessage="No resources available for this subject."
+                        />
+                        <Pagination
+                            page={page}
+                            totalPages={resourcesData?.meta?.totalPages ?? 1}
+                            onPageChange={setPage}
+                            disabled={resourcesPlaceholder}
                         />
                     </div>
                 </>

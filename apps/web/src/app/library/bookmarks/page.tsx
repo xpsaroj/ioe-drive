@@ -1,9 +1,16 @@
 "use client"
-import { ResourceList, BookmarkedResourceCard, ResourcePageStateHandler } from "@/components/common/resources";
-import { useBookmarkedResources } from "@/hooks/queries/use-me";
+import { Suspense } from "react";
 
-const MyBookmarkedResourcesPage = () => {
-    const { data: bookmarkedResources, isPending, error } = useBookmarkedResources();
+import { ResourceList, BookmarkedResourceCard, ResourcePageStateHandler } from "@/components/common/resources";
+import Pagination from "@/components/common/Pagination";
+import Loader from "@/components/ui/Loader";
+import { useBookmarkedResources } from "@/hooks/queries/use-me";
+import { usePageParam } from "@/hooks/use-page-param";
+
+const MyBookmarkedResourcesContent = () => {
+    const { page, setPage } = usePageParam();
+    const { data, isPending, error, isPlaceholderData } = useBookmarkedResources(page);
+    const bookmarkedResources = data?.items;
 
     return (
         <ResourcePageStateHandler
@@ -17,12 +24,32 @@ const MyBookmarkedResourcesPage = () => {
             emptyButtonText="Explore Resources"
             emptyButtonHref="/resources"
         >
-            <ResourceList
-                resources={bookmarkedResources || []}
-                renderItem={(item) => <BookmarkedResourceCard item={item} />}
-            />
+            <div className="space-y-6">
+                <ResourceList
+                    resources={bookmarkedResources || []}
+                    renderItem={(item) => <BookmarkedResourceCard item={item} />}
+                />
+                <Pagination
+                    page={page}
+                    totalPages={data?.meta?.totalPages ?? 1}
+                    onPageChange={setPage}
+                    disabled={isPlaceholderData}
+                />
+            </div>
         </ResourcePageStateHandler>
     )
+}
+
+const MyBookmarkedResourcesPage = () => {
+    return (
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+                <Loader text="Loading bookmarked resources. Please wait." />
+            </div>
+        }>
+            <MyBookmarkedResourcesContent />
+        </Suspense>
+    );
 }
 
 export default MyBookmarkedResourcesPage;

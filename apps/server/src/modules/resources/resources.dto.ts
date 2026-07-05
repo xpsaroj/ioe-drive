@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 import { ResourceTypeEnum } from "../../db/schema.js";
+import { paginationQueryShape } from "../../lib/pagination.js";
 
 export const createResourceSchema = z.object({
     body: z.object({
@@ -85,6 +86,8 @@ export const getResourcesSchema = z.object({
             .int()
             .positive("User ID must be a positive integer")
             .optional(),
+
+        ...paginationQueryShape,
     }).refine(
         (data) => data.offeringId || data.userId,
         {

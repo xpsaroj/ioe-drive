@@ -1,4 +1,4 @@
-import { eq, and, desc } from "drizzle-orm";
+import { eq, and, count, desc } from "drizzle-orm";
 
 import { db } from "../../db/index.js";
 import { resourceFilesTable, resourcesTable } from "../../db/schema.js";
@@ -234,14 +234,18 @@ export class ResourcesRepository {
     }
 
     /**
-     * Find resources by subject offering ID or user ID.
+     * Find resources by subject offering ID or user ID, paginated.
      * @param filters - Filters for finding resources.
-     * @returns An array of resources for the given subject offering ID or user ID.
+     * @param pagination - Limit/offset to apply.
+     * @returns The page of matching resources plus the total count matching the filters.
      */
-    async findMany(filters: {
-        offeringId?: number;
-        userId?: number;
-    }) {
+    async findMany(
+        filters: {
+            offeringId?: number;
+            userId?: number;
+        },
+        pagination: { limit: number; offset: number }
+    ) {
         const conditions = [];
 
         if (filters.offeringId) {
@@ -252,56 +256,66 @@ export class ResourcesRepository {
             conditions.push(eq(resourcesTable.uploadedBy, filters.userId));
         }
 
-        const whereClause = conditions.length > 0 ? and(...conditions) : undefined;;
+        const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
 
-        return await db
-            .query
-            .resourcesTable
-            .findMany({
-                where: whereClause,
-                orderBy: [desc(resourcesTable.createdAt)],
-                with: {
-                    subjectOffering: {
-                        columns: {
-                            id: true,
-                            subjectId: true,
-                        },
-                        with: {
-                            subject: {
-                                columns: {
-                                    id: true,
-                                    code: true,
-                                    name: true,
-                                },
+        const [items, totalResult] = await Promise.all([
+            db
+                .query
+                .resourcesTable
+                .findMany({
+                    where: whereClause,
+                    orderBy: [desc(resourcesTable.createdAt)],
+                    limit: pagination.limit,
+                    offset: pagination.offset,
+                    with: {
+                        subjectOffering: {
+                            columns: {
+                                id: true,
+                                subjectId: true,
                             },
-                        }
-                    },
-                    uploader: {
-                        columns: {
-                            id: true,
-                            fullName: true,
+                            with: {
+                                subject: {
+                                    columns: {
+                                        id: true,
+                                        code: true,
+                                        name: true,
+                                    },
+                                },
+                            }
                         },
-                        with: {
-                            profile: {
-                                columns: {
-                                    id: true,
-                                    userId: true,
-                                    profilePictureUrl: true,
+                        uploader: {
+                            columns: {
+                                id: true,
+                                fullName: true,
+                            },
+                            with: {
+                                profile: {
+                                    columns: {
+                                        id: true,
+                                        userId: true,
+                                        profilePictureUrl: true,
+                                    }
                                 }
                             }
-                        }
-                    },
-                    files: {
-                        columns: {
-                            id: true,
-                            resourceId: true,
-                            fileUrl: true,
-                            originalFileName: true,
-                            mimeType: true,
                         },
-                    },
-                }
-            });
+                        files: {
+                            columns: {
+                                id: true,
+                                resourceId: true,
+                                fileUrl: true,
+                                originalFileName: true,
+                                mimeType: true,
+                            },
+                        },
+                    }
+                }),
+            db
+                .select({ total: count() })
+                .from(resourcesTable)
+                .where(whereClause),
+        ]);
+
+        return { items, total: totalResult[0]?.total ?? 0 };
     }
 }
 

@@ -3,6 +3,7 @@ import type { NextFunction, Request, Response } from "express";
 import { resourcesService } from "./resources.service.js";
 import { sendSuccessResponse } from "../../lib/response.js";
 import { UnauthorizedError } from "../../lib/errors.js";
+import { buildPaginationMeta, parsePagination } from "../../lib/pagination.js";
 import type { CreateResourceInput, UpdateResourceInput } from "./resources.dto.js";
 
 /**
@@ -179,8 +180,8 @@ export class ResourcesController {
     }
 
     /**
-     * Get all resources filtered by subject offering ID or user ID.
-     * - GET /api/resources?offeringId=<offeringId>&userId=<userId>
+     * Get all resources filtered by subject offering ID or user ID, paginated.
+     * - GET /api/resources?offeringId=<offeringId>&userId=<userId>&page=<page>&limit=<limit>
      */
     async getResources(
         req: Request,
@@ -198,9 +199,11 @@ export class ResourcesController {
                 filters.userId = Number(req.query.userId);
             }
 
-            const resources = await resourcesService.findResources(filters);
+            const { page, limit, offset } = parsePagination(req.query);
 
-            return sendSuccessResponse(res, resources);
+            const { items, total } = await resourcesService.findResources(filters, { limit, offset });
+
+            return sendSuccessResponse(res, items, undefined, 200, buildPaginationMeta(page, limit, total));
         } catch (e) {
             next(e);
         }
