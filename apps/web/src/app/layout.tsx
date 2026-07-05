@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Outfit } from "next/font/google";
+import { Outfit, IBM_Plex_Mono } from "next/font/google";
 
 import "./globals.css";
 import { ThemeProvider } from "@/providers/theme-provider";
@@ -12,6 +12,9 @@ import { AppDataInitializer } from "@/context/AppDataInitializer";
 import { GlobalLoader, LayoutWrapper } from "@/components/layout";
 
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
+// Display/technical face used sparingly for the wordmark and nav "eyebrow" labels
+// (see --font-display in globals.css) - not applied globally.
+const plexMono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["500", "600"], variable: "--font-plex-mono" });
 
 export const metadata: Metadata = {
   title: "IOE Drive",
@@ -25,7 +28,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`bg-background text-foreground min-h-screen ${outfit.className}`}>
+      <body className={`bg-background text-foreground min-h-screen ${outfit.className} ${plexMono.variable}`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <ClerkThemeProvider>
             <ClerkApiProvider>

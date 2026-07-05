@@ -17,3 +17,13 @@ export const NAVIGATION_ITEMS: NavigationItem[] = [
     { name: 'Market', href: '/market', icon: Store },
     { name: 'Alumni', href: '/alumni', icon: GraduationCap },
 ];
+
+/**
+ * Whether a nav item should render as "active" for the given pathname - matches the
+ * item's own route or anything nested under it (e.g. `/library/uploads` under
+ * `/library`), but not an unrelated route that merely shares a prefix. Shared by
+ * Navbar and MobileNav so both navs agree on the same route (previously each had its
+ * own slightly different check).
+ */
+export const isNavItemActive = (pathname: string, href: string): boolean =>
+    pathname === href || pathname.startsWith(`${href}/`);

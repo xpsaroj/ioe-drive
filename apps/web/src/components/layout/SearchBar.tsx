@@ -3,14 +3,12 @@ import { Search } from "lucide-react";
 
 export default function SearchBar() {
     return (
-        <div className="search-bar">
-            <button
-                type="button"
-                className="flex items-center border rounded-md p-2 w-full cursor-pointer"
-            >
-                <Search className="size-5 text-foreground-secondary" />
-                <span className="ml-2 text-sm text-foreground-secondary">Search...</span>
-            </button>
-        </div>
+        <button
+            type="button"
+            className="flex items-center gap-2 border border-border rounded-md px-3 py-2 w-full text-left transition-colors hover:bg-background-hover hover:border-border-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        >
+            <Search className="size-4 text-foreground-tertiary shrink-0" />
+            <span className="text-sm text-foreground-tertiary">Search...</span>
+        </button>
     );
 }

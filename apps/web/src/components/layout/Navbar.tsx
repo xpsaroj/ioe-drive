@@ -1,15 +1,18 @@
 "use client"
 import { usePathname } from "next/navigation"
 import { useState } from "react"
-import { PanelLeftOpen, PanelRightOpen } from "lucide-react";
+import Link from "next/link"
+import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 
 import { SearchBar } from "@/components/layout"
+import NavItem from "./NavItem"
 import Button from "@/components/ui/Button"
 import ThemeToggle from "@/components/ui/ThemeToggle"
 import Logo from "@/components/Logo"
+import WordmarkText from "@/components/WordmarkText"
 import { User } from "../User"
 
-import { NAVIGATION_ITEMS } from "@/constants/navigations"
+import { NAVIGATION_ITEMS, isNavItemActive } from "@/constants/navigations"
 
 /**
  * Navbar component for the application
@@ -19,63 +22,65 @@ export default function Navbar() {
 
   const [showDesktopNav, setShowDesktopNav] = useState(true)
 
+  if (!showDesktopNav) {
+    return (
+      <div className="hidden md:block">
+        <Button
+          variant="secondary"
+          size="sm"
+          iconOnly
+          className="fixed top-4 left-3 z-30 shadow-sm"
+          onClick={() => setShowDesktopNav(true)}
+          aria-label="Open navigation"
+          icon={<PanelLeftOpen className="size-5" />}
+        />
+      </div>
+    )
+  }
+
   return (
-    <div className="hidden md:block w-auto relative">
-      <Button
-        variant="ghost"
-        size="sm"
-        className={`absolute top-3 ${showDesktopNav ? "right-2" : "-right-9"} hidden p-0 md:flex items-center justify-center backdrop-blur-sm border`}
-        onClick={() => setShowDesktopNav(!showDesktopNav)}
-        icon={showDesktopNav ? <PanelRightOpen className="size-5" /> : <PanelLeftOpen className="size-5" />}
-        iconOnly
-      />
-
-      <div className={`${showDesktopNav ? "w-64 block" : "hidden"}`}>
-        <div className="flex flex-col gap-4 overflow-hidden h-screen">
-          <div className="pt-3 px-3 flex flex-col gap-4">
-            <div className="px-3 flex flex-row gap-2 items-center justify-between">
-              <div className="flex flex-row gap-2 items-center">
-                <Logo size={2} bg={false} />
-                IOE Drive
-              </div>
-              <div className="me-4">
-                <ThemeToggle />
-              </div>
-            </div>
-
-            <div>
-              <SearchBar />
-            </div>
-          </div>
-
-          <div className="h-full px-3 flex flex-col overflow-y-auto">
-            <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">
-              Navigation
-            </h3>
-            <div className="space-y-1 flex flex-col" role="navigation">
-              {NAVIGATION_ITEMS.map(({ href, icon: Icon, name }, index) => {
-                const isCurrentRoute = pathname === href || pathname.split("/")[1] === href.split("/")[1];
-                return (
-                  <Button
-                    key={href + index}
-                    href={href}
-                    variant={isCurrentRoute ? "secondary" : "ghost"}
-                    className="border-none w-full justify-start"
-                  >
-                    <div className="flex gap-2 items-center">
-                      <Icon className="size-5" />
-                      {name}
-                    </div>
-                  </Button>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="border-t px-3 py-2 hover:bg-muted/30 transition-colors cursor-pointer">
-            <User />
+    <div className="hidden md:flex md:flex-col w-64 h-screen overflow-hidden">
+      <div className="pt-5 px-4 pb-4 flex flex-col gap-4 border-b border-border">
+        <div className="flex items-center justify-between gap-2">
+          <Link href="/dashboard" className="flex items-center gap-2 min-w-0">
+            <Logo size={2} bg={false} disableLink />
+            <WordmarkText size="md" />
+          </Link>
+          <div className="flex items-center gap-0.5 shrink-0">
+            <ThemeToggle />
+            <Button
+              variant="ghost"
+              size="sm"
+              iconOnly
+              onClick={() => setShowDesktopNav(false)}
+              aria-label="Collapse navigation"
+              icon={<PanelLeftClose className="size-5" />}
+            />
           </div>
         </div>
+
+        <SearchBar />
+      </div>
+
+      <div className="h-full px-3 py-4 flex flex-col overflow-y-auto">
+        <h3 className="px-1 mb-2 text-[11px] font-display font-medium text-foreground-tertiary uppercase tracking-[0.15em]">
+          Navigation
+        </h3>
+        <nav className="flex flex-col gap-0.5" aria-label="Primary">
+          {NAVIGATION_ITEMS.map(({ href, icon, name }) => (
+            <NavItem
+              key={href}
+              href={href}
+              icon={icon}
+              name={name}
+              active={isNavItemActive(pathname, href)}
+            />
+          ))}
+        </nav>
+      </div>
+
+      <div className="border-t border-border px-3 py-3 hover:bg-background-hover transition-colors cursor-pointer">
+        <User />
       </div>
     </div>
   )

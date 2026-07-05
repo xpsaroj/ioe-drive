@@ -1,16 +1,18 @@
 "use client"
 import { usePathname } from "next/navigation"
 import { useState, useEffect } from "react"
+import Link from "next/link"
 import clsx from "clsx"
 import { Menu, X } from "lucide-react"
 
 import { SearchBar } from "@/components/layout"
-import Button from "@/components/ui/Button"
+import NavItem from "./NavItem"
 import ThemeToggle from "@/components/ui/ThemeToggle"
 import Logo from "@/components/Logo"
+import WordmarkText from "@/components/WordmarkText"
 import { User } from "../User"
 
-import { NAVIGATION_ITEMS } from "@/constants/navigations"
+import { NAVIGATION_ITEMS, isNavItemActive } from "@/constants/navigations"
 
 /**
  * Mobile navigation component for the application
@@ -37,7 +39,7 @@ export default function MobileNav() {
             {/* Floating button for mobile nav */}
             <div className="fixed top-3 right-3 md:hidden z-9999">
                 <button
-                    className="p-3 text-foreground backdrop-blur-sm rounded-full shadow-lg transition-colors border border-button-primary"
+                    className="p-3 text-foreground bg-background/80 backdrop-blur-sm rounded-full shadow-lg transition-colors border border-button-primary"
                     onClick={() => setMenuOpen(true)}
                     aria-label="Open menu"
                 >
@@ -49,15 +51,20 @@ export default function MobileNav() {
             <div className="block md:hidden sticky top-0 z-50">
                 <div
                     className={clsx(
-                        "fixed top-0 left-0 h-full w-[70%] flex flex-col gap-4 bg-background shadow-xl z-70 transform transition-transform duration-300",
+                        "fixed top-0 left-0 h-full w-[70%] flex flex-col bg-background shadow-xl z-70 transform transition-transform duration-300 ease-out",
                         menuOpen ? "translate-x-0" : "-translate-x-full"
                     )}
                 >
-                    <div className="flex items-center justify-between px-4 py-3 border-b">
-                        <div>
-                            <Logo size={2} />
-                        </div>
-                        <div className="flex items-center gap-1">
+                    <div className="flex items-center justify-between px-4 py-4 border-b border-border">
+                        <Link
+                            href="/dashboard"
+                            className="flex items-center gap-2 min-w-0"
+                            onClick={() => setMenuOpen(false)}
+                        >
+                            <Logo size={2} disableLink />
+                            <WordmarkText size="sm" />
+                        </Link>
+                        <div className="flex items-center gap-0.5">
                             <ThemeToggle />
                             <button
                                 onClick={() => setMenuOpen(false)}
@@ -69,39 +76,29 @@ export default function MobileNav() {
                         </div>
                     </div>
 
-                    <div className="px-3">
+                    <div className="px-3 pt-3">
                         <SearchBar />
                     </div>
 
-                    <div className="h-full px-3 flex flex-col overflow-y-auto">
-                        <h3 className="text-sm font-semibold text-muted-foreground uppercase tracking-wider mb-2">
+                    <div className="h-full px-3 py-4 flex flex-col overflow-y-auto">
+                        <h3 className="px-1 mb-2 text-[11px] font-display font-medium text-foreground-tertiary uppercase tracking-[0.15em]">
                             Navigation
                         </h3>
-                        <div className="space-y-1 flex flex-col" role="navigation">
-                            {NAVIGATION_ITEMS.map(({ href, icon: Icon, name }, index) => {
-                                const isCurrentRoute = pathname === href || pathname.startsWith(href + "/");
-                                return (
-                                    <div
-                                        key={href + index}
-                                        onClick={() => setMenuOpen(false)}
-                                    >
-                                        <Button
-                                            href={href}
-                                            variant={isCurrentRoute ? "secondary" : "ghost"}
-                                            className="border-none w-full justify-start"
-                                        >
-                                            <div className="flex gap-2 items-center">
-                                                <Icon className="size-5" />
-                                                {name}
-                                            </div>
-                                        </Button>
-                                    </div>
-                                );
-                            })}
-                        </div>
+                        <nav className="flex flex-col gap-0.5" aria-label="Primary">
+                            {NAVIGATION_ITEMS.map(({ href, icon, name }) => (
+                                <NavItem
+                                    key={href}
+                                    href={href}
+                                    icon={icon}
+                                    name={name}
+                                    active={isNavItemActive(pathname, href)}
+                                    onClick={() => setMenuOpen(false)}
+                                />
+                            ))}
+                        </nav>
                     </div>
 
-                    <div className="my-4 border-t border-muted pt-4 px-4 md:hidden">
+                    <div className="border-t border-border pt-4 px-4">
                         <User />
                     </div>
                 </div>

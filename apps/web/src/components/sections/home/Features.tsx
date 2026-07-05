@@ -8,7 +8,7 @@ export default function Features() {
     return (
         <section className="bg-background py-20">
             <div className="container mx-auto px-6">
-                <h2 className="text-3xl text-primary font-bold mb-8 text-center">
+                <h2 className="text-3xl text-foreground font-bold mb-8 text-center">
                     What this site offers?
                 </h2>
             </div>
@@ -39,8 +39,8 @@ const FeatureCard = ({ title, description, index, isLast }: FeatureCardProps) =>
     return (
         <div className={`flex ${index % 2 == 0 ? "flex-row" : "flex-row-reverse"} items-end gap-6`}>
             <div className={`w-full sm:w-7/12 border hover:border-accent-active rounded-lg p-6 hover:scale-[1.05] hover:shadow-lg transition-all duration-300 cursor-pointer`}>
-                <h3 className="text-xl text-golden font-semibold mb-4">{title}</h3>
-                <p className="text-secondary">{description}</p>
+                <h3 className="text-xl text-foreground font-semibold mb-4">{title}</h3>
+                <p className="text-foreground-secondary">{description}</p>
             </div>
 
             {

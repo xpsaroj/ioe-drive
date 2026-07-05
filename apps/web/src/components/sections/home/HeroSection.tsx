@@ -10,37 +10,39 @@ export default function HeroSection() {
     const { isSignedIn } = useAuth();
 
     return (
-        <section className="bg-background-secondary py-20 border-b">
-            <div className="container mx-auto px-6 text-center">
-                <h1 className="text-4xl text-primary font-bold mb-4">A unified digital space for IOE students</h1>
-                <p className="text-lg text-secondary max-w-2xl mx-auto mb-8">
-                    Upload notes, explore study materials, connect with seniors, and trade engineering items with ease.
-                </p>
-                <p className="text-lg text-secondary/70 mb-8">
-                    Powered by students, built for the campus.
+        <section className="bg-background-secondary border-b border-border">
+            <div className="container mx-auto px-6 py-20 text-center">
+                <p className="font-display text-xs sm:text-sm tracking-[0.2em] uppercase text-accent font-medium mb-4">
+                    For IOE students, by IOE students
                 </p>
 
-                <div className="flex flex-col sm:flex-row justify-center items-center gap-4 sm:gap-6">
+                <h1 className="text-4xl sm:text-5xl font-bold tracking-tight text-foreground mb-5 text-balance">
+                    The shared library for every IOE program
+                </h1>
+
+                <p className="text-lg text-foreground-secondary max-w-2xl mx-auto mb-10 text-balance">
+                    Notes, past questions, and lab sheets, organized by program, semester, and
+                    subject. Browse freely, or sign in to upload your own and build your library.
+                </p>
+
+                <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
                     <Button
                         variant="primary"
                         size="lg"
                         className="w-full sm:w-auto"
-                        href={isSignedIn ? "/dashboard" : "/sign-in"}
+                        href="/resources"
                     >
-                        {isSignedIn ? "Continue to Dashboard" : "Login to IOE Drive"}
+                        Browse Resources
                     </Button>
 
-                    {
-                        !isSignedIn
-                        && <Button
-                            variant="secondary"
-                            size="lg"
-                            className="w-full sm:w-auto"
-                            href="/resources"
-                        >
-                            Use without login
-                        </Button>
-                    }
+                    <Button
+                        variant="secondary"
+                        size="lg"
+                        className="w-full sm:w-auto"
+                        href={isSignedIn ? "/dashboard" : "/sign-in"}
+                    >
+                        {isSignedIn ? "Continue to Dashboard" : "Sign in"}
+                    </Button>
                 </div>
             </div>
         </section>

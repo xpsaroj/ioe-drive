@@ -44,14 +44,18 @@
     /* Border on focus - black */
 
     /* ===== Accent Colors ===== */
-    --color-accent: #000000;
-    /* Primary accent - black */
-    --color-accent-hover: #1a1a1a;
-    /* Accent hover state */
-    --color-accent-active: #333333;
-    /* Accent active state */
+    /* The one deliberate spot of color in an otherwise monochrome UI - a warm, confident
+       rust/copper orange (distinct from both the existing blue link/info tokens and the
+       amber warning tokens below). Used site-wide wherever something needs to read as
+       "selected" or "brand", e.g. the active nav item, hover states in Features/LibraryHub,
+       the selected file in the file preview page - see the pre-existing usages of
+       bg-accent/text-accent/border-accent this replaces. */
+    --color-accent: #b8461d;
+    --color-accent-hover: #9c3b18;
+    --color-accent-active: #832f12;
     --color-accent-foreground: #ffffff;
-    /* Text on accent backgrounds */
+    /* Soft tinted background wash for accent-colored active/selected states. */
+    --color-accent-soft: rgba(184, 70, 29, 0.08);
 
     /* ===== Status/Semantic Colors ===== */
     /* Success - Green */
@@ -237,6 +241,14 @@
     --color-skeleton-highlight: #ececec;
     /* Skeleton loading highlight */
 
+    /* ===== Typography ===== */
+    /* Display/technical face, used sparingly for the wordmark and small "eyebrow"
+       labels (e.g. NAVIGATION) - IBM Plex Mono was designed for technical documentation,
+       fitting for an engineering resource-sharing platform. Body copy and nav labels
+       stay on Outfit (the default sans below), so this is a restrained accent, not a
+       wholesale font swap. --font-plex-mono is set by next/font (see layout.tsx). */
+    --font-display: var(--font-plex-mono), ui-monospace, monospace;
+
     /* ===== Animations ===== */
     /* Used by Modal (backdrop fade + panel scale-in). Kept short/subtle on purpose. */
     --animate-fade-in: fade-in 0.15s ease-out;
@@ -292,10 +304,12 @@
     --color-border-focus: #ffffff;
 
     /* ===== Accent Colors ===== */
-    --color-accent: #ffffff;
-    --color-accent-hover: #e5e5e5;
-    --color-accent-active: #cccccc;
-    --color-accent-foreground: #0a0a0a;
+    /* Brightened/warmed for contrast on dark backgrounds. */
+    --color-accent: #fb923c;
+    --color-accent-hover: #fca55c;
+    --color-accent-active: #fdb677;
+    --color-accent-foreground: #1a0800;
+    --color-accent-soft: rgba(251, 146, 60, 0.14);
 
     /* ===== Status/Semantic Colors ===== */
     /* Success - Green (one step lighter than the light theme for contrast on dark bg) */
