@@ -36,28 +36,30 @@ const ResourceCard = ({
     });
 
     return (
-        <div className="md:border py-3 md:p-6 md:rounded-md">
+        <div className="md:border py-3 my-4 md:my-0 md:p-6 md:rounded-md">
             {meta && (
                 <p className="text-xs text-foreground-tertiary mb-1">
                     {meta}
                 </p>
             )}
 
-            <div className="md-flex justify-between items-start space-y-4">
-                <div className="flex items-start justify-between gap-2">
-                    <div>
+            <div className="md-flex justify-between items-start space-y-6">
+                <div className="flex flex-col items-start justify-between gap-2">
+                    <div className="flex items-center justify-between gap-2 w-full">
                         <Link
                             href={`/resources/r/${resource.id}`}
                             className="text-lg font-semibold hover:underline decoration-2 underline-offset-3"
                         >
                             {title}
                         </Link>
-                        <p className="text-foreground-secondary text-sm">{description}</p>
+                        <div className="flex items-center gap-1 shrink-0 border p-0.5 rounded-lg">
+                            <BookmarkButton resourceId={resource.id} />
+                            {actions}
+                        </div>
                     </div>
 
-                    <div className="flex items-center gap-1 shrink-0 border p-0.5 rounded-lg">
-                        <BookmarkButton resourceId={resource.id} />
-                        {actions}
+                    <div className="">
+                        <p className="text-foreground-secondary text-sm">{description}</p>
                     </div>
                 </div>
 
@@ -73,7 +75,7 @@ const ResourceCard = ({
                         href={`/offerings/${subjectOffering.id}`}
                         className="text-xs text-foreground-secondary hover:underline hover:text-foreground"
                     >
-                        {subjectOffering?.subject?.code} • {subjectOffering?.subject?.name}
+                        {subjectOffering?.subject?.code} <span className="hidden sm:inline">• {subjectOffering?.subject?.name}</span>
                     </Link>
                 </div>
             </div>

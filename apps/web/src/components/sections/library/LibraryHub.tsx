@@ -1,51 +1,94 @@
 "use client";
 import Link from "next/link";
-import { Clock, Bookmark, Upload, ChevronRight } from "lucide-react";
-import { ContainerBox } from "@/components/ui/ContainerBox";
-import Button from "@/components/ui/Button";
-import { useRecentResources, useBookmarkedResources } from "@/hooks/queries/use-me";
+import { ArrowUpRight, File } from "lucide-react";
 
-interface LibraryOptionProps {
-    icon: React.ReactNode;
+import StatStrip from "@/components/ui/StatStrip";
+import { ResourcePreviewTile } from "@/components/common/resources";
+import { useRecentResources, useBookmarkedResources, useUploadedResources } from "@/hooks/queries/use-me";
+import { getRelativeTime } from "@/utils/time";
+import { ResourceTypeLabel } from "@/types/entities";
+import type { RecentResourceItem } from "@/types/api";
+
+const ContinueCard = ({ latest }: { latest: RecentResourceItem | undefined }) => {
+
+    if (!latest) {
+        return (
+            <Link
+                href="/resources"
+                className="group flex items-center justify-between gap-4 border rounded-xl p-6 transition-colors hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+                <div>
+                    <p className="font-display text-xs uppercase tracking-wide text-foreground-tertiary mb-1">
+                        Get started
+                    </p>
+                    <p className="font-semibold text-foreground">Browse resources for your program and semester</p>
+                </div>
+                <ArrowUpRight className="size-5 text-foreground-tertiary shrink-0 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accent" />
+            </Link>
+        );
+    }
+
+    return (
+        <Link
+            href={`/resources/r/${latest.resourceId}`}
+            className="group flex items-center justify-between gap-4 border rounded-xl p-6 transition-colors hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+        >
+            <div className="flex items-center gap-4 min-w-0">
+                <div className="size-11 rounded-lg bg-background-tertiary flex items-center justify-center shrink-0">
+                    <File className="size-5 text-foreground-secondary" />
+                </div>
+                <div className="min-w-0">
+                    <p className="font-display text-xs uppercase tracking-wide text-foreground-tertiary mb-1">
+                        Continue where you left off
+                    </p>
+                    <p className="font-semibold text-foreground truncate">{latest.resource.title}</p>
+                    <p className="text-sm text-foreground-secondary mt-0.5 truncate">
+                        {latest.resource.subjectOffering?.subject?.code} &middot; Viewed {getRelativeTime(latest.accessedAt)}
+                    </p>
+                </div>
+            </div>
+            <ArrowUpRight className="size-5 text-foreground-tertiary shrink-0 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accent" />
+        </Link>
+    );
+};
+
+interface PreviewPanelProps {
     title: string;
-    description: string;
-    href: string;
+    viewAllHref: string;
+    tiles: React.ReactNode[];
+    emptyText: string;
 }
 
-const LibraryOption = ({
-    icon,
-    title,
-    description,
-    href,
-}: LibraryOptionProps) => (
-    <Link href={href}>
-        <div className="group relative py-4 px-4 rounded-lg transition-all duration-300 cursor-pointer border hover:border-border-hover hover:bg-background-secondary">
-            <div className="flex items-center gap-4">
-                <div className="mt-1 p-2 rounded-lg transition-colors duration-300 shrink-0 bg-background-tertiary text-foreground group-hover:text-accent">
-                    {icon}
-                </div>
-                <div className="flex-1">
-                    <h3 className="text-base font-semibold text-foreground group-hover:text-accent transition-colors">
-                        {title}
-                    </h3>
-                    <p className="text-sm text-foreground-secondary mt-1">{description}</p>
-                </div>
-                <ChevronRight className="w-5 h-5 text-foreground-tertiary group-hover:text-foreground transition-all duration-300 mt-0.5" />
-            </div>
+const PreviewPanel = ({ title, viewAllHref, tiles, emptyText }: PreviewPanelProps) => (
+    <div>
+        <div className="flex items-center justify-between gap-4 mb-4">
+            <h3 className="text-lg font-semibold text-foreground">{title}</h3>
+            <Link href={viewAllHref} className="text-xs font-medium text-foreground-secondary hover:text-foreground transition-colors shrink-0">
+                View all
+            </Link>
         </div>
-    </Link>
+
+        {tiles.length > 0 ? (
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {tiles}
+            </div>
+        ) : (
+            <p className="text-sm text-foreground-secondary">{emptyText}</p>
+        )}
+    </div>
 );
 
 const LibraryHub = () => {
     const { data: recentResourcesData } = useRecentResources();
     const { data: bookmarkedResourcesData } = useBookmarkedResources();
-
-    const displayedRecentResources = (recentResourcesData?.items ?? []).slice(0, 2);
-    const displayedBookmarkedResources = (bookmarkedResourcesData?.items ?? []).slice(0, 2);
+    const { data: uploadedResourcesData } = useUploadedResources();
 
     return (
         <div className="space-y-8">
             <div className="space-y-2">
+                <p className="font-display text-xs tracking-[0.2em] uppercase text-foreground-tertiary">
+                    Library
+                </p>
                 <h1 className="text-2xl md:text-3xl font-bold text-foreground">
                     My Library
                 </h1>
@@ -54,130 +97,48 @@ const LibraryHub = () => {
                 </p>
             </div>
 
-            <div className="flex md:flex-row flex-col gap-8">
-                <div className="flex flex-col gap-2 2xl:flex-1">
-                    <LibraryOption
-                        icon={<Clock className="w-5 h-5" />}
-                        title="Recent Resources"
-                        description="Continue where you left off. Jump back to your recently viewed resources."
-                        href="/library/recent"
-                    />
+            <ContinueCard latest={recentResourcesData?.items?.[0]} />
 
-                    <LibraryOption
-                        icon={<Bookmark className="w-5 h-5" />}
-                        title="Bookmarked Resources"
-                        description="Your saved and bookmarked resources for quick reference and study."
-                        href="/library/bookmarks"
-                    />
+            <StatStrip
+                items={[
+                    { href: "/library/recent", label: "Recently viewed", value: recentResourcesData?.meta?.total },
+                    { href: "/library/bookmarks", label: "Bookmarked", value: bookmarkedResourcesData?.meta?.total },
+                    { href: "/library/uploads", label: "Uploaded", value: uploadedResourcesData?.meta?.total },
+                ]}
+            />
 
-                    <LibraryOption
-                        icon={<Upload className="w-5 h-5" />}
-                        title="My Uploads"
-                        description="Track and manage all the resources you've shared."
-                        href="/library/uploads"
-                    />
-                </div>
+            <div className="flex flex-col gap-8">
+                <PreviewPanel
+                    title="Recently bookmarked"
+                    viewAllHref="/library/bookmarks"
+                    emptyText="Nothing bookmarked yet."
+                    tiles={(bookmarkedResourcesData?.items ?? []).slice(0, 3).map((item) => (
+                        <ResourcePreviewTile
+                            key={item.resourceId}
+                            resourceId={item.resourceId}
+                            title={item.resource.title}
+                            subjectCode={item.resource.subjectOffering?.subject?.code}
+                            typeLabel={ResourceTypeLabel[item.resource.type]}
+                            timeLabel={getRelativeTime(item.bookmarkedAt)}
+                        />
+                    ))}
+                />
 
-                {/* Sidebar */}
-                <div className="hidden md:flex flex-col flex-1 gap-6">
-                    <ContainerBox title="Recently Accessed" comment="Your study journey">
-                        {displayedRecentResources && displayedRecentResources.length > 0 ? (
-                            <div className="flex flex-col gap-2">
-                                {displayedRecentResources.map((resourceItem) => (
-                                    <Link key={resourceItem.resourceId} href={`/resources/r/${resourceItem.resourceId}`}>
-                                        <div className="p-3 rounded-lg border border-border hover:border-border-hover hover:bg-background-secondary transition-all duration-300 cursor-pointer group">
-                                            <p className="text-sm font-medium text-foreground truncate group-hover:text-accent transition-colors">
-                                                {resourceItem.resource?.title || "Untitled"}
-                                            </p>
-                                            <p className="text-xs text-foreground-secondary mt-1 truncate">
-                                                By {resourceItem.resource?.uploader?.fullName || "Unknown"}
-                                            </p>
-                                        </div>
-                                    </Link>
-                                ))}
-                                <Button
-                                    variant="outline"
-                                    className="w-full mt-4 text-foreground-secondary hover:text-foreground"
-                                    href="/library/recent"
-                                    size="sm"
-                                >
-                                    View All Recent
-                                </Button>
-                            </div>
-                        ) : (
-                            <div className="text-center py-6">
-                                <p className="text-sm text-foreground-secondary">
-                                    No recently accessed resources yet.
-                                </p>
-                                <Button
-                                    variant="ghost"
-                                    className="w-full mt-4 text-foreground-secondary hover:text-foreground"
-                                    href="/resources"
-                                    size="sm"
-                                >
-                                    Explore Resources
-                                </Button>
-                            </div>
-                        )}
-                    </ContainerBox>
-
-                    <ContainerBox title="Recently Saved" comment="Your bookmarks">
-                        {displayedBookmarkedResources && displayedBookmarkedResources.length > 0 ? (
-                            <div className="flex flex-col gap-2">
-                                {displayedBookmarkedResources.map((resourceItem) => (
-                                    <Link key={resourceItem.resourceId} href={`/resources/r/${resourceItem.resourceId}`}>
-                                        <div className="p-3 rounded-lg border border-border hover:border-border-hover hover:bg-background-secondary transition-all duration-300 cursor-pointer group">
-                                            <p className="text-sm font-medium text-foreground truncate group-hover:text-accent transition-colors">
-                                                {resourceItem.resource?.title || "Untitled"}
-                                            </p>
-                                            <p className="text-xs text-foreground-secondary mt-1 truncate">
-                                                By {resourceItem.resource?.uploader?.fullName || "Unknown"}
-                                            </p>
-                                        </div>
-                                    </Link>
-                                ))}
-                                <Button
-                                    variant="outline"
-                                    className="w-full mt-4 text-foreground-secondary hover:text-foreground"
-                                    href="/library/bookmarks"
-                                    size="sm"
-                                >
-                                    View All Saved
-                                </Button>
-                            </div>
-                        ) : (
-                            <div className="text-center py-6">
-                                <p className="text-sm text-foreground-secondary">
-                                    No saved resources yet.
-                                </p>
-                                <Button
-                                    variant="ghost"
-                                    className="w-full mt-4 text-foreground-secondary hover:text-foreground"
-                                    href="/resources"
-                                    size="sm"
-                                >
-                                    Start Saving
-                                </Button>
-                            </div>
-                        )}
-                    </ContainerBox>
-                </div>
-            </div>
-
-            <div className="mt-12 pt-8 border-t">
-                <div className="space-y-3">
-                    <p className="text-sm font-semibold text-foreground">Learning Tips</p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="p-4 rounded-lg bg-background-secondary border">
-                            <p className="text-sm text-foreground font-medium">Organize & Save</p>
-                            <p className="text-xs text-foreground-secondary mt-2">Bookmark important resources and create your personal library for quick access.</p>
-                        </div>
-                        <div className="p-4 rounded-lg bg-background-secondary border">
-                            <p className="text-sm text-foreground font-medium">Share & Contribute</p>
-                            <p className="text-xs text-foreground-secondary mt-2">Upload your resources to help peers learn. Your contribution makes a difference.</p>
-                        </div>
-                    </div>
-                </div>
+                <PreviewPanel
+                    title="Recently uploaded"
+                    viewAllHref="/library/uploads"
+                    emptyText="Nothing shared yet."
+                    tiles={(uploadedResourcesData?.items ?? []).slice(0, 3).map((item) => (
+                        <ResourcePreviewTile
+                            key={item.id}
+                            resourceId={item.id}
+                            title={item.title}
+                            subjectCode={item.subjectOffering?.subject?.code}
+                            typeLabel={ResourceTypeLabel[item.type]}
+                            timeLabel={getRelativeTime(item.createdAt)}
+                        />
+                    ))}
+                />
             </div>
         </div>
     );

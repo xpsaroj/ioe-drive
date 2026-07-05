@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
-import { File } from "lucide-react";
 
+import { ResourcePreviewTile } from "@/components/common/resources";
 import { useRecentResources } from "@/hooks/queries/use-me";
 import { getRelativeTime } from "@/utils/time";
 import { ResourceTypeLabel } from "@/types/entities";
@@ -33,29 +33,14 @@ const RecentAccess = () => {
       ) : items && items.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {items.map((item) => (
-            <Link
+            <ResourcePreviewTile
               key={item.resourceId}
-              href={`/resources/r/${item.resourceId}`}
-              className="group flex flex-col gap-3 border rounded-xl p-4 transition-all duration-150 hover:border-accent hover:-translate-y-0.5 hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-            >
-              <div className="flex items-center justify-between">
-                <div className="size-9 rounded-md bg-background-tertiary flex items-center justify-center">
-                  <File className="size-4 text-foreground-secondary" />
-                </div>
-                <span className="font-display text-[10px] uppercase tracking-wide text-foreground-tertiary">
-                  {getRelativeTime(item.accessedAt)}
-                </span>
-              </div>
-
-              <div>
-                <p className="text-sm font-semibold text-foreground line-clamp-2 group-hover:underline underline-offset-2">
-                  {item.resource.title}
-                </p>
-                <p className="text-xs text-foreground-secondary mt-1">
-                  {item.resource.subjectOffering?.subject?.code} &middot; {ResourceTypeLabel[item.resource.type]}
-                </p>
-              </div>
-            </Link>
+              resourceId={item.resourceId}
+              title={item.resource.title}
+              subjectCode={item.resource.subjectOffering?.subject?.code}
+              typeLabel={ResourceTypeLabel[item.resource.type]}
+              timeLabel={getRelativeTime(item.accessedAt)}
+            />
           ))}
         </div>
       ) : (

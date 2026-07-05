@@ -1,27 +1,11 @@
 "use client"
-import Link from "next/link"
 import { useUser } from "@clerk/nextjs"
 import { BookOpen, Upload } from "lucide-react"
 
 import Button from "@/components/ui/Button"
+import StatStrip from "@/components/ui/StatStrip"
 import { useMe, useUploadedResources, useBookmarkedResourceIds, useRecentResources } from "@/hooks/queries/use-me"
 import { SemesterLabel } from "@/types/entities"
-
-interface StatProps {
-    href: string;
-    label: string;
-    value: number | undefined;
-}
-
-const Stat = ({ href, label, value }: StatProps) => (
-    <Link
-        href={href}
-        className="flex-1 px-5 py-4 text-center sm:text-left transition-colors hover:bg-background-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset"
-    >
-        <p className="text-2xl font-bold text-foreground leading-none">{value ?? "–"}</p>
-        <p className="font-display text-[11px] uppercase tracking-wide text-foreground-secondary mt-1.5">{label}</p>
-    </Link>
-);
 
 const DashboardHero = () => {
     const { user } = useUser()
@@ -52,11 +36,14 @@ const DashboardHero = () => {
                 )}
             </div>
 
-            <div className="flex flex-col sm:flex-row border border-border rounded-xl divide-y sm:divide-y-0 sm:divide-x divide-border mt-6 overflow-hidden">
-                <Stat href="/library/uploads" label="Uploaded" value={uploaded?.meta?.total} />
-                <Stat href="/library/bookmarks" label="Bookmarked" value={bookmarkedIds?.length} />
-                <Stat href="/library/recent" label="Recently viewed" value={recent?.meta?.total} />
-            </div>
+            <StatStrip
+                className="mt-6"
+                items={[
+                    { href: "/library/uploads", label: "Uploaded", value: uploaded?.meta?.total },
+                    { href: "/library/bookmarks", label: "Bookmarked", value: bookmarkedIds?.length },
+                    { href: "/library/recent", label: "Recently viewed", value: recent?.meta?.total },
+                ]}
+            />
 
             <div className="flex flex-wrap gap-3 mt-6">
                 <Button href="/resources" variant="secondary" size="sm" icon={<BookOpen className="size-4" />}>

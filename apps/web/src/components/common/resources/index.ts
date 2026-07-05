@@ -7,6 +7,7 @@ export { default as ResourceFileList } from "./ResourceFileList";
 export { default as MimeTypeBadge } from "./MimeTypeBadge";
 export { default as UploadedResourceCard } from "./UploadedResourceCard";
 export { default as RecentResourceCard } from "./RecentResourceCard";
+export { default as ResourcePreviewTile } from "./ResourcePreviewTile";
 export { default as BookmarkedResourceCard } from "./BookmarkedResourceCard";
 export { default as ResourcePageStateHandler } from "./ResourcePageStateHandler";
 export { default as EditResourceButton } from "./EditResourceButton";

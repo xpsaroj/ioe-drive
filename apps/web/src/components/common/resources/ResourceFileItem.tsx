@@ -11,9 +11,9 @@ const ResourceFileItem = ({ file }: ResourceFileItemProps) => {
     const { id: fileId, resourceId, originalFileName, mimeType } = file;
 
     return (
-        <Link href={`/resources/r/${resourceId}/files/${fileId}`} className="border p-1 flex flex-row items-center gap-1 rounded-lg hover:bg-background-tertiary hover:border-foreground-tertiary transition-all duration-200">
+        <Link href={`/resources/r/${resourceId}/files/${fileId}`} className="border p-1 flex flex-row items-center gap-1 rounded-lg hover:bg-background-tertiary hover:border-foreground-tertiary transition-all duration-200 max-w-full">
             <MimeTypeBadge mimeType={mimeType} />
-            <p className="text-xs">{originalFileName}</p>
+            <p className="text-xs truncate max-w-[160px] sm:max-w-[240px]">{originalFileName}</p>
         </Link>
     )
 }
