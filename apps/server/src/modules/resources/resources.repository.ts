@@ -1,4 +1,4 @@
-import { eq, and } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 
 import { db } from "../../db/index.js";
 import { resourceFilesTable, resourcesTable } from "../../db/schema.js";
@@ -259,6 +259,7 @@ export class ResourcesRepository {
             .resourcesTable
             .findMany({
                 where: whereClause,
+                orderBy: [desc(resourcesTable.createdAt)],
                 with: {
                     subjectOffering: {
                         columns: {

@@ -47,6 +47,7 @@ export class MeService {
             .query.resourcesTable
             .findMany({
                 where: eq(resourcesTable.uploadedBy, userId),
+                orderBy: [desc(resourcesTable.createdAt)],
                 with: {
                     subjectOffering: {
                         columns: {
