@@ -44,18 +44,16 @@
     /* Border on focus - black */
 
     /* ===== Accent Colors ===== */
-    /* The one deliberate spot of color in an otherwise monochrome UI - a warm, confident
-       rust/copper orange (distinct from both the existing blue link/info tokens and the
-       amber warning tokens below). Used site-wide wherever something needs to read as
-       "selected" or "brand", e.g. the active nav item, hover states in Features/LibraryHub,
-       the selected file in the file preview page - see the pre-existing usages of
-       bg-accent/text-accent/border-accent this replaces. */
-    --color-accent: #b8461d;
-    --color-accent-hover: #9c3b18;
-    --color-accent-active: #832f12;
+    /* Monochrome by design - this project intentionally stays black/white rather than
+       introducing a brand color. Used wherever something needs to read as "selected" or
+       "brand": the active nav item, hover states in Features/LibraryHub, the selected
+       file in the file preview page. */
+    --color-accent: #000000;
+    --color-accent-hover: #1a1a1a;
+    --color-accent-active: #333333;
     --color-accent-foreground: #ffffff;
     /* Soft tinted background wash for accent-colored active/selected states. */
-    --color-accent-soft: rgba(184, 70, 29, 0.08);
+    --color-accent-soft: rgba(0, 0, 0, 0.06);
 
     /* ===== Status/Semantic Colors ===== */
     /* Success - Green */
@@ -304,12 +302,11 @@
     --color-border-focus: #ffffff;
 
     /* ===== Accent Colors ===== */
-    /* Brightened/warmed for contrast on dark backgrounds. */
-    --color-accent: #fb923c;
-    --color-accent-hover: #fca55c;
-    --color-accent-active: #fdb677;
-    --color-accent-foreground: #1a0800;
-    --color-accent-soft: rgba(251, 146, 60, 0.14);
+    --color-accent: #ffffff;
+    --color-accent-hover: #e5e5e5;
+    --color-accent-active: #cccccc;
+    --color-accent-foreground: #0a0a0a;
+    --color-accent-soft: rgba(255, 255, 255, 0.08);
 
     /* ===== Status/Semantic Colors ===== */
     /* Success - Green (one step lighter than the light theme for contrast on dark bg) */

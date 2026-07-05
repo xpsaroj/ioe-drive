@@ -2,10 +2,18 @@
 import Link from "next/link";
 import { ContainerBox } from "@/components/ui/ContainerBox";
 import Table, { Column } from "@/components/ui/Table";
+import { SubjectHardnessBadge } from "@/components/common/offering";
 import { SubjectOfferingWithSubject } from "@/types/entities/academics";
 
 import { useMe } from "@/hooks/queries/use-me";
 import { useSubjectOfferings } from "@/hooks/queries/use-academics";
+
+const MarksCell = ({ final, assessment }: { final: number; assessment: number }) => (
+  <span className="tabular-nums">
+    <span className="font-semibold text-foreground">{final}</span>
+    <span className="text-foreground-tertiary"> + {assessment}</span>
+  </span>
+);
 
 const SemesterInformation = () => {
   const { data: userData, isLoading: userLoading } = useMe();
@@ -15,63 +23,58 @@ const SemesterInformation = () => {
 
   const columns: Column<SubjectOfferingWithSubject>[] = [
     {
-      key: "code",
-      label: "CODE",
-      render: (item) => (
-        <span className="text-sm text-foreground-secondary">{item.subject.code}</span>
-      ),
-    },
-    {
       key: "subject",
       label: "SUBJECT",
       render: (item) => (
-        <Link href={`/offerings/${item.id}`}>
-          <span className="font-medium cursor-pointer hover:underline">
-            {item.subject.name}
-          </span>
-        </Link>
+        <div>
+          <Link href={`/offerings/${item.id}`}>
+            <span className="font-medium cursor-pointer hover:underline underline-offset-2">
+              {item.subject.name}
+            </span>
+          </Link>
+          <p className="font-display text-xs text-foreground-tertiary mt-0.5">{item.subject.code}</p>
+        </div>
       ),
     },
     {
-      key: "program",
-      label: "PROGRAM",
+      key: "difficulty",
+      label: "DIFFICULTY",
       render: (item) => (
-        <span>
-          {item.subject.program.code}
-        </span>
+        <SubjectHardnessBadge level={item.subject.hardnessLevel} size="sm" />
       ),
     },
     {
       key: "marks-theory",
       label: "MARKS (TH)",
       render: (item) => (
-        <span>
-          {item.subject.marks.theoryFinal} + {item.subject.marks.theoryAssessment}
-        </span>
+        <MarksCell final={item.subject.marks.theoryFinal} assessment={item.subject.marks.theoryAssessment} />
       ),
     },
     {
       key: "marks-practical",
       label: "MARKS (PR)",
       render: (item) => (
-        <span>
-          {item.subject.marks.practicalFinal} + {item.subject.marks.practicalAssessment}
-        </span>
+        <MarksCell final={item.subject.marks.practicalFinal} assessment={item.subject.marks.practicalAssessment} />
       ),
     },
   ];
 
+  const subjectCount = subjectOfferings?.length ?? 0;
+
   return (
     <ContainerBox
       title="Subjects this semester"
-      comment="Tip: Click on subject to directly access its resources"
+      comment={
+        subjectCount > 0
+          ? `${subjectCount} subject${subjectCount === 1 ? "" : "s"} - click one to view its full details.`
+          : "Tip: click on a subject to view its full details."
+      }
     >
       <Table
         columns={columns}
         loading={isLoading || userLoading}
         data={subjectOfferings || []}
         emptyMessage="No semester information available. Make sure you've added your semester and program in your profile settings."
-        striped
       />
     </ContainerBox>
   );
