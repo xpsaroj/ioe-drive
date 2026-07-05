@@ -1,10 +1,11 @@
 "use client"
-import { use, useState } from "react"
+import { use, useEffect, useState } from "react"
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, Download, FileWarning, PanelRightClose, PanelRightOpen } from "lucide-react";
 
 import { useResource, useFileDownloadUrl, useDownloadFile } from "@/hooks/queries/use-resources";
+import { useMe, useMarkResourceAsRecentlyAccessed } from "@/hooks/queries/use-me";
 import Button from "@/components/ui/Button";
 import Loader from "@/components/ui/Loader";
 import { PageStateHandler } from "@/components/layout";
@@ -42,10 +43,23 @@ const FilePreviewPage = ({
 
     const { mutate: requestDownload, isPending: isPreparingDownload } = useDownloadFile(resourceId);
 
+    const { data: userData } = useMe();
+    const { mutate: markAsRecentlyAccessed } = useMarkResourceAsRecentlyAccessed();
+
     const [hasRetriedImage, setHasRetriedImage] = useState(false);
     const [showSidebar, setShowSidebar] = useState(true);
 
     const isMissing = !resourceId || !fileId || isNaN(resourceId) || isNaN(fileId) || !resource || !activeFile;
+
+    useEffect(() => {
+        if (userData && resource) {
+            markAsRecentlyAccessed(String(resource.id));
+        }
+        // Depend on userData.id (not the userData object) so an unrelated profile
+        // refetch producing a new object reference doesn't re-fire this. mutate's
+        // identity is stable across renders (TanStack Query), so it's fine to omit.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [userData?.id, resource?.id]);
 
     const handleDownload = () => {
         if (!activeFile) return;

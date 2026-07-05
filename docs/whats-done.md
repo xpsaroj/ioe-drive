@@ -21,8 +21,11 @@ A quick, high-level list of what already works. For the full picture see
 - Full resource CRUD: create/update/delete/list/detail, with multi-file upload straight
   to Azure Blob Storage, plus adding/removing individual files on an existing resource.
   Editing and deleting are only available to a resource's owner, enforced server-side.
+  Resource listings (browse, uploader-filtered, "My Uploads") sort newest-first.
 - Per-user "recently accessed" and "bookmarked" resource tracking (the old "archived"
-  naming was renamed to "bookmarked" end to end, DB through UI).
+  naming was renamed to "bookmarked" end to end, DB through UI). Visiting a resource's
+  detail page or a file within it now actually marks it as recently accessed (top 10
+  shown, ordered by last access).
 - Profile management: program, semester, college, bio, onboarding flow.
 - Core frontend surfaces: dashboard, a unified `/resources` browse page (works for
   guests and signed-in users, defaults to the signed-in user's own program/semester

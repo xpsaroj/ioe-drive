@@ -16,11 +16,16 @@ essays here once something is actively being worked on.
       secondary storage backend.
 - [ ] Add basic moderation/reporting for uploaded resources (currently any signed-in user
       can upload with no review or takedown path).
+- [ ] Add pagination to resource list queries (`resourcesRepository.findMany`,
+      `MeService#getUploadedResources`) — currently unbounded, fine while the dataset is
+      small but will need a limit/offset (or cursor) eventually.
 
 ## Frontend
 
 - [ ] Build out the placeholder destinations: Community, Market/Marketplace, Alumni,
       Offerings list page — all currently one-line stub pages linked from the nav.
+- [ ] Wire up the navbar `SearchBar` — it's currently a fully dead placeholder button
+      (no click handler, no logic) despite being visible in both desktop and mobile nav.
 
 ## Housekeeping
 

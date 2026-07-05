@@ -118,6 +118,17 @@ export function useBookmarkedResources() {
     });
 }
 
+export function useMarkResourceAsRecentlyAccessed() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (resourceId: string) => meApi.markResourceAsRecentlyAccessed(resourceId),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: meKeys.recentResources });
+        },
+    });
+}
+
 export function useBookmarkResource() {
     const queryClient = useQueryClient();
 

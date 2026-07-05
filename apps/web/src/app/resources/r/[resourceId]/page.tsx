@@ -1,11 +1,11 @@
 "use client"
-import { use } from "react"
+import { use, useEffect } from "react"
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft } from "lucide-react";
 
 import { useResource } from "@/hooks/queries/use-resources";
-import { useMe } from "@/hooks/queries/use-me";
+import { useMe, useMarkResourceAsRecentlyAccessed } from "@/hooks/queries/use-me";
 import Button from "@/components/ui/Button";
 import { PageStateHandler } from "@/components/layout";
 import { ResourceFileList, EditResourceButton, DeleteResourceButton } from "@/components/common/resources";
@@ -28,6 +28,18 @@ const ResourceDetailPage = ({
     const { data: resource, isPending, error } = useResource(resourceId);
     const { data: userData } = useMe();
     const isOwner = !!userData && !!resource?.uploadedBy && userData.id === resource.uploadedBy;
+
+    const { mutate: markAsRecentlyAccessed } = useMarkResourceAsRecentlyAccessed();
+
+    useEffect(() => {
+        if (userData && resource) {
+            markAsRecentlyAccessed(String(resource.id));
+        }
+        // Depend on userData.id (not the userData object) so an unrelated profile
+        // refetch producing a new object reference doesn't re-fire this. mutate's
+        // identity is stable across renders (TanStack Query), so it's fine to omit.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [userData?.id, resource?.id]);
 
     const header = (
         <div className="flex items-center gap-2 mb-4">

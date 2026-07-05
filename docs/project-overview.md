@@ -113,7 +113,9 @@ Tables:
   (no compression is implemented yet).
 - `user_recent_resources` — per-user "recently accessed" tracking, unique on (userId,
   resourceId), used for the dashboard and `/library` "Recently Accessed" lists (capped
-  at 5 in the service layer).
+  at 10 in the service layer via `ORDER BY accessed_at DESC LIMIT 10`; nothing is ever
+  deleted from the table itself - fine at this project's scale since the row count per
+  user is bounded by distinct resources ever viewed, not by view count).
 - `user_bookmarked_resources` — per-user bookmarks, unique on (userId, resourceId),
   capped at 10 when listed.
 - `webhook_events` — svixId primary key + eventType, used purely for Clerk webhook
@@ -259,9 +261,12 @@ Mounted in `apps/server/src/server.ts` / `apps/server/src/routes/index.ts`:
   since svix signature verification needs the raw body.
 - `/api/me/*` (auth required) — get/update own profile, list own uploaded resources,
   list recently-accessed resources, list bookmarked resources, mark/unmark a resource as
-  recently-accessed or bookmarked.
+  recently-accessed or bookmarked. The mark-as-recently-accessed call is now actually
+  triggered from the frontend (a resource's detail page and its file preview page both
+  fire it) - the endpoint existed for a while but nothing called it.
 - `/api/users/:userId` (auth required) — fetch another user's public-ish profile.
-- `/api/resources` — `GET /` (filter by `offeringId` or `userId`, at least one required),
+- `/api/resources` — `GET /` (filter by `offeringId` or `userId`, at least one required,
+  sorted newest-first by `createdAt`; same for `/api/me/resources`),
   `GET /:resourceId`, `POST /` (auth + multipart upload, field name `resourceFile`, up to
   5 files, body includes the required `type`), `PATCH /:resourceId` (auth, must be the
   uploader), `DELETE /:resourceId` (auth, must be the uploader; also deletes the

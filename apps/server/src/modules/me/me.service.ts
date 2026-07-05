@@ -148,7 +148,7 @@ export class MeService {
                     }
                 },
                 orderBy: [desc(userRecentResourcesTable.accessedAt)],
-                limit: 5,
+                limit: 10,
             });
     }
 
