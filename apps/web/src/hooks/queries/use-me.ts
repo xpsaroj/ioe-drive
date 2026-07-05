@@ -11,6 +11,7 @@ export const meKeys = {
     uploadedResources: ['me', 'uploaded-resources'] as const,
     recentResources: ['me', 'recent-resources'] as const,
     bookmarkedResources: ['me', 'bookmarked-resources'] as const,
+    bookmarkedResourceIds: ['me', 'bookmarked-resource-ids'] as const,
 };
 
 export function useMe() {
@@ -118,6 +119,33 @@ export function useBookmarkedResources() {
     });
 }
 
+/**
+ * Fetches every resource ID the current user has bookmarked, for cheap "is this
+ * bookmarked" membership checks across many resources at once (e.g. a bookmark icon on
+ * every ResourceCard) - see useBookmarkResource/useUnbookmarkResource below for how
+ * this cache gets kept in sync with actual bookmark/unbookmark actions.
+ */
+export function useBookmarkedResourceIds() {
+    const { isSignedIn } = useAuth();
+
+    return useQuery({
+        queryKey: meKeys.bookmarkedResourceIds,
+        queryFn: async () => {
+            const response = await meApi.getBookmarkedResourceIds();
+            if (!response.success) {
+                throw new Error(response.error ?? 'Failed to fetch bookmarked resource IDs.');
+            }
+            return response.data;
+        },
+        enabled: isSignedIn,
+        // Bookmarks change far less often than resources get browsed, and the mutations
+        // below explicitly invalidate this on any bookmark/unbookmark, so correctness
+        // for our own actions doesn't depend on staleTime.
+        staleTime: 30 * 60 * 1000,
+        gcTime: 40 * 60 * 1000,
+    });
+}
+
 export function useMarkResourceAsRecentlyAccessed() {
     const queryClient = useQueryClient();
 
@@ -134,8 +162,29 @@ export function useBookmarkResource() {
 
     return useMutation({
         mutationFn: (resourceId: string) => meApi.markResourceAsBookmarked(resourceId),
-        onSuccess: () => {
-            // Invalidate bookmarked resources to refetch
+
+        // Optimistically add to the ID set so a card's bookmark icon flips instantly,
+        // instead of waiting on a round-trip + refetch.
+        onMutate: async (resourceId) => {
+            await queryClient.cancelQueries({ queryKey: meKeys.bookmarkedResourceIds });
+
+            const previousIds = queryClient.getQueryData<number[]>(meKeys.bookmarkedResourceIds);
+
+            queryClient.setQueryData<number[]>(meKeys.bookmarkedResourceIds, (old) =>
+                old ? [...old, Number(resourceId)] : old
+            );
+
+            return { previousIds };
+        },
+
+        onError: (_err, _resourceId, context) => {
+            if (context?.previousIds) {
+                queryClient.setQueryData(meKeys.bookmarkedResourceIds, context.previousIds);
+            }
+        },
+
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: meKeys.bookmarkedResourceIds });
             queryClient.invalidateQueries({ queryKey: meKeys.bookmarkedResources });
         },
     });
@@ -146,7 +195,27 @@ export function useUnbookmarkResource() {
 
     return useMutation({
         mutationFn: (resourceId: string) => meApi.unmarkResourceAsBookmarked(resourceId),
-        onSuccess: () => {
+
+        onMutate: async (resourceId) => {
+            await queryClient.cancelQueries({ queryKey: meKeys.bookmarkedResourceIds });
+
+            const previousIds = queryClient.getQueryData<number[]>(meKeys.bookmarkedResourceIds);
+
+            queryClient.setQueryData<number[]>(meKeys.bookmarkedResourceIds, (old) =>
+                old ? old.filter((id) => id !== Number(resourceId)) : old
+            );
+
+            return { previousIds };
+        },
+
+        onError: (_err, _resourceId, context) => {
+            if (context?.previousIds) {
+                queryClient.setQueryData(meKeys.bookmarkedResourceIds, context.previousIds);
+            }
+        },
+
+        onSettled: () => {
+            queryClient.invalidateQueries({ queryKey: meKeys.bookmarkedResourceIds });
             queryClient.invalidateQueries({ queryKey: meKeys.bookmarkedResources });
         },
     });

@@ -19,6 +19,9 @@ essays here once something is actively being worked on.
 - [ ] Add pagination to resource list queries (`resourcesRepository.findMany`,
       `MeService#getUploadedResources`) — currently unbounded, fine while the dataset is
       small but will need a limit/offset (or cursor) eventually.
+- [ ] Add pagination to `/library/bookmarks` (`MeService#getBookmarkedResources`) —
+      currently hard-capped at 10 by `LIMIT`, so bookmarks beyond the 10 most recent
+      are invisible on that page even though they still exist in the DB.
 
 ## Frontend
 

@@ -25,7 +25,9 @@ A quick, high-level list of what already works. For the full picture see
 - Per-user "recently accessed" and "bookmarked" resource tracking (the old "archived"
   naming was renamed to "bookmarked" end to end, DB through UI). Visiting a resource's
   detail page or a file within it now actually marks it as recently accessed (top 10
-  shown, ordered by last access).
+  shown, ordered by last access). A bookmark toggle button now appears on every resource
+  card and the detail page (any signed-in user, not just the uploader), backed by a
+  bulk "bookmarked resource IDs" endpoint and optimistic UI updates.
 - Profile management: program, semester, college, bio, onboarding flow.
 - Core frontend surfaces: dashboard, a unified `/resources` browse page (works for
   guests and signed-in users, defaults to the signed-in user's own program/semester

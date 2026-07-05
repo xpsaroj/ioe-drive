@@ -19,7 +19,7 @@ const UploadedResourceCard = ({ item, showOwnerActions = false }: Props) => {
             resource={item}
             actions={
                 showOwnerActions ? (
-                    <div className="flex items-center gap-1 shrink-0 border p-0.5 rounded-lg">
+                    <div className="flex items-center gap-1 shrink-0">
                         <EditResourceButton resource={item} />
                         <DeleteResourceButton resourceId={item.id} />
                     </div>

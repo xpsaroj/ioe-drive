@@ -14,6 +14,7 @@ import { meController } from "./me.controller.js";
  * - GET /resources                                         - Get resources uploaded by the current user
  * - GET /recent-resources                                  - Get recently accessed resources by the current user
  * - GET /bookmarked-resources                               - Get bookmarked resources by the current user
+ * - GET /bookmarked-resource-ids                            - Get every resource ID bookmarked by the current user
  * - POST /resources/:resourceId/recent                     - Mark a resource as recently accessed by the current user
  * - POST /resources/:resourceId/bookmark                    - Bookmark a resource for the current user
  * - DELETE /resources/:resourceId/bookmark                  - Unbookmark a resource for the current user
@@ -67,6 +68,15 @@ router.get(
 router.get(
     "/bookmarked-resources",
     meController.getCurrentUserBookmarkedResources.bind(meController)
+);
+
+/**
+ * Get /api/me/bookmarked-resource-ids
+ * - Get every resource ID bookmarked by the current user (uncapped, IDs only)
+ */
+router.get(
+    "/bookmarked-resource-ids",
+    meController.getCurrentUserBookmarkedResourceIds.bind(meController)
 );
 
 /**

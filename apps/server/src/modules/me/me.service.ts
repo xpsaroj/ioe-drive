@@ -213,6 +213,28 @@ export class MeService {
     }
 
     /**
+     * Retrieves every resource ID the currently authenticated user has ever bookmarked,
+     * uncapped and without joining the resources themselves. Meant for checking
+     * bookmark status across many resources at once (e.g. rendering a bookmark icon on
+     * every card in a list) - `getBookmarkedResources` above is unsuitable for that
+     * since it's capped at 10 and fetches full resource details.
+     * @param userId Currently authenticated user's id
+     * @returns Array of bookmarked resource IDs
+     */
+    async getBookmarkedResourceIds(userId: number) {
+        const rows = await db
+            .query.userBookmarkedResourcesTable
+            .findMany({
+                where: eq(userBookmarkedResourcesTable.userId, userId),
+                columns: {
+                    resourceId: true,
+                },
+            });
+
+        return rows.map((row) => row.resourceId);
+    }
+
+    /**
      * Marks a resource as recently accessed by the user.
      * @param userId User ID
      * @param resourceId Resource ID

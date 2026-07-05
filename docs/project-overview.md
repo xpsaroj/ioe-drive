@@ -116,8 +116,10 @@ Tables:
   at 10 in the service layer via `ORDER BY accessed_at DESC LIMIT 10`; nothing is ever
   deleted from the table itself - fine at this project's scale since the row count per
   user is bounded by distinct resources ever viewed, not by view count).
-- `user_bookmarked_resources` — per-user bookmarks, unique on (userId, resourceId),
-  capped at 10 when listed.
+- `user_bookmarked_resources` — per-user bookmarks, unique on (userId, resourceId). The
+  `/library/bookmarks` list itself is capped at 10 (pagination planned, see `todo.md`),
+  but checking whether a given resource is bookmarked (for the bookmark icon shown on
+  every resource card) goes through a separate, uncapped IDs-only endpoint instead.
 - `webhook_events` — svixId primary key + eventType, used purely for Clerk webhook
   idempotency (see section 8).
 
@@ -260,10 +262,12 @@ Mounted in `apps/server/src/server.ts` / `apps/server/src/routes/index.ts`:
 - `POST /api/webhooks/clerk` — Clerk webhook receiver, mounted before `express.json()`
   since svix signature verification needs the raw body.
 - `/api/me/*` (auth required) — get/update own profile, list own uploaded resources,
-  list recently-accessed resources, list bookmarked resources, mark/unmark a resource as
-  recently-accessed or bookmarked. The mark-as-recently-accessed call is now actually
-  triggered from the frontend (a resource's detail page and its file preview page both
-  fire it) - the endpoint existed for a while but nothing called it.
+  list recently-accessed resources, list bookmarked resources, list every bookmarked
+  resource ID (uncapped, IDs only - `GET /bookmarked-resource-ids`, backs the bookmark
+  icon shown on every resource card), mark/unmark a resource as recently-accessed or
+  bookmarked. The mark-as-recently-accessed call is now actually triggered from the
+  frontend (a resource's detail page and its file preview page both fire it) - the
+  endpoint existed for a while but nothing called it.
 - `/api/users/:userId` (auth required) — fetch another user's public-ish profile.
 - `/api/resources` — `GET /` (filter by `offeringId` or `userId`, at least one required,
   sorted newest-first by `createdAt`; same for `/api/me/resources`),

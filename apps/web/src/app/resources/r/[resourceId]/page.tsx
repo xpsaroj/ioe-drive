@@ -8,7 +8,7 @@ import { useResource } from "@/hooks/queries/use-resources";
 import { useMe, useMarkResourceAsRecentlyAccessed } from "@/hooks/queries/use-me";
 import Button from "@/components/ui/Button";
 import { PageStateHandler } from "@/components/layout";
-import { ResourceFileList, EditResourceButton, DeleteResourceButton } from "@/components/common/resources";
+import { ResourceFileList, EditResourceButton, DeleteResourceButton, BookmarkButton } from "@/components/common/resources";
 import { UploaderInfo } from "@/components/common/user";
 
 interface ResourceDetailPageProps {
@@ -110,13 +110,18 @@ const ResourceDetailPage = ({
                     <div className="flex items-start justify-between gap-2">
                         <h3 className="text-xl font-bold">{resource.title}</h3>
 
-                        {isOwner && (
+                        {userData && (
                             <div className="flex items-center gap-1 shrink-0 border p-0.5 rounded-lg">
-                                <EditResourceButton resource={resource} />
-                                <DeleteResourceButton
-                                    resourceId={resource.id}
-                                    onDeleted={() => router.push("/library/uploads")}
-                                />
+                                <BookmarkButton resourceId={resource.id} />
+                                {isOwner && (
+                                    <>
+                                        <EditResourceButton resource={resource} />
+                                        <DeleteResourceButton
+                                            resourceId={resource.id}
+                                            onDeleted={() => router.push("/library/uploads")}
+                                        />
+                                    </>
+                                )}
                             </div>
                         )}
                     </div>

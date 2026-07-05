@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import ResourceFileList from "./ResourceFileList";
+import BookmarkButton from "./BookmarkButton";
 import type { ResourceSummary } from "@/types/api";
 import { UploaderInfo } from "@/components/common/user";
 
@@ -54,11 +55,10 @@ const ResourceCard = ({
                         <p className="text-foreground-secondary text-sm">{description}</p>
                     </div>
 
-                    {actions && (
-                        <div className="flex items-center gap-1 shrink-0">
-                            {actions}
-                        </div>
-                    )}
+                    <div className="flex items-center gap-1 shrink-0 border p-0.5 rounded-lg">
+                        <BookmarkButton resourceId={resource.id} />
+                        {actions}
+                    </div>
                 </div>
 
                 <ResourceFileList resourceFiles={files} />

@@ -11,4 +11,5 @@ export { default as BookmarkedResourceCard } from "./BookmarkedResourceCard";
 export { default as ResourcePageStateHandler } from "./ResourcePageStateHandler";
 export { default as EditResourceButton } from "./EditResourceButton";
 export { default as DeleteResourceButton } from "./DeleteResourceButton";
+export { default as BookmarkButton } from "./BookmarkButton";
 export { default as ResourceFilesManager } from "./ResourceFilesManager";

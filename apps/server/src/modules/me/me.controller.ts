@@ -57,6 +57,18 @@ export class MeController {
         }
     }
 
+    async getCurrentUserBookmarkedResourceIds(req: Request, res: Response, next: NextFunction) {
+        try {
+            const userId = req.authUser?.id;
+            if (!userId) throw new UnauthorizedError("User not authenticated");
+
+            const bookmarkedResourceIds = await meService.getBookmarkedResourceIds(userId);
+            return sendSuccessResponse(res, bookmarkedResourceIds);
+        } catch (e) {
+            next(e);
+        }
+    }
+
     async markResourceAsRecentlyAccessed(req: Request, res: Response, next: NextFunction) {
         try {
             const userId = req.authUser?.id;

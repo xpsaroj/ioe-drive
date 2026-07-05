@@ -29,6 +29,15 @@ export const meApi = {
     },
 
     /**
+     * Fetches every resource ID the currently authenticated user has ever bookmarked
+     * (uncapped, IDs only) - meant for checking bookmark status across many resources
+     * at once (e.g. a bookmark icon on every card in a list), not for display.
+     */
+    async getBookmarkedResourceIds(): Promise<ApiResponse<number[]>> {
+        return apiClient.get<ApiResponse<number[]>>(`${ME_API_BASE_URL}/bookmarked-resource-ids`);
+    },
+
+    /**
      * Adds the resource to the user's `recently accessed` list.
      */
     async markResourceAsRecentlyAccessed(resourceId: string): Promise<EmptyApiResponse> {
