@@ -1,6 +1,7 @@
+import { JumpBackIn } from "@/components/common/resources";
+
 import DashboardActions from "./DashboardActions";
 import DashboardHero from "./DashboardHero";
-import JumpBackIn from "./JumpBackIn";
 import SemesterInformation from "./SemesterInformation";
 import WeeklySummary from "./WeeklySummary";
 

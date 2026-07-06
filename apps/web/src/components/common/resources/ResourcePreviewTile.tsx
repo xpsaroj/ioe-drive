@@ -54,7 +54,9 @@ const ResourcePreviewTile = ({ resourceId, title, subjectCode, typeLabel, timeLa
         </div>
 
         {uploader ? (
-            <UploaderInfo user={uploader} subtitle={timeLabel} />
+            <div className="relative z-10">
+                <UploaderInfo user={uploader} subtitle={timeLabel} />
+            </div>
         ) : (
             <span className="font-display text-[10px] uppercase tracking-wide text-foreground-tertiary">
                 {timeLabel}

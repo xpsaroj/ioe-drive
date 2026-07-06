@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { LucideIcon } from "lucide-react";
 
 import { cn } from "@/utils/cn";
 
@@ -6,6 +7,7 @@ export interface StatStripItem {
     href: string;
     label: string;
     value: number | undefined;
+    icon?: LucideIcon;
 }
 
 interface StatStripProps {
@@ -16,8 +18,10 @@ interface StatStripProps {
      * mostly-empty boxes.
      * "inline": a lighter, borderless row separated by hairline dividers, for sitting
      * directly next to other text (e.g. beside the dashboard's welcome heading).
+     * "cards": separate bordered cards with an icon badge - for a page whose stats are
+     * the primary content rather than a small aside (e.g. the library hub).
      */
-    variant?: "boxed" | "inline";
+    variant?: "boxed" | "inline" | "cards";
     className?: string;
 }
 
@@ -25,6 +29,30 @@ interface StatStripProps {
  * Shared between the dashboard hero and the library hub.
  */
 const StatStrip = ({ items, variant = "boxed", className }: StatStripProps) => {
+    if (variant === "cards") {
+        return (
+            <div className={cn("grid grid-cols-1 sm:grid-cols-3 gap-4", className)}>
+                {items.map((item) => (
+                    <Link
+                        key={item.label}
+                        href={item.href}
+                        className="flex items-center gap-3 rounded-xl border border-border p-4 transition-colors hover:bg-background-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                    >
+                        {item.icon && (
+                            <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-accent text-accent-foreground">
+                                <item.icon className="size-5" />
+                            </span>
+                        )}
+                        <div>
+                            <p className="font-display text-[11px] uppercase tracking-wide text-foreground-secondary">{item.label}</p>
+                            <p className="text-lg font-bold text-foreground leading-tight mt-0.5">{item.value ?? "–"}</p>
+                        </div>
+                    </Link>
+                ))}
+            </div>
+        );
+    }
+
     if (variant === "inline") {
         return (
             <div className={cn("flex divide-x divide-border", className)}>

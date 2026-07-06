@@ -30,7 +30,7 @@ const UploaderInfo = ({ user, subtitle }: UploaderInfoProps) => {
         // ancestor `group` (e.g. a card this is nested in) being hovered instead.
         <Link
             href={`/users/${user.id}`}
-            className="relative z-10 text-xs text-foreground-tertiary flex items-center gap-1 group/uploader"
+            className="text-xs text-foreground-tertiary flex items-center gap-1 group/uploader"
         >
             <UserAvatar
                 fullName={user.fullName}
