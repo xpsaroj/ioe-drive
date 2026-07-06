@@ -1,6 +1,6 @@
 # IOE Drive - Project Overview
 
-This document is a snapshot of the project as of 2026-07-05. It exists so that anyone
+This document is a snapshot of the project as of 2026-07-06. It exists so that anyone
 (including future contributors and AI assistants) can get oriented quickly without having
 to re-read the entire codebase. Update it as the project evolves; treat it as living
 documentation rather than a historical record.
@@ -49,7 +49,7 @@ with a root `docker-compose.yml` and a handful of root convenience scripts):
 ```
 ioe-drive/
 ├── apps/
-│   ├── server/     Express + Drizzle ORM API (apps/server/src)
+│   ├── server/     NestJS + Drizzle ORM API (apps/server/src)
 │   └── web/         Next.js 16 App Router frontend (apps/web/src)
 ├── docs/            Project documentation (this file, whats-done.md, todo.md)
 ├── .github/workflows/  CI (lint/typecheck/build) + deploy
@@ -67,11 +67,15 @@ hand on each side (see section 9).
 - **Frontend**: Next.js 16 (App Router), React 19, Tailwind CSS v4, TanStack Query v5 for
   server state, React Hook Form + Zod for forms, Clerk for auth, Lucide icons, `sonner`
   for toasts, `next-themes` + `@clerk/themes` for light/dark theming (see section 7).
-- **Backend**: Node 22, Express 5, layered as Controller -> Service -> Repository
-  (repository layer only exists for `resources` today; other modules query Drizzle
-  directly from the service layer — see section 12).
+- **Backend**: Node 22, NestJS 11 (on Express 5 under the hood via
+  `@nestjs/platform-express`), organized as feature modules under `src/modules/*`, each
+  layered consistently as Controller -> Service -> Repository. Validation is
+  `class-validator`/`class-transformer` DTOs plus a global `ValidationPipe`; a global
+  `HttpExceptionFilter` + `ResponseInterceptor` shape every response into
+  `{ success, data?, message?, error?, meta? }`; auth is enforced by a `ClerkAuthGuard`
+  (see section 8); rate limiting is `@nestjs/throttler`.
 - **Database**: PostgreSQL 16, Drizzle ORM + drizzle-kit for schema/migrations.
-- **Auth**: Clerk (`@clerk/express` on the API, `@clerk/nextjs` on the web app), with a
+- **Auth**: Clerk (`@clerk/backend` on the API, `@clerk/nextjs` on the web app), with a
   Clerk webhook keeping a local `users`/`profiles` mirror in sync.
 - **File storage**: Azure Blob Storage (uploads go through Multer in-memory storage, then
   are streamed to a blob container). A `backblaze-b2` dependency is present in
@@ -235,32 +239,38 @@ Clerk is the identity provider on both sides.
   and redirects already-signed-in users away from `/sign-in` and `/sign-up`. `/resources`
   itself (browsing) and `/resources/r/[resourceId]` are intentionally left public — see
   section 6.
-- **API** (`apps/server/src/middlewares/auth.middleware.ts`): `requireAuth` reads the
-  Clerk session via `getAuth(req)`, then looks up the corresponding row in the local
+- **API** (`apps/server/src/common/guards/clerk-auth.guard.ts`): `ClerkAuthGuard`
+  authenticates the request via `@clerk/backend`'s `authenticateRequest` (given a Fetch
+  API `Request` bridged from the underlying Express request by
+  `common/utils/fetch-request.ts`), then looks up the corresponding row in the local
   `users` table by `clerkUserId`. If no local row exists yet, the request is rejected as
   unauthorized even though Clerk considers the user signed in — the local `users` table
-  must be kept in sync with Clerk for auth to work end-to-end (see next point).
-- **User sync**: a Clerk webhook (`/api/webhooks/clerk`, verified via svix in
-  `webhook.middleware.ts`) handles `user.created`/`user.updated`/`user.deleted` and
-  upserts into `users`/`profiles`. `webhook_events` provides idempotency (svixId as PK,
-  `onConflictDoNothing`-style dedupe via `alreadyProcessed`/`markProcessed`). There's
-  also a standalone seeder script (`db:sync-clerk-users`) that bulk-syncs all users from
-  a Clerk *development* instance (it hard-refuses to run against anything but an
-  `sk_test_` key) into the local DB, useful for backfilling or resetting a local dev
-  database without replaying webhooks.
-- Route-level authorization on the API is coarse: whole routers are gated with
-  `router.use(requireAuth)` (`me`, `users`) or per-route (`resources` create/update).
+  must be kept in sync with Clerk for auth to work end-to-end (see next point). Applied
+  per-controller/route via `@UseGuards(ClerkAuthGuard)`; a `@CurrentUser()` param
+  decorator reads the resulting local user off the request in a controller method.
+- **User sync**: a Clerk webhook (`/api/webhooks/clerk`, verified via `@clerk/backend`'s
+  `verifyWebhook` against the untouched raw body Nest exposes via its `rawBody: true`
+  bootstrap option) handles `user.created`/`user.updated`/`user.deleted` and upserts
+  into `users`/`profiles`. `webhook_events` provides idempotency (svixId as PK, dedupe
+  via `WebhookEventsRepository`). There's also a standalone seeder script
+  (`db:sync-clerk-users`) that bulk-syncs all users from a Clerk *development* instance
+  (it hard-refuses to run against anything but an `sk_test_` key) into the local DB,
+  useful for backfilling or resetting a local dev database without replaying webhooks.
+- Route-level authorization on the API is coarse: whole controllers are gated with
+  `@UseGuards(ClerkAuthGuard)` (`me`, `users`) or per-route (`resources` create/update).
   Reading resources/subjects/programs is public; only creating/updating resources and
   anything under `/me` or `/users` requires auth. There is no role/admin concept yet —
   every authenticated user has identical permissions.
 
 ## 9. API surface (apps/server)
 
-Mounted in `apps/server/src/server.ts` / `apps/server/src/routes/index.ts`:
+Registered via Nest controllers, one feature module per domain under
+`apps/server/src/modules/*`:
 
 - `GET /health` — liveness check, mounted outside `/api` and outside the rate limiter.
-- `POST /api/webhooks/clerk` — Clerk webhook receiver, mounted before `express.json()`
-  since svix signature verification needs the raw body.
+- `POST /api/webhooks/clerk` — Clerk webhook receiver; reads the untouched raw request
+  body (via Nest's `rawBody: true` bootstrap option) since signature verification needs
+  it.
 - `/api/me/*` (auth required) — get/update own profile, list own uploaded resources
   (paginated), list recently-accessed resources (paginated), list bookmarked resources
   (paginated), list every bookmarked resource ID (uncapped, IDs only -
@@ -286,26 +296,26 @@ Mounted in `apps/server/src/server.ts` / `apps/server/src/routes/index.ts`:
   `GET /upload?programId=&semester=` (subject list scoped for the upload form; always a
   small per-program/semester subset - not paginated).
 
-All routes under `/api` share one rate limiter: 500 req / 15 min, keyed by IP (not by
-user — see section 12). Responses follow a consistent envelope
-(`{ success, data?, message?, error?, meta? }`) via `sendSuccessResponse`/
-`sendErrorResponse` in `lib/response.ts`, and errors are centralized through `ApiError`
-subclasses in `lib/errors.ts` plus a global `errorHandler` that also special-cases
-`ZodError` and `MulterError`.
+All routes under `/api` share one rate limiter (`@nestjs/throttler`): 500 req / 15 min,
+keyed by IP (not by user — see section 12); `/health` and the Clerk webhook opt out via
+`@SkipThrottle()`. Responses follow a consistent envelope
+(`{ success, data?, message?, error?, meta? }`) via a global `ResponseInterceptor`
+(wraps every controller return value) and a global `HttpExceptionFilter` (shapes every
+thrown error, including `class-validator`'s validation failures and Multer's
+`MulterError`, into the same envelope).
 
-Validation is Zod-based per-route via a generic `validate(schema)` middleware that
-validates `{ params, query, body }` together.
+Validation is `class-validator`/`class-transformer` DTOs (one per request shape, under
+each module's `dto/`) plus a global `ValidationPipe`.
 
 **Pagination**: `GET /api/resources`, `GET /api/me/resources`,
 `GET /api/me/recent-resources`, and `GET /api/me/bookmarked-resources` accept `page`/
-`limit` query params (default `page=1`, `limit=10`, `limit` capped at 100 by Zod) and
-return `meta: { page, limit, total, totalPages, hasNextPage, hasPrevPage }` alongside
-`data`, built by a shared `lib/pagination.ts` helper (`parsePagination`/
-`buildPaginationMeta`). Recently-accessed and bookmarked resources are no longer
-hard-capped at 10 overall - that fixed cap was replaced by this pagination. `me.service`'s
-`getUploadedResources` delegates straight to `resourcesRepository.findMany({ userId })`
-rather than duplicating the same query, since `GET /api/me/resources` and
-`GET /api/resources?userId=` were already an exact duplicate before pagination was added.
+`limit` query params (default `page=1`, `limit=10`, `limit` capped at 100) via a shared
+`PaginationQueryDto` (`common/dto/pagination-query.dto.ts`) and return
+`meta: { page, limit, total, totalPages, hasNextPage, hasPrevPage }` alongside `data`,
+built by `common/utils/pagination.ts`. Recently-accessed and bookmarked resources are
+not hard-capped at 10 overall. `MeService`'s `getUploadedResources` delegates straight
+to `resourcesService.findResources({ userId })` rather than duplicating the same query,
+since `GET /api/me/resources` and `GET /api/resources?userId=` are an exact duplicate.
 On the frontend, `usePageParam` (`apps/web/src/hooks/use-page-param.ts`) keeps the current
 page in the URL (`?page=`, consistent with how `/resources` already keeps its program/
 semester filter there) and a shared `<Pagination>` component
@@ -315,10 +325,11 @@ and another user's public profile uploads list.
 
 ## 10. File uploads
 
-`middlewares/upload.ts` configures Multer with in-memory storage, a 10 MB per-file limit,
-max 5 files per request, and an allow-list of MIME types: PDF, `.doc`/`.docx`, JPEG, PNG.
-Uploaded buffers are pushed straight to Azure Blob Storage
-(`utils/azure.ts` -> `lib/azureBlob.ts`) under a randomly generated blob name
+`storage/file-upload.config.ts` configures Nest's `FilesInterceptor` with in-memory
+Multer storage, a 10 MB per-file limit, max 5 files per request, and a `ParseFilePipe`
+(`FileTypeValidator` + `MaxFileSizeValidator`) restricting uploads to PDF, `.doc`/
+`.docx`, JPEG, PNG. Uploaded buffers are pushed straight to Azure Blob Storage
+(`storage/azure-blob.service.ts`) under a randomly generated blob name
 (`crypto.randomUUID()` + original extension); the resulting blob URL, size, original
 filename and MIME type are persisted per-file in `resource_files`. No image/PDF preview
 generation, virus scanning, or compression exists yet (the `compressedSize`/
@@ -408,17 +419,11 @@ route that never existed).
 - **README deployment target is stale.** `README.md` says the API deploys to Render;
   the actual CI (`.github/workflows/deploy-server.yml`) deploys to a self-managed VM over
   SSH with `pm2`. Worth reconciling once the deployment story is finalized.
-- **`backblaze-b2` is an unused dependency** in `apps/server/package.json` — Azure Blob
-  Storage is the only storage backend actually implemented.
-- **Repository layer is inconsistent.** Only `resources` has a `resources.repository.ts`;
-  every other module (`program`, `subject`, `user`, `me`, `webhook`) queries Drizzle
-  directly from its service. Not necessarily wrong for their current simplicity, but
-  worth a conscious decision before it grows further.
 - **Rate limiting is IP-only.** A hybrid limiter (higher, per-`userId` limits for
   authenticated users; stricter per-IP limits for guests) is planned, to avoid punishing
   campus NAT/shared-IP situations (a real concern for IOE hostel/lab wifi). The current
-  implementation in `server.ts` is a single flat 500 req/15min limiter keyed by IP for
-  everyone. Tracked in `todo.md`.
+  implementation (`@nestjs/throttler`, configured in `app.module.ts`) is a single flat
+  500 req/15min limiter keyed by IP for everyone. Tracked in `todo.md`.
 - **Placeholder nav destinations.** `Community`, `Market` (nav) / `Marketplace` (proxy.ts
   route matcher — inconsistent naming between the two), and `Alumni` all exist as nav
   items and protected routes but their pages (`apps/web/src/app/{community,market,alumni}/page.tsx`)
@@ -437,7 +442,8 @@ Two paths, both documented in `SETUP.md`:
 
 - **Without Docker**: `npm install` + `.env` in each of `apps/server` and `apps/web`
   separately, then `npm run db:migrate`, `npm run db:seed-programs`,
-  `npm run db:seed-subjects`, `npm run dev` in each app.
+  `npm run db:seed-subjects`, `npm run start:dev` in `apps/server` and `npm run dev` in
+  `apps/web`.
 - **With Docker** (root `docker-compose.yml`, services `pg`, `server`, `web`): a single
   root `.env` drives everything (see `.env.example`); root `package.json` exposes
   `npm run docker:up|start|stop|down|logs` and proxied `db:*` scripts that run inside the
@@ -481,4 +487,7 @@ another user's public uploads) is now paginated, sharing one backend helper and 
 frontend `<Pagination>` component. The whole site supports light/dark/system theming,
 including Clerk's own hosted UI.
 Community, Market/Marketplace and Alumni are still placeholder destinations with no
-logic yet; see `todo.md` for what's next.
+logic yet; see `todo.md` for what's next. The API itself was rebuilt from Express onto
+NestJS (same routes, same DB, same response shapes), gaining a consistent
+Controller -> Service -> Repository layering across every module, `class-validator`
+DTOs, and Clerk auth via a `ClerkAuthGuard` backed by `@clerk/backend`.

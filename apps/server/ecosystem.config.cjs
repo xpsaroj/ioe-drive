@@ -2,7 +2,7 @@ module.exports = {
     apps: [
         {
             name: "ioe-drive-server",
-            script: "dist/index.js",
+            script: "dist/main.js",
             node_args: "-r dotenv/config",
             cwd: "./",
             env: {

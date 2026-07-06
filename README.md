@@ -7,7 +7,7 @@ IOE Drive is designed to facilitate the sharing of academic resources among IOE 
 ## Architecture
 - Architecture Style: Client-Server
 - Frontend: Next.js 16 with App Router
-- Backend: Node.js with Express
+- Backend: Node.js with NestJS
 - Server Architecture: Layered architecture (Controller → Service → Repository)
 - Database: PostgreSQL with Drizzle ORM
 - Authentication: Clerk
@@ -23,11 +23,11 @@ IOE Drive is designed to facilitate the sharing of academic resources among IOE 
 - Zod and React Hook Form for form validation
 
 ### Backend
-- Node.js with Express
+- NestJS on Node.js
 - PostgreSQL with Drizzle ORM
 - Clerk for authentication
 - Multer for file uploads
-- Zod for schema validation
+- class-validator/class-transformer for schema validation
 
 ## Project Structure
 ```
@@ -36,24 +36,31 @@ ioe-drive/
 │   └── workflows/
 │
 ├── apps/
-│   ├── server/                      # Backend application
+│   ├── server/                      # Backend application (NestJS)
 │   │   ├── src/
+│   │   │   ├── clerk/
+│   │   │   ├── common/
+│   │   │   │   ├── decorators/
+│   │   │   │   ├── dto/
+│   │   │   │   ├── filters/
+│   │   │   │   ├── guards/
+│   │   │   │   ├── interceptors/
+│   │   │   │   └── utils/
 │   │   │   ├── config/
-│   │   │   ├── db/
+│   │   │   ├── database/
 │   │   │   │   ├── migrations/
 │   │   │   │   └── seeders/
-│   │   │   ├── lib/
-│   │   │   ├── middlewares/
 │   │   │   ├── modules/
 │   │   │   │   ├── health/
-│   │   │   │   ├── notes/
-│   │   │   │   ├── subject/
-│   │   │   │   └── ...
-│   │   │   ├── routes/
-│   │   │   ├── types/
-│   │   │   ├── utils/
-│   │   │   ├── server.ts
-│   │   │   └── index.ts
+│   │   │   │   ├── me/
+│   │   │   │   ├── programs/
+│   │   │   │   ├── resources/
+│   │   │   │   ├── subjects/
+│   │   │   │   ├── users/
+│   │   │   │   └── webhooks/
+│   │   │   ├── storage/
+│   │   │   ├── app.module.ts
+│   │   │   └── main.ts
 │   │   ├── Dockerfile
 │   │   └── package.json
 │   │

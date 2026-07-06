@@ -1,22 +1,17 @@
-import type { Request, Response } from "express";
+import { Controller, Get } from "@nestjs/common";
+import { SkipThrottle } from "@nestjs/throttler";
 
-import { sendSuccessResponse } from "../../lib/response.js";
+import { ApiResponse } from "../../common/dto/api-response";
 
+@Controller("health")
+@SkipThrottle()
 export class HealthController {
-    /**
-     * Check the health of the server.
-     */
-    public static healthCheck(
-        _req: Request,
-        res: Response
-    ): void {
-        const serverStatus = {
-            status: "ok",
-            timestamp: new Date().toISOString(),
-        };
-
-        sendSuccessResponse(res, serverStatus, "Server up and running.", 200);
-    }
+  /** GET /health - liveness check, mounted outside /api and outside the throttler. */
+  @Get()
+  check() {
+    return ApiResponse.of(
+      { status: "ok", timestamp: new Date().toISOString() },
+      "Server up and running.",
+    );
+  }
 }
-
-export const healthCheck = HealthController.healthCheck;

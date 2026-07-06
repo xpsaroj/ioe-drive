@@ -1,134 +1,92 @@
-import type { Request, Response, NextFunction } from 'express';
-import { meService } from './me.service.js';
-import { UnauthorizedError } from '../../lib/errors.js';
-import { sendSuccessResponse } from '../../lib/response.js';
-import { buildPaginationMeta, parsePagination } from '../../lib/pagination.js';
-import { type UpdateProfileInput } from './me.dto.js';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from "@nestjs/common";
 
-/**
- * Me Controller
- * - Handles HTTP requests related to the currently authenticated user.
- */
+import { CurrentUser } from "../../common/decorators/current-user.decorator";
+import { ApiResponse } from "../../common/dto/api-response";
+import { PaginationQueryDto } from "../../common/dto/pagination-query.dto";
+import { ClerkAuthGuard, type AuthenticatedUser } from "../../common/guards/clerk-auth.guard";
+import { buildPaginationMeta, getPaginationOffset } from "../../common/utils/pagination";
+import { UpdateProfileDto } from "./dto/update-profile.dto";
+import { MeService } from "./me.service";
+
+@Controller("me")
+@UseGuards(ClerkAuthGuard)
 export class MeController {
-    async getCurrentUserProfile(req: Request, res: Response, next: NextFunction) {
-        try {
-            const userId = req.authUser?.id;
-            if (!userId) throw new UnauthorizedError("User not authenticated");
+  constructor(private readonly meService: MeService) {}
 
-            const userProfile = await meService.getProfile(userId);
-            return sendSuccessResponse(res, userProfile);
-        } catch (e) {
-            next(e);
-        }
-    }
+  /** GET /api/me - the currently authenticated user's profile. */
+  @Get()
+  getProfile(@CurrentUser() user: AuthenticatedUser) {
+    return this.meService.getProfile(user.id);
+  }
 
-    async getCurrentUserUploadedResources(req: Request, res: Response, next: NextFunction) {
-        try {
-            const userId = req.authUser?.id;
-            if (!userId) throw new UnauthorizedError("User not authenticated");
+  /** PATCH /api/me - update the currently authenticated user's profile. */
+  @Patch()
+  async updateProfile(@CurrentUser() user: AuthenticatedUser, @Body() dto: UpdateProfileDto) {
+    await this.meService.updateProfile(user.id, dto);
+    return ApiResponse.of(null, "Profile updated successfully");
+  }
 
-            const { page, limit, offset } = parsePagination(req.query);
-            const { items, total } = await meService.getUploadedResources(userId, { limit, offset });
-            return sendSuccessResponse(res, items, undefined, 200, buildPaginationMeta(page, limit, total));
-        } catch (e) {
-            next(e);
-        }
-    }
+  /** GET /api/me/resources - resources uploaded by the current user, paginated. */
+  @Get("resources")
+  async getUploadedResources(@CurrentUser() user: AuthenticatedUser, @Query() query: PaginationQueryDto) {
+    const offset = getPaginationOffset(query.page, query.limit);
+    const { items, total } = await this.meService.getUploadedResources(user.id, { limit: query.limit, offset });
+    return ApiResponse.of(items, undefined, buildPaginationMeta(query.page, query.limit, total));
+  }
 
-    async getCurrentUserRecentResources(req: Request, res: Response, next: NextFunction) {
-        try {
-            const userId = req.authUser?.id;
-            if (!userId) throw new UnauthorizedError("User not authenticated");
+  /** GET /api/me/recent-resources - recently accessed resources, paginated. */
+  @Get("recent-resources")
+  async getRecentResources(@CurrentUser() user: AuthenticatedUser, @Query() query: PaginationQueryDto) {
+    const offset = getPaginationOffset(query.page, query.limit);
+    const { items, total } = await this.meService.getRecentlyAccessedResources(user.id, {
+      limit: query.limit,
+      offset,
+    });
+    return ApiResponse.of(items, undefined, buildPaginationMeta(query.page, query.limit, total));
+  }
 
-            const { page, limit, offset } = parsePagination(req.query);
-            const { items, total } = await meService.getRecentlyAccessedResources(userId, { limit, offset });
-            return sendSuccessResponse(res, items, undefined, 200, buildPaginationMeta(page, limit, total));
-        } catch (e) {
-            next(e);
-        }
-    }
+  /** GET /api/me/bookmarked-resources - bookmarked resources, paginated. */
+  @Get("bookmarked-resources")
+  async getBookmarkedResources(@CurrentUser() user: AuthenticatedUser, @Query() query: PaginationQueryDto) {
+    const offset = getPaginationOffset(query.page, query.limit);
+    const { items, total } = await this.meService.getBookmarkedResources(user.id, { limit: query.limit, offset });
+    return ApiResponse.of(items, undefined, buildPaginationMeta(query.page, query.limit, total));
+  }
 
-    async getCurrentUserBookmarkedResources(req: Request, res: Response, next: NextFunction) {
-        try {
-            const userId = req.authUser?.id;
-            if (!userId) throw new UnauthorizedError("User not authenticated");
+  /** GET /api/me/bookmarked-resource-ids - every resource ID bookmarked by the current
+   * user (uncapped, IDs only - backs the bookmark icon on every resource card). */
+  @Get("bookmarked-resource-ids")
+  getBookmarkedResourceIds(@CurrentUser() user: AuthenticatedUser) {
+    return this.meService.getBookmarkedResourceIds(user.id);
+  }
 
-            const { page, limit, offset } = parsePagination(req.query);
-            const { items, total } = await meService.getBookmarkedResources(userId, { limit, offset });
-            return sendSuccessResponse(res, items, undefined, 200, buildPaginationMeta(page, limit, total));
-        } catch (e) {
-            next(e);
-        }
-    }
+  /** POST /api/me/resources/:resourceId/recent - mark a resource as recently accessed. */
+  @Post("resources/:resourceId/recent")
+  async markRecentlyAccessed(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param("resourceId", ParseIntPipe) resourceId: number,
+  ) {
+    await this.meService.markResourceAsRecentlyAccessed(user.id, resourceId);
+    return ApiResponse.of(null, "Resource marked as recently accessed");
+  }
 
-    async getCurrentUserBookmarkedResourceIds(req: Request, res: Response, next: NextFunction) {
-        try {
-            const userId = req.authUser?.id;
-            if (!userId) throw new UnauthorizedError("User not authenticated");
+  /** POST /api/me/resources/:resourceId/bookmark - bookmark a resource. */
+  @Post("resources/:resourceId/bookmark")
+  async markBookmarked(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param("resourceId", ParseIntPipe) resourceId: number,
+  ) {
+    await this.meService.markResourceAsBookmarked(user.id, resourceId);
+    return ApiResponse.of(null, "Resource bookmarked");
+  }
 
-            const bookmarkedResourceIds = await meService.getBookmarkedResourceIds(userId);
-            return sendSuccessResponse(res, bookmarkedResourceIds);
-        } catch (e) {
-            next(e);
-        }
-    }
-
-    async markResourceAsRecentlyAccessed(req: Request, res: Response, next: NextFunction) {
-        try {
-            const userId = req.authUser?.id;
-            const resourceId = Number(req.params.resourceId);
-            if (!userId) throw new UnauthorizedError("User not authenticated");
-
-            await meService.markResourceAsRecentlyAccessed(userId, resourceId);
-            return sendSuccessResponse(res, null, "Resource marked as recently accessed");
-        } catch (e) {
-            next(e);
-        }
-    }
-
-    async markResourceAsBookmarked(req: Request, res: Response, next: NextFunction) {
-        try {
-            const userId = req.authUser?.id;
-            const resourceId = Number(req.params.resourceId);
-            if (!userId) throw new UnauthorizedError("User not authenticated");
-
-            await meService.markResourceAsBookmarked(userId, resourceId);
-            return sendSuccessResponse(res, null, "Resource bookmarked");
-        } catch (e) {
-            next(e);
-        }
-    }
-
-    async unmarkResourceAsBookmarked(req: Request, res: Response, next: NextFunction) {
-        try {
-            const userId = req.authUser?.id;
-            const resourceId = Number(req.params.resourceId);
-            if (!userId) throw new UnauthorizedError("User not authenticated");
-
-            await meService.unmarkResourceAsBookmarked(userId, resourceId);
-            return sendSuccessResponse(res, null, "Resource unbookmarked");
-        } catch (e) {
-            next(e);
-        }
-    }
-
-    /**
-     * Update the currently authenticated user's profile.
-     * - PATCH /api/me
-     */
-    async updateProfile(req: Request, res: Response, next: NextFunction) {
-        try {
-            const userId = req.authUser?.id;
-            if (!userId) throw new UnauthorizedError("User not authenticated");
-
-            const validatedData: UpdateProfileInput = req.body;
-            await meService.updateProfile(userId, validatedData);
-
-            return sendSuccessResponse(res, null, "Profile updated successfully");
-        } catch (e) {
-            next(e);
-        }
-    }
+  /** DELETE /api/me/resources/:resourceId/bookmark - unbookmark a resource. */
+  @Delete("resources/:resourceId/bookmark")
+  async unmarkBookmarked(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param("resourceId", ParseIntPipe) resourceId: number,
+  ) {
+    await this.meService.unmarkResourceAsBookmarked(user.id, resourceId);
+    return ApiResponse.of(null, "Resource unbookmarked");
+  }
 }
-
-export const meController = new MeController();

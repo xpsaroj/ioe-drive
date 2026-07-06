@@ -9,11 +9,6 @@ essays here once something is actively being worked on.
 - [ ] Replace the flat IP-keyed rate limiter with a hybrid one: higher limits keyed by
       `userId` for authenticated requests, stricter limits keyed by IP for guests. Needed
       because campus/hostel wifi NATs put many students behind one IP.
-- [ ] Decide on a consistent repository-layer convention across modules (today only
-      `resources` has a `*.repository.ts`; everything else queries Drizzle directly from
-      the service).
-- [ ] Remove the unused `backblaze-b2` dependency, or actually use it as a fallback/
-      secondary storage backend.
 - [ ] Add basic moderation/reporting for uploaded resources (currently any signed-in user
       can upload with no review or takedown path).
 
