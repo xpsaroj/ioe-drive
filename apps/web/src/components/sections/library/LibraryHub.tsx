@@ -119,7 +119,8 @@ const LibraryHub = () => {
                             title={item.resource.title}
                             subjectCode={item.resource.subjectOffering?.subject?.code}
                             typeLabel={ResourceTypeLabel[item.resource.type]}
-                            timeLabel={getRelativeTime(item.bookmarkedAt)}
+                            timeLabel={`Bookmarked ${getRelativeTime(item.bookmarkedAt)}`}
+                            uploader={item.resource.uploader}
                         />
                     ))}
                 />
@@ -135,7 +136,7 @@ const LibraryHub = () => {
                             title={item.title}
                             subjectCode={item.subjectOffering?.subject?.code}
                             typeLabel={ResourceTypeLabel[item.type]}
-                            timeLabel={getRelativeTime(item.createdAt)}
+                            timeLabel={`Uploaded ${getRelativeTime(item.createdAt)}`}
                         />
                     ))}
                 />

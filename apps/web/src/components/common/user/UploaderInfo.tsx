@@ -12,12 +12,12 @@ interface UploaderInfoProps {
 const UploaderInfo = ({ user, subtitle }: UploaderInfoProps) => {
     if (!user || !user?.id) {
         return (
-            <div className="text-xs text-foreground-tertiary flex items-center gap-1 group">
+            <div className="text-xs text-foreground-tertiary flex items-center gap-1 group/uploader">
                 <User2
-                    className="inline size-9 rounded-full border p-1.5 group-hover:border-2 group-hover:border-foreground-muted transition-all duration-100"
+                    className="inline size-9 rounded-full border p-1.5 group-hover/uploader:border-2 group-hover/uploader:border-foreground-muted transition-all duration-100"
                 />
                 <div className="flex flex-col">
-                    <span className="text-foreground group-hover:underline">Unknown User</span>
+                    <span className="text-foreground group-hover/uploader:underline">Unknown User</span>
                     <span>{subtitle}</span>
                 </div>
             </div>
@@ -25,9 +25,12 @@ const UploaderInfo = ({ user, subtitle }: UploaderInfoProps) => {
     }
 
     return (
+        // Named group (group/uploader) so this link's own hover is what triggers the
+        // underline below - a plain unnamed `group` would also react to an unrelated
+        // ancestor `group` (e.g. a card this is nested in) being hovered instead.
         <Link
             href={`/users/${user.id}`}
-            className="text-xs text-foreground-tertiary flex items-center gap-1 group"
+            className="relative z-10 text-xs text-foreground-tertiary flex items-center gap-1 group/uploader"
         >
             <UserAvatar
                 fullName={user.fullName}
@@ -35,7 +38,7 @@ const UploaderInfo = ({ user, subtitle }: UploaderInfoProps) => {
                 size={"sm"}
             />
             <div className="flex flex-col">
-                <span className="text-foreground group-hover:underline">{user.fullName}</span>
+                <span className="text-foreground group-hover/uploader:underline">{user.fullName}</span>
                 <span>{subtitle}</span>
             </div>
         </Link>

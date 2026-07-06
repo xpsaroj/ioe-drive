@@ -15,6 +15,7 @@ const MyBookmarkedResourcesContent = () => {
     return (
         <ResourcePageStateHandler
             title="My Bookmarked Resources"
+            breadcrumbs={[{ label: "Library", href: "/library" }, { label: "Bookmarks" }]}
             isPending={isPending}
             error={error}
             isEmpty={!bookmarkedResources || bookmarkedResources.length === 0}

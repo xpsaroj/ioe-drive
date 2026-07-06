@@ -15,6 +15,7 @@ const MyUploadedResourcesContent = () => {
     return (
         <ResourcePageStateHandler
             title="My Uploaded Resources"
+            breadcrumbs={[{ label: "Library", href: "/library" }, { label: "Uploads" }]}
             isPending={isPending}
             error={error}
             isEmpty={!uploadedResources || uploadedResources.length === 0}

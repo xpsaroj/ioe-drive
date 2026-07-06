@@ -15,6 +15,7 @@ const MyRecentResourcesContent = () => {
     return (
         <ResourcePageStateHandler
             title="My Recent Resources"
+            breadcrumbs={[{ label: "Library", href: "/library" }, { label: "Recent" }]}
             isPending={isPending}
             error={error}
             isEmpty={!recentResources || recentResources.length === 0}

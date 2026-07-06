@@ -1,11 +1,10 @@
 "use client";
-import { ChevronLeft } from "lucide-react";
-
+import { PageHeader, PageStateHandler, type BreadcrumbItem } from "@/components/layout";
 import Button from "@/components/ui/Button";
-import { PageStateHandler } from "@/components/layout";
 
 interface ResourcePageStateHandlerProps {
     title: string;
+    breadcrumbs: BreadcrumbItem[];
     isPending: boolean;
     error: Error | null | undefined;
     isEmpty: boolean;
@@ -19,6 +18,7 @@ interface ResourcePageStateHandlerProps {
 
 const ResourcePageStateHandler = ({
     title,
+    breadcrumbs,
     isPending,
     error,
     isEmpty,
@@ -29,19 +29,7 @@ const ResourcePageStateHandler = ({
     emptyButtonHref,
     children,
 }: ResourcePageStateHandlerProps) => {
-    const headerSection = (
-        <div className="flex items-center gap-2 mb-4">
-            <Button
-                icon={<ChevronLeft className="size-4" />}
-                iconOnly
-                href="/library"
-                variant="ghost"
-                size="xs"
-                className="border border-border"
-            />
-            <h3 className="text-xl md:text-2xl font-medium">{title}</h3>
-        </div>
-    );
+    const headerSection = <PageHeader title={title} breadcrumbs={breadcrumbs} />;
 
     const emptyContent = (
         <div className="flex flex-col items-center justify-center gap-1">
