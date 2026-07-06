@@ -174,7 +174,12 @@ const UserDetailsContent = ({ userId }: { userId: number }) => {
                         <div className="space-y-6">
                             <ResourceList
                                 resources={resources || []}
-                                renderItem={(item) => <UploadedResourceCard item={item} />}
+                                renderItem={(item) => (
+                                    <UploadedResourceCard
+                                        item={item}
+                                        from={{ label: user.fullName, href: `/users/${userId}` }}
+                                    />
+                                )}
                             />
                             <Pagination
                                 page={page}

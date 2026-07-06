@@ -268,6 +268,7 @@ const ResourcesBrowseContent = () => {
                             renderItem={(resource) =>
                                 <ResourceCard
                                     resource={resource}
+                                    from={{ label: "Resources", href: `/resources?${searchParams.toString()}` }}
                                 />
                             }
                             emptyMessage="No resources available for this subject."

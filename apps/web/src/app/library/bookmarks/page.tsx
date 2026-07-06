@@ -28,7 +28,9 @@ const MyBookmarkedResourcesContent = () => {
             <div className="space-y-6">
                 <ResourceList
                     resources={bookmarkedResources || []}
-                    renderItem={(item) => <BookmarkedResourceCard item={item} />}
+                    renderItem={(item) => (
+                        <BookmarkedResourceCard item={item} from={{ label: "Bookmarks", href: "/library/bookmarks" }} />
+                    )}
                 />
                 <Pagination
                     page={page}

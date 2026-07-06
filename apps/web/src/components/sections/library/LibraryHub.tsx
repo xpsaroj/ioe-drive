@@ -6,8 +6,11 @@ import StatStrip from "@/components/ui/StatStrip";
 import { JumpBackIn, ResourcePreviewTile } from "@/components/common/resources";
 import { useRecentResources, useBookmarkedResources, useUploadedResources } from "@/hooks/queries/use-me";
 import { getRelativeTime } from "@/utils/time";
+import { resourceDetailHref } from "@/utils/resourceLink";
 import { ResourceTypeLabel } from "@/types/entities";
 import type { BookmarkedResourceItem } from "@/types/api";
+
+const BOOKMARKS_ORIGIN = { label: "Bookmarks", href: "/library/bookmarks" };
 
 interface PreviewPanelProps {
     title: string;
@@ -45,7 +48,7 @@ const PreviewPanel = ({ title, viewAllHref, tiles, emptyText, columns = 3 }: Pre
  */
 const BookmarkListRow = ({ resourceId, title, subjectCode }: { resourceId: number; title: string; subjectCode?: string }) => (
     <Link
-        href={`/resources/r/${resourceId}`}
+        href={resourceDetailHref(resourceId, BOOKMARKS_ORIGIN)}
         className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-background-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset"
     >
         <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-background-tertiary">
@@ -119,7 +122,7 @@ const LibraryHub = () => {
             items it has - never leaves a gap below them. */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 flex flex-col gap-8">
-                    <JumpBackIn />
+                    <JumpBackIn from={{ label: "Library", href: "/library" }} />
 
                     <PreviewPanel
                         title="My Uploads"
@@ -134,6 +137,7 @@ const LibraryHub = () => {
                                 subjectCode={item.subjectOffering?.subject?.code}
                                 typeLabel={ResourceTypeLabel[item.type]}
                                 timeLabel={`Uploaded ${getRelativeTime(item.createdAt)}`}
+                                from={{ label: "Uploads", href: "/library/uploads" }}
                             />
                         ))}
                     />

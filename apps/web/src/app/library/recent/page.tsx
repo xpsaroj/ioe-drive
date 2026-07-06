@@ -28,7 +28,9 @@ const MyRecentResourcesContent = () => {
             <div className="space-y-6">
                 <ResourceList
                     resources={recentResources || []}
-                    renderItem={(item) => <RecentResourceCard item={item} />}
+                    renderItem={(item) => (
+                        <RecentResourceCard item={item} from={{ label: "Recent", href: "/library/recent" }} />
+                    )}
                 />
                 <Pagination
                     page={page}

@@ -3,8 +3,10 @@ import { PageHeader, PageStateHandler, type BreadcrumbItem } from "@/components/
 import Button from "@/components/ui/Button";
 
 interface ResourcePageStateHandlerProps {
-    title: string;
+    title: React.ReactNode;
     breadcrumbs: BreadcrumbItem[];
+    /** Optional right-aligned content next to the title (e.g. bookmark/edit/delete). */
+    actions?: React.ReactNode;
     isPending: boolean;
     error: Error | null | undefined;
     isEmpty: boolean;
@@ -19,6 +21,7 @@ interface ResourcePageStateHandlerProps {
 const ResourcePageStateHandler = ({
     title,
     breadcrumbs,
+    actions,
     isPending,
     error,
     isEmpty,
@@ -29,7 +32,7 @@ const ResourcePageStateHandler = ({
     emptyButtonHref,
     children,
 }: ResourcePageStateHandlerProps) => {
-    const headerSection = <PageHeader title={title} breadcrumbs={breadcrumbs} />;
+    const headerSection = <PageHeader title={title} breadcrumbs={breadcrumbs} actions={actions} />;
 
     const emptyContent = (
         <div className="flex flex-col items-center justify-center gap-1">

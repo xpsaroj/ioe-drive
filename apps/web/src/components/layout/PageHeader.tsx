@@ -5,7 +5,7 @@ import Breadcrumbs, { type BreadcrumbItem } from "./Breadcrumbs";
 export type { BreadcrumbItem };
 
 interface PageHeaderProps {
-    title: string;
+    title: React.ReactNode;
     breadcrumbs: BreadcrumbItem[];
     /** Optional right-aligned content next to the title (e.g. a primary action button). */
     actions?: React.ReactNode;
@@ -27,7 +27,7 @@ const PageHeader = ({ title, breadcrumbs, actions, className }: PageHeaderProps)
     return (
         <>
             <div className={cn("flex items-start justify-between gap-4 pb-4", className)}>
-                <h1 className="text-xl font-medium text-foreground md:text-2xl">{title}</h1>
+                <h1 className="flex flex-wrap items-center gap-2 text-xl font-medium text-foreground md:text-2xl">{title}</h1>
                 {actions && <div className="shrink-0">{actions}</div>}
             </div>
             <div className="sticky top-0 z-10 mb-6 border-b border-border bg-background/95 py-2.5 backdrop-blur-sm">

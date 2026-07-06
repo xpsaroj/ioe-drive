@@ -23,6 +23,8 @@ essays here once something is actively being worked on.
       Offerings list page — all currently one-line stub pages linked from the nav.
 - [ ] Wire up the navbar `SearchBar` — it's currently a fully dead placeholder button
       (no click handler, no logic) despite being visible in both desktop and mobile nav.
+- [ ] Wire up "Similar Resources" on the resource detail page — no recommendation logic
+      exists yet, so it currently shows hardcoded placeholder entries.
 
 ## Housekeeping
 

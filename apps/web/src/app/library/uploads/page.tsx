@@ -28,7 +28,13 @@ const MyUploadedResourcesContent = () => {
             <div className="space-y-6">
                 <ResourceList
                     resources={uploadedResources || []}
-                    renderItem={(item) => <UploadedResourceCard item={item} showOwnerActions />}
+                    renderItem={(item) => (
+                        <UploadedResourceCard
+                            item={item}
+                            showOwnerActions
+                            from={{ label: "Uploads", href: "/library/uploads" }}
+                        />
+                    )}
                 />
                 <Pagination
                     page={page}

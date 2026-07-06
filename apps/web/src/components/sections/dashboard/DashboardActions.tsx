@@ -33,7 +33,10 @@ const DashboardActions = () => (
                     </span>
                     <div className="min-w-0">
                         <p className="text-sm font-semibold text-foreground truncate">OSI Model Crash Course</p>
-                        <p className="text-xs text-foreground-secondary">Video · 12 mins</p>
+                        <p className="text-xs text-foreground-secondary flex items-center gap-2">
+                            <span>Video</span>
+                            <span>12 mins</span>
+                        </p>
                     </div>
                 </div>
                 <ArrowRight className="size-4 text-foreground-secondary shrink-0" />
