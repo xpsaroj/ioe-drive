@@ -5,21 +5,17 @@ import ResourcePreviewTile from "./ResourcePreviewTile";
 import { useRecentResources } from "@/hooks/queries/use-me";
 import { getRelativeTime } from "@/utils/time";
 import { ResourceTypeLabel } from "@/types/entities";
-import type { ResourceOrigin } from "@/utils/resourceLink";
 
 interface JumpBackInProps {
   /** How many recent resources to show - defaults to 2 (a single row). */
   limit?: number;
-  /** Where this section is shown (dashboard vs. library hub) - passed through to each
-   * tile so the resource detail page's breadcrumb can point back to the right place. */
-  from?: ResourceOrigin;
 }
 
 /**
  * A quick "continue where you left off" grid of recently-viewed resources. Shared
  * between the dashboard and the library hub, both of which want the same section.
  */
-const JumpBackIn = ({ limit = 2, from }: JumpBackInProps) => {
+const JumpBackIn = ({ limit = 2 }: JumpBackInProps) => {
   const { data, isPending } = useRecentResources(1);
   const items = data?.items.slice(0, limit);
 
@@ -49,7 +45,6 @@ const JumpBackIn = ({ limit = 2, from }: JumpBackInProps) => {
               typeLabel={ResourceTypeLabel[item.resource.type]}
               timeLabel={`Viewed ${getRelativeTime(item.accessedAt)}`}
               uploader={item.resource.uploader}
-              from={from}
             />
           ))}
         </div>

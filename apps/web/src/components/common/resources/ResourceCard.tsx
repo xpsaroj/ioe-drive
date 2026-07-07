@@ -4,7 +4,6 @@ import ResourceFileList from "./ResourceFileList";
 import BookmarkButton from "./BookmarkButton";
 import type { ResourceSummary } from "@/types/api";
 import { UploaderInfo } from "@/components/common/user";
-import { resourceDetailHref, type ResourceOrigin } from "@/utils/resourceLink";
 
 interface ResourceCardProps {
     resource: ResourceSummary;
@@ -14,16 +13,12 @@ interface ResourceCardProps {
      * next to the title.
      */
     actions?: React.ReactNode;
-    /** Where this card is shown (Resource Explorer, a library list, a profile, etc.) -
-     * lets the resource detail page's breadcrumb offer a real way back to it. */
-    from?: ResourceOrigin;
 }
 
 const ResourceCard = ({
     resource,
     meta,
     actions,
-    from,
 }: ResourceCardProps) => {
     const {
         title,
@@ -52,7 +47,7 @@ const ResourceCard = ({
                 <div className="flex flex-col items-start justify-between gap-2">
                     <div className="flex items-center justify-between gap-2 w-full">
                         <Link
-                            href={resourceDetailHref(resource.id, from)}
+                            href={`/resources/r/${resource.id}`}
                             className="text-lg font-semibold hover:underline decoration-2 underline-offset-3"
                         >
                             {title}
@@ -70,7 +65,7 @@ const ResourceCard = ({
 
                 <ResourceFileList resourceFiles={files} />
 
-                <div className="flex justify-between items-end mt-4">
+                <div className="flex justify-between items-center gap-3 mt-4">
                     <UploaderInfo
                         user={uploader}
                         subtitle={formattedCreatedAt}
@@ -78,7 +73,7 @@ const ResourceCard = ({
 
                     <Link
                         href={`/offerings/${subjectOffering.id}`}
-                        className="text-xs text-foreground-secondary hover:underline hover:text-foreground"
+                        className="text-xs text-foreground-secondary shrink-0 hover:underline hover:text-foreground"
                     >
                         {subjectOffering?.subject?.code} <span className="hidden sm:inline">• {subjectOffering?.subject?.name}</span>
                     </Link>

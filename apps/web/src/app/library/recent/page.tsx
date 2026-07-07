@@ -29,7 +29,7 @@ const MyRecentResourcesContent = () => {
                 <ResourceList
                     resources={recentResources || []}
                     renderItem={(item) => (
-                        <RecentResourceCard item={item} from={{ label: "Recent", href: "/library/recent" }} />
+                        <RecentResourceCard item={item} />
                     )}
                 />
                 <Pagination

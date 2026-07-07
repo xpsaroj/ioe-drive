@@ -1,7 +1,7 @@
 "use client"
 import { Suspense, use, useEffect, useState } from "react"
-import { useRouter, useSearchParams } from "next/navigation";
-import { Download, Lightbulb } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { ChevronLeft, Download, Lightbulb } from "lucide-react";
 import { toast } from "sonner";
 
 import { useResource, useDownloadFile } from "@/hooks/queries/use-resources";
@@ -36,7 +36,6 @@ const ResourceDetailContent = ({
     const resourceId = Number(rId);
 
     const router = useRouter();
-    const searchParams = useSearchParams();
 
     const { data: resource, isPending, error } = useResource(resourceId);
     const { data: userData } = useMe();
@@ -59,16 +58,8 @@ const ResourceDetailContent = ({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [userData?.id, resource?.id]);
 
-    // The list a resource was opened from (dashboard, a library section, a user's
-    // profile, etc.) is carried in via query params by whatever linked here - a
-    // resource can be reached from many places, so the breadcrumb can't just assume
-    // it was the Resource Explorer. Falls back to that as a sensible default (e.g. a
-    // bookmarked/shared URL with no origin attached).
-    const fromLabel = searchParams.get("fromLabel") || "Resources";
-    const fromHref = searchParams.get("fromHref") || "/resources";
-
     const breadcrumbs: BreadcrumbItem[] = [
-        { label: fromLabel, href: fromHref },
+        { label: "Resources", href: "/resources" },
         { label: resource?.title ?? "Resource" },
     ];
 
@@ -87,6 +78,15 @@ const ResourceDetailContent = ({
 
     const title = resource ? (
         <>
+            <Button
+                icon={<ChevronLeft className="size-4" />}
+                iconOnly
+                variant="ghost"
+                size="xs"
+                className="border border-border"
+                onClick={() => router.back()}
+                aria-label="Go back"
+            />
             {resource.title}
             <Badge size="sm" className="align-middle">{ResourceTypeLabel[resource.type]}</Badge>
         </>
@@ -150,22 +150,25 @@ const ResourceDetailContent = ({
             emptyButtonHref="/resources"
         >
             <div className="space-y-8">
-                <div className="flex flex-col gap-4 pb-8 border-b border-border sm:flex-row sm:items-start sm:justify-between">
+                <div className="flex flex-col gap-4 pb-8 border-b border-border sm:flex-row sm:items-center sm:justify-between">
                     <UploaderInfo
                         user={resource.uploader}
                         subtitle={formattedCreatedAt}
+                        size="md"
                     />
 
-                    <div className="flex items-center gap-2 shrink-0">
-                        <BookmarkButton resourceId={resource.id} showLabel />
-                        <Button
-                            icon={<Download className="size-4" />}
-                            onClick={handleDownloadAll}
-                            disabled={isDownloadingAll || files.length === 0}
-                        >
-                            {isDownloadingAll ? "Preparing..." : "Download All"}
-                        </Button>
-                    </div>
+                    {userData && (
+                        <div className="grid grid-cols-2 gap-2 sm:flex sm:w-auto sm:items-center sm:shrink-0">
+                            <BookmarkButton resourceId={resource.id} showLabel />
+                            <Button
+                                icon={<Download className="size-4" />}
+                                onClick={handleDownloadAll}
+                                disabled={isDownloadingAll || files.length === 0}
+                            >
+                                {isDownloadingAll ? "Preparing..." : "Download All"}
+                            </Button>
+                        </div>
+                    )}
                 </div>
 
                 <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">

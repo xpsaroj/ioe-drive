@@ -2,7 +2,6 @@ import ResourceCard from "./ResourceCard";
 import EditResourceButton from "./EditResourceButton";
 import DeleteResourceButton from "./DeleteResourceButton";
 import type { ResourceSummary } from "@/types/api";
-import type { ResourceOrigin } from "@/utils/resourceLink";
 
 interface Props {
     item: ResourceSummary;
@@ -12,16 +11,12 @@ interface Props {
      * this card is also reused on other users' public profiles, where it must stay false.
      */
     showOwnerActions?: boolean;
-    /** Where this card is shown - lets the resource detail page's breadcrumb offer a
-     * real way back to it. */
-    from?: ResourceOrigin;
 }
 
-const UploadedResourceCard = ({ item, showOwnerActions = false, from }: Props) => {
+const UploadedResourceCard = ({ item, showOwnerActions = false }: Props) => {
     return (
         <ResourceCard
             resource={item}
-            from={from}
             actions={
                 showOwnerActions ? (
                     <div className="flex items-center gap-1 shrink-0">

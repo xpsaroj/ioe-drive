@@ -12,7 +12,7 @@ const DashboardContent = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
-          <JumpBackIn from={{ label: "Dashboard", href: "/dashboard" }} />
+          <JumpBackIn />
         </div>
         <WeeklySummary />
       </div>

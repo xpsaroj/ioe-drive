@@ -32,7 +32,6 @@ const MyUploadedResourcesContent = () => {
                         <UploadedResourceCard
                             item={item}
                             showOwnerActions
-                            from={{ label: "Uploads", href: "/library/uploads" }}
                         />
                     )}
                 />

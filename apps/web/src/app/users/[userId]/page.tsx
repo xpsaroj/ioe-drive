@@ -177,7 +177,6 @@ const UserDetailsContent = ({ userId }: { userId: number }) => {
                                 renderItem={(item) => (
                                     <UploadedResourceCard
                                         item={item}
-                                        from={{ label: user.fullName, href: `/users/${userId}` }}
                                     />
                                 )}
                             />

@@ -29,7 +29,7 @@ const MyBookmarkedResourcesContent = () => {
                 <ResourceList
                     resources={bookmarkedResources || []}
                     renderItem={(item) => (
-                        <BookmarkedResourceCard item={item} from={{ label: "Bookmarks", href: "/library/bookmarks" }} />
+                        <BookmarkedResourceCard item={item} />
                     )}
                 />
                 <Pagination
