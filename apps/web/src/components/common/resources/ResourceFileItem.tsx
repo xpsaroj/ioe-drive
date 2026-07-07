@@ -5,12 +5,12 @@ import { getMimeKey, getMimeLabel } from "./MimeTypeBadge";
 import { formatFileSize } from "@/utils/file";
 import type { ResourceFileSummary } from "@/types/api";
 
-interface FileTypeMeta {
+export interface FileTypeMeta {
     icon: LucideIcon;
     className: string;
 }
 
-const FILE_TYPE_META: Record<string, FileTypeMeta> = {
+export const FILE_TYPE_META: Record<string, FileTypeMeta> = {
     pdf: { icon: FileText, className: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400" },
     png: { icon: FileImage, className: "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400" },
     jpg: { icon: FileImage, className: "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400" },
@@ -25,7 +25,7 @@ const FILE_TYPE_META: Record<string, FileTypeMeta> = {
     zip: { icon: FileArchive, className: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400" },
 };
 
-const DEFAULT_FILE_TYPE_META: FileTypeMeta = {
+export const DEFAULT_FILE_TYPE_META: FileTypeMeta = {
     icon: File,
     className: "bg-background-tertiary text-foreground-secondary",
 };

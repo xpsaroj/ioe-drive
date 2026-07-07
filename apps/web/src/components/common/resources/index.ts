@@ -1,9 +1,9 @@
 export { default as ResourceCard } from "./ResourceCard";
 export { default as ResourceList } from "./ResourceList";
 export { default as ResourceCardSkeleton } from "./ResourceCardSkeleton";
-export { default as ResourceFileItem } from "./ResourceFileItem";
+export { default as ResourceFileItem, FILE_TYPE_META, DEFAULT_FILE_TYPE_META, type FileTypeMeta } from "./ResourceFileItem";
 export { default as ResourceFileList } from "./ResourceFileList";
-export { default as MimeTypeBadge } from "./MimeTypeBadge";
+export { default as MimeTypeBadge, getMimeKey, getMimeLabel } from "./MimeTypeBadge";
 export { default as UploadedResourceCard } from "./UploadedResourceCard";
 export { default as RecentResourceCard } from "./RecentResourceCard";
 export { default as ResourcePreviewTile } from "./ResourcePreviewTile";

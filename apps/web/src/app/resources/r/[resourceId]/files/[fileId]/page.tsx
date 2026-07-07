@@ -121,11 +121,23 @@ const FilePreviewPage = ({
 
     const canPreviewInline = INLINE_PREVIEWABLE_MIME_TYPES.has(activeFile.mimeType);
 
+    const createdAt = new Date(resource.createdAt);
+    const formattedCreatedAt = createdAt.toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+    });
+
     return (
         <div className="min-h-screen bg-background text-foreground p-0 max-w-7xl mx-auto">
             <div className="flex flex-col md:flex-row gap-6 items-start">
-                {/* Main preview pane - grows to fill the space the header/download bar used to take */}
-                <div className="flex-1 w-full h-screen flex items-center justify-center">
+                {/* Main preview pane - grows to fill the space the header/download bar used to take.
+                    A fixed viewport-relative height on mobile (rather than flex-1 alone) - in the
+                    md:flex-row layout flex-1's main axis is horizontal so h-screen applies to height
+                    normally, but stacked in flex-col, flex-1's flex-basis:0 would otherwise collapse
+                    this pane's height instead of respecting h-screen. Ordered after the side panel on
+                    mobile (details first, preview below) but before it in the desktop row. */}
+                <div className="order-2 w-full h-screen md:order-1 md:flex-1 flex items-center justify-center">
                     {urlPending ? (
                         <Loader text="Preparing preview..." />
                     ) : urlError || !downloadData ? (
@@ -162,7 +174,7 @@ const FilePreviewPage = ({
                     rendered at all while collapsed, so the main pane's flex-1 takes the
                     full row - the toggle to bring it back floats separately below. */}
                 {showSidebar && (
-                    <div className="w-full md:w-80 shrink-0 flex flex-col gap-4 md:sticky self-start pe-6 pt-4">
+                    <div className="order-1 w-full md:order-2 md:w-80 shrink-0 flex flex-col gap-4 md:sticky self-start px-4 pt-4 md:px-0 md:pe-6">
                         <div className="flex items-center gap-2">
                             <Button
                                 icon={<ChevronLeft className="size-4" />}
@@ -183,49 +195,63 @@ const FilePreviewPage = ({
                                     disabled={isPreparingDownload}
                                     aria-label={isPreparingDownload ? "Preparing download..." : "Download file"}
                                 />
-                                <Button
-                                    icon={<PanelRightClose className="size-4" />}
-                                    iconOnly
-                                    variant="ghost"
-                                    size="xs"
-                                    className="border border-border"
-                                    onClick={() => setShowSidebar(false)}
-                                    aria-label="Hide details"
-                                />
+                                {/* Collapsing the side panel only makes sense on desktop, where it
+                                    frees up horizontal space next to the preview - on mobile the
+                                    panel already stacks above the preview, so there's nothing to
+                                    reclaim by hiding it. `hidden md:contents` (rather than putting
+                                    `hidden` directly on the Button) avoids fighting the Button's
+                                    own base `inline-flex` class for which wins at the same
+                                    (unprefixed) breakpoint. */}
+                                <div className="hidden md:contents">
+                                    <Button
+                                        icon={<PanelRightClose className="size-4" />}
+                                        iconOnly
+                                        variant="ghost"
+                                        size="xs"
+                                        className="border border-border"
+                                        onClick={() => setShowSidebar(false)}
+                                        aria-label="Hide details"
+                                    />
+                                </div>
                             </div>
                         </div>
 
-                        <div className="border rounded-lg p-4">
+                        <div className="rounded-xl border border-border p-5">
                             <Link
                                 href={`/resources/r/${resource.id}`}
-                                className="font-semibold hover:underline"
+                                className="text-lg font-semibold text-foreground hover:underline"
                             >
                                 {resource.title}
                             </Link>
-                            <p className="text-sm text-foreground-secondary mt-1">{resource.description}</p>
+                            <p className="mt-2 text-sm leading-relaxed text-foreground-secondary">
+                                {resource.description}
+                            </p>
 
-                            <div className="mt-3">
-                                <UploaderInfo user={resource.uploader} />
+                            <div className="mt-4 border-t border-border pt-4">
+                                <UploaderInfo user={resource.uploader} subtitle={formattedCreatedAt} />
                             </div>
 
                             <Link
                                 href={`/offerings/${resource.subjectOffering.id}`}
-                                className="text-xs text-foreground-secondary hover:underline hover:text-foreground mt-3 block"
+                                className="mt-4 flex items-center gap-1.5 border-t border-border pt-4 text-xs text-foreground-secondary hover:text-foreground hover:underline"
                             >
-                                {resource.subjectOffering.subject.code} • {resource.subjectOffering.subject.name}
+                                <span className="font-medium text-foreground">{resource.subjectOffering.subject.code}</span>
+                                <span className="truncate">{resource.subjectOffering.subject.name}</span>
                             </Link>
                         </div>
 
-                        <div className="border rounded-lg p-4">
-                            <p className="text-sm font-medium mb-2">Files in this resource</p>
-                            <div className="flex flex-col gap-1">
+                        <div className="rounded-xl border border-border p-5">
+                            <p className="mb-3 font-display text-xs font-medium uppercase tracking-wide text-foreground-tertiary">
+                                Attached files
+                            </p>
+                            <div className="flex flex-col gap-1.5">
                                 {resource.files.map((file) => (
                                     <Link
                                         key={file.id}
                                         href={`/resources/r/${resource.id}/files/${file.id}`}
-                                        className={`flex items-center gap-2 p-2 rounded-md border text-sm transition-colors ${file.id === activeFile.id
+                                        className={`flex items-center gap-2 rounded-md border p-2 text-sm transition-colors ${file.id === activeFile.id
                                             ? "border-accent bg-background-tertiary"
-                                            : "hover:bg-background-tertiary"
+                                            : "border-border hover:bg-background-tertiary"
                                             }`}
                                     >
                                         <MimeTypeBadge mimeType={file.mimeType} />
