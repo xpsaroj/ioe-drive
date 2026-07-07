@@ -65,8 +65,14 @@ const ResourcesBrowseContent = () => {
 
     const { data: subjectOfferings, error: offeringsError, isPending: offeringsPending } = useSubjectOfferings(programId, semester);
 
-    const currentSubject = selectedSubject?.subject ?? subjectOfferings?.[0]?.subject;
-    const currentOfferingId = selectedSubject?.id ?? subjectOfferings?.[0]?.id;
+    // A link into this page (e.g. an offering's "Browse Resources" button) can name a
+    // specific subject via ?offeringId= - preferred over the first-in-list default, but
+    // still overridden the moment the visitor picks a different one from the Select.
+    const urlOfferingId = searchParams.get("offeringId");
+    const linkedOffering = urlOfferingId ? subjectOfferings?.find((s) => String(s.id) === urlOfferingId) : undefined;
+
+    const currentSubject = selectedSubject?.subject ?? linkedOffering?.subject ?? subjectOfferings?.[0]?.subject;
+    const currentOfferingId = selectedSubject?.id ?? linkedOffering?.id ?? subjectOfferings?.[0]?.id;
 
     const { page, setPage } = usePageParam();
     // Reset back to page 1 whenever the selected subject actually changes (not on the
