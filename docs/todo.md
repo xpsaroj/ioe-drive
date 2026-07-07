@@ -16,6 +16,9 @@ essays here once something is actively being worked on.
       secondary storage backend.
 - [ ] Add basic moderation/reporting for uploaded resources (currently any signed-in user
       can upload with no review or takedown path).
+- [ ] Design and build an upvote/reputation system for resources or uploaders — the public
+      profile page currently shows a placeholder "Upvotes" count with no backing data or
+      logic at all.
 
 ## Frontend
 
@@ -30,3 +33,8 @@ essays here once something is actively being worked on.
 
 - [ ] Add a basic test suite to at least the API (currently no tests on either app; CI
       only lints/typechecks/builds).
+- [ ] General frontend component cleanup pass: remove unused components, move page-local
+      markup that's actually reused elsewhere into proper shared components, and pull
+      one-off props back out of shared components so each one goes back to doing a single
+      specific job (e.g. `PageHeader`/`ResourcePageStateHandler`'s `beforeBreadcrumb`,
+      added for just the resource detail page's back button).

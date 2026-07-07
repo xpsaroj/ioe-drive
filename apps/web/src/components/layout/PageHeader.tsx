@@ -10,6 +10,10 @@ interface PageHeaderProps {
     /** Optional right-aligned content next to the title (e.g. a primary action button). */
     actions?: React.ReactNode;
     className?: string;
+    /** Optional content rendered before the breadcrumb trail, inside its sticky bar -
+     * e.g. a real back button, for pages reachable from many different contexts where
+     * the breadcrumb's own first crumb isn't a reliable "go back" affordance. */
+    beforeBreadcrumb?: React.ReactNode;
 }
 
 /**
@@ -23,14 +27,15 @@ interface PageHeaderProps {
  * it needs to sit directly in the page's own scrollable container, alongside the
  * content below it, not inside a short wrapper of its own.
  */
-const PageHeader = ({ title, breadcrumbs, actions, className }: PageHeaderProps) => {
+const PageHeader = ({ title, breadcrumbs, actions, className, beforeBreadcrumb }: PageHeaderProps) => {
     return (
         <>
             <div className={cn("flex items-start justify-between gap-4 pb-4", className)}>
                 <h1 className="flex flex-wrap items-center gap-2 text-xl font-medium text-foreground md:text-2xl">{title}</h1>
                 {actions && <div className="shrink-0">{actions}</div>}
             </div>
-            <div className="sticky top-0 z-10 mb-6 border-b border-border bg-background/95 py-2.5 backdrop-blur-sm">
+            <div className="sticky top-0 z-10 mb-6 flex items-center gap-2 border-b border-border bg-background/95 py-2.5 backdrop-blur-sm">
+                {beforeBreadcrumb}
                 <Breadcrumbs items={breadcrumbs} />
             </div>
         </>

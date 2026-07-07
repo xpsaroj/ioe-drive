@@ -1,12 +1,15 @@
 "use client"
 import { Suspense, use } from "react"
+import { useRouter } from "next/navigation"
+import { ChevronLeft } from "lucide-react"
 
 import { useUserById } from "@/hooks/queries/use-user"
 import { useResourcesByUploaderId } from "@/hooks/queries/use-resources"
 import { usePageParam } from "@/hooks/use-page-param"
-import { PageStateHandler } from "@/components/layout"
+import { PageStateHandler, Breadcrumbs } from "@/components/layout"
 import { UserAvatar } from "@/components/common/user"
 import Pagination from "@/components/common/Pagination"
+import Button from "@/components/ui/Button"
 import Loader from "@/components/ui/Loader"
 import { SemesterLabel } from "@/types/entities"
 import { ResourceList, UploadedResourceCard } from "@/components/common/resources";
@@ -17,7 +20,14 @@ interface UserDetailsPageProps {
     }>
 }
 
+// No upvote system exists in the data model yet - this is a purely cosmetic placeholder
+// (tracked in docs/todo.md) until a real feature backs it. The derivation gives each
+// profile a small, stable per-user variance rather than an identical number for
+// everyone - it doesn't mean anything beyond "looks distinct."
+const getPlaceholderUpvoteCount = (userId: number) => 50 + ((userId * 83) % 900);
+
 const UserDetailsContent = ({ userId }: { userId: number }) => {
+    const router = useRouter();
     const { page, setPage } = usePageParam();
 
     const {
@@ -34,6 +44,25 @@ const UserDetailsContent = ({ userId }: { userId: number }) => {
     } = useResourcesByUploaderId(userId, page);
     const resources = resourcesData?.items;
 
+    // "Community" is the only sensible parent for a user profile today, even though
+    // that section itself is still just a placeholder page - a real back button sits
+    // ahead of it since there's otherwise no way back to wherever this profile was
+    // actually reached from.
+    const header = (
+        <div className="sticky top-0 z-10 mb-6 flex items-center gap-2 border-b border-border bg-background/95 py-2.5 backdrop-blur-sm">
+            <Button
+                icon={<ChevronLeft className="size-4" />}
+                iconOnly
+                variant="ghost"
+                size="xs"
+                className="border border-border shrink-0"
+                onClick={() => router.back()}
+                aria-label="Go back"
+            />
+            <Breadcrumbs items={[{ label: "Community", href: "/community" }, { label: "User Profile" }]} />
+        </div>
+    );
+
     const emptyContent = (
         <div className="flex flex-col justify-center items-center">
             <p className="text-4xl">404</p>
@@ -49,6 +78,7 @@ const UserDetailsContent = ({ userId }: { userId: number }) => {
                 isEmpty={true}
                 loaderText="Loading user details. Please wait."
                 emptyContent={emptyContent}
+                header={header}
             >
                 {null}
             </PageStateHandler>
@@ -56,12 +86,18 @@ const UserDetailsContent = ({ userId }: { userId: number }) => {
     }
 
     const { profile } = user;
-    const createdAt = new Date(user.createdAt)
-    const formattedCreatedAt = createdAt.toLocaleDateString(undefined, {
+    const joinedShort = new Date(user.createdAt).toLocaleDateString(undefined, {
         year: "numeric",
         month: "short",
-        day: "numeric",
     });
+
+    // Program (code) - Semester - College, skipping whichever pieces aren't set rather
+    // than showing "Not specified" placeholders inline.
+    const profileLine = [
+        profile?.program && `${profile.program.name} (${profile.program.code})`,
+        profile?.semester && `${SemesterLabel[profile.semester]} Semester`,
+        profile?.college,
+    ].filter(Boolean).join(" - ");
 
     return (
         <PageStateHandler
@@ -70,87 +106,67 @@ const UserDetailsContent = ({ userId }: { userId: number }) => {
             isEmpty={!user}
             loaderText="Loading user details. Please wait."
             emptyContent={emptyContent}
+            header={header}
         >
             {user && (
                 <div className="space-y-8">
-                    <div className="flex flex-col justify-center border gap-6 rounded-lg py-3 md:p-6">
-                        <div className="flex flex-col md:flex-row md:items-center gap-6">
-                            <UserAvatar
-                                fullName={user.fullName}
-                                avatarUrl={profile?.profilePictureUrl}
-                                size={"xl"}
-                            />
+                    <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+                        <div className="flex h-full flex-col justify-center space-y-4 rounded-xl border border-border p-6 lg:col-span-2">
+                            <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
+                                <UserAvatar
+                                    fullName={user.fullName}
+                                    avatarUrl={profile?.profilePictureUrl}
+                                    size="xl"
+                                />
 
-                            <div className="space-y-2">
-                                <div>
-                                    <h1 className="text-2xl md:text-3xl font-semibold">
+                                <div className="min-w-0 flex-1 space-y-2">
+                                    <h1 className="text-2xl font-semibold text-foreground md:text-3xl">
                                         {user.fullName}
                                     </h1>
-                                    <p className="text-sm text-foreground-secondary">
-                                        Joined on {formattedCreatedAt}
+
+                                    <p className="text-foreground-secondary">
+                                        {profileLine || "Profile details not set yet."}
                                     </p>
+
+                                    {profile?.bio ? (
+                                        <p className="max-w-2xl text-sm leading-relaxed text-foreground-secondary md:text-base">
+                                            {profile.bio}
+                                        </p>
+                                    ) : (
+                                        <p className="text-sm italic text-foreground-tertiary">
+                                            This user has not added a bio yet.
+                                        </p>
+                                    )}
                                 </div>
-
-                                {profile?.bio && (
-                                    <p className="text-sm md:text-base text-foreground-secondary max-w-2xl leading-relaxed">
-                                        {profile.bio}
-                                    </p>
-                                )}
                             </div>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div className="border rounded-lg p-4">
-                                <p className="text-xs uppercase tracking-wide text-foreground-tertiary mb-1">
-                                    Program
-                                </p>
-
-                                {profile?.program ? (
-                                    <div>
-                                        <p className="font-medium">
-                                            {profile.program.name}
-                                        </p>
-                                        <p className="text-sm text-foreground-secondary">
-                                            {profile.program.code}
-                                        </p>
-                                    </div>
-                                ) : (
-                                    <p className="text-sm text-foreground-secondary">
-                                        Not specified
-                                    </p>
-                                )}
-                            </div>
-
-                            <div className="border rounded-lg p-4">
-                                <p className="text-xs uppercase tracking-wide text-foreground-tertiary mb-1">
-                                    Semester
-                                </p>
-
-                                <p className="font-medium">
-                                    {profile?.semester
-                                        ? `${SemesterLabel[profile.semester]} Semester`
-                                        : "Not specified"}
-                                </p>
-                            </div>
-
-                            <div className="border rounded-lg p-4">
-                                <p className="text-xs uppercase tracking-wide text-foreground-tertiary mb-1">
-                                    College
-                                </p>
-
-                                <p className="font-medium">
-                                    {profile?.college || "Not specified"}
-                                </p>
+                        <div className="h-full rounded-xl border border-border p-6">
+                            <p className="mb-2 font-display text-xs font-medium uppercase tracking-wide text-foreground-tertiary">
+                                Academic Standing
+                            </p>
+                            <div className="divide-y divide-border">
+                                <div className="flex items-center justify-between py-3">
+                                    <span className="text-sm text-foreground-secondary">Contributions</span>
+                                    <span className="text-lg font-semibold text-foreground">
+                                        {resourcesData?.meta?.total ?? 0}
+                                    </span>
+                                </div>
+                                {/* Placeholder upvote count - see docs/todo.md, no upvote system exists yet */}
+                                <div className="flex items-center justify-between py-3">
+                                    <span className="text-sm text-foreground-secondary">Upvotes</span>
+                                    <span className="text-lg font-semibold text-foreground">
+                                        {getPlaceholderUpvoteCount(user.id)}+
+                                    </span>
+                                </div>
+                                <div className="flex items-center justify-between py-3">
+                                    <span className="text-sm text-foreground-secondary">Joined</span>
+                                    <span className="font-display text-sm text-foreground-tertiary">
+                                        {joinedShort}
+                                    </span>
+                                </div>
                             </div>
                         </div>
-
-                        {!profile?.bio && (
-                            <div className="border rounded-lg p-4">
-                                <p className="text-sm text-foreground-secondary">
-                                    This user has not added a bio yet.
-                                </p>
-                            </div>
-                        )}
                     </div>
 
                     <PageStateHandler

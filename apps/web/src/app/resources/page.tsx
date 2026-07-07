@@ -253,9 +253,11 @@ const ResourcesBrowseContent = () => {
                             <h3 className="text-lg">Subject Details</h3>
                         </div>
                         {showSubjectDetails && currentSubject && (
-                            <SubjectDetails
-                                subject={currentSubject}
-                            />
+                            <div className="mt-3">
+                                <SubjectDetails
+                                    subject={currentSubject}
+                                />
+                            </div>
                         )}
                     </div>
 

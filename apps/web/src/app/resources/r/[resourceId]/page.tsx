@@ -63,6 +63,18 @@ const ResourceDetailContent = ({
         { label: resource?.title ?? "Resource" },
     ];
 
+    const backButton = (
+        <Button
+            icon={<ChevronLeft className="size-4" />}
+            iconOnly
+            variant="ghost"
+            size="xs"
+            className="border border-border shrink-0"
+            onClick={() => router.back()}
+            aria-label="Go back"
+        />
+    );
+
     // The badge sits right next to the title itself (via the composed `title` node
     // below) rather than here, so this only needs to hold owner-only actions. The
     // bookmark toggle lives as a prominent "Save" button in the body.
@@ -78,15 +90,6 @@ const ResourceDetailContent = ({
 
     const title = resource ? (
         <>
-            <Button
-                icon={<ChevronLeft className="size-4" />}
-                iconOnly
-                variant="ghost"
-                size="xs"
-                className="border border-border"
-                onClick={() => router.back()}
-                aria-label="Go back"
-            />
             {resource.title}
             <Badge size="sm" className="align-middle">{ResourceTypeLabel[resource.type]}</Badge>
         </>
@@ -99,6 +102,7 @@ const ResourceDetailContent = ({
             <ResourcePageStateHandler
                 title={title}
                 breadcrumbs={breadcrumbs}
+                beforeBreadcrumb={backButton}
                 isPending={isPending}
                 error={error}
                 isEmpty={true}
@@ -139,6 +143,7 @@ const ResourceDetailContent = ({
         <ResourcePageStateHandler
             title={title}
             breadcrumbs={breadcrumbs}
+            beforeBreadcrumb={backButton}
             actions={actions}
             isPending={isPending}
             error={error}

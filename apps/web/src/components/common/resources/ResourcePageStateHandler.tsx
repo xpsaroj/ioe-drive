@@ -7,6 +7,9 @@ interface ResourcePageStateHandlerProps {
     breadcrumbs: BreadcrumbItem[];
     /** Optional right-aligned content next to the title (e.g. bookmark/edit/delete). */
     actions?: React.ReactNode;
+    /** Optional content rendered before the breadcrumb trail, inside its sticky bar -
+     * e.g. a real back button. See PageHeader. */
+    beforeBreadcrumb?: React.ReactNode;
     isPending: boolean;
     error: Error | null | undefined;
     isEmpty: boolean;
@@ -22,6 +25,7 @@ const ResourcePageStateHandler = ({
     title,
     breadcrumbs,
     actions,
+    beforeBreadcrumb,
     isPending,
     error,
     isEmpty,
@@ -32,7 +36,9 @@ const ResourcePageStateHandler = ({
     emptyButtonHref,
     children,
 }: ResourcePageStateHandlerProps) => {
-    const headerSection = <PageHeader title={title} breadcrumbs={breadcrumbs} actions={actions} />;
+    const headerSection = (
+        <PageHeader title={title} breadcrumbs={breadcrumbs} actions={actions} beforeBreadcrumb={beforeBreadcrumb} />
+    );
 
     const emptyContent = (
         <div className="flex flex-col items-center justify-center gap-1">
