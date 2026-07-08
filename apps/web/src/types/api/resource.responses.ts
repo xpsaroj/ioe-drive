@@ -6,6 +6,7 @@ export interface ResourceFileSummary {
     id: number;
     resourceId: number;
     fileUrl: string;
+    fileSize: number;
     originalFileName: string;
     mimeType: string;
 }

@@ -15,6 +15,7 @@ const MyUploadedResourcesContent = () => {
     return (
         <ResourcePageStateHandler
             title="My Uploaded Resources"
+            breadcrumbs={[{ label: "Library", href: "/library" }, { label: "Uploads" }]}
             isPending={isPending}
             error={error}
             isEmpty={!uploadedResources || uploadedResources.length === 0}
@@ -27,7 +28,12 @@ const MyUploadedResourcesContent = () => {
             <div className="space-y-6">
                 <ResourceList
                     resources={uploadedResources || []}
-                    renderItem={(item) => <UploadedResourceCard item={item} showOwnerActions />}
+                    renderItem={(item) => (
+                        <UploadedResourceCard
+                            item={item}
+                            showOwnerActions
+                        />
+                    )}
                 />
                 <Pagination
                     page={page}

@@ -44,14 +44,16 @@
     /* Border on focus - black */
 
     /* ===== Accent Colors ===== */
+    /* Monochrome by design - this project intentionally stays black/white rather than
+       introducing a brand color. Used wherever something needs to read as "selected" or
+       "brand": the active nav item, hover states in Features/LibraryHub, the selected
+       file in the file preview page. */
     --color-accent: #000000;
-    /* Primary accent - black */
     --color-accent-hover: #1a1a1a;
-    /* Accent hover state */
     --color-accent-active: #333333;
-    /* Accent active state */
     --color-accent-foreground: #ffffff;
-    /* Text on accent backgrounds */
+    /* Soft tinted background wash for accent-colored active/selected states. */
+    --color-accent-soft: rgba(0, 0, 0, 0.06);
 
     /* ===== Status/Semantic Colors ===== */
     /* Success - Green */
@@ -237,6 +239,14 @@
     --color-skeleton-highlight: #ececec;
     /* Skeleton loading highlight */
 
+    /* ===== Typography ===== */
+    /* Display/technical face, used sparingly for the wordmark and small "eyebrow"
+       labels (e.g. NAVIGATION) - IBM Plex Mono was designed for technical documentation,
+       fitting for an engineering resource-sharing platform. Body copy and nav labels
+       stay on Outfit (the default sans below), so this is a restrained accent, not a
+       wholesale font swap. --font-plex-mono is set by next/font (see layout.tsx). */
+    --font-display: var(--font-plex-mono), ui-monospace, monospace;
+
     /* ===== Animations ===== */
     /* Used by Modal (backdrop fade + panel scale-in). Kept short/subtle on purpose. */
     --animate-fade-in: fade-in 0.15s ease-out;
@@ -296,6 +306,7 @@
     --color-accent-hover: #e5e5e5;
     --color-accent-active: #cccccc;
     --color-accent-foreground: #0a0a0a;
+    --color-accent-soft: rgba(255, 255, 255, 0.08);
 
     /* ===== Status/Semantic Colors ===== */
     /* Success - Green (one step lighter than the light theme for contrast on dark bg) */

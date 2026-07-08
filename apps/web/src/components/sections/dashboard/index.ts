@@ -1,4 +1,4 @@
 export {default as DashboardContent} from './DashboardContent';
-export {default as UpcomingExams} from './ExamsSection';
-export {default as RecentAccess} from './RecentAccess';
+export {default as DashboardActions} from './DashboardActions';
 export {default as SemesterInformation} from './SemesterInformation';
+export {default as WeeklySummary} from './WeeklySummary';

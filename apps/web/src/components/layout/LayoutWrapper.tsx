@@ -37,7 +37,14 @@ const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
 
     return (
         <div className="flex md:flex-row flex-col min-h-screen">
-            <div className="hidden md:block sticky top-0 h-screen border-r">
+            {/* z-20: `sticky` always opens its own stacking context, regardless of
+                z-index - without an explicit one here, this whole block (including
+                Navbar's own z-30 collapse toggle) would paint *behind* any page content
+                that also happens to use `sticky` (e.g. a page's sticky breadcrumb bar),
+                since that page content sits later in the DOM as an equally
+                context-less-at-this-level sibling. This ensures the navbar - and its
+                toggle - always wins regardless of what a page does internally. */}
+            <div className="hidden md:block sticky top-0 h-screen border-r z-20">
                 <Navbar />
             </div>
             <div className="md:hidden">

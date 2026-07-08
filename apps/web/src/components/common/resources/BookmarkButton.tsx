@@ -7,9 +7,12 @@ import { useMe, useBookmarkedResourceIds, useBookmarkResource, useUnbookmarkReso
 
 interface BookmarkButtonProps {
     resourceId: number;
+    /** Render as a labeled "Save"/"Saved" button instead of the default icon-only
+     * toggle - for prominent placements like the resource detail page's header. */
+    showLabel?: boolean;
 }
 
-const BookmarkButton = ({ resourceId }: BookmarkButtonProps) => {
+const BookmarkButton = ({ resourceId, showLabel = false }: BookmarkButtonProps) => {
     const { data: userData } = useMe();
     const { data: bookmarkedIds } = useBookmarkedResourceIds();
     const { mutate: bookmark, isPending: isBookmarking } = useBookmarkResource();
@@ -44,6 +47,21 @@ const BookmarkButton = ({ resourceId }: BookmarkButtonProps) => {
             });
         }
     };
+
+    if (showLabel) {
+        return (
+            <Button
+                variant="secondary"
+                size="md"
+                icon={<Bookmark className="size-4" fill={isBookmarked ? "currentColor" : "none"} />}
+                onClick={handleToggle}
+                disabled={isBookmarking || isUnbookmarking}
+                className={isBookmarked ? "text-info border-info/40 hover:text-info" : ""}
+            >
+                {isBookmarked ? "Saved" : "Save"}
+            </Button>
+        );
+    }
 
     return (
         <Button

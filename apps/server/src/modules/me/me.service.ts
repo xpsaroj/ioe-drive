@@ -47,6 +47,7 @@ const resourceSummaryRelations = {
             id: true,
             resourceId: true,
             fileUrl: true,
+            fileSize: true,
             originalFileName: true,
             mimeType: true,
         },

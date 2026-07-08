@@ -17,12 +17,19 @@ interface LogoProps {
     theme?: "light" | "dark";
     size?: number;
     bg?: boolean;
+    /**
+     * When true, renders just the mark (no wrapping Link) - for callers that already
+     * place the mark inside their own link/lockup (e.g. next to a wordmark), so the
+     * icon and text share a single click target instead of nesting two anchors.
+     */
+    disableLink?: boolean;
 }
 
 export default function Logo({
     theme,
     size = 6,
     bg = true,
+    disableLink = false,
 }: LogoProps) {
     const { isSignedIn } = useAuth();
     const { resolvedTheme } = useTheme();
@@ -37,15 +44,24 @@ export default function Logo({
 
     const imagePath = `/logo/logo-${logoTheme}${bg ? "" : "-no-bg"}.svg`;
 
+    const image = (
+        <Image
+            src={imagePath}
+            // Decorative when paired with a visible wordmark in the caller's own link
+            // (disableLink) - the link's accessible name comes from that text instead,
+            // so screen readers don't announce "IOE Drive Logo" and "IOE Drive" back to back.
+            alt={disableLink ? "" : "IOE Drive Logo"}
+            preload={true}
+            width={size * 16}
+            height={size * 16}
+        />
+    );
+
+    if (disableLink) return image;
+
     return (
         <Link href={isSignedIn ? "/dashboard" : "/"}>
-            <Image
-                src={imagePath}
-                alt="IOE Drive Logo"
-                preload={true}
-                width={size * 16}
-                height={size * 16}
-            />
+            {image}
         </Link>
     )
 }

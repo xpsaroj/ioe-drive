@@ -57,7 +57,7 @@ const specialMimeMap: Record<string, string> = {
     "vnd.ms-powerpoint": "PPT",
 };
 
-function getMimeLabel(mimeType: string) {
+export function getMimeLabel(mimeType: string) {
     if (!mimeType) return "FILE";
 
     const [, subtype] = mimeType.split("/");
@@ -71,7 +71,7 @@ function getMimeLabel(mimeType: string) {
     return subtype.toUpperCase();
 }
 
-function getMimeKey(mimeType: string) {
+export function getMimeKey(mimeType: string) {
     const [, subtype] = mimeType.split("/");
     return subtype?.split(".").pop()?.toLowerCase() || "file";
 }

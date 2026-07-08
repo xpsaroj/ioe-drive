@@ -15,6 +15,7 @@ const MyBookmarkedResourcesContent = () => {
     return (
         <ResourcePageStateHandler
             title="My Bookmarked Resources"
+            breadcrumbs={[{ label: "Library", href: "/library" }, { label: "Bookmarks" }]}
             isPending={isPending}
             error={error}
             isEmpty={!bookmarkedResources || bookmarkedResources.length === 0}
@@ -27,7 +28,9 @@ const MyBookmarkedResourcesContent = () => {
             <div className="space-y-6">
                 <ResourceList
                     resources={bookmarkedResources || []}
-                    renderItem={(item) => <BookmarkedResourceCard item={item} />}
+                    renderItem={(item) => (
+                        <BookmarkedResourceCard item={item} />
+                    )}
                 />
                 <Pagination
                     page={page}

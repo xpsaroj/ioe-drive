@@ -1,24 +1,24 @@
-import RecentAccess from "./RecentAccess";
+import { JumpBackIn } from "@/components/common/resources";
+
+import DashboardActions from "./DashboardActions";
 import DashboardHero from "./DashboardHero";
 import SemesterInformation from "./SemesterInformation";
-import ShareResources from "./ShareResources";
-import CurrentResources from "./CurrentResources";
+import WeeklySummary from "./WeeklySummary";
 
 const DashboardContent = () => {
   return (
     <div className="space-y-8">
       <DashboardHero />
-      <div className="space-y-8">
-        <div className="flex flex-col flex-wrap md:flex-row gap-8">
-          <RecentAccess />
-          <CurrentResources />
-          <ShareResources />
-        </div>
 
-        <div className="flex-1 space-y-6">
-          <SemesterInformation />
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-2">
+          <JumpBackIn />
         </div>
+        <WeeklySummary />
       </div>
+
+      <DashboardActions />
+      <SemesterInformation />
     </div>
   );
 };

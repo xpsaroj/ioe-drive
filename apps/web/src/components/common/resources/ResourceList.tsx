@@ -44,7 +44,7 @@ const ResourceList = <T,>({
     }
 
     return (
-        <div className="border md:p-6 p-0 px-6 py-3 rounded-lg bg-card-background flex flex-col md:gap-6 divide-y divide-border">
+        <div className="border md:p-6 p-0 px-6 py-3 rounded-lg bg-card-background flex flex-col md:gap-6 divide-y md:divide-none divide-border">
             {resources.map((resource, index) => (
                 <div key={index}>
                     {renderItem(resource)}

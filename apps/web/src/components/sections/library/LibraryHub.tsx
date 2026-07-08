@@ -1,51 +1,100 @@
 "use client";
 import Link from "next/link";
-import { Clock, Bookmark, Upload, ChevronRight } from "lucide-react";
-import { ContainerBox } from "@/components/ui/ContainerBox";
-import Button from "@/components/ui/Button";
-import { useRecentResources, useBookmarkedResources } from "@/hooks/queries/use-me";
+import { Bookmark, File, History, UploadCloud } from "lucide-react";
 
-interface LibraryOptionProps {
-    icon: React.ReactNode;
+import StatStrip from "@/components/ui/StatStrip";
+import { JumpBackIn, ResourcePreviewTile } from "@/components/common/resources";
+import { useRecentResources, useBookmarkedResources, useUploadedResources } from "@/hooks/queries/use-me";
+import { getRelativeTime } from "@/utils/time";
+import { ResourceTypeLabel } from "@/types/entities";
+import type { BookmarkedResourceItem } from "@/types/api";
+
+interface PreviewPanelProps {
     title: string;
-    description: string;
-    href: string;
+    viewAllHref: string;
+    tiles: React.ReactNode[];
+    emptyText: string;
+    /** Grid columns at the sm breakpoint - 2 when this sits in the narrower left
+     * column alongside Jump Back In, 3 for a full-width section. */
+    columns?: 2 | 3;
 }
 
-const LibraryOption = ({
-    icon,
-    title,
-    description,
-    href,
-}: LibraryOptionProps) => (
-    <Link href={href}>
-        <div className="group relative py-4 px-4 rounded-lg transition-all duration-300 cursor-pointer border hover:border-border-hover hover:bg-background-secondary">
-            <div className="flex items-center gap-4">
-                <div className="mt-1 p-2 rounded-lg transition-colors duration-300 shrink-0 bg-background-tertiary text-foreground group-hover:text-accent">
-                    {icon}
-                </div>
-                <div className="flex-1">
-                    <h3 className="text-base font-semibold text-foreground group-hover:text-accent transition-colors">
-                        {title}
-                    </h3>
-                    <p className="text-sm text-foreground-secondary mt-1">{description}</p>
-                </div>
-                <ChevronRight className="w-5 h-5 text-foreground-tertiary group-hover:text-foreground transition-all duration-300 mt-0.5" />
+const PreviewPanel = ({ title, viewAllHref, tiles, emptyText, columns = 3 }: PreviewPanelProps) => (
+    <div>
+        <div className="flex items-center justify-between gap-4 mb-6">
+            <h3 className="text-lg font-semibold text-foreground">{title}</h3>
+            <Link href={viewAllHref} className="text-xs font-medium text-foreground-secondary hover:text-foreground transition-colors shrink-0">
+                View all
+            </Link>
+        </div>
+
+        {tiles.length > 0 ? (
+            <div className={columns === 2 ? "grid grid-cols-1 sm:grid-cols-2 gap-4" : "grid grid-cols-1 sm:grid-cols-3 gap-4"}>
+                {tiles}
             </div>
+        ) : (
+            <p className="text-sm text-foreground-secondary">{emptyText}</p>
+        )}
+    </div>
+);
+
+/**
+ * A compact row for the narrow "Recently Bookmarked" sidebar column - a full
+ * ResourcePreviewTile card is too tall to stack multiple of there without dwarfing
+ * Jump Back In's height, so this trades the icon/bookmark/uploader detail for density.
+ */
+const BookmarkListRow = ({ resourceId, title, subjectCode }: { resourceId: number; title: string; subjectCode?: string }) => (
+    <Link
+        href={`/resources/r/${resourceId}`}
+        className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-background-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset"
+    >
+        <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-background-tertiary">
+            <File className="size-3.5 text-foreground-secondary" />
+        </span>
+        <div className="min-w-0">
+            <p className="text-sm font-medium text-foreground truncate">{title}</p>
+            {subjectCode && <p className="text-xs text-foreground-secondary truncate">{subjectCode}</p>}
         </div>
     </Link>
+);
+
+const RecentlyBookmarkedPanel = ({ items }: { items: BookmarkedResourceItem[] }) => (
+    <div>
+        <div className="flex items-center justify-between gap-4 mb-6">
+            <h3 className="text-lg font-semibold text-foreground">Recently Bookmarked</h3>
+            <Link href="/library/bookmarks" className="text-xs font-medium text-foreground-secondary hover:text-foreground transition-colors shrink-0">
+                View all
+            </Link>
+        </div>
+
+        {items.length > 0 ? (
+            <div className="rounded-xl border border-border divide-y divide-border">
+                {items.map((item) => (
+                    <BookmarkListRow
+                        key={item.resourceId}
+                        resourceId={item.resourceId}
+                        title={item.resource.title}
+                        subjectCode={item.resource.subjectOffering?.subject?.code}
+                    />
+                ))}
+            </div>
+        ) : (
+            <p className="text-sm text-foreground-secondary">Nothing bookmarked yet.</p>
+        )}
+    </div>
 );
 
 const LibraryHub = () => {
     const { data: recentResourcesData } = useRecentResources();
     const { data: bookmarkedResourcesData } = useBookmarkedResources();
-
-    const displayedRecentResources = (recentResourcesData?.items ?? []).slice(0, 2);
-    const displayedBookmarkedResources = (bookmarkedResourcesData?.items ?? []).slice(0, 2);
+    const { data: uploadedResourcesData } = useUploadedResources();
 
     return (
         <div className="space-y-8">
             <div className="space-y-2">
+                <p className="font-display text-xs tracking-[0.2em] uppercase text-foreground-tertiary">
+                    Library
+                </p>
                 <h1 className="text-2xl md:text-3xl font-bold text-foreground">
                     My Library
                 </h1>
@@ -54,130 +103,43 @@ const LibraryHub = () => {
                 </p>
             </div>
 
-            <div className="flex md:flex-row flex-col gap-8">
-                <div className="flex flex-col gap-2 2xl:flex-1">
-                    <LibraryOption
-                        icon={<Clock className="w-5 h-5" />}
-                        title="Recent Resources"
-                        description="Continue where you left off. Jump back to your recently viewed resources."
-                        href="/library/recent"
-                    />
-
-                    <LibraryOption
-                        icon={<Bookmark className="w-5 h-5" />}
-                        title="Bookmarked Resources"
-                        description="Your saved and bookmarked resources for quick reference and study."
-                        href="/library/bookmarks"
-                    />
-
-                    <LibraryOption
-                        icon={<Upload className="w-5 h-5" />}
-                        title="My Uploads"
-                        description="Track and manage all the resources you've shared."
-                        href="/library/uploads"
-                    />
-                </div>
-
-                {/* Sidebar */}
-                <div className="hidden md:flex flex-col flex-1 gap-6">
-                    <ContainerBox title="Recently Accessed" comment="Your study journey">
-                        {displayedRecentResources && displayedRecentResources.length > 0 ? (
-                            <div className="flex flex-col gap-2">
-                                {displayedRecentResources.map((resourceItem) => (
-                                    <Link key={resourceItem.resourceId} href={`/resources/r/${resourceItem.resourceId}`}>
-                                        <div className="p-3 rounded-lg border border-border hover:border-border-hover hover:bg-background-secondary transition-all duration-300 cursor-pointer group">
-                                            <p className="text-sm font-medium text-foreground truncate group-hover:text-accent transition-colors">
-                                                {resourceItem.resource?.title || "Untitled"}
-                                            </p>
-                                            <p className="text-xs text-foreground-secondary mt-1 truncate">
-                                                By {resourceItem.resource?.uploader?.fullName || "Unknown"}
-                                            </p>
-                                        </div>
-                                    </Link>
-                                ))}
-                                <Button
-                                    variant="outline"
-                                    className="w-full mt-4 text-foreground-secondary hover:text-foreground"
-                                    href="/library/recent"
-                                    size="sm"
-                                >
-                                    View All Recent
-                                </Button>
-                            </div>
-                        ) : (
-                            <div className="text-center py-6">
-                                <p className="text-sm text-foreground-secondary">
-                                    No recently accessed resources yet.
-                                </p>
-                                <Button
-                                    variant="ghost"
-                                    className="w-full mt-4 text-foreground-secondary hover:text-foreground"
-                                    href="/resources"
-                                    size="sm"
-                                >
-                                    Explore Resources
-                                </Button>
-                            </div>
-                        )}
-                    </ContainerBox>
-
-                    <ContainerBox title="Recently Saved" comment="Your bookmarks">
-                        {displayedBookmarkedResources && displayedBookmarkedResources.length > 0 ? (
-                            <div className="flex flex-col gap-2">
-                                {displayedBookmarkedResources.map((resourceItem) => (
-                                    <Link key={resourceItem.resourceId} href={`/resources/r/${resourceItem.resourceId}`}>
-                                        <div className="p-3 rounded-lg border border-border hover:border-border-hover hover:bg-background-secondary transition-all duration-300 cursor-pointer group">
-                                            <p className="text-sm font-medium text-foreground truncate group-hover:text-accent transition-colors">
-                                                {resourceItem.resource?.title || "Untitled"}
-                                            </p>
-                                            <p className="text-xs text-foreground-secondary mt-1 truncate">
-                                                By {resourceItem.resource?.uploader?.fullName || "Unknown"}
-                                            </p>
-                                        </div>
-                                    </Link>
-                                ))}
-                                <Button
-                                    variant="outline"
-                                    className="w-full mt-4 text-foreground-secondary hover:text-foreground"
-                                    href="/library/bookmarks"
-                                    size="sm"
-                                >
-                                    View All Saved
-                                </Button>
-                            </div>
-                        ) : (
-                            <div className="text-center py-6">
-                                <p className="text-sm text-foreground-secondary">
-                                    No saved resources yet.
-                                </p>
-                                <Button
-                                    variant="ghost"
-                                    className="w-full mt-4 text-foreground-secondary hover:text-foreground"
-                                    href="/resources"
-                                    size="sm"
-                                >
-                                    Start Saving
-                                </Button>
-                            </div>
-                        )}
-                    </ContainerBox>
-                </div>
+            <div className="pb-8 border-b border-border">
+                <StatStrip
+                    variant="cards"
+                    items={[
+                        { href: "/library/recent", label: "Recently viewed", value: recentResourcesData?.meta?.total, icon: History },
+                        { href: "/library/bookmarks", label: "Bookmarked", value: bookmarkedResourcesData?.meta?.total, icon: Bookmark },
+                        { href: "/library/uploads", label: "Uploaded", value: uploadedResourcesData?.meta?.total, icon: UploadCloud },
+                    ]}
+                />
             </div>
 
-            <div className="mt-12 pt-8 border-t">
-                <div className="space-y-3">
-                    <p className="text-sm font-semibold text-foreground">Learning Tips</p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="p-4 rounded-lg bg-background-secondary border">
-                            <p className="text-sm text-foreground font-medium">Organize & Save</p>
-                            <p className="text-xs text-foreground-secondary mt-2">Bookmark important resources and create your personal library for quick access.</p>
-                        </div>
-                        <div className="p-4 rounded-lg bg-background-secondary border">
-                            <p className="text-sm text-foreground font-medium">Share & Contribute</p>
-                            <p className="text-xs text-foreground-secondary mt-2">Upload your resources to help peers learn. Your contribution makes a difference.</p>
-                        </div>
-                    </div>
+            {/* Jump Back In and My Uploads stack in this column so Recently
+            Bookmarked - which can vary a lot in height depending on how many
+            items it has - never leaves a gap below them. */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-2 flex flex-col gap-8">
+                    <JumpBackIn />
+
+                    <PreviewPanel
+                        title="My Uploads"
+                        viewAllHref="/library/uploads"
+                        emptyText="Nothing shared yet."
+                        columns={2}
+                        tiles={(uploadedResourcesData?.items ?? []).slice(0, 2).map((item) => (
+                            <ResourcePreviewTile
+                                key={item.id}
+                                resourceId={item.id}
+                                title={item.title}
+                                subjectCode={item.subjectOffering?.subject?.code}
+                                typeLabel={ResourceTypeLabel[item.type]}
+                                timeLabel={`Uploaded ${getRelativeTime(item.createdAt)}`}
+                            />
+                        ))}
+                    />
                 </div>
+
+                <RecentlyBookmarkedPanel items={(bookmarkedResourcesData?.items ?? []).slice(0, 5)} />
             </div>
         </div>
     );
