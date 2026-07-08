@@ -3,7 +3,7 @@
 A quick, high-level list of what already works. For the full picture see
 `project-overview.md`; for what's next see `todo.md`.
 
-- Monorepo scaffolding: Next.js 16 web app + Express 5 API, Docker Compose dev stack,
+- Monorepo scaffolding: Next.js 16 web app + NestJS 11 API, Docker Compose dev stack,
   per-app CI (lint, typecheck, build) plus a merge gatekeeper and a deploy workflow.
 - Full Postgres schema (Drizzle): programs, subjects, subject offerings, marks, users,
   profiles, resources + files, recently-accessed and bookmarked tracking, webhook
@@ -12,8 +12,9 @@ A quick, high-level list of what already works. For the full picture see
   new-syllabus subjects/offerings, keyed so seeders can be safely re-run. A separate
   `db:seed-resources` script seeds sample resources (with fake, non-Azure files) for one
   subject per semester per program, for local development/testing.
-- Clerk authentication end to end: protected routes on the web app, `requireAuth` on the
-  API, and a webhook that keeps a local `users`/`profiles` mirror in sync with Clerk.
+- Clerk authentication end to end: protected routes on the web app, a `ClerkAuthGuard`
+  on the API, and a webhook that keeps a local `users`/`profiles` mirror in sync with
+  Clerk.
 - Resources generalized from the old "notes-only" model: DB tables, API routes
   (`/api/resources`, `/api/me/resources`, etc.), and frontend types/hooks/components all
   renamed to the generic "resource" concept, with a required `type` field (note, past
@@ -31,7 +32,7 @@ A quick, high-level list of what already works. For the full picture see
 - Pagination (`page`/`limit` query params, numbered-pages UI) on every list that grows
   unbounded: `/resources` browse, `/library/uploads`, `/library/bookmarks`,
   `/library/recent`, and another user's public uploads list. Shared on the backend via a
-  `lib/pagination.ts` helper and response `meta`, and on the frontend via a shared
+  `PaginationQueryDto` and response `meta`, and on the frontend via a shared
   `<Pagination>` component and URL-synced page state (`?page=`).
 - Profile management: program, semester, college, bio, onboarding flow.
 - Core frontend surfaces: dashboard, a unified `/resources` browse page (works for
@@ -44,5 +45,8 @@ A quick, high-level list of what already works. For the full picture see
 - Inline file preview (`/resources/r/[resourceId]/files/[fileId]`) with a collapsible
   details/file-switcher side panel, backed by short-lived Azure SAS URLs (auth-required,
   not owner-gated).
-- Centralized API error handling, request validation (Zod), and basic IP-based rate
-  limiting.
+- Centralized API error handling, request validation (`class-validator`), and basic
+  IP-based rate limiting.
+- API rebuilt from Express onto NestJS: consistent Controller -> Service -> Repository
+  layering across every module, `class-validator` DTOs, and Clerk auth via
+  `@clerk/backend` - same routes, database, and response shapes throughout.

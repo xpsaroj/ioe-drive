@@ -62,7 +62,7 @@ Before you begin, ensure you have the following installed on your machine:
 
 5. **Start the development server**:
    ```bash
-   npm run dev
+   npm run start:dev
    ```
 
 #### Linting and Building

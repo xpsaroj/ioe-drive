@@ -1,213 +1,148 @@
-import type { NextFunction, Request, Response } from "express";
+import {
+  BadRequestException,
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Post,
+  Query,
+  UploadedFiles,
+  UseGuards,
+  UseInterceptors,
+} from "@nestjs/common";
+import { FilesInterceptor } from "@nestjs/platform-express";
 
-import { resourcesService } from "./resources.service.js";
-import { sendSuccessResponse } from "../../lib/response.js";
-import { UnauthorizedError } from "../../lib/errors.js";
-import { buildPaginationMeta, parsePagination } from "../../lib/pagination.js";
-import type { CreateResourceInput, UpdateResourceInput } from "./resources.dto.js";
+import { ApiResponse } from "../../common/dto/api-response";
+import { CurrentUser } from "../../common/decorators/current-user.decorator";
+import { ClerkAuthGuard, type AuthenticatedUser } from "../../common/guards/clerk-auth.guard";
+import { buildPaginationMeta, getPaginationOffset } from "../../common/utils/pagination";
+import {
+  createResourceFileValidationPipe,
+  MAX_RESOURCE_FILES,
+  RESOURCE_FILE_FIELD,
+  resourceFileMulterOptions,
+} from "../../storage/file-upload.config";
+import { CreateResourceDto } from "./dto/create-resource.dto";
+import { GetFileDownloadUrlQueryDto } from "./dto/get-file-download-url-query.dto";
+import { GetResourcesQueryDto } from "./dto/get-resources-query.dto";
+import { UpdateResourceDto } from "./dto/update-resource.dto";
+import { ResourcesService } from "./resources.service";
 
-/**
- * Resources Controller
- * - Handles HTTP requests related to resources.
- */
+@Controller("resources")
 export class ResourcesController {
-    /**
-     * Create a new resource.
-     * - POST /api/resources
-     */
-    async createResource(
-        req: Request,
-        res: Response,
-        next: NextFunction
+  constructor(private readonly resourcesService: ResourcesService) {}
+
+  /** POST /api/resources - create a new resource (requires authentication). */
+  @Post()
+  @UseGuards(ClerkAuthGuard)
+  @HttpCode(HttpStatus.CREATED)
+  @UseInterceptors(FilesInterceptor(RESOURCE_FILE_FIELD, MAX_RESOURCE_FILES, resourceFileMulterOptions))
+  async create(
+    @CurrentUser() user: AuthenticatedUser,
+    @Body() dto: CreateResourceDto,
+    @UploadedFiles(createResourceFileValidationPipe()) files: Express.Multer.File[],
+  ) {
+    const resource = await this.resourcesService.createResource(user.id, dto, files ?? []);
+    return ApiResponse.of(resource, "Resource created successfully");
+  }
+
+  /** PATCH /api/resources/:resourceId - update an existing resource (requires
+   * authentication, must be the uploader). */
+  @Patch(":resourceId")
+  @UseGuards(ClerkAuthGuard)
+  async update(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param("resourceId", ParseIntPipe) resourceId: number,
+    @Body() dto: UpdateResourceDto,
+  ) {
+    if (
+      dto.title === undefined &&
+      dto.description === undefined &&
+      dto.type === undefined &&
+      dto.offeringId === undefined
     ) {
-        try {
-            const userId = req.authUser?.id;
-
-            if (!userId) {
-                throw new UnauthorizedError("User not authenticated");
-            }
-
-            const resourceData: Omit<CreateResourceInput, 'uploadedBy'> = req.body;
-            const resourceFiles = req.files as Express.Multer.File[];
-
-            const createdResource = await resourcesService.createResource(userId, resourceData, resourceFiles);
-            return sendSuccessResponse(res, createdResource, "Resource created successfully", 201);
-        } catch (e) {
-            next(e);
-        }
+      throw new BadRequestException("At least one field must be provided for update");
     }
 
-    /**
-     * Update an existing resource.
-     * - PATCH /api/resources/:resourceId
-     */
-    async updateResource(
-        req: Request,
-        res: Response,
-        next: NextFunction
-    ) {
-        try {
-            const userId = req.authUser?.id;
+    const resource = await this.resourcesService.updateResource(user.id, resourceId, dto);
+    return ApiResponse.of(resource, "Resource updated successfully");
+  }
 
-            if (!userId) {
-                throw new UnauthorizedError("User not authenticated");
-            }
+  /** DELETE /api/resources/:resourceId - delete an existing resource (requires
+   * authentication, must be the uploader). */
+  @Delete(":resourceId")
+  @UseGuards(ClerkAuthGuard)
+  async remove(@CurrentUser() user: AuthenticatedUser, @Param("resourceId", ParseIntPipe) resourceId: number) {
+    await this.resourcesService.deleteResource(user.id, resourceId);
+    return ApiResponse.of(null, "Resource deleted successfully");
+  }
 
-            const resourceId = Number(req.params.resourceId);
-            const updateData: UpdateResourceInput = req.body;
+  /** POST /api/resources/:resourceId/files - add files to an existing resource
+   * (requires authentication, must be the uploader). */
+  @Post(":resourceId/files")
+  @UseGuards(ClerkAuthGuard)
+  @UseInterceptors(FilesInterceptor(RESOURCE_FILE_FIELD, MAX_RESOURCE_FILES, resourceFileMulterOptions))
+  async addFiles(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param("resourceId", ParseIntPipe) resourceId: number,
+    @UploadedFiles(createResourceFileValidationPipe()) files: Express.Multer.File[],
+  ) {
+    await this.resourcesService.addResourceFiles(user.id, resourceId, files ?? []);
+    return ApiResponse.of(null, "Files added successfully");
+  }
 
-            const updatedResource = await resourcesService.updateResource(userId, resourceId, updateData);
-            return sendSuccessResponse(res, updatedResource, "Resource updated successfully");
-        } catch (e) {
-            next(e);
-        }
+  /** DELETE /api/resources/:resourceId/files/:fileId - remove a file from a resource
+   * (requires authentication, must be the uploader). */
+  @Delete(":resourceId/files/:fileId")
+  @UseGuards(ClerkAuthGuard)
+  async removeFile(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param("resourceId", ParseIntPipe) resourceId: number,
+    @Param("fileId", ParseIntPipe) fileId: number,
+  ) {
+    await this.resourcesService.removeResourceFile(user.id, resourceId, fileId);
+    return ApiResponse.of(null, "File removed successfully");
+  }
+
+  /** GET /api/resources/:resourceId/files/:fileId/download-url - a short-lived signed
+   * download URL (requires authentication - any signed-in user, not just the
+   * uploader). */
+  @Get(":resourceId/files/:fileId/download-url")
+  @UseGuards(ClerkAuthGuard)
+  async getFileDownloadUrl(
+    @Param("resourceId", ParseIntPipe) resourceId: number,
+    @Param("fileId", ParseIntPipe) fileId: number,
+    @Query() query: GetFileDownloadUrlQueryDto,
+  ) {
+    const url = await this.resourcesService.getFileDownloadUrl(resourceId, fileId, query.download === "true");
+    return { url };
+  }
+
+  /** GET /api/resources/:resourceId - resource details by ID (public). */
+  @Get(":resourceId")
+  findById(@Param("resourceId", ParseIntPipe) resourceId: number) {
+    return this.resourcesService.findResourceById(resourceId);
+  }
+
+  /** GET /api/resources?offeringId=&userId=&page=&limit= - resources filtered by
+   * subject offering or uploader, paginated (public). */
+  @Get()
+  async findMany(@Query() query: GetResourcesQueryDto) {
+    if (!query.offeringId && !query.userId) {
+      throw new BadRequestException("Either offeringId or userId must be provided");
     }
 
-    /**
-     * Delete an existing resource.
-     * - DELETE /api/resources/:resourceId
-     */
-    async deleteResource(
-        req: Request,
-        res: Response,
-        next: NextFunction
-    ) {
-        try {
-            const userId = req.authUser?.id;
+    const offset = getPaginationOffset(query.page, query.limit);
+    const { items, total } = await this.resourcesService.findResources(
+      { offeringId: query.offeringId, userId: query.userId },
+      { limit: query.limit, offset },
+    );
 
-            if (!userId) {
-                throw new UnauthorizedError("User not authenticated");
-            }
-
-            const resourceId = Number(req.params.resourceId);
-
-            await resourcesService.deleteResource(userId, resourceId);
-            return sendSuccessResponse(res, null, "Resource deleted successfully");
-        } catch (e) {
-            next(e);
-        }
-    }
-
-    /**
-     * Add one or more files to an existing resource.
-     * - POST /api/resources/:resourceId/files
-     */
-    async addResourceFiles(
-        req: Request,
-        res: Response,
-        next: NextFunction
-    ) {
-        try {
-            const userId = req.authUser?.id;
-
-            if (!userId) {
-                throw new UnauthorizedError("User not authenticated");
-            }
-
-            const resourceId = Number(req.params.resourceId);
-            const files = req.files as Express.Multer.File[];
-
-            await resourcesService.addResourceFiles(userId, resourceId, files);
-            return sendSuccessResponse(res, null, "Files added successfully");
-        } catch (e) {
-            next(e);
-        }
-    }
-
-    /**
-     * Remove a single file from a resource.
-     * - DELETE /api/resources/:resourceId/files/:fileId
-     */
-    async removeResourceFile(
-        req: Request,
-        res: Response,
-        next: NextFunction
-    ) {
-        try {
-            const userId = req.authUser?.id;
-
-            if (!userId) {
-                throw new UnauthorizedError("User not authenticated");
-            }
-
-            const resourceId = Number(req.params.resourceId);
-            const fileId = Number(req.params.fileId);
-
-            await resourcesService.removeResourceFile(userId, resourceId, fileId);
-            return sendSuccessResponse(res, null, "File removed successfully");
-        } catch (e) {
-            next(e);
-        }
-    }
-
-    /**
-     * Get a short-lived signed URL for downloading/previewing a file.
-     * - GET /api/resources/:resourceId/files/:fileId/download-url
-     */
-    async getFileDownloadUrl(
-        req: Request,
-        res: Response,
-        next: NextFunction
-    ) {
-        try {
-            const resourceId = Number(req.params.resourceId);
-            const fileId = Number(req.params.fileId);
-            const forceDownload = req.query.download === "true";
-
-            const url = await resourcesService.getFileDownloadUrl(resourceId, fileId, forceDownload);
-            return sendSuccessResponse(res, { url });
-        } catch (e) {
-            next(e);
-        }
-    }
-
-    /**
-     * Get resource details by resource ID.
-     * - GET /api/resources/:resourceId
-     */
-    async getResourceById(
-        req: Request,
-        res: Response,
-        next: NextFunction
-    ) {
-        try {
-            const resourceId = Number(req.params.resourceId);
-            const resource = await resourcesService.findResourceById(resourceId);
-            return sendSuccessResponse(res, resource);
-        } catch (e) {
-            next(e);
-        }
-    }
-
-    /**
-     * Get all resources filtered by subject offering ID or user ID, paginated.
-     * - GET /api/resources?offeringId=<offeringId>&userId=<userId>&page=<page>&limit=<limit>
-     */
-    async getResources(
-        req: Request,
-        res: Response,
-        next: NextFunction
-    ) {
-        try {
-            const filters: { offeringId?: number; userId?: number } = {};
-
-            if (req.query.offeringId) {
-                filters.offeringId = Number(req.query.offeringId);
-            }
-
-            if (req.query.userId) {
-                filters.userId = Number(req.query.userId);
-            }
-
-            const { page, limit, offset } = parsePagination(req.query);
-
-            const { items, total } = await resourcesService.findResources(filters, { limit, offset });
-
-            return sendSuccessResponse(res, items, undefined, 200, buildPaginationMeta(page, limit, total));
-        } catch (e) {
-            next(e);
-        }
-    }
+    return ApiResponse.of(items, undefined, buildPaginationMeta(query.page, query.limit, total));
+  }
 }
-
-export const resourcesController = new ResourcesController();
