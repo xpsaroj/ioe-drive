@@ -49,6 +49,7 @@ export const RESOURCE_DETAIL_RELATIONS = {
       id: true,
       resourceId: true,
       fileUrl: true,
+      fileSize: true,
       originalFileName: true,
       mimeType: true,
     },

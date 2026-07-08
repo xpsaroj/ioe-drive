@@ -12,7 +12,7 @@ import Logo from "@/components/Logo"
 import WordmarkText from "@/components/WordmarkText"
 import { User } from "../User"
 
-import { NAVIGATION_ITEMS, isNavItemActive } from "@/constants/navigations"
+import { NAVIGATION_GROUPS, isNavItemActive } from "@/constants/navigations"
 
 /**
  * Navbar component for the application
@@ -62,21 +62,25 @@ export default function Navbar() {
         <SearchBar />
       </div>
 
-      <div className="h-full px-3 py-4 flex flex-col overflow-y-auto">
-        <h3 className="px-1 mb-2 text-[11px] font-display font-medium text-foreground-tertiary uppercase tracking-[0.15em]">
-          Navigation
-        </h3>
-        <nav className="flex flex-col gap-0.5" aria-label="Primary">
-          {NAVIGATION_ITEMS.map(({ href, icon, name }) => (
-            <NavItem
-              key={href}
-              href={href}
-              icon={icon}
-              name={name}
-              active={isNavItemActive(pathname, href)}
-            />
-          ))}
-        </nav>
+      <div className="h-full px-3 py-4 flex flex-col gap-6 overflow-y-auto">
+        {NAVIGATION_GROUPS.map((group) => (
+          <div key={group.label}>
+            <h3 className="px-1 mb-2 text-[11px] font-display font-medium text-foreground-tertiary uppercase tracking-[0.15em]">
+              {group.label}
+            </h3>
+            <nav className="flex flex-col gap-0.5" aria-label={group.label}>
+              {group.items.map(({ href, icon, name }) => (
+                <NavItem
+                  key={href}
+                  href={href}
+                  icon={icon}
+                  name={name}
+                  active={isNavItemActive(pathname, href)}
+                />
+              ))}
+            </nav>
+          </div>
+        ))}
       </div>
 
       <div className="border-t border-border px-3 py-3 hover:bg-background-hover transition-colors cursor-pointer">

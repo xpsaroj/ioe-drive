@@ -87,12 +87,10 @@ const ResourceEditPage = ({
     return (
         <div className="min-h-screen bg-background text-foreground md:p-8 p-6 max-w-7xl mx-auto space-y-6 md:space-y-8">
             {header}
-            <div className="bg-background-secondary border rounded-xl p-6 md:p-8 space-y-8">
-                <ResourceEditForm resource={resource} />
-                <div className="border-t pt-6">
-                    <ResourceFilesManager resource={resource} />
-                </div>
-            </div>
+            <ResourceEditForm
+                resource={resource}
+                filesPanel={<ResourceFilesManager resource={resource} />}
+            />
         </div>
     )
 }

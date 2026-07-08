@@ -65,7 +65,7 @@ const ResourceCard = ({
 
                 <ResourceFileList resourceFiles={files} />
 
-                <div className="flex justify-between items-end mt-4">
+                <div className="flex justify-between items-center gap-3 mt-4">
                     <UploaderInfo
                         user={uploader}
                         subtitle={formattedCreatedAt}
@@ -73,7 +73,7 @@ const ResourceCard = ({
 
                     <Link
                         href={`/offerings/${subjectOffering.id}`}
-                        className="text-xs text-foreground-secondary hover:underline hover:text-foreground"
+                        className="text-xs text-foreground-secondary shrink-0 hover:underline hover:text-foreground"
                     >
                         {subjectOffering?.subject?.code} <span className="hidden sm:inline">• {subjectOffering?.subject?.name}</span>
                     </Link>

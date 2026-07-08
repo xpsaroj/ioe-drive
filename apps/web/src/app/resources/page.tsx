@@ -2,10 +2,10 @@
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { ChevronRight, ChevronDown } from "lucide-react";
+import { ChevronRight, ChevronDown, Search } from "lucide-react";
 
 import { SubjectDetails } from "@/components/common/offering";
-import { SubjectTabs, ResourceList, ResourceCard } from "@/components/common/resources";
+import { ResourceList, ResourceCard } from "@/components/common/resources";
 import Pagination from "@/components/common/Pagination";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
@@ -65,8 +65,14 @@ const ResourcesBrowseContent = () => {
 
     const { data: subjectOfferings, error: offeringsError, isPending: offeringsPending } = useSubjectOfferings(programId, semester);
 
-    const currentSubject = selectedSubject?.subject ?? subjectOfferings?.[0]?.subject;
-    const currentOfferingId = selectedSubject?.id ?? subjectOfferings?.[0]?.id;
+    // A link into this page (e.g. an offering's "Browse Resources" button) can name a
+    // specific subject via ?offeringId= - preferred over the first-in-list default, but
+    // still overridden the moment the visitor picks a different one from the Select.
+    const urlOfferingId = searchParams.get("offeringId");
+    const linkedOffering = urlOfferingId ? subjectOfferings?.find((s) => String(s.id) === urlOfferingId) : undefined;
+
+    const currentSubject = selectedSubject?.subject ?? linkedOffering?.subject ?? subjectOfferings?.[0]?.subject;
+    const currentOfferingId = selectedSubject?.id ?? linkedOffering?.id ?? subjectOfferings?.[0]?.id;
 
     const { page, setPage } = usePageParam();
     // Reset back to page 1 whenever the selected subject actually changes (not on the
@@ -111,13 +117,32 @@ const ResourcesBrowseContent = () => {
 
     const hasOfferings = !!subjectOfferings && subjectOfferings.length > 0;
 
+    const pageHeader = (
+        <div className="flex items-start justify-between gap-4 pb-6 border-b border-border">
+            <div>
+                <h1 className="text-2xl md:text-3xl font-bold text-foreground">Resource Explorer</h1>
+                <p className="text-foreground-secondary mt-1">Browse, filter, and access academic materials.</p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+                <Button
+                    variant="ghost"
+                    size="md"
+                    iconOnly
+                    className="border border-border"
+                    icon={<Search className="size-4" />}
+                    aria-label="Search resources"
+                />
+            </div>
+        </div>
+    );
+
     const filterBar = (
-        <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-end sm:justify-between">
-            <div className="w-full sm:max-w-72">
+        <div className="flex flex-col sm:flex-row border-b border-border">
+            <div className="flex-1 p-4">
                 <Select
                     label="Program"
                     placeholder="Select Program"
-                    helperText={programsPending ? "Loading programs..." : "Select a program you want resources for."}
+                    helperText={programsPending ? "Loading programs..." : "Select your department"}
                     value={programId ? String(programId) : ""}
                     disabled={programsPending}
                     onChange={(e) => updateFilter({ programId: e.target.value })}
@@ -128,11 +153,11 @@ const ResourcesBrowseContent = () => {
                 />
             </div>
 
-            <div className="w-full sm:max-w-72">
+            <div className="flex-1 p-4">
                 <Select
                     label="Semester"
                     placeholder="Select Semester"
-                    helperText={programId ? "Select a semester to see available resources." : "Select a program first."}
+                    helperText={programId ? "Choose your term" : "Select a program first"}
                     value={semester ?? ""}
                     onChange={(e) => updateFilter({ semester: e.target.value })}
                     options={Object.keys(SemesterLabel).map((sem) => ({
@@ -142,19 +167,39 @@ const ResourcesBrowseContent = () => {
                 />
             </div>
 
-            {hasOfferings && (
-                <SubjectTabs
-                    subjects={subjectOfferings}
-                    onSubjectSelect={(subject) => setSelectedSubject(subject)}
+            <div className="flex-1 p-4">
+                <Select
+                    label="Subject"
+                    placeholder="Select Subject"
+                    helperText={
+                        !programId || !semester
+                            ? "Select a program and semester first"
+                            : offeringsPending
+                                ? "Loading subjects..."
+                                : "Pick a course"
+                    }
+                    value={currentOfferingId ? String(currentOfferingId) : ""}
+                    disabled={!hasOfferings}
+                    onChange={(e) => {
+                        const subject = subjectOfferings?.find((s) => String(s.id) === e.target.value);
+                        if (subject) setSelectedSubject(subject);
+                    }}
+                    options={(subjectOfferings ?? []).map((s) => ({
+                        value: String(s.id),
+                        label: `${s.subject.code} - ${s.subject.name}`,
+                    }))}
                 />
-            )}
+            </div>
         </div>
     );
 
     if (waitingForProfileDefault || pendingAutoRedirect) {
         return (
             <div className="min-h-screen bg-background text-foreground max-w-7xl mx-auto md:px-8 px-6 md:space-y-8 space-y-6">
-                <div className="pt-6 md:pt-8">{filterBar}</div>
+                <div className="pt-6 md:pt-8">
+                    {pageHeader}
+                    <div className="mt-6">{filterBar}</div>
+                </div>
                 <div className="flex-1 flex items-center justify-center py-16">
                     <Loader text="Loading your resources. Please wait." />
                 </div>
@@ -164,7 +209,9 @@ const ResourcesBrowseContent = () => {
 
     return (
         <div className="min-h-screen bg-background text-foreground max-w-7xl mx-auto md:px-8 px-6 md:space-y-8 space-y-6">
-            <div className="sticky md:top-0 md:pt-8 pt-6 bg-background/40 backdrop-blur-sm border-b pb-6">
+            <div className="pt-6 md:pt-8">{pageHeader}</div>
+
+            <div className="sticky md:top-0 z-10 bg-background/40 backdrop-blur-sm">
                 {filterBar}
                 {isSignedIn && authLoaded && !profilePending && !profileHasDefault && (
                     <p className="text-xs text-foreground-tertiary mt-2">
@@ -212,9 +259,11 @@ const ResourcesBrowseContent = () => {
                             <h3 className="text-lg">Subject Details</h3>
                         </div>
                         {showSubjectDetails && currentSubject && (
-                            <SubjectDetails
-                                subject={currentSubject}
-                            />
+                            <div className="mt-3">
+                                <SubjectDetails
+                                    subject={currentSubject}
+                                />
+                            </div>
                         )}
                     </div>
 

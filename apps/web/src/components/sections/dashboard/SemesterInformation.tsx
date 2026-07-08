@@ -1,6 +1,5 @@
 "use client";
 import Link from "next/link";
-import { ContainerBox } from "@/components/ui/ContainerBox";
 import Table, { Column } from "@/components/ui/Table";
 import { SubjectHardnessBadge } from "@/components/common/offering";
 import { SubjectOfferingWithSubject } from "@/types/entities/academics";
@@ -62,21 +61,20 @@ const SemesterInformation = () => {
   const subjectCount = subjectOfferings?.length ?? 0;
 
   return (
-    <ContainerBox
-      title="Subjects this semester"
-      comment={
-        subjectCount > 0
+    <div>
+      <h2 className="text-lg font-semibold text-foreground">Subjects this semester</h2>
+      <p className="text-sm text-foreground-secondary mt-0.5 mb-6">
+        {subjectCount > 0
           ? `${subjectCount} subject${subjectCount === 1 ? "" : "s"} - click one to view its full details.`
-          : "Tip: click on a subject to view its full details."
-      }
-    >
+          : "Tip: click on a subject to view its full details."}
+      </p>
       <Table
         columns={columns}
         loading={isLoading || userLoading}
         data={subjectOfferings || []}
         emptyMessage="No semester information available. Make sure you've added your semester and program in your profile settings."
       />
-    </ContainerBox>
+    </div>
   );
 };
 

@@ -1,67 +1,27 @@
 "use client";
 import Link from "next/link";
-import { ArrowUpRight, File } from "lucide-react";
+import { Bookmark, File, History, UploadCloud } from "lucide-react";
 
 import StatStrip from "@/components/ui/StatStrip";
-import { ResourcePreviewTile } from "@/components/common/resources";
+import { JumpBackIn, ResourcePreviewTile } from "@/components/common/resources";
 import { useRecentResources, useBookmarkedResources, useUploadedResources } from "@/hooks/queries/use-me";
 import { getRelativeTime } from "@/utils/time";
 import { ResourceTypeLabel } from "@/types/entities";
-import type { RecentResourceItem } from "@/types/api";
-
-const ContinueCard = ({ latest }: { latest: RecentResourceItem | undefined }) => {
-
-    if (!latest) {
-        return (
-            <Link
-                href="/resources"
-                className="group flex items-center justify-between gap-4 border rounded-xl p-6 transition-colors hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-            >
-                <div>
-                    <p className="font-display text-xs uppercase tracking-wide text-foreground-tertiary mb-1">
-                        Get started
-                    </p>
-                    <p className="font-semibold text-foreground">Browse resources for your program and semester</p>
-                </div>
-                <ArrowUpRight className="size-5 text-foreground-tertiary shrink-0 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accent" />
-            </Link>
-        );
-    }
-
-    return (
-        <Link
-            href={`/resources/r/${latest.resourceId}`}
-            className="group flex items-center justify-between gap-4 border rounded-xl p-6 transition-colors hover:border-accent focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-        >
-            <div className="flex items-center gap-4 min-w-0">
-                <div className="size-11 rounded-lg bg-background-tertiary flex items-center justify-center shrink-0">
-                    <File className="size-5 text-foreground-secondary" />
-                </div>
-                <div className="min-w-0">
-                    <p className="font-display text-xs uppercase tracking-wide text-foreground-tertiary mb-1">
-                        Continue where you left off
-                    </p>
-                    <p className="font-semibold text-foreground truncate">{latest.resource.title}</p>
-                    <p className="text-sm text-foreground-secondary mt-0.5 truncate">
-                        {latest.resource.subjectOffering?.subject?.code} &middot; Viewed {getRelativeTime(latest.accessedAt)}
-                    </p>
-                </div>
-            </div>
-            <ArrowUpRight className="size-5 text-foreground-tertiary shrink-0 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 group-hover:text-accent" />
-        </Link>
-    );
-};
+import type { BookmarkedResourceItem } from "@/types/api";
 
 interface PreviewPanelProps {
     title: string;
     viewAllHref: string;
     tiles: React.ReactNode[];
     emptyText: string;
+    /** Grid columns at the sm breakpoint - 2 when this sits in the narrower left
+     * column alongside Jump Back In, 3 for a full-width section. */
+    columns?: 2 | 3;
 }
 
-const PreviewPanel = ({ title, viewAllHref, tiles, emptyText }: PreviewPanelProps) => (
+const PreviewPanel = ({ title, viewAllHref, tiles, emptyText, columns = 3 }: PreviewPanelProps) => (
     <div>
-        <div className="flex items-center justify-between gap-4 mb-4">
+        <div className="flex items-center justify-between gap-4 mb-6">
             <h3 className="text-lg font-semibold text-foreground">{title}</h3>
             <Link href={viewAllHref} className="text-xs font-medium text-foreground-secondary hover:text-foreground transition-colors shrink-0">
                 View all
@@ -69,11 +29,57 @@ const PreviewPanel = ({ title, viewAllHref, tiles, emptyText }: PreviewPanelProp
         </div>
 
         {tiles.length > 0 ? (
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className={columns === 2 ? "grid grid-cols-1 sm:grid-cols-2 gap-4" : "grid grid-cols-1 sm:grid-cols-3 gap-4"}>
                 {tiles}
             </div>
         ) : (
             <p className="text-sm text-foreground-secondary">{emptyText}</p>
+        )}
+    </div>
+);
+
+/**
+ * A compact row for the narrow "Recently Bookmarked" sidebar column - a full
+ * ResourcePreviewTile card is too tall to stack multiple of there without dwarfing
+ * Jump Back In's height, so this trades the icon/bookmark/uploader detail for density.
+ */
+const BookmarkListRow = ({ resourceId, title, subjectCode }: { resourceId: number; title: string; subjectCode?: string }) => (
+    <Link
+        href={`/resources/r/${resourceId}`}
+        className="flex items-center gap-3 px-4 py-3 transition-colors hover:bg-background-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-inset"
+    >
+        <span className="flex size-8 shrink-0 items-center justify-center rounded-md bg-background-tertiary">
+            <File className="size-3.5 text-foreground-secondary" />
+        </span>
+        <div className="min-w-0">
+            <p className="text-sm font-medium text-foreground truncate">{title}</p>
+            {subjectCode && <p className="text-xs text-foreground-secondary truncate">{subjectCode}</p>}
+        </div>
+    </Link>
+);
+
+const RecentlyBookmarkedPanel = ({ items }: { items: BookmarkedResourceItem[] }) => (
+    <div>
+        <div className="flex items-center justify-between gap-4 mb-6">
+            <h3 className="text-lg font-semibold text-foreground">Recently Bookmarked</h3>
+            <Link href="/library/bookmarks" className="text-xs font-medium text-foreground-secondary hover:text-foreground transition-colors shrink-0">
+                View all
+            </Link>
+        </div>
+
+        {items.length > 0 ? (
+            <div className="rounded-xl border border-border divide-y divide-border">
+                {items.map((item) => (
+                    <BookmarkListRow
+                        key={item.resourceId}
+                        resourceId={item.resourceId}
+                        title={item.resource.title}
+                        subjectCode={item.resource.subjectOffering?.subject?.code}
+                    />
+                ))}
+            </div>
+        ) : (
+            <p className="text-sm text-foreground-secondary">Nothing bookmarked yet.</p>
         )}
     </div>
 );
@@ -97,48 +103,43 @@ const LibraryHub = () => {
                 </p>
             </div>
 
-            <ContinueCard latest={recentResourcesData?.items?.[0]} />
-
-            <StatStrip
-                items={[
-                    { href: "/library/recent", label: "Recently viewed", value: recentResourcesData?.meta?.total },
-                    { href: "/library/bookmarks", label: "Bookmarked", value: bookmarkedResourcesData?.meta?.total },
-                    { href: "/library/uploads", label: "Uploaded", value: uploadedResourcesData?.meta?.total },
-                ]}
-            />
-
-            <div className="flex flex-col gap-8">
-                <PreviewPanel
-                    title="Recently bookmarked"
-                    viewAllHref="/library/bookmarks"
-                    emptyText="Nothing bookmarked yet."
-                    tiles={(bookmarkedResourcesData?.items ?? []).slice(0, 3).map((item) => (
-                        <ResourcePreviewTile
-                            key={item.resourceId}
-                            resourceId={item.resourceId}
-                            title={item.resource.title}
-                            subjectCode={item.resource.subjectOffering?.subject?.code}
-                            typeLabel={ResourceTypeLabel[item.resource.type]}
-                            timeLabel={getRelativeTime(item.bookmarkedAt)}
-                        />
-                    ))}
+            <div className="pb-8 border-b border-border">
+                <StatStrip
+                    variant="cards"
+                    items={[
+                        { href: "/library/recent", label: "Recently viewed", value: recentResourcesData?.meta?.total, icon: History },
+                        { href: "/library/bookmarks", label: "Bookmarked", value: bookmarkedResourcesData?.meta?.total, icon: Bookmark },
+                        { href: "/library/uploads", label: "Uploaded", value: uploadedResourcesData?.meta?.total, icon: UploadCloud },
+                    ]}
                 />
+            </div>
 
-                <PreviewPanel
-                    title="Recently uploaded"
-                    viewAllHref="/library/uploads"
-                    emptyText="Nothing shared yet."
-                    tiles={(uploadedResourcesData?.items ?? []).slice(0, 3).map((item) => (
-                        <ResourcePreviewTile
-                            key={item.id}
-                            resourceId={item.id}
-                            title={item.title}
-                            subjectCode={item.subjectOffering?.subject?.code}
-                            typeLabel={ResourceTypeLabel[item.type]}
-                            timeLabel={getRelativeTime(item.createdAt)}
-                        />
-                    ))}
-                />
+            {/* Jump Back In and My Uploads stack in this column so Recently
+            Bookmarked - which can vary a lot in height depending on how many
+            items it has - never leaves a gap below them. */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div className="lg:col-span-2 flex flex-col gap-8">
+                    <JumpBackIn />
+
+                    <PreviewPanel
+                        title="My Uploads"
+                        viewAllHref="/library/uploads"
+                        emptyText="Nothing shared yet."
+                        columns={2}
+                        tiles={(uploadedResourcesData?.items ?? []).slice(0, 2).map((item) => (
+                            <ResourcePreviewTile
+                                key={item.id}
+                                resourceId={item.id}
+                                title={item.title}
+                                subjectCode={item.subjectOffering?.subject?.code}
+                                typeLabel={ResourceTypeLabel[item.type]}
+                                timeLabel={`Uploaded ${getRelativeTime(item.createdAt)}`}
+                            />
+                        ))}
+                    />
+                </div>
+
+                <RecentlyBookmarkedPanel items={(bookmarkedResourcesData?.items ?? []).slice(0, 5)} />
             </div>
         </div>
     );

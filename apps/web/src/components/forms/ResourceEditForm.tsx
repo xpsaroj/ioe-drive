@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import Select from "@/components/ui/Select";
 import Input from "@/components/ui/Input";
+import Textarea from "@/components/ui/Textarea";
 import Button from "@/components/ui/Button";
 import Loader from "@/components/ui/Loader";
 import { usePrograms, useSubjectsForUpload, useSubjectDetails } from "@/hooks/queries/use-academics";
@@ -15,6 +16,10 @@ import type { ResourceSummary } from "@/types/api";
 
 interface ResourceEditFormProps {
     resource: ResourceSummary;
+    /** Rendered in the grid's second column, beside Resource Details - kept as a slot
+     * rather than owned by this form since file add/remove act immediately and aren't
+     * part of this form's own submission (see ResourceFilesManager). */
+    filesPanel?: React.ReactNode;
 }
 
 type FormValues = {
@@ -32,7 +37,7 @@ type FormValues = {
  * useSubjectDetails, since ResourceSummary only carries the offering's id/subject -
  * not the program/semester needed to seed the cascading selects).
  */
-export const ResourceEditForm = ({ resource }: ResourceEditFormProps) => {
+export const ResourceEditForm = ({ resource, filesPanel }: ResourceEditFormProps) => {
     const router = useRouter();
 
     const { data: offeringDetails, isPending: offeringPending } = useSubjectDetails(resource.offeringId);
@@ -110,131 +115,148 @@ export const ResourceEditForm = ({ resource }: ResourceEditFormProps) => {
     }
 
     return (
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-            <div className="flex flex-col md:flex-row gap-4 md:gap-6">
-                <Input
-                    label="Resource Title"
-                    error={errors.title?.message}
-                    disabled={isSaving}
-                    {...register("title", {
-                        required: "Resource title is required",
-                        minLength: { value: 3, message: "Title must be at least 3 characters" },
-                        maxLength: { value: 100, message: "Title must be less than 100 characters" },
-                    })}
-                />
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start">
+                <div className="space-y-4 rounded-xl border border-border p-6">
+                    <h2 className="text-lg font-semibold text-foreground">Resource Details</h2>
 
-                <Input
+                    <Input
+                        label="Document Title"
+                        required
+                        error={errors.title?.message}
+                        disabled={isSaving}
+                        {...register("title", {
+                            required: "Document title is required",
+                            minLength: { value: 3, message: "Title must be at least 3 characters" },
+                            maxLength: { value: 100, message: "Title must be less than 100 characters" },
+                        })}
+                    />
+
+                    <Controller
+                        control={control}
+                        name="type"
+                        rules={{ required: "Resource type is required" }}
+                        render={({ field }) => (
+                            <Select
+                                label="Resource Type"
+                                placeholder="Select Type"
+                                required
+                                value={field.value}
+                                error={errors.type?.message}
+                                disabled={isSaving}
+                                onChange={field.onChange}
+                                options={Object.values(ResourceType).map((type) => ({
+                                    value: type,
+                                    label: ResourceTypeLabel[type],
+                                }))}
+                            />
+                        )}
+                    />
+
+                    <div className="space-y-4 rounded-lg border border-border p-4">
+                        <p className="font-display text-xs font-medium uppercase tracking-wide text-foreground-tertiary">
+                            Categorization
+                        </p>
+
+                        <Controller
+                            control={control}
+                            name="programId"
+                            rules={{ required: "Program is required" }}
+                            render={({ field }) => (
+                                <Select
+                                    label="Program"
+                                    placeholder="Select Program"
+                                    required
+                                    value={field.value}
+                                    error={errors.programId?.message}
+                                    disabled={isSaving}
+                                    onChange={(e) => {
+                                        field.onChange(e);
+                                        setValue("semester", "");
+                                        setValue("offeringId", "");
+                                    }}
+                                    options={programs.map((prog) => ({
+                                        value: String(prog.id),
+                                        label: `${prog.code} - ${prog.name}`,
+                                    }))}
+                                />
+                            )}
+                        />
+
+                        <Controller
+                            control={control}
+                            name="semester"
+                            rules={{ required: "Semester is required" }}
+                            render={({ field }) => (
+                                <Select
+                                    label="Semester"
+                                    placeholder="Select Semester"
+                                    required
+                                    value={field.value}
+                                    error={errors.semester?.message}
+                                    disabled={!selectedProgramId || isSaving}
+                                    onChange={(e) => {
+                                        field.onChange(e);
+                                        setValue("offeringId", "");
+                                    }}
+                                    options={Object.keys(SemesterLabel).map((sem) => ({
+                                        value: sem,
+                                        label: `${SemesterLabel[sem as Semester]} ${+sem > 8 ? "(Architecture)" : ""}`,
+                                    }))}
+                                />
+                            )}
+                        />
+
+                        <Controller
+                            control={control}
+                            name="offeringId"
+                            rules={{ required: "Subject is required" }}
+                            render={({ field }) => (
+                                <Select
+                                    label="Subject"
+                                    placeholder={
+                                        !bothSelected
+                                            ? "Select program and semester first"
+                                            : subjectsFetching
+                                                ? "Loading subjects..."
+                                                : "Select Subject"
+                                    }
+                                    required
+                                    value={field.value}
+                                    error={errors.offeringId?.message}
+                                    disabled={!bothSelected || subjectsFetching || isSaving}
+                                    onChange={field.onChange}
+                                    options={
+                                        subjects?.map((offering) => ({
+                                            value: String(offering.id),
+                                            label: `${offering.subject.code} - ${offering.subject.name}${offering.isElective ? " (Elective)" : ""}`,
+                                        })) ?? []
+                                    }
+                                />
+                            )}
+                        />
+                    </div>
+                </div>
+
+                {filesPanel}
+            </div>
+
+            <div className="rounded-xl border border-border p-6">
+                <Textarea
                     label="Description"
+                    required
+                    rows={4}
                     error={errors.description?.message}
                     disabled={isSaving}
                     {...register("description", {
-                        required: "Resource description is required",
+                        required: "Description is required",
                         minLength: { value: 10, message: "Description must be at least 10 characters" },
                         maxLength: { value: 200, message: "Description must be less than 200 characters" },
                     })}
                 />
             </div>
 
-            <div className="flex flex-col md:flex-row gap-4 md:gap-6">
-                <Controller
-                    control={control}
-                    name="programId"
-                    rules={{ required: "Program is required" }}
-                    render={({ field }) => (
-                        <Select
-                            label="Program"
-                            placeholder="Select Program"
-                            value={field.value}
-                            error={errors.programId?.message}
-                            disabled={isSaving}
-                            onChange={(e) => {
-                                field.onChange(e);
-                                setValue("semester", "");
-                                setValue("offeringId", "");
-                            }}
-                            options={programs.map((prog) => ({
-                                value: String(prog.id),
-                                label: `${prog.code} - ${prog.name}`,
-                            }))}
-                        />
-                    )}
-                />
-
-                <Controller
-                    control={control}
-                    name="type"
-                    rules={{ required: "Resource type is required" }}
-                    render={({ field }) => (
-                        <Select
-                            label="Resource Type"
-                            placeholder="Select Resource Type"
-                            value={field.value}
-                            error={errors.type?.message}
-                            disabled={isSaving}
-                            onChange={field.onChange}
-                            options={Object.values(ResourceType).map((type) => ({
-                                value: type,
-                                label: ResourceTypeLabel[type],
-                            }))}
-                        />
-                    )}
-                />
-            </div>
-
-            <div className="flex flex-col md:flex-row gap-4 md:gap-6">
-                <Controller
-                    control={control}
-                    name="semester"
-                    rules={{ required: "Semester is required" }}
-                    render={({ field }) => (
-                        <Select
-                            label="Semester"
-                            placeholder="Select Semester"
-                            value={field.value}
-                            error={errors.semester?.message}
-                            disabled={!selectedProgramId || isSaving}
-                            onChange={(e) => {
-                                field.onChange(e);
-                                setValue("offeringId", "");
-                            }}
-                            options={Object.keys(SemesterLabel).map((sem) => ({
-                                value: sem,
-                                label: `${SemesterLabel[sem as Semester]} ${+sem > 8 ? "(Architecture)" : ""}`,
-                            }))}
-                        />
-                    )}
-                />
-
-                <Controller
-                    control={control}
-                    name="offeringId"
-                    rules={{ required: "Subject is required" }}
-                    render={({ field }) => (
-                        <Select
-                            label="Subject"
-                            placeholder={
-                                !bothSelected
-                                    ? "Select program and semester first"
-                                    : subjectsFetching
-                                        ? "Loading subjects..."
-                                        : "Select Subject"
-                            }
-                            value={field.value}
-                            error={errors.offeringId?.message}
-                            disabled={!bothSelected || subjectsFetching || isSaving}
-                            onChange={field.onChange}
-                            options={
-                                subjects?.map((offering) => ({
-                                    value: String(offering.id),
-                                    label: `${offering.subject.code} - ${offering.subject.name}${offering.isElective ? " (Elective)" : ""}`,
-                                })) ?? []
-                            }
-                        />
-                    )}
-                />
-            </div>
-
-            <div className="flex justify-end gap-3 pt-2">
+            <div className="flex justify-end gap-3 border-t border-border pt-6">
                 <Button type="button" variant="secondary" onClick={() => router.back()} disabled={isSaving}>
                     Cancel
                 </Button>

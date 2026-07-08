@@ -1,11 +1,15 @@
 "use client";
-import { ChevronLeft } from "lucide-react";
-
+import { PageHeader, PageStateHandler, type BreadcrumbItem } from "@/components/layout";
 import Button from "@/components/ui/Button";
-import { PageStateHandler } from "@/components/layout";
 
 interface ResourcePageStateHandlerProps {
-    title: string;
+    title: React.ReactNode;
+    breadcrumbs: BreadcrumbItem[];
+    /** Optional right-aligned content next to the title (e.g. bookmark/edit/delete). */
+    actions?: React.ReactNode;
+    /** Optional content rendered before the breadcrumb trail, inside its sticky bar -
+     * e.g. a real back button. See PageHeader. */
+    beforeBreadcrumb?: React.ReactNode;
     isPending: boolean;
     error: Error | null | undefined;
     isEmpty: boolean;
@@ -19,6 +23,9 @@ interface ResourcePageStateHandlerProps {
 
 const ResourcePageStateHandler = ({
     title,
+    breadcrumbs,
+    actions,
+    beforeBreadcrumb,
     isPending,
     error,
     isEmpty,
@@ -30,17 +37,7 @@ const ResourcePageStateHandler = ({
     children,
 }: ResourcePageStateHandlerProps) => {
     const headerSection = (
-        <div className="flex items-center gap-2 mb-4">
-            <Button
-                icon={<ChevronLeft className="size-4" />}
-                iconOnly
-                href="/library"
-                variant="ghost"
-                size="xs"
-                className="border border-border"
-            />
-            <h3 className="text-xl md:text-2xl font-medium">{title}</h3>
-        </div>
+        <PageHeader title={title} breadcrumbs={breadcrumbs} actions={actions} beforeBreadcrumb={beforeBreadcrumb} />
     );
 
     const emptyContent = (

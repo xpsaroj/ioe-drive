@@ -1,15 +1,25 @@
 "use client";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, Controller, useWatch } from "react-hook-form";
-import { CloudUpload } from "lucide-react";
+import { toast } from "sonner";
+import { CloudUpload, Send, X } from "lucide-react";
 
 import Select from "@/components/ui/Select";
 import Input from "@/components/ui/Input";
+import Textarea from "@/components/ui/Textarea";
 import Button from "@/components/ui/Button";
 import Loader from "@/components/ui/Loader";
-import { ContainerBox } from "@/components/ui/ContainerBox";
+import { cn } from "@/utils/cn";
+import {
+    formatFileSize,
+    partitionUploadableFiles,
+    MAX_FILES_PER_UPLOAD,
+    ACCEPTED_UPLOAD_FILE_EXTENSIONS,
+} from "@/utils/file";
 import { usePrograms, useSubjectsForUpload } from "@/hooks/queries/use-academics";
 import { useCreateResource } from "@/hooks/queries/use-resources";
+import { FILE_TYPE_META, DEFAULT_FILE_TYPE_META, getMimeKey } from "@/components/common/resources";
 import { Semester, SemesterLabel, ResourceType, ResourceTypeLabel } from "@/types/entities";
 
 type FormValues = {
@@ -19,7 +29,31 @@ type FormValues = {
     type: ResourceType | "";
     semester: Semester | "";
     offeringId: string;
-    file: File | null;
+    files: File[];
+};
+
+const UploadQueueRow = ({ file, onRemove }: { file: File; onRemove: () => void }) => {
+    const { icon: Icon, className } = FILE_TYPE_META[getMimeKey(file.type)] ?? DEFAULT_FILE_TYPE_META;
+
+    return (
+        <div className="flex items-center gap-2.5 rounded-lg border border-border p-2">
+            <span className={cn("flex size-9 shrink-0 items-center justify-center rounded-md", className)}>
+                <Icon className="size-4" />
+            </span>
+            <div className="min-w-0 flex-1">
+                <p className="truncate text-sm font-medium text-foreground">{file.name}</p>
+                <p className="text-xs text-foreground-tertiary">{formatFileSize(file.size)}</p>
+            </div>
+            <button
+                type="button"
+                onClick={onRemove}
+                aria-label={`Remove ${file.name}`}
+                className="shrink-0 rounded-md p-1 text-foreground-tertiary transition-colors hover:bg-background-tertiary hover:text-error"
+            >
+                <X className="size-4" />
+            </button>
+        </div>
+    );
 };
 
 export const ResourceUploadForm: React.FC = () => {
@@ -33,11 +67,15 @@ export const ResourceUploadForm: React.FC = () => {
         isSuccess: uploadSuccess,
     } = useCreateResource();
 
+    const [isDragging, setIsDragging] = useState(false);
+
     const {
         handleSubmit,
         control,
         register,
         setValue,
+        setError,
+        clearErrors,
         reset,
         formState: { errors },
     } = useForm<FormValues>({
@@ -48,14 +86,11 @@ export const ResourceUploadForm: React.FC = () => {
             type: "",
             semester: "",
             offeringId: "",
-            file: null,
+            files: [],
         },
     });
 
-    const file = useWatch({
-        control,
-        name: "file",
-    });
+    const files = useWatch({ control, name: "files" });
 
     const selectedProgramId = useWatch({
         control,
@@ -75,35 +110,61 @@ export const ResourceUploadForm: React.FC = () => {
         selectedSemester || undefined,
     );
 
+    const addFiles = (incoming: File[]) => {
+        if (isUploading || incoming.length === 0) return;
+
+        // Silently drop exact duplicates (same name+size already queued) before running
+        // the shared type/size/count checks, which only need to reason about new files.
+        const newFiles = incoming.filter(
+            (file) => !files.some((existing) => existing.name === file.name && existing.size === file.size)
+        );
+        const { accepted, rejected } = partitionUploadableFiles(newFiles, files.length);
+
+        if (rejected.length > 0) {
+            toast.error(`Couldn't add ${rejected.join(", ")}`);
+        }
+
+        if (accepted.length === 0) return;
+
+        const combined = [...files, ...accepted];
+        setValue("files", combined, { shouldValidate: true });
+        clearErrors("files");
+    };
+
+    const removeFile = (index: number) => {
+        const next = [...files];
+        next.splice(index, 1);
+        setValue("files", next, { shouldValidate: true });
+    };
+
+    const clearAllFiles = () => setValue("files", [], { shouldValidate: true });
+
     const handleFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
         e.preventDefault();
-        const dropped = e.dataTransfer.files?.[0];
-        if (dropped) setValue("file", dropped, { shouldValidate: true });
+        setIsDragging(false);
+        addFiles(Array.from(e.dataTransfer.files ?? []));
     };
 
     const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const selected = e.target.files?.[0];
-        if (selected) setValue("file", selected, { shouldValidate: true });
-    };
-
-    const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
-        e.preventDefault();
+        addFiles(Array.from(e.target.files ?? []));
+        e.target.value = "";
     };
 
     const onSubmit = (data: FormValues) => {
-        if (!data.file) return;
+        if (data.files.length === 0) {
+            setError("files", { type: "manual", message: "Add at least one file to upload." });
+            return;
+        }
+
         const formData = new FormData();
         formData.append("title", data.title);
         formData.append("description", data.description);
         formData.append("offeringId", data.offeringId);
         formData.append("type", data.type);
-        formData.append("resourceFile", data.file);
+        data.files.forEach((file) => formData.append("resourceFile", file));
+
         mutate(formData, {
-            onSuccess: () => {
-                reset()
-                const fileInput = document.getElementById("fileInput") as HTMLInputElement;
-                if (fileInput) fileInput.value = "";
-            },
+            onSuccess: () => reset(),
         });
     };
 
@@ -135,90 +196,25 @@ export const ResourceUploadForm: React.FC = () => {
     const bothSelected = !!(selectedProgramId && selectedSemester);
 
     return (
-        <ContainerBox
-            title="Upload Resource"
-            comment="Make sure to keep the resource name relevant to the file you are uploading."
-            className="bg-background-secondary mx-auto p-8"
-        >
-            <div
-                className="border-2 p-4 text-center mb-8 rounded-lg cursor-pointer hover:border-foreground transition duration-150"
-                onDragOver={handleDragOver}
-                onDrop={handleFileDrop}
-                onClick={() => document.getElementById("fileInput")?.click()}
-            >
-                <CloudUpload className="w-12 h-12 text-foreground mx-auto mb-3" />
-                {file ? (
-                    <p className="text-md text-foreground">{file.name}</p>
-                ) : (
-                    <p className="text-md text-foreground-secondary">
-                        Drag and drop files here or click to add from computer.
-                    </p>
-                )}
-                <input
-                    id="fileInput"
-                    type="file"
-                    onChange={handleFileSelect}
-                    className="hidden"
-                />
-            </div>
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start">
+                {/* Resource Details */}
+                <div className="space-y-4 rounded-xl border border-border p-6">
+                    <h2 className="text-lg font-semibold text-foreground">Resource Details</h2>
 
-            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-                <div className="flex flex-col md:flex-row gap-4 md:gap-6">
-                    {/* Title */}
                     <Input
-                        label="Resource Title"
-                        placeholder="Electromagnetics Book"
+                        label="Document Title"
+                        placeholder="e.g. Midterm Study Guide"
+                        required
                         error={errors.title?.message}
                         disabled={isUploading}
                         {...register("title", {
-                            required: "Resource title is required",
+                            required: "Document title is required",
                             minLength: { value: 3, message: "Title must be at least 3 characters" },
                             maxLength: { value: 100, message: "Title must be less than 100 characters" },
                         })}
                     />
 
-                    {/* Description */}
-                    <Input
-                        label="Description"
-                        placeholder="An awesome book on electromagnetics"
-                        error={errors.description?.message}
-                        disabled={isUploading}
-                        {...register("description", {
-                            required: "Resource description is required",
-                            minLength: { value: 10, message: "Description must be at least 10 characters" },
-                            maxLength: { value: 200, message: "Description must be less than 200 characters" },
-                        })}
-                    />
-                </div>
-
-                <div className="flex flex-col md:flex-row gap-4 md:gap-6">
-                    {/* Program */}
-                    <Controller
-                        control={control}
-                        name="programId"
-                        rules={{ required: "Program is required" }}
-                        render={({ field }) => (
-                            <Select
-                                label="Program"
-                                placeholder="Select Program"
-                                value={field.value}
-                                error={errors.programId?.message}
-                                disabled={isUploading}
-                                onChange={(e) => {
-                                    field.onChange(e);
-                                    setValue("semester", "");
-                                    setValue("offeringId", "");
-                                }}
-                                options={programs.map((prog) => ({
-                                    value: String(prog.id),
-                                    label: `${prog.code} - ${prog.name}`,
-                                }))}
-                                helperText="Select the program to which you want the resource be uploaded to."
-                            />
-                        )}
-                    />
-
-                    {/* Resource Type */}
                     <Controller
                         control={control}
                         name="type"
@@ -226,7 +222,8 @@ export const ResourceUploadForm: React.FC = () => {
                         render={({ field }) => (
                             <Select
                                 label="Resource Type"
-                                placeholder="Select Resource Type"
+                                placeholder="Select Type"
+                                required
                                 value={field.value}
                                 error={errors.type?.message}
                                 disabled={isUploading}
@@ -235,100 +232,194 @@ export const ResourceUploadForm: React.FC = () => {
                                     value: type,
                                     label: ResourceTypeLabel[type],
                                 }))}
-                                helperText="The type of resource you're sharing."
                             />
                         )}
                     />
+
+                    <div className="space-y-4 rounded-lg border border-border p-4">
+                        <p className="font-display text-xs font-medium uppercase tracking-wide text-foreground-tertiary">
+                            Categorization
+                        </p>
+
+                        <Controller
+                            control={control}
+                            name="programId"
+                            rules={{ required: "Program is required" }}
+                            render={({ field }) => (
+                                <Select
+                                    label="Program"
+                                    placeholder="Select Program"
+                                    required
+                                    value={field.value}
+                                    error={errors.programId?.message}
+                                    disabled={isUploading}
+                                    onChange={(e) => {
+                                        field.onChange(e);
+                                        setValue("semester", "");
+                                        setValue("offeringId", "");
+                                    }}
+                                    options={programs.map((prog) => ({
+                                        value: String(prog.id),
+                                        label: `${prog.code} - ${prog.name}`,
+                                    }))}
+                                />
+                            )}
+                        />
+
+                        <Controller
+                            control={control}
+                            name="semester"
+                            rules={{ required: "Semester is required" }}
+                            render={({ field }) => (
+                                <Select
+                                    label="Semester"
+                                    placeholder="Select Semester"
+                                    required
+                                    value={field.value}
+                                    error={errors.semester?.message}
+                                    disabled={!selectedProgramId || isUploading}
+                                    onChange={(e) => {
+                                        field.onChange(e);
+                                        setValue("offeringId", "");
+                                    }}
+                                    options={Object.keys(SemesterLabel).map((sem) => ({
+                                        value: sem,
+                                        label: `${SemesterLabel[sem as Semester]} ${+sem > 8 ? "(Architecture)" : ""}`,
+                                    }))}
+                                />
+                            )}
+                        />
+
+                        <Controller
+                            control={control}
+                            name="offeringId"
+                            rules={{ required: "Subject is required" }}
+                            render={({ field }) => (
+                                <Select
+                                    label="Subject"
+                                    placeholder={
+                                        !bothSelected
+                                            ? "Select program and semester first"
+                                            : subjectsFetching
+                                                ? "Loading subjects..."
+                                                : "Select Subject"
+                                    }
+                                    required
+                                    value={field.value}
+                                    error={errors.offeringId?.message}
+                                    disabled={!bothSelected || subjectsFetching || isUploading}
+                                    onChange={field.onChange}
+                                    options={
+                                        subjects?.map((offering) => ({
+                                            value: String(offering.id),
+                                            label: `${offering.subject.code} - ${offering.subject.name}${offering.isElective ? " (Elective)" : ""}`,
+                                        })) ?? []
+                                    }
+                                />
+                            )}
+                        />
+                    </div>
                 </div>
 
-                <div className="flex flex-col md:flex-row gap-4 md:gap-6">
-                    {/* Semester */}
-                    <Controller
-                        control={control}
-                        name="semester"
-                        rules={{ required: "Semester is required" }}
-                        render={({ field }) => (
-                            <Select
-                                label="Semester"
-                                placeholder="Select Semester"
-                                value={field.value}
-                                error={errors.semester?.message}
-                                disabled={!selectedProgramId || isUploading}
-                                onChange={(e) => {
-                                    field.onChange(e);
-                                    setValue("offeringId", "");
-                                }}
-                                options={Object.keys(SemesterLabel).map((sem) => ({
-                                    value: sem,
-                                    label: `${SemesterLabel[sem as Semester]} ${+sem > 8 ? "(Architecture)" : ""}`,
-                                }))}
-                                helperText="Select the semester on which the subject is taught."
-                            />
+                {/* File upload */}
+                <div className="space-y-4">
+                    <div
+                        onDragOver={(e) => {
+                            e.preventDefault();
+                            if (!isUploading) setIsDragging(true);
+                        }}
+                        onDragLeave={() => setIsDragging(false)}
+                        onDrop={handleFileDrop}
+                        onClick={() => !isUploading && document.getElementById("resourceFileInput")?.click()}
+                        className={cn(
+                            "rounded-xl border-2 border-dashed p-8 text-center transition-colors",
+                            isUploading ? "cursor-not-allowed opacity-60" : "cursor-pointer hover:border-foreground-tertiary",
+                            isDragging ? "border-accent bg-accent/5" : "border-border",
                         )}
-                    />
+                    >
+                        <span className="mx-auto mb-4 flex size-12 items-center justify-center rounded-xl bg-accent text-accent-foreground">
+                            <CloudUpload className="size-6" />
+                        </span>
+                        <p className="font-semibold text-foreground">Drag & Drop files here</p>
+                        <p className="mt-1 text-sm text-foreground-secondary">or click to browse from your computer</p>
+                        <p className="mt-4 inline-block rounded-md bg-background-tertiary px-3 py-1.5 font-display text-[11px] uppercase tracking-wide text-foreground-tertiary">
+                            PDF, DOC/DOCX, JPG, PNG &middot; up to 10 MB &middot; max {MAX_FILES_PER_UPLOAD} files
+                        </p>
+                        <input
+                            id="resourceFileInput"
+                            type="file"
+                            multiple
+                            accept={ACCEPTED_UPLOAD_FILE_EXTENSIONS}
+                            onChange={handleFileSelect}
+                            disabled={isUploading}
+                            className="hidden"
+                        />
+                    </div>
+                    {errors.files && <p className="text-xs text-error">{errors.files.message}</p>}
 
-                    {/* Subject */}
-                    <Controller
-                        control={control}
-                        name="offeringId"
-                        rules={{ required: "Subject is required" }}
-                        render={({ field }) => (
-                            <Select
-                                label="Subject"
-                                placeholder={
-                                    !bothSelected
-                                        ? "Select program and semester first"
-                                        : subjectsFetching
-                                            ? "Loading subjects..."
-                                            : "Select Subject"
-                                }
-                                value={field.value}
-                                error={errors.offeringId?.message}
-                                disabled={!bothSelected || subjectsFetching || isUploading}
-                                onChange={field.onChange}
-                                options={
-                                    subjects?.map((offering) => ({
-                                        value: String(offering.id),
-                                        label: `${offering.subject.code} - ${offering.subject.name}${offering.isElective ? " (Elective)" : ""}`,
-                                    })) ?? []
-                                }
-                                helperText="Select the subject to which the resource belongs."
-                            />
-                        )}
-                    />
+                    {files.length > 0 && (
+                        <div className="rounded-xl border border-border p-4">
+                            <div className="mb-3 flex items-center justify-between gap-4">
+                                <p className="font-display text-xs font-medium uppercase tracking-wide text-foreground-tertiary">
+                                    Upload Queue ({files.length})
+                                </p>
+                                <button
+                                    type="button"
+                                    onClick={clearAllFiles}
+                                    disabled={isUploading}
+                                    className="text-xs font-medium text-error hover:underline disabled:cursor-not-allowed disabled:opacity-60"
+                                >
+                                    Clear All
+                                </button>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                {files.map((file, index) => (
+                                    <UploadQueueRow
+                                        key={`${file.name}-${file.size}-${index}`}
+                                        file={file}
+                                        onRemove={() => removeFile(index)}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    )}
                 </div>
+            </div>
 
-                {uploadError && (
-                    <p className="text-sm text-error">
-                        Something went wrong. Please try again.
-                    </p>
-                )}
+            {/* Description */}
+            <div className="rounded-xl border border-border p-6">
+                <Textarea
+                    label="Description"
+                    placeholder="Brief details about the content..."
+                    required
+                    rows={4}
+                    error={errors.description?.message}
+                    disabled={isUploading}
+                    {...register("description", {
+                        required: "Description is required",
+                        minLength: { value: 10, message: "Description must be at least 10 characters" },
+                        maxLength: { value: 200, message: "Description must be less than 200 characters" },
+                    })}
+                />
+            </div>
 
-                {uploadSuccess && (
-                    <p className="text-sm text-success">
-                        Resource uploaded successfully! Thank you for contributing.
-                    </p>
-                )}
+            {uploadError && (
+                <p className="text-sm text-error">Something went wrong. Please try again.</p>
+            )}
 
+            {uploadSuccess && (
+                <p className="text-sm text-success">Resource uploaded successfully! Thank you for contributing.</p>
+            )}
+
+            <div className="flex justify-end gap-3 border-t border-border pt-6">
                 <Button
                     type="submit"
-                    disabled={isUploading}
-                    icon={<CloudUpload className="size-6" />}
-                >
-                    <span>{isUploading ? "UPLOADING..." : "UPLOAD"}</span>
-                </Button>
-            </form>
-
-            <div className="relative w-full flex justify-center pt-4">
-                <Button
-                    variant="secondary"
-                    href="/dashboard"
-                    className="absolute -bottom-13"
+                    icon={<Send className="size-4" />}
                     disabled={isUploading}
                 >
-                    Back to Dashboard
+                    {isUploading ? "Submitting..." : "Submit Resource"}
                 </Button>
             </div>
-        </ContainerBox>
+        </form>
     );
 };

@@ -4,7 +4,7 @@ import { use } from "react"
 import { ChevronLeft } from "lucide-react"
 
 import Button from "@/components/ui/Button";
-import { PageStateHandler } from "@/components/layout";
+import { PageStateHandler, Breadcrumbs } from "@/components/layout";
 import { useSubjectDetails } from "@/hooks/queries/use-academics";
 import { SubjectOfferingDetails } from "@/components/common/offering";
 
@@ -20,16 +20,17 @@ const OfferingPage = ({
     const { data: offering, isPending, error } = useSubjectDetails(Number(offeringId));
 
     const header = (
-        <div className="flex items-center gap-2 mb-4">
+        <div className="sticky top-0 z-10 mb-6 flex items-center gap-2 border-b border-border bg-background/95 py-2.5 backdrop-blur-sm">
             <Button
                 icon={<ChevronLeft className="size-4" />}
                 iconOnly
                 variant="ghost"
                 size="xs"
-                className="border border-border"
+                className="border border-border shrink-0"
                 onClick={() => router.back()}
+                aria-label="Go back"
             />
-            <h3 className="text-xl md:text-2xl font-medium">Offering Details</h3>
+            <Breadcrumbs items={[{ label: "Offerings", href: "/offerings" }, { label: offering?.subject.code ?? "Offering Details" }]} />
         </div>
     )
 
