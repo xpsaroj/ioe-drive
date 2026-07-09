@@ -5,12 +5,16 @@ interface ResourceFileListProps {
     resourceFiles: ResourceFileSummary[];
     loading?: boolean;
     error?: string | null;
+    /** Hide the "Files" heading - for compact contexts (e.g. a resource card in a
+     * list) where it'd repeat on every item and the file chips speak for themselves. */
+    showLabel?: boolean;
 }
 
 const ResourceFileList = ({
     resourceFiles,
     loading = false,
     error = null,
+    showLabel = true,
 }: ResourceFileListProps) => {
     if (loading) {
         return (
@@ -38,7 +42,7 @@ const ResourceFileList = ({
 
     return (
         <div>
-            <p className="font-medium mb-1">Files</p>
+            {showLabel && <p className="font-medium mb-1">Files</p>}
             <div className="flex flex-row flex-wrap items-center gap-2">
                 {resourceFiles.map((file) => (
                     <ResourceFileItem key={file.id} file={file} />

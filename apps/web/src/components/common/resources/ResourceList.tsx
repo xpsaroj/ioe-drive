@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { Inbox, AlertCircle } from "lucide-react";
 
 import ResourceCardSkeleton from "./ResourceCardSkeleton";
 
@@ -19,7 +20,7 @@ const ResourceList = <T,>({
 }: ResourceListProps<T>) => {
     if (loading) {
         return (
-            <div className="border md:p-6 p-0 px-6 py-3 rounded-lg bg-card-background flex flex-col md:gap-6 divide-y divide-border">
+            <div className="flex flex-col gap-4">
                 {Array.from({ length: 3 }).map((_, index) => (
                     <ResourceCardSkeleton key={index} />
                 ))}
@@ -29,7 +30,8 @@ const ResourceList = <T,>({
 
     if (error) {
         return (
-            <div className="border p-6 rounded-lg bg-card-background flex flex-col gap-6">
+            <div className="flex flex-col items-center gap-2 rounded-xl border border-border py-16">
+                <AlertCircle className="size-5 text-error" />
                 <p className="text-error text-sm">{error}</p>
             </div>
         )
@@ -37,14 +39,15 @@ const ResourceList = <T,>({
 
     if (!resources || resources.length === 0) {
         return (
-            <div className="border p-6 rounded-lg bg-card-background flex flex-col gap-6">
+            <div className="flex flex-col items-center gap-2 rounded-xl border border-border py-16">
+                <Inbox className="size-5 text-foreground-tertiary" />
                 <p className="text-sm text-foreground-tertiary">{emptyMessage}</p>
             </div>
         )
     }
 
     return (
-        <div className="border md:p-6 p-0 px-6 py-3 rounded-lg bg-card-background flex flex-col md:gap-6 divide-y md:divide-none divide-border">
+        <div className="flex flex-col gap-4">
             {resources.map((resource, index) => (
                 <div key={index}>
                     {renderItem(resource)}

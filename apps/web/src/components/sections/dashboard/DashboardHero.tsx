@@ -21,7 +21,7 @@ const DashboardHero = () => {
             <div>
                 {hasProfile && profile?.program && profile?.semester && (
                     <span className="inline-block mb-3 rounded-full bg-background-tertiary px-3 py-1 font-display text-[11px] uppercase tracking-wide text-foreground-secondary">
-                        {profile.program.code} {SemesterLabel[profile.semester]} Semester
+                        {profile.program.code}, {SemesterLabel[profile.semester]} Semester
                     </span>
                 )}
                 <h1 className="text-2xl md:text-3xl font-bold text-foreground">Welcome back, {user?.firstName || "User"}.</h1>

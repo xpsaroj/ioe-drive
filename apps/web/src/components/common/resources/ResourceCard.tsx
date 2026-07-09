@@ -2,8 +2,10 @@ import Link from "next/link";
 
 import ResourceFileList from "./ResourceFileList";
 import BookmarkButton from "./BookmarkButton";
+import Badge from "@/components/ui/Badge";
 import type { ResourceSummary } from "@/types/api";
 import { UploaderInfo } from "@/components/common/user";
+import { ResourceTypeLabel } from "@/types/entities";
 
 interface ResourceCardProps {
     resource: ResourceSummary;
@@ -23,6 +25,7 @@ const ResourceCard = ({
     const {
         title,
         description,
+        type,
         files = [],
         uploader,
         subjectOffering,
@@ -36,48 +39,59 @@ const ResourceCard = ({
     });
 
     return (
-        <div className="md:border py-3 my-4 md:my-0 md:p-6 md:rounded-md">
+        // Named group (group/card) so the title's hover underline responds to a
+        // pointer anywhere over the card, matching ResourcePreviewTile's convention -
+        // the card's own hover border sits directly on this div rather than behind
+        // `group-hover`, since it's on the element being hovered.
+        <div className="group/card relative flex flex-col gap-4 rounded-xl border border-border bg-card-background p-4 transition-colors duration-400 hover:border-accent sm:p-5">
             {meta && (
-                <p className="text-xs text-foreground-tertiary mb-1">
+                <p className="font-display text-[10px] uppercase tracking-wide text-foreground-tertiary">
                     {meta}
                 </p>
             )}
 
-            <div className="md-flex justify-between items-start space-y-6">
-                <div className="flex flex-col items-start justify-between gap-2">
-                    <div className="flex items-center justify-between gap-2 w-full">
-                        <Link
-                            href={`/resources/r/${resource.id}`}
-                            className="text-lg font-semibold hover:underline decoration-2 underline-offset-3"
-                        >
-                            {title}
-                        </Link>
-                        <div className="flex items-center gap-1 shrink-0 border p-0.5 rounded-lg">
-                            <BookmarkButton resourceId={resource.id} />
-                            {actions}
-                        </div>
-                    </div>
-
-                    <div className="">
-                        <p className="text-foreground-secondary text-sm">{description}</p>
-                    </div>
-                </div>
-
-                <ResourceFileList resourceFiles={files} />
-
-                <div className="flex justify-between items-center gap-3 mt-4">
-                    <UploaderInfo
-                        user={uploader}
-                        subtitle={formattedCreatedAt}
-                    />
-
+            <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
                     <Link
-                        href={`/offerings/${subjectOffering.id}`}
-                        className="text-xs text-foreground-secondary shrink-0 hover:underline hover:text-foreground"
+                        href={`/resources/r/${resource.id}`}
+                        className="font-semibold text-foreground decoration-2 underline-offset-3 group-hover/card:underline"
                     >
-                        {subjectOffering?.subject?.code} <span className="hidden sm:inline">• {subjectOffering?.subject?.name}</span>
+                        {title}
                     </Link>
+                    <Badge size="sm" className="ms-2 align-middle">{ResourceTypeLabel[type]}</Badge>
                 </div>
+                <div className="flex items-center gap-1 shrink-0 border border-border p-0.5 rounded-lg">
+                    <BookmarkButton resourceId={resource.id} />
+                    {actions}
+                </div>
+            </div>
+
+            {description && (
+                <p className="text-sm text-foreground-secondary leading-relaxed line-clamp-2">
+                    {description}
+                </p>
+            )}
+
+            <ResourceFileList resourceFiles={files} showLabel={false} />
+
+            <div className="flex items-center justify-between gap-3 pt-3 border-t border-border">
+                <UploaderInfo
+                    user={uploader}
+                    subtitle={formattedCreatedAt}
+                />
+
+                <Link
+                    href={`/offerings/${subjectOffering.id}`}
+                    className="group/subject flex items-center gap-2 shrink-0 rounded-lg -mx-1.5 -my-1 px-1.5 py-1 transition-colors hover:bg-background-hover"
+                >
+                    <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-accent font-display text-[9px] font-semibold text-accent-foreground">
+                        {subjectOffering?.subject?.code?.slice(0, 2)}
+                    </span>
+                    <span className="text-xs text-foreground-secondary group-hover/subject:text-foreground group-hover/subject:underline">
+                        {subjectOffering?.subject?.code}
+                        <span className="hidden sm:inline"> {subjectOffering?.subject?.name}</span>
+                    </span>
+                </Link>
             </div>
         </div>
     )

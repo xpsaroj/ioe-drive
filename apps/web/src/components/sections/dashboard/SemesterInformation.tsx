@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Table, { Column } from "@/components/ui/Table";
 import { SubjectHardnessBadge } from "@/components/common/offering";
 import { SubjectOfferingWithSubject } from "@/types/entities/academics";
@@ -15,6 +16,7 @@ const MarksCell = ({ final, assessment }: { final: number; assessment: number })
 );
 
 const SemesterInformation = () => {
+  const router = useRouter();
   const { data: userData, isLoading: userLoading } = useMe();
   const profile = userData?.profile;
 
@@ -26,7 +28,13 @@ const SemesterInformation = () => {
       label: "SUBJECT",
       render: (item) => (
         <div>
-          <Link href={`/offerings/${item.id}`}>
+          <Link
+            href={`/offerings/${item.id}`}
+            // Stop the click from bubbling to the row, which navigates to the
+            // resources list instead - the name specifically goes to the subject's
+            // own detail page.
+            onClick={(e) => e.stopPropagation()}
+          >
             <span className="font-medium cursor-pointer hover:underline underline-offset-2">
               {item.subject.name}
             </span>
@@ -65,13 +73,21 @@ const SemesterInformation = () => {
       <h2 className="text-lg font-semibold text-foreground">Subjects this semester</h2>
       <p className="text-sm text-foreground-secondary mt-0.5 mb-6">
         {subjectCount > 0
-          ? `${subjectCount} subject${subjectCount === 1 ? "" : "s"} - click one to view its full details.`
-          : "Tip: click on a subject to view its full details."}
+          ? `${subjectCount} subject${subjectCount === 1 ? "" : "s"} - click a row to browse its resources, or its name for full details.`
+          : "Tip: click a subject's row to browse its resources, or its name for full details."}
       </p>
       <Table
         columns={columns}
         loading={isLoading || userLoading}
         data={subjectOfferings || []}
+        onRowClick={(item) => {
+          const params = new URLSearchParams({
+            programId: String(item.programId),
+            semester: item.semester,
+            offeringId: String(item.id),
+          });
+          router.push(`/resources?${params.toString()}`);
+        }}
         emptyMessage="No semester information available. Make sure you've added your semester and program in your profile settings."
       />
     </div>

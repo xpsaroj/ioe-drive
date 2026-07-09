@@ -22,7 +22,7 @@ export const User = () => {
         profile?.semester && SemesterLabel[profile.semester],
         profile?.program?.code,
         profile?.college?.trim().split(" ")[0],
-    ].filter(Boolean).join(" - ");
+    ].filter(Boolean).join(", ");
 
     return (
         <div
