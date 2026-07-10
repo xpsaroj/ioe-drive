@@ -134,9 +134,13 @@ export class ResourcesService {
   }
 
   findResources(
-    filters: { offeringId?: number; userId?: number },
+    filters: { offeringId?: number; userId?: number; q?: string },
     pagination: { limit: number; offset: number },
   ) {
     return this.resourcesRepository.findMany(filters, pagination);
+  }
+
+  searchSuggestions(q: string, limit: number) {
+    return this.resourcesRepository.searchSuggestions(q, limit);
   }
 }

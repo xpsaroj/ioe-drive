@@ -2,7 +2,7 @@
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { ChevronRight, ChevronDown, Search } from "lucide-react";
+import { ChevronRight, ChevronDown } from "lucide-react";
 
 import { SubjectDetails } from "@/components/common/offering";
 import { ResourceList, ResourceCard } from "@/components/common/resources";
@@ -122,16 +122,6 @@ const ResourcesBrowseContent = () => {
             <div>
                 <h1 className="text-2xl md:text-3xl font-bold text-foreground">Resource Explorer</h1>
                 <p className="text-foreground-secondary mt-1">Browse, filter, and access academic materials.</p>
-            </div>
-            <div className="flex items-center gap-2 shrink-0">
-                <Button
-                    variant="ghost"
-                    size="md"
-                    iconOnly
-                    className="border border-border"
-                    icon={<Search className="size-4" />}
-                    aria-label="Search resources"
-                />
             </div>
         </div>
     );

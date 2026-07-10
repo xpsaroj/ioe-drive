@@ -1,5 +1,5 @@
 import { useAuth } from "@clerk/nextjs";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
 
 import { academicsApi } from "@/lib/api/academics-api";
 import type { Semester } from "@/types/entities";
@@ -10,6 +10,7 @@ export const academicsKeys = {
     subjectOfferings: (programId?: number, semester?: Semester) => [...academicsKeys.all, "subject-offerings", programId, semester] as const,
     subjectDetails: (offeringId: number) => [...academicsKeys.all, "subject-details", offeringId] as const,
     subjectsForUpload: (programId?: number, semester?: Semester) => [...academicsKeys.all, "subjects-for-upload", programId, semester] as const,
+    search: (q: string, page?: number) => [...academicsKeys.all, "search", q, page] as const,
 };
 
 export function useSubjectOfferings(programId?: number, semester?: Semester) {
@@ -80,5 +81,26 @@ export function useSubjectsForUpload(programId?: number, semester?: Semester) {
         enabled: !!(isSignedIn && programId && semester),
         staleTime: 20 * 60 * 1000,
         gcTime: 30 * 60 * 1000,
+    });
+}
+
+/** Matches the backend's own minimum length validation (see `q` on
+ * SearchSubjectsQueryDto). */
+export const MIN_SEARCH_QUERY_LENGTH = 1;
+
+export function useSearchSubjects(q: string, page: number = 1, limit?: number) {
+    const trimmed = q.trim();
+
+    return useQuery({
+        queryKey: academicsKeys.search(trimmed, page),
+        queryFn: async () => {
+            const response = await academicsApi.searchSubjects(trimmed, { page, limit });
+            if (!response.success) {
+                throw new Error(response.error || "Failed to search subjects");
+            }
+            return { items: response.data, meta: response.meta };
+        },
+        enabled: trimmed.length >= MIN_SEARCH_QUERY_LENGTH,
+        placeholderData: keepPreviousData,
     });
 }

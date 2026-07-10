@@ -14,6 +14,10 @@ export const resourcesKeys = {
         ? ['resources', 'uploader', uploaderId] as const
         : ['resources', 'uploader', uploaderId, page] as const,
     fileDownloadUrl: (resourceId: number, fileId: number) => ['resources', resourceId, 'files', fileId, 'download-url'] as const,
+    search: (q: string, page?: number) => page === undefined
+        ? ['resources', 'search', q] as const
+        : ['resources', 'search', q, page] as const,
+    searchSuggestions: (q: string, limit?: number) => ['resources', 'search-suggestions', q, limit] as const,
 };
 
 export function useResource(resourceId: number) {
@@ -212,6 +216,46 @@ export function useResourcesByUploaderId(uploaderId?: number, page: number = 1) 
         },
         enabled: !!uploaderId,
         staleTime: 10 * 60 * 1000,
+        placeholderData: keepPreviousData,
+    });
+}
+
+export const MIN_SEARCH_QUERY_LENGTH = 2;
+
+export function useSearchResources(q: string, page: number = 1, limit?: number) {
+    const trimmed = q.trim();
+
+    return useQuery({
+        queryKey: resourcesKeys.search(trimmed, page),
+        queryFn: async () => {
+            const response = await resourcesApi.searchResources(trimmed, { page, limit });
+            if (!response.success) {
+                throw new Error(response.error || 'Failed to search resources');
+            }
+
+            return { items: response.data, meta: response.meta };
+        },
+        enabled: trimmed.length >= MIN_SEARCH_QUERY_LENGTH,
+        placeholderData: keepPreviousData,
+    });
+}
+
+/** Lean, capped-list variant of useSearchResources for live-typing UI (the search
+ * palette) - fetches search-suggestions previews instead of the full paginated
+ * ResourceSummary shape. */
+export function useSearchSuggestions(q: string, limit?: number) {
+    const trimmed = q.trim();
+
+    return useQuery({
+        queryKey: resourcesKeys.searchSuggestions(trimmed, limit),
+        queryFn: async () => {
+            const response = await resourcesApi.searchSuggestions(trimmed, limit);
+            if (!response.success) {
+                throw new Error(response.error || 'Failed to search resources');
+            }
+            return response.data;
+        },
+        enabled: trimmed.length >= MIN_SEARCH_QUERY_LENGTH,
         placeholderData: keepPreviousData,
     });
 }

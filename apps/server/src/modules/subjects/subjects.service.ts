@@ -24,4 +24,8 @@ export class SubjectsService {
   findForUpload(programId: number, semester: Semester) {
     return this.subjectsRepository.findForUpload(programId, semester);
   }
+
+  searchSubjects(q: string, pagination: { limit: number; offset: number }) {
+    return this.subjectsRepository.searchByNameOrCode(q, pagination);
+  }
 }

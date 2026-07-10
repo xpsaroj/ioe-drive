@@ -1,5 +1,5 @@
 import { Type } from "class-transformer";
-import { IsInt, IsOptional, IsPositive } from "class-validator";
+import { IsInt, IsOptional, IsPositive, IsString, MinLength } from "class-validator";
 
 import { PaginationQueryDto } from "../../../common/dto/pagination-query.dto";
 
@@ -15,4 +15,9 @@ export class GetResourcesQueryDto extends PaginationQueryDto {
   @IsInt()
   @IsPositive({ message: "User ID must be a positive integer" })
   userId?: number;
+
+  @IsOptional()
+  @IsString()
+  @MinLength(2, { message: "Search query must be at least 2 characters" })
+  q?: string;
 }

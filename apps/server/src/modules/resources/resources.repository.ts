@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { and, count, desc, eq } from "drizzle-orm";
+import { and, count, desc, eq, ilike, or } from "drizzle-orm";
 
 import { DRIZZLE } from "../../database/database.constants";
 import type { DrizzleDb } from "../../database/database.types";
@@ -52,6 +52,22 @@ export const RESOURCE_DETAIL_RELATIONS = {
       fileSize: true,
       originalFileName: true,
       mimeType: true,
+    },
+  },
+} as const;
+
+/** Lean projection for a compact resource preview row (title, type, subject code) -
+ * used by searchSuggestions below and meant to be reused by the future "similar
+ * resources" feature (see docs/todo.md). Deliberately excludes everything
+ * RESOURCE_DETAIL_RELATIONS carries that a preview row never renders: description,
+ * uploader, and the files list. */
+const RESOURCE_PREVIEW_RELATIONS = {
+  subjectOffering: {
+    columns: { id: true },
+    with: {
+      subject: {
+        columns: { code: true },
+      },
     },
   },
 } as const;
@@ -155,7 +171,7 @@ export class ResourcesRepository {
   }
 
   async findMany(
-    filters: { offeringId?: number; userId?: number },
+    filters: { offeringId?: number; userId?: number; q?: string },
     pagination: { limit: number; offset: number },
   ) {
     const conditions = [];
@@ -166,6 +182,10 @@ export class ResourcesRepository {
 
     if (filters.userId) {
       conditions.push(eq(resourcesTable.uploadedBy, filters.userId));
+    }
+
+    if (filters.q) {
+      conditions.push(or(ilike(resourcesTable.title, `%${filters.q}%`), ilike(resourcesTable.description, `%${filters.q}%`)));
     }
 
     const whereClause = conditions.length > 0 ? and(...conditions) : undefined;
@@ -182,5 +202,26 @@ export class ResourcesRepository {
     ]);
 
     return { items, total: totalResult[0]?.total ?? 0 };
+  }
+
+  /** Lean, uncapped-pagination search for live-typing UI (the search palette) - just a
+   * flat, capped list of preview rows, not the full paginated browse shape `findMany`
+   * returns. Flattens `subjectOffering.subject.code` to a top-level `subjectCode` since
+   * nothing downstream needs the nested shape once it's this narrow. */
+  async searchSuggestions(q: string, limit: number) {
+    const results = await this.db.query.resourcesTable.findMany({
+      where: or(ilike(resourcesTable.title, `%${q}%`), ilike(resourcesTable.description, `%${q}%`)),
+      orderBy: [desc(resourcesTable.createdAt)],
+      limit,
+      columns: { id: true, title: true, type: true },
+      with: RESOURCE_PREVIEW_RELATIONS,
+    });
+
+    return results.map((r) => ({
+      id: r.id,
+      title: r.title,
+      type: r.type,
+      subjectCode: r.subjectOffering.subject.code,
+    }));
   }
 }

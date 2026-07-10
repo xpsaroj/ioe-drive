@@ -1,7 +1,7 @@
 import { apiClient } from "./api-client";
 import { appendPaginationParams, type PaginationParams } from "./pagination";
 import type { Resource } from "@/types/entities";
-import type { ApiResponse, EmptyApiResponse, PaginatedApiResponse, ResourceSummary } from "@/types/api";
+import type { ApiResponse, EmptyApiResponse, PaginatedApiResponse, ResourceSummary, ResourceSuggestion } from "@/types/api";
 import type { UpdateResourceInput } from "../validators/resources";
 
 const RESOURCES_API_BASE_URL = "/resources";
@@ -50,5 +50,17 @@ export const resourcesApi = {
         });
         appendPaginationParams(params, pagination);
         return apiClient.get<PaginatedApiResponse<ResourceSummary>>(`${RESOURCES_API_BASE_URL}?${params.toString()}`);
+    },
+
+    async searchResources(q: string, pagination?: PaginationParams): Promise<PaginatedApiResponse<ResourceSummary>> {
+        const params = new URLSearchParams({ q });
+        appendPaginationParams(params, pagination);
+        return apiClient.get<PaginatedApiResponse<ResourceSummary>>(`${RESOURCES_API_BASE_URL}?${params.toString()}`);
+    },
+
+    async searchSuggestions(q: string, limit?: number): Promise<ApiResponse<ResourceSuggestion[]>> {
+        const params = new URLSearchParams({ q });
+        if (limit) params.set("limit", String(limit));
+        return apiClient.get<ApiResponse<ResourceSuggestion[]>>(`${RESOURCES_API_BASE_URL}/search-suggestions?${params.toString()}`);
     },
 }

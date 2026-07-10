@@ -30,6 +30,15 @@ export interface ResourceSummary {
     files: ResourceFileSummary[];
 }
 
+/** A lean resource preview row - just enough for a compact list (e.g. the search
+ * palette): no description, uploader, or files, unlike ResourceSummary. */
+export interface ResourceSuggestion {
+    id: number;
+    title: string;
+    type: ResourceType;
+    subjectCode: string;
+}
+
 export interface RecentResourceItem {
     id: number;
     userId: number;

@@ -30,6 +30,7 @@ import {
 import { CreateResourceDto } from "./dto/create-resource.dto";
 import { GetFileDownloadUrlQueryDto } from "./dto/get-file-download-url-query.dto";
 import { GetResourcesQueryDto } from "./dto/get-resources-query.dto";
+import { SearchSuggestionsQueryDto } from "./dto/search-suggestions-query.dto";
 import { UpdateResourceDto } from "./dto/update-resource.dto";
 import { ResourcesService } from "./resources.service";
 
@@ -123,23 +124,35 @@ export class ResourcesController {
     return { url };
   }
 
+  /** GET /api/resources/search-suggestions?q=&limit= - a lean, capped list of resource
+   * previews matching a search query (title/description), for live-typing UI like the
+   * search palette - not the full paginated browse shape `findMany` returns (public).
+   * Must stay registered before `:resourceId` below so "search-suggestions" isn't
+   * swallowed as a param. */
+  @Get("search-suggestions")
+  async searchSuggestions(@Query() query: SearchSuggestionsQueryDto) {
+    const suggestions = await this.resourcesService.searchSuggestions(query.q, query.limit ?? 8);
+    return ApiResponse.of(suggestions);
+  }
+
   /** GET /api/resources/:resourceId - resource details by ID (public). */
   @Get(":resourceId")
   findById(@Param("resourceId", ParseIntPipe) resourceId: number) {
     return this.resourcesService.findResourceById(resourceId);
   }
 
-  /** GET /api/resources?offeringId=&userId=&page=&limit= - resources filtered by
-   * subject offering or uploader, paginated (public). */
+  /** GET /api/resources?offeringId=&userId=&q=&page=&limit= - resources filtered by
+   * subject offering, uploader, or a title/description search query, paginated
+   * (public). */
   @Get()
   async findMany(@Query() query: GetResourcesQueryDto) {
-    if (!query.offeringId && !query.userId) {
-      throw new BadRequestException("Either offeringId or userId must be provided");
+    if (!query.offeringId && !query.userId && !query.q) {
+      throw new BadRequestException("Either offeringId, userId, or q must be provided");
     }
 
     const offset = getPaginationOffset(query.page, query.limit);
     const { items, total } = await this.resourcesService.findResources(
-      { offeringId: query.offeringId, userId: query.userId },
+      { offeringId: query.offeringId, userId: query.userId, q: query.q },
       { limit: query.limit, offset },
     );
 

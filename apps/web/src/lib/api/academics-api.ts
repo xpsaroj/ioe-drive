@@ -1,6 +1,7 @@
 import { apiClient } from "./api-client";
+import { appendPaginationParams, type PaginationParams } from "./pagination";
 import type { Program, Semester, SubjectOfferingWithSubject, SubjectForUploadForm } from "@/types/entities";
-import type { ApiResponse } from "@/types/api";
+import type { ApiResponse, PaginatedApiResponse, SubjectSearchResult } from "@/types/api";
 
 export interface SubjectsFilters {
     programId: number;
@@ -42,5 +43,11 @@ export const academicsApi = {
             semester: filters.semester,
         })
         return apiClient.get<ApiResponse<SubjectForUploadForm[]>>(`/subjects/upload/?${params.toString()}`);
-    }
+    },
+
+    async searchSubjects(q: string, pagination?: PaginationParams): Promise<PaginatedApiResponse<SubjectSearchResult>> {
+        const params = new URLSearchParams({ q });
+        appendPaginationParams(params, pagination);
+        return apiClient.get<PaginatedApiResponse<SubjectSearchResult>>(`/subjects/search?${params.toString()}`);
+    },
 }
