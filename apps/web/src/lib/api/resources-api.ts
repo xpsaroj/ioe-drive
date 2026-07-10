@@ -63,4 +63,9 @@ export const resourcesApi = {
         if (limit) params.set("limit", String(limit));
         return apiClient.get<ApiResponse<ResourceSuggestion[]>>(`${RESOURCES_API_BASE_URL}/search-suggestions?${params.toString()}`);
     },
+
+    async getSimilarResources(resourceId: number, limit?: number): Promise<ApiResponse<ResourceSuggestion[]>> {
+        const query = limit ? `?limit=${limit}` : "";
+        return apiClient.get<ApiResponse<ResourceSuggestion[]>>(`${RESOURCES_API_BASE_URL}/${resourceId}/similar${query}`);
+    },
 }

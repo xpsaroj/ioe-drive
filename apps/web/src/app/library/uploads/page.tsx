@@ -1,21 +1,41 @@
 "use client"
 import { Suspense } from "react";
+import { useRouter } from "next/navigation";
+import { ChevronLeft } from "lucide-react";
 
 import { ResourceList, UploadedResourceCard, ResourcePageStateHandler } from "@/components/common/resources";
+import Button from "@/components/ui/Button";
 import Pagination from "@/components/ui/Pagination";
 import Loader from "@/components/ui/Loader";
 import { useUploadedResources } from "@/hooks/queries/use-me";
 import { usePageParam } from "@/hooks/use-page-param";
 
 const MyUploadedResourcesContent = () => {
+    const router = useRouter();
     const { page, setPage } = usePageParam();
     const { data, isPending, error, isPlaceholderData } = useUploadedResources(page);
     const uploadedResources = data?.items;
+
+    // Reachable from more than one place (dashboard, library hub) - a real back button
+    // is more reliable than assuming the breadcrumb's own first crumb is where the
+    // visitor actually came from.
+    const backButton = (
+        <Button
+            icon={<ChevronLeft className="size-4" />}
+            iconOnly
+            variant="ghost"
+            size="xs"
+            className="border border-border shrink-0"
+            onClick={() => router.back()}
+            aria-label="Go back"
+        />
+    );
 
     return (
         <ResourcePageStateHandler
             title="My Uploaded Resources"
             breadcrumbs={[{ label: "Library", href: "/library" }, { label: "Uploads" }]}
+            beforeBreadcrumb={backButton}
             isPending={isPending}
             error={error}
             isEmpty={!uploadedResources || uploadedResources.length === 0}

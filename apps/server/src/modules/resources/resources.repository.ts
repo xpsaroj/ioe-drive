@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { and, count, desc, eq, ilike, or } from "drizzle-orm";
+import { and, count, desc, eq, ilike, ne, or } from "drizzle-orm";
 
 import { DRIZZLE } from "../../database/database.constants";
 import type { DrizzleDb } from "../../database/database.types";
@@ -57,10 +57,9 @@ export const RESOURCE_DETAIL_RELATIONS = {
 } as const;
 
 /** Lean projection for a compact resource preview row (title, type, subject code) -
- * used by searchSuggestions below and meant to be reused by the future "similar
- * resources" feature (see docs/todo.md). Deliberately excludes everything
- * RESOURCE_DETAIL_RELATIONS carries that a preview row never renders: description,
- * uploader, and the files list. */
+ * shared by searchSuggestions and findSimilar below, which both render the same kind
+ * of row. Deliberately excludes everything RESOURCE_DETAIL_RELATIONS carries that a
+ * preview row never renders: description, uploader, and the files list. */
 const RESOURCE_PREVIEW_RELATIONS = {
   subjectOffering: {
     columns: { id: true },
@@ -142,6 +141,14 @@ export class ResourcesRepository {
     });
   }
 
+  /** Just enough to resolve "similar" resources against - see findSimilar below. */
+  findOfferingId(resourceId: number) {
+    return this.db.query.resourcesTable.findFirst({
+      where: eq(resourcesTable.id, resourceId),
+      columns: { offeringId: true },
+    });
+  }
+
   async addFiles(resourceId: number, files: FileMetadata[]): Promise<void> {
     if (files.length === 0) return;
 
@@ -211,6 +218,27 @@ export class ResourcesRepository {
   async searchSuggestions(q: string, limit: number) {
     const results = await this.db.query.resourcesTable.findMany({
       where: or(ilike(resourcesTable.title, `%${q}%`), ilike(resourcesTable.description, `%${q}%`)),
+      orderBy: [desc(resourcesTable.createdAt)],
+      limit,
+      columns: { id: true, title: true, type: true },
+      with: RESOURCE_PREVIEW_RELATIONS,
+    });
+
+    return results.map((r) => ({
+      id: r.id,
+      title: r.title,
+      type: r.type,
+      subjectCode: r.subjectOffering.subject.code,
+    }));
+  }
+
+  /** Other resources from the same subject offering (excluding this one) - the
+   * simplest correct notion of "similar" given there's no recommendation engine: same
+   * course, most recently shared first. Same lean preview shape as searchSuggestions
+   * above, for the same reason (a compact row, not the full detail shape). */
+  async findSimilar(resourceId: number, offeringId: number, limit: number) {
+    const results = await this.db.query.resourcesTable.findMany({
+      where: and(eq(resourcesTable.offeringId, offeringId), ne(resourcesTable.id, resourceId)),
       orderBy: [desc(resourcesTable.createdAt)],
       limit,
       columns: { id: true, title: true, type: true },

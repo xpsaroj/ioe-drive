@@ -18,6 +18,7 @@ export const resourcesKeys = {
         ? ['resources', 'search', q] as const
         : ['resources', 'search', q, page] as const,
     searchSuggestions: (q: string, limit?: number) => ['resources', 'search-suggestions', q, limit] as const,
+    similar: (resourceId: number, limit?: number) => ['resources', resourceId, 'similar', limit] as const,
 };
 
 export function useResource(resourceId: number) {
@@ -257,5 +258,21 @@ export function useSearchSuggestions(q: string, limit?: number) {
         },
         enabled: trimmed.length >= MIN_SEARCH_QUERY_LENGTH,
         placeholderData: keepPreviousData,
+    });
+}
+
+/** Other resources from the same subject offering as `resourceId` - backs the resource
+ * detail page's "Similar Resources" panel. */
+export function useSimilarResources(resourceId: number, limit?: number) {
+    return useQuery({
+        queryKey: resourcesKeys.similar(resourceId, limit),
+        queryFn: async () => {
+            const response = await resourcesApi.getSimilarResources(resourceId, limit);
+            if (!response.success) {
+                throw new Error(response.error || 'Failed to fetch similar resources');
+            }
+            return response.data;
+        },
+        enabled: !!resourceId,
     });
 }

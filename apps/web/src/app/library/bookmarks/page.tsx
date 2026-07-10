@@ -1,21 +1,41 @@
 "use client"
 import { Suspense } from "react";
+import { useRouter } from "next/navigation";
+import { ChevronLeft } from "lucide-react";
 
 import { ResourceList, BookmarkedResourceCard, ResourcePageStateHandler } from "@/components/common/resources";
+import Button from "@/components/ui/Button";
 import Pagination from "@/components/ui/Pagination";
 import Loader from "@/components/ui/Loader";
 import { useBookmarkedResources } from "@/hooks/queries/use-me";
 import { usePageParam } from "@/hooks/use-page-param";
 
 const MyBookmarkedResourcesContent = () => {
+    const router = useRouter();
     const { page, setPage } = usePageParam();
     const { data, isPending, error, isPlaceholderData } = useBookmarkedResources(page);
     const bookmarkedResources = data?.items;
+
+    // Reachable from more than one place (dashboard, library hub) - a real back button
+    // is more reliable than assuming the breadcrumb's own first crumb is where the
+    // visitor actually came from.
+    const backButton = (
+        <Button
+            icon={<ChevronLeft className="size-4" />}
+            iconOnly
+            variant="ghost"
+            size="xs"
+            className="border border-border shrink-0"
+            onClick={() => router.back()}
+            aria-label="Go back"
+        />
+    );
 
     return (
         <ResourcePageStateHandler
             title="My Bookmarked Resources"
             breadcrumbs={[{ label: "Library", href: "/library" }, { label: "Bookmarks" }]}
+            beforeBreadcrumb={backButton}
             isPending={isPending}
             error={error}
             isEmpty={!bookmarkedResources || bookmarkedResources.length === 0}

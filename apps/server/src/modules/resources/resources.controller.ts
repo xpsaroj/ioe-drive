@@ -30,6 +30,7 @@ import {
 import { CreateResourceDto } from "./dto/create-resource.dto";
 import { GetFileDownloadUrlQueryDto } from "./dto/get-file-download-url-query.dto";
 import { GetResourcesQueryDto } from "./dto/get-resources-query.dto";
+import { GetSimilarResourcesQueryDto } from "./dto/get-similar-resources-query.dto";
 import { SearchSuggestionsQueryDto } from "./dto/search-suggestions-query.dto";
 import { UpdateResourceDto } from "./dto/update-resource.dto";
 import { ResourcesService } from "./resources.service";
@@ -139,6 +140,17 @@ export class ResourcesController {
   @Get(":resourceId")
   findById(@Param("resourceId", ParseIntPipe) resourceId: number) {
     return this.resourcesService.findResourceById(resourceId);
+  }
+
+  /** GET /api/resources/:resourceId/similar?limit= - other resources from the same
+   * subject offering, for the detail page's "Similar Resources" panel (public). */
+  @Get(":resourceId/similar")
+  async findSimilar(
+    @Param("resourceId", ParseIntPipe) resourceId: number,
+    @Query() query: GetSimilarResourcesQueryDto,
+  ) {
+    const similar = await this.resourcesService.findSimilarResources(resourceId, query.limit ?? 5);
+    return ApiResponse.of(similar);
   }
 
   /** GET /api/resources?offeringId=&userId=&q=&page=&limit= - resources filtered by

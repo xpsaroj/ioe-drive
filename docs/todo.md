@@ -19,8 +19,6 @@ essays here once something is actively being worked on.
 
 - [ ] Build out the placeholder destinations: Community, Market/Marketplace, Alumni,
       Offerings list page — all currently one-line stub pages linked from the nav.
-- [ ] Wire up "Similar Resources" on the resource detail page — no recommendation logic
-      exists yet, so it currently shows hardcoded placeholder entries.
 
 ## Housekeeping
 

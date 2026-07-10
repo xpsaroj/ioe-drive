@@ -1,10 +1,11 @@
 "use client"
 import { Suspense, use, useEffect, useState } from "react"
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { ChevronLeft, Download, Lightbulb } from "lucide-react";
 import { toast } from "sonner";
 
-import { useResource, useDownloadFile } from "@/hooks/queries/use-resources";
+import { useResource, useDownloadFile, useSimilarResources } from "@/hooks/queries/use-resources";
 import { useSubjectDetails } from "@/hooks/queries/use-academics";
 import { useMe, useMarkResourceAsRecentlyAccessed } from "@/hooks/queries/use-me";
 import Badge from "@/components/ui/Badge";
@@ -22,13 +23,7 @@ interface ResourceDetailPageProps {
     }>
 }
 
-// Placeholder data - there's no recommendation engine yet, so this is a hardcoded
-// example of what a future "similar resources" list would show.
-const DUMMY_SIMILAR_RESOURCES = [
-    { title: "Reference Book, Part 2", typeLabel: "Book" },
-    { title: "Previous Year Past Question", typeLabel: "Past Question" },
-    { title: "Lab Manual Solutions", typeLabel: "Lab Sheet" },
-];
+const SIMILAR_RESOURCES_SHOWN = 4;
 
 const ResourceDetailContent = ({
     params
@@ -43,6 +38,7 @@ const ResourceDetailContent = ({
     const isOwner = !!userData && !!resource?.uploadedBy && userData.id === resource.uploadedBy;
 
     const { data: offeringDetails } = useSubjectDetails(resource?.subjectOffering.id ?? 0);
+    const { data: similarResources, isPending: similarPending } = useSimilarResources(resourceId, SIMILAR_RESOURCES_SHOWN);
 
     const { mutateAsync: requestDownload } = useDownloadFile(resourceId);
     const [isDownloadingAll, setIsDownloadingAll] = useState(false);
@@ -214,14 +210,32 @@ const ResourceDetailContent = ({
                                 <Lightbulb className="size-3.5" />
                                 Similar Resources
                             </div>
-                            <div className="-mx-6 divide-y divide-border">
-                                {DUMMY_SIMILAR_RESOURCES.map((item) => (
-                                    <div key={item.title} className="flex items-center justify-between gap-3 px-6 py-3">
-                                        <p className="truncate text-sm text-foreground">{item.title}</p>
-                                        <Badge size="sm" className="shrink-0">{item.typeLabel}</Badge>
-                                    </div>
-                                ))}
-                            </div>
+                            {similarPending ? (
+                                <div className="-mx-6 divide-y divide-border">
+                                    {Array.from({ length: 3 }).map((_, i) => (
+                                        <div key={i} className="flex items-center gap-3 px-6 py-3">
+                                            <div className="h-4 w-full animate-pulse rounded bg-skeleton-base" />
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : similarResources && similarResources.length > 0 ? (
+                                <div className="-mx-6 divide-y divide-border">
+                                    {similarResources.map((item) => (
+                                        <Link
+                                            key={item.id}
+                                            href={`/resources/r/${item.id}`}
+                                            className="flex items-center justify-between gap-3 px-6 py-3 transition-colors hover:bg-background-hover"
+                                        >
+                                            <p className="truncate text-sm text-foreground">{item.title}</p>
+                                            <Badge size="sm" className="shrink-0">{ResourceTypeLabel[item.type]}</Badge>
+                                        </Link>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-sm text-foreground-tertiary">
+                                    No other resources shared for this subject yet.
+                                </p>
+                            )}
                         </div>
                     </div>
                 </div>

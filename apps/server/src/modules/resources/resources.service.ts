@@ -12,7 +12,7 @@ export class ResourcesService {
     private readonly resourcesRepository: ResourcesRepository,
     private readonly azureBlobService: AzureBlobService,
     @Inject(DRIZZLE) private readonly db: DrizzleDb,
-  ) {}
+  ) { }
 
   private async uploadFiles(files: Express.Multer.File[]) {
     return Promise.all(
@@ -142,5 +142,15 @@ export class ResourcesService {
 
   searchSuggestions(q: string, limit: number) {
     return this.resourcesRepository.searchSuggestions(q, limit);
+  }
+
+  async findSimilarResources(resourceId: number, limit: number) {
+    const resource = await this.resourcesRepository.findOfferingId(resourceId);
+
+    if (!resource) {
+      throw new NotFoundException("Resource not found");
+    }
+
+    return this.resourcesRepository.findSimilar(resourceId, resource.offeringId, limit);
   }
 }
