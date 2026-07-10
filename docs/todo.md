@@ -31,5 +31,4 @@ essays here once something is actively being worked on.
 - [ ] General frontend component cleanup pass: remove unused components, move page-local
       markup that's actually reused elsewhere into proper shared components, and pull
       one-off props back out of shared components so each one goes back to doing a single
-      specific job (e.g. `PageHeader`/`ResourcePageStateHandler`'s `beforeBreadcrumb`,
-      added for just the resource detail page's back button).
+      specific job.

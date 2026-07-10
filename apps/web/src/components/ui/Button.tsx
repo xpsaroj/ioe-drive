@@ -12,19 +12,12 @@ export type ButtonSize = "xs" | "sm" | "md" | "lg";
 
 export interface ButtonProps
     extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-    /**
-     * When provided the button will render as a link (wrapped with Next.js Link)
-     */
+    /** When provided the button renders as a link (wrapped with Next.js Link) instead
+     * of a <button>. */
     href?: string;
     variant?: ButtonVariant;
     size?: ButtonSize;
-    /**
-     * Any React node (e.g. an icon from lucide-react)
-     */
     icon?: React.ReactNode;
-    /**
-     * "left" or "right" position for icon relative to children
-     */
     iconPosition?: "left" | "right";
     /**
      * If true, renders a compact icon-only button (children should be empty).
@@ -34,31 +27,15 @@ export interface ButtonProps
     className?: string;
 }
 
-/**
- * Button
- * - supports optional icon (left/right)
- * - wraps in Next.js Link when href provided
- * - 5 variants, 4 sizes
- * - Black & white theme aligned with Tailwind v4 design system
- */
 const variantStyles: Record<ButtonVariant, string> = {
-    // Black background, white text - primary CTA
     primary:
         "bg-button-primary text-button-primary-text hover:bg-button-primary-hover active:bg-button-primary-active focus:ring-button-primary border border-transparent",
-
-    // White background with border, black text - secondary action
     secondary:
         "bg-button-secondary text-button-secondary-text border border-border hover:bg-button-secondary-hover hover:border-border-hover active:bg-button-secondary-active focus:ring-foreground",
-
-    // Transparent background, visible on hover - tertiary action
     ghost:
         "bg-transparent text-foreground hover:bg-button-ghost-hover active:bg-background-active focus:ring-foreground border border-transparent",
-
-    // Outlined style with hover fill - alternative secondary
     outline:
         "bg-transparent text-foreground border border-border hover:bg-foreground hover:text-foreground-inverse hover:border-foreground active:bg-button-primary-active focus:ring-foreground",
-
-    // Error/destructive actions (kept for semantic purposes, using black in b&w theme)
     destructive:
         "bg-error text-error-foreground border border-transparent hover:bg-button-primary-hover active:bg-button-primary-active focus:ring-error",
 };
@@ -121,7 +98,6 @@ const Button = React.forwardRef<HTMLElement, ButtonProps>(
             </>
         );
 
-        // If href provided, render as link
         if (href) {
             return (
                 <Link
@@ -138,7 +114,6 @@ const Button = React.forwardRef<HTMLElement, ButtonProps>(
             );
         }
 
-        // Normal button
         return (
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             <button ref={ref as any} className={classes} {...rest}>

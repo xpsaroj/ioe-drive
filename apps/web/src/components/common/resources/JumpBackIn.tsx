@@ -6,18 +6,16 @@ import { useRecentResources } from "@/hooks/queries/use-me";
 import { getRelativeTime } from "@/utils/time";
 import { ResourceTypeLabel } from "@/types/entities";
 
-interface JumpBackInProps {
-  /** How many recent resources to show - defaults to 2 (a single row). */
-  limit?: number;
-}
+// Shown as a single row of 2, so only that many are ever fetched/rendered.
+const RECENT_RESOURCES_SHOWN = 2;
 
 /**
  * A quick "continue where you left off" grid of recently-viewed resources. Shared
  * between the dashboard and the library hub, both of which want the same section.
  */
-const JumpBackIn = ({ limit = 2 }: JumpBackInProps) => {
+const JumpBackIn = () => {
   const { data, isPending } = useRecentResources(1);
-  const items = data?.items.slice(0, limit);
+  const items = data?.items.slice(0, RECENT_RESOURCES_SHOWN);
 
   return (
     <div>
@@ -30,7 +28,7 @@ const JumpBackIn = ({ limit = 2 }: JumpBackInProps) => {
 
       {isPending ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          {Array.from({ length: limit }).map((_, i) => (
+          {Array.from({ length: RECENT_RESOURCES_SHOWN }).map((_, i) => (
             <div key={i} className="h-36 rounded-xl bg-skeleton-base animate-pulse" />
           ))}
         </div>

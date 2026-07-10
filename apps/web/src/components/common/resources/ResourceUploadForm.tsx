@@ -19,7 +19,8 @@ import {
 } from "@/utils/file";
 import { usePrograms, useSubjectsForUpload } from "@/hooks/queries/use-academics";
 import { useCreateResource } from "@/hooks/queries/use-resources";
-import { FILE_TYPE_META, DEFAULT_FILE_TYPE_META, getMimeKey } from "@/components/common/resources";
+import { FILE_TYPE_META, DEFAULT_FILE_TYPE_META } from "./ResourceFileItem";
+import { getMimeKey } from "./MimeTypeBadge";
 import { Semester, SemesterLabel, ResourceType, ResourceTypeLabel } from "@/types/entities";
 
 type FormValues = {

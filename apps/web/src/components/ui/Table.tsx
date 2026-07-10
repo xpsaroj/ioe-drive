@@ -3,7 +3,6 @@
 import React from "react";
 import clsx from "clsx";
 
-// ========== Types ==========
 export interface Column<T> {
     key: string;
     label: string;
@@ -16,41 +15,16 @@ export interface Column<T> {
 export interface TableProps<T> {
     data: T[];
     columns: Column<T>[];
-    /**
-     * Striped rows (alternating background colors)
-     */
     striped?: boolean;
-    /**
-     * Enable hover effect on rows
-     */
     hoverable?: boolean;
-    /**
-     * Make rows clickable
-     */
     onRowClick?: (item: T, index: number) => void;
-    /**
-     * Loading state - shows skeleton
-     */
     loading?: boolean;
-    /**
-     * Empty state message
-     */
     emptyMessage?: string;
-    /**
-     * Enable sorting
-     */
     sortable?: boolean;
-    /**
-     * Custom className for table wrapper
-     */
     className?: string;
-    /**
-     * Custom className for the table element
-     */
     tableClassName?: string;
 }
 
-// ========== Table Component ==========
 function Table<T>({
     data,
     columns,
@@ -68,7 +42,6 @@ function Table<T>({
         direction: "asc" | "desc";
     } | null>(null);
 
-    // Sorting logic
     const sortedData = React.useMemo(() => {
         if (!sortConfig || !sortable) return data;
 
@@ -114,7 +87,6 @@ function Table<T>({
         }
     };
 
-    // Loading state
     if (loading) {
         return (
             <div className={clsx("w-full overflow-auto rounded-lg border border-border", className)}>
@@ -157,7 +129,6 @@ function Table<T>({
     return (
         <div className={clsx("w-full overflow-auto rounded-lg border border-border", className)}>
             <table className={clsx("w-full text-sm", tableClassName)}>
-                {/* Header */}
                 <thead className="bg-background-tertiary border-b border-border">
                     <tr>
                         {columns.map((column) => (
@@ -188,7 +159,6 @@ function Table<T>({
                     </tr>
                 </thead>
 
-                {/* Body */}
                 <tbody>
                     {sortedData.length === 0 ? (
                         <tr>

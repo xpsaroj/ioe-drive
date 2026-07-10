@@ -50,7 +50,6 @@ const ResourcePageStateHandler = ({
         </div>
     )
 
-    // Content state
     return (
         <PageStateHandler
             isPending={isPending}

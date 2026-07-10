@@ -5,7 +5,7 @@ import { useMe } from "@/hooks/queries/use-me";
 import { UserAvatar } from "@/components/common/user";
 import { SemesterLabel } from "@/types/entities";
 
-export const User = () => {
+export const UserMenu = () => {
     const { user } = useClerk();
     const { data: userData, isLoading, error } = useMe();
     const profile = userData ? userData?.profile : null;
@@ -59,7 +59,6 @@ export const User = () => {
                 )}
             </div>
 
-            {/* Hidden UserButton */}
             <div ref={buttonRef} className="absolute bottom-0 right-0 opacity-0 -mb-2 pointer-events-none">
                 <UserButton />
             </div>

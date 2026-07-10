@@ -6,7 +6,7 @@ import { ChevronRight, ChevronDown, Search } from "lucide-react";
 
 import { SubjectDetails } from "@/components/common/offering";
 import { ResourceList, ResourceCard } from "@/components/common/resources";
-import Pagination from "@/components/common/Pagination";
+import Pagination from "@/components/ui/Pagination";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
 import Loader from "@/components/ui/Loader";

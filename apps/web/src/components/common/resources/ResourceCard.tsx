@@ -5,6 +5,7 @@ import BookmarkButton from "./BookmarkButton";
 import Badge from "@/components/ui/Badge";
 import type { ResourceSummary } from "@/types/api";
 import { UploaderInfo } from "@/components/common/user";
+import { SubjectCodeTile } from "@/components/common/offering";
 import { ResourceTypeLabel } from "@/types/entities";
 
 interface ResourceCardProps {
@@ -84,9 +85,7 @@ const ResourceCard = ({
                     href={`/offerings/${subjectOffering.id}`}
                     className="group/subject flex items-center gap-2 shrink-0 rounded-lg -mx-1.5 -my-1 px-1.5 py-1 transition-colors hover:bg-background-hover"
                 >
-                    <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-accent font-display text-[9px] font-semibold text-accent-foreground">
-                        {subjectOffering?.subject?.code?.slice(0, 2)}
-                    </span>
+                    <SubjectCodeTile code={subjectOffering?.subject?.code ?? ""} size="sm" />
                     <span className="text-xs text-foreground-secondary group-hover/subject:text-foreground group-hover/subject:underline">
                         {subjectOffering?.subject?.code}
                         <span className="hidden sm:inline"> {subjectOffering?.subject?.name}</span>

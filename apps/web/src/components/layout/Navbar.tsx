@@ -8,15 +8,12 @@ import { SearchBar } from "@/components/layout"
 import NavItem from "./NavItem"
 import Button from "@/components/ui/Button"
 import ThemeToggle from "@/components/ui/ThemeToggle"
-import Logo from "@/components/Logo"
-import WordmarkText from "@/components/WordmarkText"
-import { User } from "../User"
+import Logo from "./Logo"
+import WordmarkText from "./WordmarkText"
+import { UserMenu } from "./UserMenu"
 
 import { NAVIGATION_GROUPS, isNavItemActive } from "@/constants/navigations"
 
-/**
- * Navbar component for the application
- */
 export default function Navbar() {
   const pathname = usePathname()
 
@@ -84,7 +81,7 @@ export default function Navbar() {
       </div>
 
       <div className="border-t border-border px-3 py-3 hover:bg-background-hover transition-colors cursor-pointer">
-        <User />
+        <UserMenu />
       </div>
     </div>
   )

@@ -36,10 +36,6 @@ export const academicsApi = {
         return apiClient.get<ApiResponse<SubjectOfferingWithSubject>>(`/subjects/${subjectId}`);
     },
 
-    /**
-     * Get subjects for the resource upload form based on program, semester, and year.
-     * - For select based on user input in the upload form.
-     */
     async getSubjectsForUpload(filters: ResourceUploadFormFilters): Promise<ApiResponse<SubjectForUploadForm[]>> {
         const params = new URLSearchParams({
             programId: filters.programId.toString(),

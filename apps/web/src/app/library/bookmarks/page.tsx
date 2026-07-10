@@ -2,7 +2,7 @@
 import { Suspense } from "react";
 
 import { ResourceList, BookmarkedResourceCard, ResourcePageStateHandler } from "@/components/common/resources";
-import Pagination from "@/components/common/Pagination";
+import Pagination from "@/components/ui/Pagination";
 import Loader from "@/components/ui/Loader";
 import { useBookmarkedResources } from "@/hooks/queries/use-me";
 import { usePageParam } from "@/hooks/use-page-param";

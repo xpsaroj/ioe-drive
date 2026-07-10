@@ -1,4 +1,4 @@
-import { LibraryHub } from "@/components/sections/library";
+import { LibraryHub } from "@/components/library";
 
 const LibraryPage = () => {
   return (

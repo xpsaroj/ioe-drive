@@ -1,10 +1,5 @@
 import { ClerkLoaded, ClerkLoading, ClerkFailed } from "@clerk/nextjs"
 
-/**
- *  GlobalLoader component to handle loading states for the entire app.
- *  It displays a loading spinner while Clerk is loading and an error message if loading fails.
- * @param children - The child components to render once loading is complete. 
- */
 export default function GlobalLoader({
     children
 }: {

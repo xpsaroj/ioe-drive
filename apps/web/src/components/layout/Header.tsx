@@ -1,13 +1,14 @@
 import Link from "next/link";
 import { Github, Heart } from "lucide-react";
 
-import Logo from "@/components/Logo";
-import WordmarkText from "@/components/WordmarkText";
+import Logo from "./Logo";
+import WordmarkText from "./WordmarkText";
 import Button from "@/components/ui/Button";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 
 /**
- * Header with logo and primary actions for home page
+ * Signed-out top bar - LayoutWrapper renders this instead of Navbar/MobileNav on every
+ * route until the visitor signs in.
  */
 export default function Header() {
     return (

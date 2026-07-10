@@ -2,9 +2,6 @@
 import { useAuth } from "@clerk/nextjs";
 import Button from "@/components/ui/Button";
 
-/**
- * Hero section with primary call-to-actions for home page
- */
 export default function HeroSection() {
 
     const { isSignedIn } = useAuth();

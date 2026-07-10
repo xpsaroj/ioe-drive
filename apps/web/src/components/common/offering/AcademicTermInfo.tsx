@@ -1,4 +1,7 @@
+import { NotebookPen } from "lucide-react";
+
 import Badge from "@/components/ui/Badge";
+import Button from "@/components/ui/Button";
 import type { SubjectOffering } from "@/types/entities";
 
 const numberToRoman = (num: number): string => {
@@ -17,12 +20,13 @@ const numberToRoman = (num: number): string => {
 }
 
 interface AcademicTermInfoProps extends Omit<SubjectOffering, "id" | "subjectId" | "programId"> {
-    /** Optional compact action rendered beside the heading (e.g. a "Browse Resources"
-     * link) - kept as a slot rather than owned by this display-only component. */
-    action?: React.ReactNode;
+    /** Where the "Browse Resources" button should link - built by the caller since it
+     * needs the offering's id and the program it's actually taught under (see
+     * SubjectOfferingDetails, the only caller). */
+    browseResourcesHref: string;
 }
 
-const AcademicTermInfo = ({ year, semester, isElective, action }: AcademicTermInfoProps) => {
+const AcademicTermInfo = ({ year, semester, isElective, browseResourcesHref }: AcademicTermInfoProps) => {
     return (
         <div className="rounded-xl border border-border p-6">
             <p className="mb-2 font-display text-xs font-medium uppercase tracking-wide text-foreground-tertiary">
@@ -41,7 +45,9 @@ const AcademicTermInfo = ({ year, semester, isElective, action }: AcademicTermIn
                         <span>Semester {semester}</span>
                     </p>
                 </div>
-                {action && <div className="shrink-0">{action}</div>}
+                <Button href={browseResourcesHref} variant="secondary" size="sm" icon={<NotebookPen className="size-4" />} className="shrink-0">
+                    Browse Resources
+                </Button>
             </div>
         </div>
     );

@@ -24,9 +24,6 @@ export const meApi = {
         return apiClient.get<PaginatedApiResponse<RecentResourceItem>>(`${ME_API_BASE_URL}/recent-resources${params ? `?${params}` : ""}`);
     },
 
-    /**
-     * Fetches the bookmarked resources of the currently authenticated user.
-     */
     async getBookmarkedResources(pagination?: PaginationParams): Promise<PaginatedApiResponse<BookmarkedResourceItem>> {
         const params = appendPaginationParams(new URLSearchParams(), pagination).toString();
         return apiClient.get<PaginatedApiResponse<BookmarkedResourceItem>>(`${ME_API_BASE_URL}/bookmarked-resources${params ? `?${params}` : ""}`);
@@ -41,23 +38,14 @@ export const meApi = {
         return apiClient.get<ApiResponse<number[]>>(`${ME_API_BASE_URL}/bookmarked-resource-ids`);
     },
 
-    /**
-     * Adds the resource to the user's `recently accessed` list.
-     */
     async markResourceAsRecentlyAccessed(resourceId: string): Promise<EmptyApiResponse> {
         return apiClient.post<EmptyApiResponse>(`${ME_API_BASE_URL}/resources/${resourceId}/recent`);
     },
 
-    /**
-     * Bookmarks a resource for the user.
-     */
     async markResourceAsBookmarked(resourceId: string): Promise<EmptyApiResponse> {
         return apiClient.post<EmptyApiResponse>(`${ME_API_BASE_URL}/resources/${resourceId}/bookmark`);
     },
 
-    /**
-     * Unbookmarks a resource for the user.
-     */
     async unmarkResourceAsBookmarked(resourceId: string): Promise<EmptyApiResponse> {
         return apiClient.delete<EmptyApiResponse>(`${ME_API_BASE_URL}/resources/${resourceId}/bookmark`);
     },

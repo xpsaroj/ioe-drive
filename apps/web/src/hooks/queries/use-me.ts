@@ -33,8 +33,8 @@ export function useMe() {
             }
             return response.data;
         },
-        enabled: isSignedIn, // Only fetch if user is signed in
-        staleTime: 20 * 60 * 1000, // Cache user data for 30 minutes
+        enabled: isSignedIn,
+        staleTime: 20 * 60 * 1000,
         gcTime: 30 * 60 * 1000,
     });
 }
@@ -45,15 +45,11 @@ export function useUpdateProfile() {
     return useMutation({
         mutationFn: (profileData: Partial<Omit<Profile, "id" | "userId">>) => meApi.updateMyProfile(profileData),
 
-        // Optimistic update
         onMutate: async (newProfile) => {
-            // Cancel outgoing refetches
             await queryClient.cancelQueries({ queryKey: meKeys.user });
 
-            // Snapshot previous value
             const previousProfile = queryClient.getQueryData<UserProfile>(meKeys.user);
 
-            // Optimistically update
             queryClient.setQueryData<UserProfile>(meKeys.user, (old) =>
                 old ? { ...old, profile: { ...old.profile, ...newProfile } } : old
             );
@@ -61,14 +57,12 @@ export function useUpdateProfile() {
             return { previousProfile };
         },
 
-        // Rollback if mutation fails
         onError: (_err, _newProfile, context) => {
             if (context?.previousProfile) {
                 queryClient.setQueryData(meKeys.user, context.previousProfile);
             }
         },
 
-        // Always refetch after mutation to sync with server
         onSettled: () => {
             queryClient.invalidateQueries({ queryKey: meKeys.user });
             queryClient.invalidateQueries({

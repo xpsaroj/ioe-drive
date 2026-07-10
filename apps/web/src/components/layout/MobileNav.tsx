@@ -8,21 +8,17 @@ import { Menu, X } from "lucide-react"
 import { SearchBar } from "@/components/layout"
 import NavItem from "./NavItem"
 import ThemeToggle from "@/components/ui/ThemeToggle"
-import Logo from "@/components/Logo"
-import WordmarkText from "@/components/WordmarkText"
-import { User } from "../User"
+import Logo from "./Logo"
+import WordmarkText from "./WordmarkText"
+import { UserMenu } from "./UserMenu"
 
 import { NAVIGATION_GROUPS, isNavItemActive } from "@/constants/navigations"
 
-/**
- * Mobile navigation component for the application
- */
 export default function MobileNav() {
     const pathname = usePathname()
 
     const [menuOpen, setMenuOpen] = useState(false)
 
-    // Prevent body scroll when mobile menu is open
     useEffect(() => {
         if (menuOpen) {
             document.body.style.overflow = "hidden"
@@ -36,7 +32,6 @@ export default function MobileNav() {
 
     return (
         <div>
-            {/* Floating button for mobile nav */}
             <div className="fixed top-3 right-3 md:hidden z-9999">
                 <button
                     className="p-3 text-foreground bg-background/80 backdrop-blur-sm rounded-full shadow-lg transition-colors border border-button-primary"
@@ -47,7 +42,6 @@ export default function MobileNav() {
                 </button>
             </div>
 
-            {/* Sidebar (Mobile) */}
             <div className="block md:hidden sticky top-0 z-50">
                 <div
                     className={clsx(
@@ -103,7 +97,7 @@ export default function MobileNav() {
                     </div>
 
                     <div className="border-t border-border pt-4 px-4">
-                        <User />
+                        <UserMenu />
                     </div>
                 </div>
 

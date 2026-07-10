@@ -1,11 +1,8 @@
 import Link from "next/link";
 
 import { features, type Feature } from "@/constants/home";
-import Image from "@/components/ImageContainer";
+import Image from "@/components/ui/ImageContainer";
 
-/**
- * Features section showcasing what the site offers
- */
 export default function Features() {
     return (
         <section className="bg-background py-20">

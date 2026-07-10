@@ -6,7 +6,6 @@ export interface MimeTypeBadgeProps
     mimeType: string;
 }
 
-// Color mapping by file type
 const mimeColorMap: Record<
     string,
     { bg: string; text: string; border?: string }

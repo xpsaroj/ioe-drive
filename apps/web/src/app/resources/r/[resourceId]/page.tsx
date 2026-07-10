@@ -13,6 +13,7 @@ import Loader from "@/components/ui/Loader";
 import type { BreadcrumbItem } from "@/components/layout";
 import { ResourceFileList, ResourcePageStateHandler, EditResourceButton, DeleteResourceButton, BookmarkButton } from "@/components/common/resources";
 import { UploaderInfo } from "@/components/common/user";
+import { SubjectCodeTile } from "@/components/common/offering";
 import { ResourceTypeLabel, SemesterLabel } from "@/types/entities";
 
 interface ResourceDetailPageProps {
@@ -194,9 +195,7 @@ const ResourceDetailContent = ({
                                 Related Subject
                             </p>
                             <div className="flex items-center gap-3 mb-4">
-                                <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-accent font-display text-sm font-semibold text-accent-foreground">
-                                    {subjectOffering.subject.code.slice(0, 2)}
-                                </span>
+                                <SubjectCodeTile code={subjectOffering.subject.code} size="md" />
                                 <div className="min-w-0">
                                     <p className="truncate font-semibold text-foreground">{subjectOffering.subject.name}</p>
                                     <p className="text-xs text-foreground-secondary flex items-center gap-2">

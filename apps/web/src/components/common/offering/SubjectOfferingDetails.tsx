@@ -1,8 +1,5 @@
-import { NotebookPen } from "lucide-react";
-
 import SubjectDetails from "./SubjectDetails";
 import AcademicTermInfo from "./AcademicTermInfo";
-import Button from "@/components/ui/Button";
 
 import type { SubjectOfferingWithSubject } from "@/types/entities";
 
@@ -21,11 +18,7 @@ const SubjectOfferingDetails = ({ offering }: { offering: SubjectOfferingWithSub
                 year={year}
                 semester={semester}
                 isElective={isElective}
-                action={
-                    <Button href={browseResourcesHref} variant="secondary" size="sm" icon={<NotebookPen className="size-4" />}>
-                        Browse Resources
-                    </Button>
-                }
+                browseResourcesHref={browseResourcesHref}
             />
 
             <SubjectDetails

@@ -1,16 +1,7 @@
-/**
- * API base URL configuration.
- */
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:4000/api';
 
-/**
- * Type definition for a function that provides an authentication token.
- */
 type TokenProvider = () => Promise<string | null>;
 
-/**
- * Base API Client class to handle HTTP requests.
- */
 class ApiClient {
     private baseUrl: string;
     private tokenProvider?: TokenProvider;
@@ -19,12 +10,10 @@ class ApiClient {
         this.baseUrl = baseUrl;
     }
 
-    // Set the token provider function
     setTokenProvider(provider: TokenProvider) {
         this.tokenProvider = provider;
     }
 
-    // Get headers with optional authentication token (Todo: inject token provider through a higher-level provider)
     private async getHeaders(includeAuth: boolean = true): Promise<Headers> {
         const headers = new Headers();
         headers.append('Content-Type', 'application/json');
@@ -38,7 +27,6 @@ class ApiClient {
         return headers;
     }
 
-    // Handle the response and parse JSON
     private async handleResponse(response: Response) {
         const result = await response.json();
 
@@ -49,12 +37,6 @@ class ApiClient {
         return result;
     }
 
-    /**
-     * Make a GET request to the specified endpoint.
-     * @param endpoint - The API endpoint to call.
-     * @param includeAuth - Whether to include the authentication token.
-     * @returns The response data.
-     */
     async get<T>(endpoint: string, includeAuth: boolean = true): Promise<T> {
         const response = await fetch(`${this.baseUrl}${endpoint}`, {
             method: 'GET',
@@ -64,13 +46,6 @@ class ApiClient {
         return this.handleResponse(response);
     }
 
-    /**
-     * Make a POST request to the specified endpoint.
-     * @param endpoint - The API endpoint to call.
-     * @param body - The request payload.
-     * @param includeAuth - Whether to include the authentication token.
-     * @returns The response data.
-     */
     async post<T>(endpoint: string, body?: unknown, includeAuth: boolean = true): Promise<T> {
         const response = await fetch(`${this.baseUrl}${endpoint}`, {
             method: 'POST',
@@ -81,13 +56,6 @@ class ApiClient {
         return this.handleResponse(response);
     }
 
-    /**
-     * Make a PATCH request to the specified endpoint.
-     * @param endpoint - The API endpoint to call.
-     * @param body - The request payload.
-     * @param includeAuth - Whether to include the authentication token.
-     * @returns The response data.
-     */
     async patch<T>(endpoint: string, body?: unknown, includeAuth: boolean = true): Promise<T> {
         const response = await fetch(`${this.baseUrl}${endpoint}`, {
             method: 'PATCH',
@@ -98,13 +66,6 @@ class ApiClient {
         return this.handleResponse(response);
     }
 
-    /**
-     * Make a PUT request to the specified endpoint.
-     * @param endpoint - The API endpoint to call.
-     * @param body - The request payload.
-     * @param includeAuth - Whether to include the authentication token.
-     * @returns The response data.
-     */
     async put<T>(endpoint: string, body?: unknown, includeAuth: boolean = true): Promise<T> {
         const response = await fetch(`${this.baseUrl}${endpoint}`, {
             method: 'PUT',
@@ -115,12 +76,6 @@ class ApiClient {
         return this.handleResponse(response);
     }
 
-    /**
-     * Make a DELETE request to the specified endpoint.
-     * @param endpoint - The API endpoint to call.
-     * @param includeAuth - Whether to include the authentication token.
-     * @returns The response data.
-     */
     async delete<T>(endpoint: string, includeAuth: boolean = true): Promise<T> {
         const response = await fetch(`${this.baseUrl}${endpoint}`, {
             method: 'DELETE',
@@ -130,13 +85,6 @@ class ApiClient {
         return this.handleResponse(response);
     }
 
-    /**
-     * Make a POST request with form data to the specified endpoint.
-     * @param endpoint - The API endpoint to call.
-     * @param body - The form data to send in the request body.
-     * @param includeAuth - Whether to include the authentication token.
-     * @returns The response data.
-     */
     async postForm<T>(endpoint: string, body: FormData, includeAuth: boolean = true): Promise<T> {
         const headers = new Headers();
         if (includeAuth) {
@@ -154,7 +102,4 @@ class ApiClient {
     }
 }
 
-/**
- * A singleton instance of the ApiClient for use throughout the application.
- */
 export const apiClient = new ApiClient(API_BASE_URL);

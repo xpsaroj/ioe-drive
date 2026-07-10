@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { Github } from "lucide-react";
 
-import Logo from "@/components/Logo";
-import WordmarkText from "@/components/WordmarkText";
+import Logo from "./Logo";
+import WordmarkText from "./WordmarkText";
 
 export default function Footer() {
     return (

@@ -1,7 +1,6 @@
 import React from "react";
 import clsx from "clsx";
 
-// ========== Types ==========
 export type BadgeVariant =
     | "default"
     | "primary"
@@ -14,50 +13,23 @@ export type BadgeVariant =
 export type BadgeSize = "sm" | "md" | "lg";
 
 export interface BadgeProps {
-    /**
-     * Visual variant of the badge
-     */
     variant?: BadgeVariant;
-    /**
-     * Size of the badge
-     */
     size?: BadgeSize;
-    /**
-     * Custom color (overrides variant)
-     * Format: { bg: string, text: string, border?: string }
-     */
+    /** Overrides `variant` with explicit colors. */
     color?: {
         bg: string;
         text: string;
         border?: string;
     };
-    /**
-     * Show a dot indicator before the text
-     */
     dot?: boolean;
-    /**
-     * Make the badge outlined instead of filled
-     */
     outline?: boolean;
-    /**
-     * Icon to show (left side)
-     */
     icon?: React.ReactNode;
-    /**
-     * Make the badge removable (shows X button)
-     */
+    /** Shows a remove (X) button that calls this when clicked. */
     onRemove?: () => void;
-    /**
-     * Custom className
-     */
     className?: string;
-    /**
-     * Children content
-     */
     children: React.ReactNode;
 }
 
-// ========== Styles ==========
 const variantStyles: Record<BadgeVariant, { bg: string; text: string; border: string }> = {
     default: {
         bg: "bg-badge-background",
@@ -102,7 +74,6 @@ const sizeStyles: Record<BadgeSize, string> = {
     lg: "text-sm px-3 py-1.5 gap-2",
 };
 
-// ========== Badge Component ==========
 const Badge = React.forwardRef<HTMLSpanElement, BadgeProps>(
     (
         {

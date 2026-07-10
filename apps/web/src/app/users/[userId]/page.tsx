@@ -8,7 +8,7 @@ import { useResourcesByUploaderId } from "@/hooks/queries/use-resources"
 import { usePageParam } from "@/hooks/use-page-param"
 import { PageStateHandler, Breadcrumbs } from "@/components/layout"
 import { UserAvatar } from "@/components/common/user"
-import Pagination from "@/components/common/Pagination"
+import Pagination from "@/components/ui/Pagination"
 import Button from "@/components/ui/Button"
 import Loader from "@/components/ui/Loader"
 import { SemesterLabel } from "@/types/entities"
@@ -152,7 +152,6 @@ const UserDetailsContent = ({ userId }: { userId: number }) => {
                                         {resourcesData?.meta?.total ?? 0}
                                     </span>
                                 </div>
-                                {/* Placeholder upvote count - see docs/todo.md, no upvote system exists yet */}
                                 <div className="flex items-center justify-between py-3">
                                     <span className="text-sm text-foreground-secondary">Upvotes</span>
                                     <span className="text-lg font-semibold text-foreground">

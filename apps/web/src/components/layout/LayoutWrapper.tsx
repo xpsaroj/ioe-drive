@@ -6,7 +6,7 @@ import { Toaster } from "sonner";
 
 import Navbar from "./Navbar";
 import MobileNav from "./MobileNav";
-import { Header } from "../sections/home";
+import Header from "./Header";
 import Footer from "./Footer";
 
 const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
@@ -21,7 +21,6 @@ const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
 
     const pagesWithFooter = ["/", "/about", "/contact"]
 
-    // For not logged-in users, show the home page header
     if (!isSignedIn) return (
         <div className="flex-col min-h-screen">
             <Header />

@@ -84,7 +84,6 @@ export function useUpdateResource(resourceId: number) {
             // off that cache will break until the next real refetch. Invalidate instead
             // so the next read refetches the complete shape.
             queryClient.invalidateQueries({ queryKey: resourcesKeys.byId(resourceId) });
-            // Invalidate list queries
             queryClient.invalidateQueries({ queryKey: resourcesKeys.all });
             // The edited resource may show up in the current user's uploads list too
             queryClient.invalidateQueries({ queryKey: meKeys.uploadedResources() });

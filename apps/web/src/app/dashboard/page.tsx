@@ -1,4 +1,4 @@
-import { DashboardContent } from "@/components/sections/dashboard";
+import { DashboardContent } from "@/components/dashboard";
 
 const DashboardPage = () => {
   return (

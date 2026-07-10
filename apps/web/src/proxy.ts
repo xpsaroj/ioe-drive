@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
 
-// Routes that require authentication - Allowing Resources routes for non-logged-in users too
 const isProtectedRoute = createRouteMatcher([
     "/dashboard(.*)",
     // "/resources(.*)" is intentionally public - browsing resources doesn't require sign-in
@@ -16,7 +15,6 @@ const isProtectedRoute = createRouteMatcher([
     "/onboarding",
 ]);
 
-// Routes that should redirect signed-in users away from them
 const isAuthPage = createRouteMatcher([
     '/sign-in(.*)',
     '/sign-up(.*)',
@@ -29,7 +27,6 @@ export default clerkMiddleware(async (auth, req) => {
         await auth.protect();
     }
 
-    // Redirect signed-in users away from auth pages
     if (isAuthenticated && isAuthPage(req)) {
         return NextResponse.redirect(new URL('/dashboard', req.url));
     }

@@ -6,8 +6,8 @@ import { ThemeProvider } from "@/providers/theme-provider";
 import { ClerkThemeProvider } from "@/providers/clerk-theme-provider";
 import { ClerkApiProvider } from "@/providers/ClerkApiProvider";
 import { QueryProvider } from '@/providers/query-provider';
-import { AuthStateWatcher } from "@/context/AuthStateWatcher";
-import { AppDataInitializer } from "@/context/AppDataInitializer";
+import { AuthStateWatcher } from "@/providers/AuthStateWatcher";
+import { AppDataInitializer } from "@/providers/AppDataInitializer";
 
 import { GlobalLoader, LayoutWrapper } from "@/components/layout";
 

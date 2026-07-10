@@ -7,8 +7,7 @@ import { useResource } from "@/hooks/queries/use-resources";
 import { useMe } from "@/hooks/queries/use-me";
 import Button from "@/components/ui/Button";
 import { PageStateHandler } from "@/components/layout";
-import { ResourceEditForm } from "@/components/forms/ResourceEditForm";
-import { ResourceFilesManager } from "@/components/common/resources";
+import { ResourceEditForm, ResourceFilesManager } from "@/components/common/resources";
 
 interface ResourceEditPageProps {
     params: Promise<{

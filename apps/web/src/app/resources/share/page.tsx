@@ -1,4 +1,4 @@
-import { ResourceUploadForm } from "@/components/forms/ResourceUploadForm";
+import { ResourceUploadForm } from "@/components/common/resources";
 
 const ResourceSharePage = () => {
     return (
