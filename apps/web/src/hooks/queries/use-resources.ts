@@ -1,7 +1,8 @@
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 import { resourcesApi } from '@/lib/api/resources-api';
 import { meKeys } from './use-me';
-import type { UpdateResourceInput } from '@/lib/validators/resources';
+import { moderationKeys } from './use-moderation';
+import type { ModerationReasonInput, UpdateResourceInput } from '@/lib/validators/resources';
 
 export const resourcesKeys = {
     all: ['resources'] as const,
@@ -258,6 +259,85 @@ export function useSearchSuggestions(q: string, limit?: number) {
         },
         enabled: trimmed.length >= MIN_SEARCH_QUERY_LENGTH,
         placeholderData: keepPreviousData,
+    });
+}
+
+/** Shared invalidation after any moderator action or a report - the resource's own
+ * detail/browse caches, the uploader's own uploads list (so they see the new status
+ * next time they check it), and the moderation queues (the resource may have just
+ * left the pending list, or a report may have just been filed/resolved). */
+function invalidateAfterModeration(queryClient: ReturnType<typeof useQueryClient>, resourceId: number) {
+    queryClient.invalidateQueries({ queryKey: resourcesKeys.byId(resourceId) });
+    queryClient.invalidateQueries({ queryKey: resourcesKeys.all });
+    queryClient.invalidateQueries({ queryKey: meKeys.uploadedResources() });
+    queryClient.invalidateQueries({ queryKey: moderationKeys.pending() });
+    queryClient.invalidateQueries({ queryKey: moderationKeys.reports() });
+}
+
+/** Approves a pending resource, making it publicly visible (moderator-only). */
+export function useApproveResource(resourceId: number) {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async () => {
+            const response = await resourcesApi.approveResource(resourceId);
+            if (!response.success) {
+                throw new Error(response.error || 'Failed to approve resource');
+            }
+            return response;
+        },
+        onSuccess: () => invalidateAfterModeration(queryClient, resourceId),
+    });
+}
+
+/** Rejects a pending or approved resource with a reason (moderator-only). Resubmittable
+ * - the uploader editing it resets it back to pending. */
+export function useRejectResource(resourceId: number) {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (data: ModerationReasonInput) => {
+            const response = await resourcesApi.rejectResource(resourceId, data);
+            if (!response.success) {
+                throw new Error(response.error || 'Failed to reject resource');
+            }
+            return response;
+        },
+        onSuccess: () => invalidateAfterModeration(queryClient, resourceId),
+    });
+}
+
+/** The harder moderator action: purges the resource's files and marks it permanently
+ * removed, with a reason the uploader can see on their own uploads page. */
+export function useRemoveResource(resourceId: number) {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (data: ModerationReasonInput) => {
+            const response = await resourcesApi.removeResource(resourceId, data);
+            if (!response.success) {
+                throw new Error(response.error || 'Failed to remove resource');
+            }
+            return response;
+        },
+        onSuccess: () => invalidateAfterModeration(queryClient, resourceId),
+    });
+}
+
+/** Reports an approved resource (any signed-in user other than its uploader) - stays
+ * live until a moderator reviews the report. */
+export function useReportResource(resourceId: number) {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (data: ModerationReasonInput) => {
+            const response = await resourcesApi.reportResource(resourceId, data);
+            if (!response.success) {
+                throw new Error(response.error || 'Failed to report resource');
+            }
+            return response;
+        },
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: moderationKeys.reports() }),
     });
 }
 

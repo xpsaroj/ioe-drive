@@ -1,9 +1,14 @@
-import { LayoutDashboard, NotebookPen, Library, UsersRound, Store, GraduationCap, CloudUpload, BookOpen, UserCircle, LucideIcon } from "lucide-react";
+import { LayoutDashboard, NotebookPen, Library, UsersRound, Store, GraduationCap, CloudUpload, BookOpen, UserCircle, ShieldCheck, UserCog, LucideIcon } from "lucide-react";
+
+import { UserRole } from "@/types/entities";
 
 export interface NavigationItem {
     name: string;
     href: string;
     icon: LucideIcon;
+    /** Only rendered for users whose role is in this list - filtered out at render
+     * time by Navbar/MobileNav entirely (not just hidden via CSS), for anyone else. */
+    allowedRoles?: UserRole[];
 }
 
 export interface NavigationGroup {
@@ -46,7 +51,35 @@ export const NAVIGATION_GROUPS: NavigationGroup[] = [
             { name: 'Profile', href: '/profile', icon: UserCircle },
         ],
     },
+    {
+        label: "Moderation",
+        items: [
+            {
+                name: 'Moderation',
+                href: '/pm/moderation',
+                icon: ShieldCheck,
+                allowedRoles: [UserRole.MODERATOR, UserRole.ADMIN],
+            },
+            {
+                name: 'Admin',
+                href: '/pm/admin',
+                icon: UserCog,
+                allowedRoles: [UserRole.ADMIN],
+            },
+        ],
+    },
 ];
+
+/** Drops role-gated items the given role can't see (and the whole group if that
+ * empties it out) - shared by Navbar and MobileNav so both navs agree on who sees
+ * what. `role` is undefined for a signed-out visitor, who never sees any gated item. */
+export const getVisibleNavigationGroups = (role?: UserRole): NavigationGroup[] =>
+    NAVIGATION_GROUPS
+        .map((group) => ({
+            ...group,
+            items: group.items.filter((item) => !item.allowedRoles || (!!role && item.allowedRoles.includes(role))),
+        }))
+        .filter((group) => group.items.length > 0);
 
 /** All nav hrefs across every group, used to resolve which item wins when a
  * pathname is nested under more than one of them (see isNavItemActive below). */

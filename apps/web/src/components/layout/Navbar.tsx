@@ -11,11 +11,13 @@ import ThemeToggle from "@/components/ui/ThemeToggle"
 import Logo from "./Logo"
 import WordmarkText from "./WordmarkText"
 import { UserMenu } from "./UserMenu"
+import { useMe } from "@/hooks/queries/use-me"
 
-import { NAVIGATION_GROUPS, isNavItemActive } from "@/constants/navigations"
+import { getVisibleNavigationGroups, isNavItemActive } from "@/constants/navigations"
 
 export default function Navbar() {
   const pathname = usePathname()
+  const { data: userData } = useMe()
 
   const [showDesktopNav, setShowDesktopNav] = useState(true)
 
@@ -60,7 +62,7 @@ export default function Navbar() {
       </div>
 
       <div className="h-full px-3 py-4 flex flex-col gap-6 overflow-y-auto">
-        {NAVIGATION_GROUPS.map((group) => (
+        {getVisibleNavigationGroups(userData?.role).map((group) => (
           <div key={group.label}>
             <h3 className="px-1 mb-2 text-[11px] font-display font-medium text-foreground-tertiary uppercase tracking-[0.15em]">
               {group.label}

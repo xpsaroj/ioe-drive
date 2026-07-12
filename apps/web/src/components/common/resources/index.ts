@@ -1,4 +1,4 @@
-export { default as ResourceCard } from "./ResourceCard";
+export { default as ResourceCard, STATUS_BADGE_VARIANT } from "./ResourceCard";
 export { default as ResourceList } from "./ResourceList";
 export { default as ResourceCardSkeleton } from "./ResourceCardSkeleton";
 export { default as ResourceFileItem, FILE_TYPE_META, DEFAULT_FILE_TYPE_META, type FileTypeMeta } from "./ResourceFileItem";
@@ -16,3 +16,6 @@ export { default as BookmarkButton } from "./BookmarkButton";
 export { default as ResourceFilesManager } from "./ResourceFilesManager";
 export { ResourceEditForm } from "./ResourceEditForm";
 export { ResourceUploadForm } from "./ResourceUploadForm";
+export { default as ModerationActionModal } from "./ModerationActionModal";
+export { default as ModeratorActionBar } from "./ModeratorActionBar";
+export { default as ReportResourceButton } from "./ReportResourceButton";

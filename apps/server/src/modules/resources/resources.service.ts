@@ -2,6 +2,7 @@ import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 
 import { DRIZZLE } from "../../database/database.constants";
 import type { DrizzleDb } from "../../database/database.types";
+import type { AuthenticatedUser } from "../../common/guards/clerk-auth.guard";
 import { AzureBlobService } from "../../storage/azure-blob.service";
 import { ResourcesRepository } from "./resources.repository";
 import type { CreateResourceData, UpdateResourceData } from "./resources.types";
@@ -33,7 +34,7 @@ export class ResourcesService {
 
   async createResource(
     userId: number,
-    resourceData: Omit<CreateResourceData, "uploadedBy">,
+    resourceData: Omit<CreateResourceData, "uploadedBy" | "status">,
     resourceFiles: Express.Multer.File[],
   ) {
     const existingSubject = await this.db.query.subjectOfferingsTable.findFirst({
@@ -47,7 +48,10 @@ export class ResourcesService {
 
     const uploadedFiles = await this.uploadFiles(resourceFiles);
 
-    return this.resourcesRepository.create({ ...resourceData, uploadedBy: userId }, uploadedFiles);
+    return this.resourcesRepository.create(
+      { ...resourceData, uploadedBy: userId, status: "PENDING" },
+      uploadedFiles,
+    );
   }
 
   async updateResource(userId: number, resourceId: number, updateData: UpdateResourceData) {
@@ -57,7 +61,21 @@ export class ResourcesService {
       throw new NotFoundException("Resource not found");
     }
 
-    return this.resourcesRepository.update(resourceId, userId, updateData);
+    // Editing a rejected resource is treated as an implicit resubmission - back to the
+    // review queue, with the previous moderation verdict cleared. Approved/pending
+    // resources are left as-is by an edit.
+    const resubmission =
+      existingResource.status === "REJECTED"
+        ? {
+            status: "PENDING" as const,
+            moderatedBy: null,
+            moderationReason: null,
+            moderationNote: null,
+            moderatedAt: null,
+          }
+        : {};
+
+    return this.resourcesRepository.update(resourceId, userId, { ...updateData, ...resubmission });
   }
 
   async deleteResource(userId: number, resourceId: number): Promise<void> {
@@ -103,12 +121,30 @@ export class ResourcesService {
     await this.resourcesRepository.deleteFile(fileId);
   }
 
-  /** Any signed-in user can call this for any resource's file - unlike edit/delete,
-   * downloading isn't restricted to the resource's uploader. */
-  async getFileDownloadUrl(resourceId: number, fileId: number, forceDownload = false): Promise<string> {
+  /** Any signed-in user can call this for any APPROVED resource's file - unlike edit/
+   * delete, downloading isn't restricted to the resource's uploader. A file belonging
+   * to a PENDING/REJECTED/REMOVED resource is only downloadable by that resource's
+   * uploader or a moderator/admin, mirroring findResourceById's visibility rule -
+   * everyone else gets the same 404 as a nonexistent file. */
+  async getFileDownloadUrl(
+    resourceId: number,
+    fileId: number,
+    viewer: AuthenticatedUser,
+    forceDownload = false,
+  ): Promise<string> {
     const file = await this.resourcesRepository.findFile(resourceId, fileId);
 
     if (!file) {
+      throw new NotFoundException("File not found");
+    }
+
+    const isVisible =
+      file.resource.status === "APPROVED" ||
+      viewer.id === file.resource.uploadedBy ||
+      viewer.role === "MODERATOR" ||
+      viewer.role === "ADMIN";
+
+    if (!isVisible) {
       throw new NotFoundException("File not found");
     }
 
@@ -123,10 +159,22 @@ export class ResourcesService {
     });
   }
 
-  async findResourceById(resourceId: number) {
+  /** `viewer` is absent for an anonymous request (OptionalClerkAuthGuard). An APPROVED
+   * resource is visible to anyone; anything else (PENDING/REJECTED/REMOVED) only to its
+   * own uploader or a moderator - everyone else gets the same 404 as a nonexistent
+   * resource, so a pending resource's existence can't be probed for. */
+  async findResourceById(resourceId: number, viewer?: AuthenticatedUser) {
     const resource = await this.resourcesRepository.findById(resourceId);
 
     if (!resource) {
+      throw new NotFoundException("Resource not found");
+    }
+
+    const isVisible =
+      resource.status === "APPROVED" ||
+      (viewer && (viewer.id === resource.uploadedBy || viewer.role === "MODERATOR"));
+
+    if (!isVisible) {
       throw new NotFoundException("Resource not found");
     }
 
@@ -134,7 +182,7 @@ export class ResourcesService {
   }
 
   findResources(
-    filters: { offeringId?: number; userId?: number; q?: string },
+    filters: { offeringId?: number; userId?: number; q?: string; includeAllStatuses?: boolean },
     pagination: { limit: number; offset: number },
   ) {
     return this.resourcesRepository.findMany(filters, pagination);

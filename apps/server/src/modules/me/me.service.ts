@@ -41,9 +41,11 @@ export class MeService {
   }
 
   /** Delegates to ResourcesService.findResources - the exact same query as
-   * GET /api/resources?userId=, just with the filter fixed to the caller. */
+   * GET /api/resources?userId=, just with the filter fixed to the caller and every
+   * status included (not just APPROVED) - this is how an uploader sees their own
+   * pending/rejected/removed resources and any moderation reason attached to them. */
   getUploadedResources(userId: number, pagination: { limit: number; offset: number }) {
-    return this.resourcesService.findResources({ userId }, pagination);
+    return this.resourcesService.findResources({ userId, includeAllStatuses: true }, pagination);
   }
 
   getRecentlyAccessedResources(userId: number, pagination: { limit: number; offset: number }) {

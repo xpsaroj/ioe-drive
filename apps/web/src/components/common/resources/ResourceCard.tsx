@@ -2,11 +2,22 @@ import Link from "next/link";
 
 import ResourceFileList from "./ResourceFileList";
 import BookmarkButton from "./BookmarkButton";
-import Badge from "@/components/ui/Badge";
+import Badge, { type BadgeVariant } from "@/components/ui/Badge";
 import type { ResourceSummary } from "@/types/api";
 import { UploaderInfo } from "@/components/common/user";
 import { SubjectCodeTile } from "@/components/common/offering";
-import { ResourceTypeLabel } from "@/types/entities";
+import { ResourceStatus, ResourceStatusLabel, ResourceTypeLabel } from "@/types/entities";
+
+/** APPROVED isn't shown - every public browse card is APPROVED, so the badge would be
+ * pure noise there. It only appears where a non-APPROVED resource can show up at all:
+ * the uploader's own uploads list, the moderation queues, and the detail page (which
+ * reuses this same mapping - see the resource detail page). */
+export const STATUS_BADGE_VARIANT: Record<ResourceStatus, BadgeVariant> = {
+    [ResourceStatus.PENDING]: "warning",
+    [ResourceStatus.APPROVED]: "success",
+    [ResourceStatus.REJECTED]: "error",
+    [ResourceStatus.REMOVED]: "secondary",
+};
 
 interface ResourceCardProps {
     resource: ResourceSummary;
@@ -60,6 +71,11 @@ const ResourceCard = ({
                         {title}
                     </Link>
                     <Badge size="sm" className="ms-2 align-middle">{ResourceTypeLabel[type]}</Badge>
+                    {resource.status !== ResourceStatus.APPROVED && (
+                        <Badge size="sm" variant={STATUS_BADGE_VARIANT[resource.status]} className="ms-2 align-middle">
+                            {ResourceStatusLabel[resource.status]}
+                        </Badge>
+                    )}
                 </div>
                 <div className="flex items-center gap-1 shrink-0 border border-border p-0.5 rounded-lg">
                     <BookmarkButton resourceId={resource.id} />

@@ -1,5 +1,5 @@
 import { ProgramSummary } from "./academics.responses";
-import { Semester } from "../entities";
+import { Semester, UserRole } from "../entities";
 
 export interface ProfileSummary {
     id: number;
@@ -27,4 +27,12 @@ export interface UserProfileSummary {
     fullName: string;
     createdAt: string;
     profile: ProfileSummary;
+}
+
+/** The response shape of the admin role-change endpoint. */
+export interface UserSummary {
+    id: number;
+    email: string | null;
+    fullName: string;
+    role: UserRole;
 }
