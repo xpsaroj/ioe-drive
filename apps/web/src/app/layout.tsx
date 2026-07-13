@@ -3,6 +3,7 @@ import { Outfit, IBM_Plex_Mono } from "next/font/google";
 
 import "./globals.css";
 import { ThemeProvider } from "@/providers/theme-provider";
+import { MotionProvider } from "@/providers/motion-provider";
 import { ClerkThemeProvider } from "@/providers/clerk-theme-provider";
 import { ClerkApiProvider } from "@/providers/ClerkApiProvider";
 import { QueryProvider } from '@/providers/query-provider';
@@ -55,21 +56,23 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={`bg-background text-foreground min-h-screen ${outfit.className} ${plexMono.variable}`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <ClerkThemeProvider>
-            <ClerkApiProvider>
-              <QueryProvider>
-                <AuthStateWatcher>
-                  <AppDataInitializer>
-                    <GlobalLoader>
-                      <LayoutWrapper>
-                        {children}
-                      </LayoutWrapper>
-                    </GlobalLoader>
-                  </AppDataInitializer>
-                </AuthStateWatcher>
-              </QueryProvider>
-            </ClerkApiProvider>
-          </ClerkThemeProvider>
+          <MotionProvider>
+            <ClerkThemeProvider>
+              <ClerkApiProvider>
+                <QueryProvider>
+                  <AuthStateWatcher>
+                    <AppDataInitializer>
+                      <GlobalLoader>
+                        <LayoutWrapper>
+                          {children}
+                        </LayoutWrapper>
+                      </GlobalLoader>
+                    </AppDataInitializer>
+                  </AuthStateWatcher>
+                </QueryProvider>
+              </ClerkApiProvider>
+            </ClerkThemeProvider>
+          </MotionProvider>
         </ThemeProvider>
       </body>
     </html>

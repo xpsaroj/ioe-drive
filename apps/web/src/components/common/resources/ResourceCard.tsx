@@ -19,6 +19,8 @@ export const STATUS_BADGE_VARIANT: Record<ResourceStatus, BadgeVariant> = {
     [ResourceStatus.REMOVED]: "secondary",
 };
 
+const NEW_RESOURCE_MAX_AGE_MS = 3 * 24 * 60 * 60 * 1000;
+
 interface ResourceCardProps {
     resource: ResourceSummary;
     meta?: string;
@@ -49,6 +51,7 @@ const ResourceCard = ({
         month: "short",
         day: "numeric",
     });
+    const isNew = Date.now() - createdAt.getTime() < NEW_RESOURCE_MAX_AGE_MS;
 
     return (
         // Named group (group/card) so the title's hover underline responds to a
@@ -77,9 +80,12 @@ const ResourceCard = ({
                         </Badge>
                     )}
                 </div>
-                <div className="flex items-center gap-1 shrink-0 border border-border p-0.5 rounded-lg">
-                    <BookmarkButton resourceId={resource.id} />
-                    {actions}
+                <div className="flex items-center gap-2 shrink-0">
+                    {isNew && <Badge size="sm" variant="info">New</Badge>}
+                    <div className="flex items-center gap-1 border border-border p-0.5 rounded-lg">
+                        <BookmarkButton resourceId={resource.id} />
+                        {actions}
+                    </div>
                 </div>
             </div>
 

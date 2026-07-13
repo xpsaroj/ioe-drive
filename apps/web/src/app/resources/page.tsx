@@ -268,7 +268,16 @@ const ResourcesBrowseContent = () => {
                                     resource={resource}
                                 />
                             }
-                            emptyMessage="No resources available for this subject."
+                            emptyState={
+                                <>
+                                    <p className="text-sm text-foreground-tertiary">
+                                        No resources yet for this subject. Be the first to share one.
+                                    </p>
+                                    <Button href="/resources/share" size="sm" className="mt-2">
+                                        Share a Resource
+                                    </Button>
+                                </>
+                            }
                         />
                         <Pagination
                             page={page}

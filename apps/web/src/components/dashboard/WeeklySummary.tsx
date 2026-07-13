@@ -14,7 +14,7 @@ const WeeklySummary = () => (
         {/* flex-1 so this box stretches to match Jump Back In's card height on desktop
         (where the grid row's height is set by the taller column) - on mobile the two
         sections stack instead, so there's no extra height to fill, and this is a no-op. */}
-        <div className="flex-1 flex flex-col rounded-xl border border-border divide-y divide-border">
+        <div className="flex-1 flex flex-col rounded-xl border border-border bg-background-secondary divide-y divide-border">
             {WEEKLY_STATS.map(({ icon: Icon, label, value }) => (
                 <div key={label} className="flex-1 flex items-center justify-between gap-4 px-4 py-4">
                     <div className="flex items-center gap-2.5 text-sm text-foreground-secondary">

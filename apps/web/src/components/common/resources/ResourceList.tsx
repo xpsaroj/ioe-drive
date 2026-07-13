@@ -9,6 +9,8 @@ interface ResourceListProps<T> {
     error?: string | null;
     renderItem: (item: T) => ReactNode;
     emptyMessage?: string;
+    /** Overrides the default icon+message empty state, e.g. to add a CTA. */
+    emptyState?: ReactNode;
 }
 
 const ResourceList = <T,>({
@@ -17,6 +19,7 @@ const ResourceList = <T,>({
     error,
     renderItem,
     emptyMessage = "No resources found.",
+    emptyState,
 }: ResourceListProps<T>) => {
     if (loading) {
         return (
@@ -40,8 +43,12 @@ const ResourceList = <T,>({
     if (!resources || resources.length === 0) {
         return (
             <div className="flex flex-col items-center gap-2 rounded-xl border border-border py-16">
-                <Inbox className="size-5 text-foreground-tertiary" />
-                <p className="text-sm text-foreground-tertiary">{emptyMessage}</p>
+                {emptyState ?? (
+                    <>
+                        <Inbox className="size-5 text-foreground-tertiary" />
+                        <p className="text-sm text-foreground-tertiary">{emptyMessage}</p>
+                    </>
+                )}
             </div>
         )
     }

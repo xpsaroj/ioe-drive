@@ -12,12 +12,24 @@ import { useUpdateProfile } from "@/hooks/queries/use-me"
 import Select from "@/components/ui/Select"
 import Button from "@/components/ui/Button"
 import Loader from "@/components/ui/Loader"
+import { ScatteredCodeTiles, type ScatteredTile } from "@/components/decor"
 
 type FormValues = {
     programId: string
     semester: Semester | ""
     college: string
 }
+
+/** Scattered around the page, clear of the center ~60% where the card sits - surrounds
+ * the form instead of splitting the page into sections. */
+const ONBOARDING_TILES: ScatteredTile[] = [
+    { code: "BCT", top: "10%", left: "8%", rotate: -6, size: "size-11 text-xs", solid: true, float: true },
+    { code: "BEX", top: "82%", left: "12%", rotate: 4, size: "size-10 text-xs", float: true },
+    { code: "BEE", top: "14%", left: "86%", rotate: 5, size: "size-10 text-xs", float: true },
+    { code: "BCE", top: "80%", left: "84%", rotate: -4, size: "size-11 text-xs", solid: true, float: true },
+    { code: "BME", top: "46%", left: "4%", rotate: 7, size: "size-9 text-[10px]", float: true },
+    { code: "BAR", top: "44%", left: "92%", rotate: 3, size: "size-9 text-[10px]", float: true },
+]
 
 const OnBoardingPage = () => {
     const router = useRouter()
@@ -105,13 +117,15 @@ const OnBoardingPage = () => {
     }
 
     return (
-        <div className="min-h-screen flex justify-center items-center bg-background text-foreground md:p-8 p-6 max-w-7xl mx-auto">
-            <div className="w-full max-w-xl bg-card border rounded-xl md:p-8 p-6 shadow-sm">
+        <div className="relative overflow-hidden min-h-screen flex justify-center items-center bg-background text-foreground md:p-8 p-6 max-w-7xl mx-auto">
+            <ScatteredCodeTiles tiles={ONBOARDING_TILES} />
+
+            <div className="relative z-10 w-full max-w-xl bg-card border rounded-xl md:p-8 p-6 shadow-sm">
 
                 <div className="mb-6">
-                    <h1 className="text-2xl font-semibold">Complete your profile</h1>
+                    <h1 className="text-2xl font-semibold">One last step.</h1>
                     <p className="text-foreground-secondary text-sm mt-1">
-                        Add a few details to personalize your experience. You can skip this if you want.
+                        Tell us your program and semester so we can show you the right resources by default. You can skip this if you want.
                     </p>
                 </div>
 

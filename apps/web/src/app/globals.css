@@ -202,12 +202,15 @@
     /* Info badge text */
 
     /* ===== Card Colors ===== */
-    --color-card-background: #ffffff;
+    /* One step lighter than the page background (matches --color-background-secondary),
+       same relative step dark mode already uses below - so a card actually reads as a
+       card instead of blending into the page. */
+    --color-card-background: #fafafa;
     /* Card background */
     --color-card-border: #e5e5e5;
     /* Card border */
-    --color-card-hover: #fafafa;
-    /* Card hover state */
+    --color-card-hover: #f5f5f5;
+    /* Card hover state - matches --color-background-tertiary */
 
     /* ===== Header/Footer Colors ===== */
     --color-header-background: rgba(255, 255, 255, 0.8);

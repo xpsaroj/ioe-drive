@@ -4,6 +4,7 @@ import { Bookmark, File, History, UploadCloud } from "lucide-react";
 
 import StatStrip from "@/components/ui/StatStrip";
 import { JumpBackIn, ResourcePreviewTile } from "@/components/common/resources";
+import { BookSpines, DEFAULT_SHELF_SPINES } from "@/components/decor";
 import { useRecentResources, useBookmarkedResources, useUploadedResources } from "@/hooks/queries/use-me";
 import { getRelativeTime } from "@/utils/time";
 import { ResourceTypeLabel } from "@/types/entities";
@@ -68,7 +69,7 @@ const RecentlyBookmarkedPanel = ({ items }: { items: BookmarkedResourceItem[] })
         </div>
 
         {items.length > 0 ? (
-            <div className="rounded-xl border border-border divide-y divide-border">
+            <div className="rounded-xl border border-border bg-background-secondary divide-y divide-border">
                 {items.map((item) => (
                     <BookmarkListRow
                         key={item.resourceId}
@@ -91,16 +92,20 @@ const LibraryHub = () => {
 
     return (
         <div className="space-y-8">
-            <div className="space-y-2">
-                <p className="font-display text-xs tracking-[0.2em] uppercase text-foreground-tertiary">
-                    Library
-                </p>
-                <h1 className="text-2xl md:text-3xl font-bold text-foreground">
-                    My Library
-                </h1>
-                <p className="text-foreground-secondary text-base leading-relaxed">
-                    Everything tied to you: recently viewed, bookmarked, and uploaded resources.
-                </p>
+            <div className="relative overflow-hidden rounded-2xl border border-border bg-background-secondary p-6 sm:p-8">
+                <BookSpines spines={DEFAULT_SHELF_SPINES} />
+
+                <div className="relative z-10 space-y-2 max-w-md">
+                    <p className="font-display text-xs tracking-[0.2em] uppercase text-foreground-tertiary">
+                        Library
+                    </p>
+                    <h1 className="text-2xl md:text-3xl font-bold text-foreground">
+                        My Library
+                    </h1>
+                    <p className="text-foreground-secondary text-base leading-relaxed">
+                        Everything tied to you: recently viewed, bookmarked, and uploaded resources.
+                    </p>
+                </div>
             </div>
 
             <div className="pb-8 border-b border-border">

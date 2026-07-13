@@ -28,7 +28,7 @@ interface ResourcePreviewTileProps {
  * keep working independently instead of triggering the card's navigation.
  */
 const ResourcePreviewTile = ({ resourceId, title, subjectCode, typeLabel, timeLabel, uploader }: ResourcePreviewTileProps) => (
-    <div className="group/card relative flex flex-col gap-3 border rounded-xl p-4 transition-all duration-150 hover:border-accent hover:-translate-y-0.5 hover:shadow-md">
+    <div className="group/card relative flex flex-col gap-3 border border-border bg-card-background rounded-xl p-4 transition-all duration-150 hover:border-accent hover:bg-card-hover hover:-translate-y-0.5 hover:shadow-md">
         <Link
             href={`/resources/r/${resourceId}`}
             aria-label={title}

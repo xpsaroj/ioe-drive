@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowRight, ListChecks } from "lucide-react";
 
 import { SubjectHardnessBadge } from "@/components/common/offering";
+import { BookSpines, DEFAULT_SHELF_SPINES } from "@/components/decor";
 import Select from "@/components/ui/Select";
 import Loader from "@/components/ui/Loader";
 import { useAuth } from "@clerk/nextjs";
@@ -69,21 +70,25 @@ const OfferingsBrowseContent = () => {
     };
 
     const pageHeader = (
-        <div className="flex flex-col gap-4 pt-6 pb-6 md:flex-row md:items-start md:justify-between md:pt-8 border-b border-border">
-            <div>
-                <h1 className="text-2xl md:text-3xl font-bold text-foreground">Curriculum Directory</h1>
-                <p className="mt-1 max-w-2xl text-foreground-secondary">
-                    Filter by program and semester to find specific subject details.
-                </p>
-            </div>
-            {hasOfferings && (
-                <div className="flex shrink-0 items-center gap-2 self-start rounded-lg border border-border px-3 py-2">
-                    <ListChecks className="size-4 text-foreground-tertiary" />
-                    <p className="font-display text-xs uppercase tracking-wide text-foreground-secondary">
-                        Subjects: <span className="font-semibold text-foreground">{subjectOfferings.length}</span>
+        <div className="relative overflow-hidden rounded-2xl border border-border bg-background-secondary p-6 md:p-8">
+            <BookSpines spines={DEFAULT_SHELF_SPINES} />
+
+            <div className="relative z-10 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+                <div className="max-w-md">
+                    <h1 className="text-2xl md:text-3xl font-bold text-foreground">Curriculum Directory</h1>
+                    <p className="mt-1 text-foreground-secondary">
+                        Filter by program and semester to find specific subject details.
                     </p>
                 </div>
-            )}
+                {hasOfferings && (
+                    <div className="flex shrink-0 items-center gap-2 self-start rounded-lg border border-border bg-background px-3 py-2">
+                        <ListChecks className="size-4 text-foreground-tertiary" />
+                        <p className="font-display text-xs uppercase tracking-wide text-foreground-secondary">
+                            Subjects: <span className="font-semibold text-foreground">{subjectOfferings.length}</span>
+                        </p>
+                    </div>
+                )}
+            </div>
         </div>
     );
 
@@ -123,7 +128,7 @@ const OfferingsBrowseContent = () => {
     if (waitingForProfileDefault || pendingAutoRedirect) {
         return (
             <div className="min-h-screen bg-background text-foreground max-w-7xl mx-auto md:px-8 px-6 md:space-y-8 space-y-6">
-                <div>
+                <div className="pt-6 md:pt-8">
                     {pageHeader}
                     <div className="mt-6">{filterBar}</div>
                 </div>
@@ -136,7 +141,7 @@ const OfferingsBrowseContent = () => {
 
     return (
         <div className="min-h-screen bg-background text-foreground max-w-7xl mx-auto md:px-8 px-6 md:space-y-8 space-y-6">
-            <div>
+            <div className="pt-6 md:pt-8">
                 {pageHeader}
                 <div className="mt-6">{filterBar}</div>
                 {isSignedIn && authLoaded && !profilePending && !profileHasDefault && (
@@ -176,7 +181,7 @@ const OfferingsBrowseContent = () => {
                         <Link
                             key={offering.id}
                             href={`/offerings/${offering.id}`}
-                            className="group flex flex-col rounded-xl border border-border p-5 transition-colors hover:border-foreground-tertiary hover:bg-background-hover"
+                            className="group flex flex-col rounded-xl border border-border bg-card-background p-5 transition-colors hover:border-foreground-tertiary hover:bg-card-hover"
                         >
                             <div className="flex items-start justify-between gap-3">
                                 <span className="rounded-md border border-border px-2 py-1 font-display text-xs uppercase tracking-wide text-foreground-tertiary">
