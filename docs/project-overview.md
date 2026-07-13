@@ -1,6 +1,6 @@
 # IOE Drive - Project Overview
 
-This document is a snapshot of the project as of 2026-07-06. It exists so that anyone
+This document is a snapshot of the project as of 2026-07-13. It exists so that anyone
 (including future contributors and AI assistants) can get oriented quickly without having
 to re-read the entire codebase. Update it as the project evolves; treat it as living
 documentation rather than a historical record.
@@ -59,7 +59,7 @@ ioe-drive/
 ```
 
 There is no shared package between `apps/server` and `apps/web` — types are duplicated by
-hand on each side (see section 9).
+hand on each side (see section 10).
 
 ## 3. Architecture and tech stack
 
@@ -103,7 +103,8 @@ Tables:
   and the semester, plus `isElective`. Unique on (subjectId, semester, programId, year).
   This is the entity most of the app actually filters/browses by (not `subjects` or
   `programs` directly), since the same subject can be offered to multiple programs.
-- `users` — id, clerkUserId (unique), fullName, email; mirrors Clerk, created/updated via
+- `users` — id, clerkUserId (unique), fullName, email, `role` (user_role_enum: `USER`
+  default, `MODERATOR`, `ADMIN` — see section 9); mirrors Clerk, created/updated via
   webhook (see section 8).
 - `profiles` — one-to-one with users; bio, programId, semester, college,
   profilePictureUrl. When both `programId` and `semester` are set, the `/resources`
@@ -111,23 +112,37 @@ Tables:
 - `resources` — the generic resource entity (notes, past questions, assessment papers,
   lab sheets, books, etc.): title, description, `type` (resource_type_enum, required),
   offeringId (FK to `subject_offerings`), uploadedBy (FK to users, nullable via
-  `set null` on delete).
+  `set null` on delete), `status` (resource_status_enum: `PENDING`/`APPROVED`/`REJECTED`/
+  `REMOVED`, required), plus `moderatedBy`/`moderationReason`/`moderationNote`/
+  `moderatedAt` — a denormalized snapshot of the latest moderation decision, kept in sync
+  with (but not a replacement for) the `moderation_actions` history table below — see
+  section 9.
 - `resource_files` — one-to-many with resources; fileUrl, fileSize, originalFileName,
   blobName, mimeType, plus unused-so-far `compressedSize`/`compressionMethod` columns
   (no compression is implemented yet).
 - `user_recent_resources` — per-user "recently accessed" tracking, unique on (userId,
   resourceId), used for the dashboard and `/library` "Recently Accessed" lists (paginated,
-  see section 9; nothing is ever deleted from the table itself - fine at this project's
+  see section 10; nothing is ever deleted from the table itself - fine at this project's
   scale since the row count per user is bounded by distinct resources ever viewed, not by
   view count).
 - `user_bookmarked_resources` — per-user bookmarks, unique on (userId, resourceId). The
-  `/library/bookmarks` list itself is paginated (see section 9), but checking whether a
+  `/library/bookmarks` list itself is paginated (see section 10), but checking whether a
   given resource is bookmarked (for the bookmark icon shown on every resource card) goes
   through a separate, uncapped IDs-only endpoint instead.
+- `reports` — a report filed against an already-`APPROVED` resource: resourceId,
+  reportedBy, reason (moderation_reason_enum), note, status (`OPEN`/`RESOLVED`),
+  resolvedAt, resolvedBy. Unique on (resourceId, reportedBy) — one open report per user
+  per resource. See section 9.
+- `moderation_actions` — append-only history of every approve/reject/remove: resourceId,
+  actorId, action (`APPROVE`/`REJECT`/`REMOVE`), reason, note, createdAt. See section 9.
+- `role_changes` — append-only history of USER/MODERATOR role changes made through the
+  admin endpoint: userId, changedBy, previousRole, newRole, createdAt. Granting/revoking
+  `ADMIN` never goes through that endpoint, so it never appears here either — see
+  section 9.
 - `webhook_events` — svixId primary key + eventType, used purely for Clerk webhook
   idempotency (see section 8).
 
-Eleven migrations exist (`0000`..`0010`). Notable history visible in the migrations:
+Fifteen migrations exist (`0000`..`0014`). Notable history visible in the migrations:
 subjects.code widened to varchar(15) (`0008`); `notes.subject_id` renamed to
 `notes.offering_id` with the FK repointed from `subjects` to `subject_offerings` (`0009`)
 — i.e. notes were originally tied directly to a subject and were later moved to be tied
@@ -259,10 +274,56 @@ Clerk is the identity provider on both sides.
 - Route-level authorization on the API is coarse: whole controllers are gated with
   `@UseGuards(ClerkAuthGuard)` (`me`, `users`) or per-route (`resources` create/update).
   Reading resources/subjects/programs is public; only creating/updating resources and
-  anything under `/me` or `/users` requires auth. There is no role/admin concept yet —
-  every authenticated user has identical permissions.
+  anything under `/me` or `/users` requires auth. A role concept now exists on top of
+  this (`USER`/`MODERATOR`/`ADMIN`) — see section 9.
 
-## 9. API surface (apps/server)
+## 9. Roles and resource moderation
+
+Three roles live on `users.role` (`user_role_enum`): `USER` (default), `MODERATOR`,
+`ADMIN`. `ADMIN` includes every `MODERATOR` permission — checked via explicit
+`@Roles("MODERATOR", "ADMIN")` lists on each route (`common/decorators/roles.decorator.ts`
++ `common/guards/roles.guard.ts`, a standard Nest `Reflector`-based RBAC guard), not a
+hierarchy resolver — plus the ability to promote/demote other users between `USER` and
+`MODERATOR` (`PATCH /api/admin/users/role`, by email). Granting or revoking `ADMIN` itself
+is never done through the app, by design, only ever a direct database change:
+`UPDATE users SET role = 'ADMIN' WHERE email = '...';` (there's no seeded/scripted first-
+admin step — a `promote-moderator` seeder existed briefly during development and was
+deliberately removed in favor of this).
+
+Every resource carries a `status` (`resource_status_enum`: `PENDING`, `APPROVED`,
+`REJECTED`, `REMOVED`). New uploads start `PENDING` and are invisible everywhere except to
+their own uploader and moderators/admins — every public read path (`findMany`, `findById`,
+`searchSuggestions`, `findSimilar`, the recent/bookmarked joins) either filters to
+`APPROVED` or, for `findById`/the file-download-url route, checks the viewer's identity/
+role, so a resource pending review can't be browsed, searched, downloaded, or even
+confirmed to exist by anyone else (this parity between "visible on the detail page" and
+"downloadable" was a real gap fixed during a security pass — the download-url route was
+originally missed when the status model was added). A moderator can approve a pending
+resource, reject it with a reason (resubmittable — the owner editing a rejected resource
+resets it back to `PENDING`), or remove it (terminal — its files are purged from Azure,
+the row and moderation reason are kept so the uploader can see why). Every approve/reject/
+remove is recorded in an append-only `moderation_actions` table, kept separate from the
+"latest action" snapshot still cached directly on `resources` (`moderatedBy`/
+`moderationReason`/`moderationNote`/`moderatedAt` — what existing reads already use, so
+nothing else had to change to gain history for free). Role changes get the same
+treatment via a `role_changes` table.
+
+Any signed-in user other than the uploader can report an already-`APPROVED` resource with
+a structured reason (`reports` table, one per resource per reporter, unique-constrained).
+Reporting never hides the resource — it stays live until a moderator reviews the open-
+reports queue and either dismisses the report or acts on the resource (which auto-resolves
+any open reports against it). The reporter's identity (`reports.reportedBy`) and whoever
+dismissed a report (`reports.resolvedBy`) are only ever visible to moderators, never
+surfaced to the uploader.
+
+Frontend: `moderation` (pending queue, reports queue) and `admin` (role
+management — an email + USER/MODERATOR toggle) are role-gated both client-side (their nav
+entries don't render at all for unauthorized users) and, more importantly, server-side via
+the same `@Roles(...)` guards — the client-side gate is convenience/UX only. Both route
+groups are kept out of search engines via `noindex` response metadata rather than a
+`robots.txt` disallow rule, which would itself advertise the routes' existence.
+
+## 10. API surface (apps/server)
 
 Registered via Nest controllers, one feature module per domain under
 `apps/server/src/modules/*`:
@@ -287,17 +348,24 @@ Registered via Nest controllers, one feature module per domain under
   resource's files from Azure Blob Storage), `POST /:resourceId/files` (auth, must be
   the uploader; attach more files, same multipart shape as creation),
   `DELETE /:resourceId/files/:fileId` (auth, must be the uploader),
-  `GET /:resourceId/files/:fileId/download-url?download=true|false` (auth, any signed-in
-  user — not owner-gated) returns a short-lived Azure SAS URL for that file. See section
-  11 for ownership enforcement details and section 12 for the preview page built on this
-  endpoint.
+  `GET /:resourceId/files/:fileId/download-url?download=true|false` (auth; any signed-in
+  user for an `APPROVED` resource, only its uploader or a moderator/admin otherwise —
+  same visibility rule as `GET /:resourceId`, see section 9) returns a short-lived Azure
+  SAS URL for that file. See section 12 for ownership enforcement details and section 13
+  for the preview page built on this endpoint.
+- `POST /:resourceId/approve` / `POST /:resourceId/reject` / `POST /:resourceId/remove`
+  (moderator/admin only) and `POST /:resourceId/report` (any signed-in user but the
+  uploader) — see section 9.
+- `/api/moderation/pending` / `/api/moderation/reports` / `/api/moderation/reports/
+  :reportId/dismiss` (moderator/admin only) and `/api/admin/users/role` (admin only) —
+  see section 9.
 - `/api/programs` — `GET /`, list all programs (small, fixed set - not paginated).
 - `/api/subjects` — `GET /?programId=&semester=`, `GET /:subjectId`,
   `GET /upload?programId=&semester=` (subject list scoped for the upload form; always a
   small per-program/semester subset - not paginated).
 
 All routes under `/api` share one rate limiter (`@nestjs/throttler`): 500 req / 15 min,
-keyed by IP (not by user — see section 12); `/health` and the Clerk webhook opt out via
+keyed by IP (not by user — see section 14); `/health` and the Clerk webhook opt out via
 `@SkipThrottle()`. Responses follow a consistent envelope
 (`{ success, data?, message?, error?, meta? }`) via a global `ResponseInterceptor`
 (wraps every controller return value) and a global `HttpExceptionFilter` (shapes every
@@ -323,19 +391,23 @@ semester filter there) and a shared `<Pagination>` component
 reused across `/resources`, `/library/uploads`, `/library/bookmarks`, `/library/recent`,
 and another user's public profile uploads list.
 
-## 10. File uploads
+## 11. File uploads
 
 `storage/file-upload.config.ts` configures Nest's `FilesInterceptor` with in-memory
 Multer storage, a 10 MB per-file limit, max 5 files per request, and a `ParseFilePipe`
-(`FileTypeValidator` + `MaxFileSizeValidator`) restricting uploads to PDF, `.doc`/
-`.docx`, JPEG, PNG. Uploaded buffers are pushed straight to Azure Blob Storage
+(`FileTypeValidator` + `MaxFileSizeValidator`) restricting uploads to PDF, `.docx`, JPEG,
+PNG (`.doc` — the legacy binary format — was accepted early on and later dropped
+entirely: it's a much larger malware/macro attack surface than `.docx`, and had no
+inline-preview story anyway). Uploaded buffers are pushed straight to Azure Blob Storage
 (`storage/azure-blob.service.ts`) under a randomly generated blob name
 (`crypto.randomUUID()` + original extension); the resulting blob URL, size, original
-filename and MIME type are persisted per-file in `resource_files`. No image/PDF preview
+filename and MIME type are persisted per-file in `resource_files`. A new resource is
+always created `PENDING` (see section 9) regardless of file type. No image/PDF preview
 generation, virus scanning, or compression exists yet (the `compressedSize`/
-`compressionMethod` columns are placeholders for future work).
+`compressionMethod` columns are placeholders for future work); a client-side `.docx`
+inline previewer was attempted and reverted — see `todo.md`.
 
-## 11. Resource editing, deletion, and file management
+## 12. Resource editing, deletion, and file management
 
 Beyond create/read, resources can now be edited, deleted, and have their files managed
 after the fact:
@@ -391,7 +463,7 @@ Bugs found and fixed while building this:
   why toasts stayed white in dark mode; `LayoutWrapper` now passes
   `theme={resolvedTheme ?? "system"}` from `next-themes`.
 
-## 12. File preview
+## 13. File preview
 
 `/resources/r/[resourceId]/files/[fileId]` previews a single file inline instead of
 linking straight to a download (the link from `ResourceFileItem` used to point at a
@@ -414,11 +486,8 @@ route that never existed).
   layout so the preview pane takes the full width, and a small floating button
   (absolutely positioned, not part of the flex layout) brings it back.
 
-## 13. Known discrepancies / rough edges worth knowing about
+## 14. Known discrepancies / rough edges worth knowing about
 
-- **README deployment target is stale.** `README.md` says the API deploys to Render;
-  the actual CI (`.github/workflows/deploy-server.yml`) deploys to a self-managed VM over
-  SSH with `pm2`. Worth reconciling once the deployment story is finalized.
 - **Rate limiting is IP-only.** A hybrid limiter (higher, per-`userId` limits for
   authenticated users; stricter per-IP limits for guests) is planned, to avoid punishing
   campus NAT/shared-IP situations (a real concern for IOE hostel/lab wifi). The current
@@ -431,12 +500,10 @@ route that never existed).
 - **`/offerings` and `/offerings/[offeringId]` are placeholders/thin.** The list page is
   a static "Offerings here" stub; the detail page exists and is linked to from resource
   detail pages but wasn't deeply audited here.
-- **No admin/moderation tooling.** Anyone signed in can upload; there's no reporting,
-  takedown, or moderation flow for resources yet.
 - **No tests.** Neither app has a test suite configured today (CI only lints,
   typechecks, and builds).
 
-## 14. Local development
+## 15. Local development
 
 Two paths, both documented in `SETUP.md`:
 
@@ -468,7 +535,7 @@ typecheck, build) and `apps/web` (lint, build) that only trigger on changes unde
 respective path, a `merge-gatekeeper` workflow that requires those checks to pass before
 merge, and a deploy workflow for the server on push to `main`.
 
-## 15. Where things stand, in one paragraph
+## 16. Where things stand, in one paragraph
 
 The core "browse, upload, edit, and delete resources, scoped by program/semester/subject"
 loop is fully built end-to-end, consistently under the "resources" name from the

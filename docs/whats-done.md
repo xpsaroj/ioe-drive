@@ -43,8 +43,13 @@ A quick, high-level list of what already works. For the full picture see
 - Light/dark/system theming across the whole web app (`next-themes`), including Clerk's
   own hosted UI (`@clerk/themes`), on top of the existing token-based color system.
 - Inline file preview (`/resources/r/[resourceId]/files/[fileId]`) with a collapsible
-  details/file-switcher side panel, backed by short-lived Azure SAS URLs (auth-required,
-  not owner-gated).
+  details/file-switcher side panel, backed by short-lived Azure SAS URLs (visibility-
+  gated to the file's resource — see the moderation bullet below).
+- Resource moderation and roles: `USER`/`MODERATOR`/`ADMIN`, a pending-review workflow
+  (new uploads stay invisible until a moderator approves them; reject/remove with a
+  reason, both with append-only history), reporting on already-approved resources
+  (reporter identity hidden from the uploader), and an admin role-management page. See
+  `project-overview.md` section 9 for the full picture.
 - Centralized API error handling, request validation (`class-validator`), and basic
   IP-based rate limiting.
 - API rebuilt from Express onto NestJS: consistent Controller -> Service -> Repository

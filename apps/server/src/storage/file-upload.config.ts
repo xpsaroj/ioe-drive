@@ -8,7 +8,7 @@ export const MAX_RESOURCE_FILES = 5;
 const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
 
 const ALLOWED_MIME_TYPES =
-  /^(application\/pdf|application\/msword|application\/vnd\.openxmlformats-officedocument\.wordprocessingml\.document|image\/jpeg|image\/png)$/;
+  /^(application\/pdf|application\/vnd\.openxmlformats-officedocument\.wordprocessingml\.document|image\/jpeg|image\/png)$/;
 
 /**
  * Multer options for the resource-file upload field: in-memory storage (files are

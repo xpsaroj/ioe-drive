@@ -18,7 +18,7 @@ IOE Drive is designed to facilitate the sharing of academic resources among IOE 
 - Next.js 16 with App Router
 - Tailwind CSS for styling
 - Clerk for authentication
-- Redux Toolkit for state management
+- TanStack Query for server state management
 - Lucide React for icons
 - Zod and React Hook Form for form validation
 

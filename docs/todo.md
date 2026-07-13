@@ -9,8 +9,6 @@ essays here once something is actively being worked on.
 - [ ] Replace the flat IP-keyed rate limiter with a hybrid one: higher limits keyed by
       `userId` for authenticated requests, stricter limits keyed by IP for guests. Needed
       because campus/hostel wifi NATs put many students behind one IP.
-- [ ] Add basic moderation/reporting for uploaded resources (currently any signed-in user
-      can upload with no review or takedown path).
 - [ ] Design and build an upvote/reputation system for resources or uploaders — the public
       profile page currently shows a placeholder "Upvotes" count with no backing data or
       logic at all.
@@ -19,6 +17,12 @@ essays here once something is actively being worked on.
 
 - [ ] Build out the placeholder destinations: Community, Market/Marketplace, Alumni,
       Offerings list page — all currently one-line stub pages linked from the nav.
+- [ ] Inline preview for .docx files on the file preview page (currently only PDF/JPEG/PNG
+      render inline; .docx falls back to "download to view"). Tried `docx-preview` client-side
+      - rendering itself worked once the storage account's CORS was configured for JS `fetch()`,
+      but the rendered page's fixed real-world width kept overflowing its container and pushing
+      the rest of the layout off-screen; reverted for now, revisit the layout/containment
+      approach later.
 
 ## Housekeeping
 

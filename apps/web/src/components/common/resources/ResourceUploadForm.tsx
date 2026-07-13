@@ -61,12 +61,7 @@ export const ResourceUploadForm: React.FC = () => {
     const router = useRouter();
 
     const { data: programs, isPending: programsPending, error: programsLoadError } = usePrograms();
-    const {
-        mutate,
-        isPending: isUploading,
-        error: uploadError,
-        isSuccess: uploadSuccess,
-    } = useCreateResource();
+    const { mutate, isPending: isUploading } = useCreateResource();
 
     const [isDragging, setIsDragging] = useState(false);
 
@@ -165,7 +160,13 @@ export const ResourceUploadForm: React.FC = () => {
         data.files.forEach((file) => formData.append("resourceFile", file));
 
         mutate(formData, {
-            onSuccess: () => reset(),
+            onSuccess: () => {
+                toast.success("Resource submitted! It's pending review and will go live once a moderator approves it.");
+                reset();
+            },
+            onError: (error) => {
+                toast.error(error instanceof Error ? error.message : "Failed to upload resource.");
+            },
         });
     };
 
@@ -344,7 +345,7 @@ export const ResourceUploadForm: React.FC = () => {
                         <p className="font-semibold text-foreground">Drag & Drop files here</p>
                         <p className="mt-1 text-sm text-foreground-secondary">or click to browse from your computer</p>
                         <p className="mt-4 inline-block rounded-md bg-background-tertiary px-3 py-1.5 font-display text-[11px] uppercase tracking-wide text-foreground-tertiary">
-                            PDF, DOC/DOCX, JPG, PNG &middot; up to 10 MB &middot; max {MAX_FILES_PER_UPLOAD} files
+                            PDF, DOCX, JPG, PNG | up to 10 MB | max {MAX_FILES_PER_UPLOAD} files
                         </p>
                         <input
                             id="resourceFileInput"
@@ -404,19 +405,18 @@ export const ResourceUploadForm: React.FC = () => {
                 />
             </div>
 
-            {uploadError && (
-                <p className="text-sm text-error">Something went wrong. Please try again.</p>
-            )}
-
-            {uploadSuccess && (
-                <p className="text-sm text-success">Resource uploaded successfully! Thank you for contributing.</p>
-            )}
-
-            <div className="flex justify-end gap-3 border-t border-border pt-6">
+            <div className="flex flex-col gap-4 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between">
+                <p className="text-xs text-foreground-secondary sm:max-w-md">
+                    By uploading, you confirm this is your own work or you have permission to share it, and that it
+                    doesn&apos;t infringe on anyone&apos;s copyright. You&apos;re responsible for what you share -
+                    resources are reviewed before going live, and inappropriate or infringing content may be
+                    rejected or removed.
+                </p>
                 <Button
                     type="submit"
                     icon={<Send className="size-4" />}
                     disabled={isUploading}
+                    className="shrink-0"
                 >
                     {isUploading ? "Submitting..." : "Submit Resource"}
                 </Button>

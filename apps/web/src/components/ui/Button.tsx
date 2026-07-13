@@ -37,7 +37,7 @@ const variantStyles: Record<ButtonVariant, string> = {
     outline:
         "bg-transparent text-foreground border border-border hover:bg-foreground hover:text-foreground-inverse hover:border-foreground active:bg-button-primary-active focus:ring-foreground",
     destructive:
-        "bg-error text-error-foreground border border-transparent hover:bg-button-primary-hover active:bg-button-primary-active focus:ring-error",
+        "bg-error text-error-foreground border border-transparent hover:bg-error-hover active:bg-error-hover focus:ring-error",
 };
 
 const sizeStyles: Record<ButtonSize, string> = {

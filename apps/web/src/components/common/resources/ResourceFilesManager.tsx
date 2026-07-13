@@ -136,7 +136,7 @@ const ResourceFilesManager = ({ resource }: ResourceFilesManagerProps) => {
                 </p>
                 <p className="mt-1 text-xs text-foreground-secondary">or click to browse from your computer</p>
                 <p className="mt-3 inline-block rounded-md bg-background-tertiary px-2.5 py-1 font-display text-[10px] uppercase tracking-wide text-foreground-tertiary">
-                    PDF, DOC/DOCX, JPG, PNG &middot; up to 10 MB &middot; max {MAX_FILES_PER_UPLOAD} files
+                    PDF, DOCX, JPG, PNG | up to 10 MB | max {MAX_FILES_PER_UPLOAD} files
                 </p>
                 <input
                     id="resourceFilesManagerInput"

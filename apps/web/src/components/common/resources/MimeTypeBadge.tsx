@@ -51,7 +51,6 @@ const specialMimeMap: Record<string, string> = {
     "vnd.openxmlformats-officedocument.wordprocessingml.document": "DOCX",
     "vnd.openxmlformats-officedocument.spreadsheetml.sheet": "XLSX",
     "vnd.openxmlformats-officedocument.presentationml.presentation": "PPTX",
-    "msword": "DOC",
     "vnd.ms-excel": "XLS",
     "vnd.ms-powerpoint": "PPT",
 };

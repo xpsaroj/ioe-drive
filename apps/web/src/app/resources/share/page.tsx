@@ -8,10 +8,6 @@ const ResourceSharePage = () => {
                 <p className="text-foreground-secondary mt-2">Upload notes, books, and past questions to help your peers succeed.</p>
             </div>
             <ResourceUploadForm />
-            <div className="text-center space-y-1">
-                <p className="text-sm text-foreground-secondary">By uploading, you agree to share content that is relevant and appropriate.</p>
-                <p className="text-xs text-foreground-tertiary">Inappropriate or misleading content may be removed by moderators.</p>
-            </div>
         </div>
     );
 };

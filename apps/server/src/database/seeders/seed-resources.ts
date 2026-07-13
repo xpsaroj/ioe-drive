@@ -28,7 +28,6 @@ const FAKE_FILE_TYPES: { mimeType: string; ext: string }[] = [
   { mimeType: "application/pdf", ext: "pdf" },
   { mimeType: "image/jpeg", ext: "jpg" },
   { mimeType: "image/png", ext: "png" },
-  { mimeType: "application/msword", ext: "doc" },
   { mimeType: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", ext: "docx" },
 ];
 
