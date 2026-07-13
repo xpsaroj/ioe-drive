@@ -9,9 +9,7 @@ import { RolesGuard } from "../../common/guards/roles.guard";
 import { buildPaginationMeta, getPaginationOffset } from "../../common/utils/pagination";
 import { ModerationService } from "./moderation.service";
 
-/** Every route here is MODERATOR-or-ADMIN-only - the frontend surfaces them at
- * /pm/moderation rather than a guessable /admin, but that's defense-in-depth only;
- * this guard pair is the actual gate. */
+/** Every route here is MODERATOR-or-ADMIN-only, enforced by this guard pair. */
 @Controller("moderation")
 @UseGuards(ClerkAuthGuard, RolesGuard)
 @Roles("MODERATOR", "ADMIN")

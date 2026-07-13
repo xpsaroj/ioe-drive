@@ -47,6 +47,13 @@ services:
       NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL: ${NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL:?NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL is required}
       NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL: ${NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL:?NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL is required}
       NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:?NEXT_PUBLIC_API_BASE_URL is required}
+      # Server-side code (generateMetadata, sitemap.ts) runs inside this container, where
+      # "localhost" doesn't reach the server container the way NEXT_PUBLIC_API_BASE_URL's
+      # host-facing address does - this points it at the server's Compose service name
+      # instead. Hardcoded (not sourced from .env) since it's purely a Compose-internal
+      # networking detail, not something that varies by environment/host.
+      API_INTERNAL_URL: http://server:4000/api
+      NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-https://ioedrive.vercel.app}
     volumes:
       - ./apps/web:/app
       - /app/node_modules

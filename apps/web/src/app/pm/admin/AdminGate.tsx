@@ -7,7 +7,7 @@ import { useMe } from "@/hooks/queries/use-me";
 import { UserRole } from "@/types/entities";
 
 /**
- * Role gate + shared shell for every /pm/admin page - redirects non-admins away
+ * Role gate + shared shell for every admin page - redirects non-admins away
  * rather than rendering anything, on top of the real server-side @Roles("ADMIN")
  * guard the admin endpoint already enforces (this is convenience/UX, not the security
  * boundary). A client component so it can read useMe() - the noindex metadata that

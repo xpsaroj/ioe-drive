@@ -319,9 +319,8 @@ surfaced to the uploader.
 Frontend: `moderation` (pending queue, reports queue) and `admin` (role
 management — an email + USER/MODERATOR toggle) are role-gated both client-side (their nav
 entries don't render at all for unauthorized users) and, more importantly, server-side via
-the same `@Roles(...)` guards — the client-side gate is convenience/UX only. Both route
-groups are kept out of search engines via `noindex` response metadata rather than a
-`robots.txt` disallow rule, which would itself advertise the routes' existence.
+the same `@Roles(...)` guards — the client-side gate is convenience/UX only. Both are
+kept out of search engines via `noindex` response metadata.
 
 ## 10. API surface (apps/server)
 

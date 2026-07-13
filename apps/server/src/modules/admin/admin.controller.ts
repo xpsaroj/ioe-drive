@@ -8,8 +8,7 @@ import { RolesGuard } from "../../common/guards/roles.guard";
 import { AdminService } from "./admin.service";
 import { ChangeUserRoleDto } from "./dto/change-user-role.dto";
 
-/** Every route here is ADMIN-only - the frontend surfaces it at /pm/admin, but the
- * @Roles("ADMIN") guard below is the actual gate. */
+/** Every route here is ADMIN-only, enforced by the @Roles("ADMIN") guard below. */
 @Controller("admin")
 @UseGuards(ClerkAuthGuard, RolesGuard)
 @Roles("ADMIN")

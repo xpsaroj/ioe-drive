@@ -14,7 +14,7 @@ const TABS = [
 ];
 
 /**
- * Role gate + shared shell for every /pm/moderation page - redirects non-moderators
+ * Role gate + shared shell for every moderation page - redirects non-moderators
  * away rather than rendering anything, on top of the real server-side @Roles guard
  * every moderation endpoint already enforces (this is convenience/UX, not the
  * security boundary). A client component so it can read useMe() - the noindex

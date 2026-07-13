@@ -10,6 +10,7 @@ import { AuthStateWatcher } from "@/providers/AuthStateWatcher";
 import { AppDataInitializer } from "@/providers/AppDataInitializer";
 
 import { GlobalLoader, LayoutWrapper } from "@/components/layout";
+import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
 // Display/technical face used sparingly for the wordmark and nav "eyebrow" labels
@@ -17,8 +18,32 @@ const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
 const plexMono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["500", "600"], variable: "--font-plex-mono" });
 
 export const metadata: Metadata = {
-  title: "IOE Drive",
-  description: "A unified digital space for IOE students.",
+  metadataBase: new URL(SITE_URL),
+  title: {
+    default: `${SITE_NAME} - Academic Resources for IOE Students`,
+    template: `%s | ${SITE_NAME}`,
+  },
+  description: SITE_DESCRIPTION,
+  keywords: [
+    "IOE", "Institute of Engineering", "Tribhuvan University", "IOE notes",
+    "IOE past questions", "IOE Drive", "engineering notes Nepal", "IOE Pulchowk",
+    "IOE Thapathali", "IOE syllabus",
+  ],
+  openGraph: {
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    url: "/",
+    siteName: SITE_NAME,
+    images: [{ url: "/images/home/logo.png", width: 283, height: 303, alt: SITE_NAME }],
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary",
+    title: SITE_NAME,
+    description: SITE_DESCRIPTION,
+    images: ["/images/home/logo.png"],
+  },
 };
 
 export default function RootLayout({
