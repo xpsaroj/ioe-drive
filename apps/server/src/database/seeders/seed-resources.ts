@@ -129,6 +129,7 @@ async function seedResources() {
           type,
           offeringId: offering.id,
           uploadedBy: uploader.id,
+          status: "APPROVED",
         },
         files,
       );

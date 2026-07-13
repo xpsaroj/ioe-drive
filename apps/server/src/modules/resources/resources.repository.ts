@@ -60,7 +60,7 @@ export const RESOURCE_DETAIL_RELATIONS = {
  * shared by searchSuggestions and findSimilar below, which both render the same kind
  * of row. Deliberately excludes everything RESOURCE_DETAIL_RELATIONS carries that a
  * preview row never renders: description, uploader, and the files list. */
-const RESOURCE_PREVIEW_RELATIONS = {
+export const RESOURCE_PREVIEW_RELATIONS = {
   subjectOffering: {
     columns: { id: true },
     with: {
@@ -165,11 +165,14 @@ export class ResourcesRepository {
   }
 
   /** Scoped to a specific resourceId, so a file id can't be used to reach into a
-   * different resource than the one the caller is authorized for. */
+   * different resource than the one the caller is authorized for. Carries the parent
+   * resource's status/uploadedBy too, so callers that need to check visibility (e.g.
+   * getFileDownloadUrl) don't need a second query. */
   findFile(resourceId: number, fileId: number) {
     return this.db.query.resourceFilesTable.findFirst({
       where: (fields, { and, eq }) => and(eq(fields.id, fileId), eq(fields.resourceId, resourceId)),
       columns: { id: true, blobName: true, originalFileName: true },
+      with: { resource: { columns: { status: true, uploadedBy: true } } },
     });
   }
 
@@ -178,10 +181,14 @@ export class ResourcesRepository {
   }
 
   async findMany(
-    filters: { offeringId?: number; userId?: number; q?: string },
+    filters: { offeringId?: number; userId?: number; q?: string; includeAllStatuses?: boolean },
     pagination: { limit: number; offset: number },
   ) {
     const conditions = [];
+
+    if (!filters.includeAllStatuses) {
+      conditions.push(eq(resourcesTable.status, "APPROVED"));
+    }
 
     if (filters.offeringId) {
       conditions.push(eq(resourcesTable.offeringId, filters.offeringId));
@@ -217,7 +224,10 @@ export class ResourcesRepository {
    * nothing downstream needs the nested shape once it's this narrow. */
   async searchSuggestions(q: string, limit: number) {
     const results = await this.db.query.resourcesTable.findMany({
-      where: or(ilike(resourcesTable.title, `%${q}%`), ilike(resourcesTable.description, `%${q}%`)),
+      where: and(
+        eq(resourcesTable.status, "APPROVED"),
+        or(ilike(resourcesTable.title, `%${q}%`), ilike(resourcesTable.description, `%${q}%`)),
+      ),
       orderBy: [desc(resourcesTable.createdAt)],
       limit,
       columns: { id: true, title: true, type: true },
@@ -238,7 +248,11 @@ export class ResourcesRepository {
    * above, for the same reason (a compact row, not the full detail shape). */
   async findSimilar(resourceId: number, offeringId: number, limit: number) {
     const results = await this.db.query.resourcesTable.findMany({
-      where: and(eq(resourcesTable.offeringId, offeringId), ne(resourcesTable.id, resourceId)),
+      where: and(
+        eq(resourcesTable.status, "APPROVED"),
+        eq(resourcesTable.offeringId, offeringId),
+        ne(resourcesTable.id, resourceId),
+      ),
       orderBy: [desc(resourcesTable.createdAt)],
       limit,
       columns: { id: true, title: true, type: true },

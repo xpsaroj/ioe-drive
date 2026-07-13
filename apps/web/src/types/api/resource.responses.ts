@@ -1,6 +1,6 @@
 import { UploaderSummary } from "./user.responses";
 import { SubjectSummary, SubjectOfferingSummary } from "./academics.responses";
-import { ResourceType } from "../entities";
+import { ModerationReason, ResourceStatus, ResourceType } from "../entities";
 
 export interface ResourceFileSummary {
     id: number;
@@ -21,6 +21,11 @@ export interface ResourceSummary {
 
     offeringId: number;
     uploadedBy?: number;
+    status: ResourceStatus;
+    moderatedBy?: number;
+    moderationReason?: ModerationReason;
+    moderationNote?: string;
+    moderatedAt?: string;
 
     subjectOffering: SubjectOfferingSummary & {
         subject: SubjectSummary;

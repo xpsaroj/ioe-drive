@@ -12,10 +12,19 @@ import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import Loader from "@/components/ui/Loader";
 import type { BreadcrumbItem } from "@/components/layout";
-import { ResourceFileList, ResourcePageStateHandler, EditResourceButton, DeleteResourceButton, BookmarkButton } from "@/components/common/resources";
+import {
+    ResourceFileList,
+    ResourcePageStateHandler,
+    EditResourceButton,
+    DeleteResourceButton,
+    BookmarkButton,
+    ModeratorActionBar,
+    ReportResourceButton,
+    STATUS_BADGE_VARIANT,
+} from "@/components/common/resources";
 import { UploaderInfo } from "@/components/common/user";
 import { SubjectCodeTile } from "@/components/common/offering";
-import { ResourceTypeLabel, SemesterLabel } from "@/types/entities";
+import { isModeratorOrAdmin, ResourceStatus, ResourceStatusLabel, ResourceTypeLabel, SemesterLabel } from "@/types/entities";
 
 interface ResourceDetailPageProps {
     params: Promise<{
@@ -36,6 +45,7 @@ const ResourceDetailContent = ({
     const { data: resource, isPending, error } = useResource(resourceId);
     const { data: userData } = useMe();
     const isOwner = !!userData && !!resource?.uploadedBy && userData.id === resource.uploadedBy;
+    const isModerator = isModeratorOrAdmin(userData?.role);
 
     const { data: offeringDetails } = useSubjectDetails(resource?.subjectOffering.id ?? 0);
     const { data: similarResources, isPending: similarPending } = useSimilarResources(resourceId, SIMILAR_RESOURCES_SHOWN);
@@ -88,7 +98,12 @@ const ResourceDetailContent = ({
     const title = resource ? (
         <>
             {resource.title}
-            <Badge size="sm" className="align-middle">{ResourceTypeLabel[resource.type]}</Badge>
+            <Badge size="sm" className="ms-2 align-middle">{ResourceTypeLabel[resource.type]}</Badge>
+            {resource.status !== ResourceStatus.APPROVED && (
+                <Badge size="sm" variant={STATUS_BADGE_VARIANT[resource.status]} className="ms-2 align-middle">
+                    {ResourceStatusLabel[resource.status]}
+                </Badge>
+            )}
         </>
     ) : "Resource Details";
 
@@ -160,7 +175,7 @@ const ResourceDetailContent = ({
                     />
 
                     {userData && (
-                        <div className="grid grid-cols-2 gap-2 sm:flex sm:w-auto sm:items-center sm:shrink-0">
+                        <div className="flex flex-wrap items-center gap-2 sm:w-auto sm:shrink-0">
                             <BookmarkButton resourceId={resource.id} showLabel />
                             <Button
                                 icon={<Download className="size-4" />}
@@ -173,6 +188,7 @@ const ResourceDetailContent = ({
                     )}
                 </div>
 
+
                 <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
                     <div className="space-y-8 lg:col-span-2">
                         <div className="rounded-xl border border-border p-6">
@@ -183,6 +199,17 @@ const ResourceDetailContent = ({
                         <div className="rounded-xl border border-border p-6">
                             <ResourceFileList resourceFiles={files} />
                         </div>
+
+                        {/* Mutually exclusive: a moderator/admin gets direct action
+                        controls; anyone else who isn't the uploader gets a way to flag
+                        the resource instead - never both in the same spot. */}
+                        {isModerator ? (
+                            <ModeratorActionBar resourceId={resource.id} status={resource.status} />
+                        ) : (
+                            !isOwner && resource.status === ResourceStatus.APPROVED && userData && (
+                                <ReportResourceButton resourceId={resource.id} />
+                            )
+                        )}
                     </div>
 
                     <div className="space-y-6">

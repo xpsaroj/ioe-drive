@@ -2,7 +2,7 @@ import { apiClient } from "./api-client";
 import { appendPaginationParams, type PaginationParams } from "./pagination";
 import type { Resource } from "@/types/entities";
 import type { ApiResponse, EmptyApiResponse, PaginatedApiResponse, ResourceSummary, ResourceSuggestion } from "@/types/api";
-import type { UpdateResourceInput } from "../validators/resources";
+import type { ModerationReasonInput, UpdateResourceInput } from "../validators/resources";
 
 const RESOURCES_API_BASE_URL = "/resources";
 
@@ -67,5 +67,21 @@ export const resourcesApi = {
     async getSimilarResources(resourceId: number, limit?: number): Promise<ApiResponse<ResourceSuggestion[]>> {
         const query = limit ? `?limit=${limit}` : "";
         return apiClient.get<ApiResponse<ResourceSuggestion[]>>(`${RESOURCES_API_BASE_URL}/${resourceId}/similar${query}`);
+    },
+
+    async approveResource(resourceId: number): Promise<ApiResponse<Resource>> {
+        return apiClient.post<ApiResponse<Resource>>(`${RESOURCES_API_BASE_URL}/${resourceId}/approve`);
+    },
+
+    async rejectResource(resourceId: number, data: ModerationReasonInput): Promise<ApiResponse<Resource>> {
+        return apiClient.post<ApiResponse<Resource>>(`${RESOURCES_API_BASE_URL}/${resourceId}/reject`, data);
+    },
+
+    async removeResource(resourceId: number, data: ModerationReasonInput): Promise<ApiResponse<Resource>> {
+        return apiClient.post<ApiResponse<Resource>>(`${RESOURCES_API_BASE_URL}/${resourceId}/remove`, data);
+    },
+
+    async reportResource(resourceId: number, data: ModerationReasonInput): Promise<EmptyApiResponse> {
+        return apiClient.post<EmptyApiResponse>(`${RESOURCES_API_BASE_URL}/${resourceId}/report`, data);
     },
 }

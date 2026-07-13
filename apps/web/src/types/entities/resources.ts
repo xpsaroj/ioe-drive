@@ -19,6 +19,36 @@ export const ResourceTypeLabel: Record<ResourceType, string> = {
     [ResourceType.OTHER]: "Other",
 };
 
+export enum ResourceStatus {
+    PENDING = "PENDING",
+    APPROVED = "APPROVED",
+    REJECTED = "REJECTED",
+    REMOVED = "REMOVED",
+}
+
+export const ResourceStatusLabel: Record<ResourceStatus, string> = {
+    [ResourceStatus.PENDING]: "Pending Review",
+    [ResourceStatus.APPROVED]: "Approved",
+    [ResourceStatus.REJECTED]: "Rejected",
+    [ResourceStatus.REMOVED]: "Removed",
+};
+
+export enum ModerationReason {
+    INAPPROPRIATE_CONTENT = "INAPPROPRIATE_CONTENT",
+    WRONG_SUBJECT = "WRONG_SUBJECT",
+    SPAM_OR_LOW_QUALITY = "SPAM_OR_LOW_QUALITY",
+    COPYRIGHT = "COPYRIGHT",
+    OTHER = "OTHER",
+}
+
+export const ModerationReasonLabel: Record<ModerationReason, string> = {
+    [ModerationReason.INAPPROPRIATE_CONTENT]: "Inappropriate content",
+    [ModerationReason.WRONG_SUBJECT]: "Wrong subject",
+    [ModerationReason.SPAM_OR_LOW_QUALITY]: "Spam or low quality",
+    [ModerationReason.COPYRIGHT]: "Copyright",
+    [ModerationReason.OTHER]: "Other",
+};
+
 export interface Resource {
     id: number;
     title: string;
@@ -26,6 +56,11 @@ export interface Resource {
     type: ResourceType;
     offeringId: number;
     uploadedBy?: number;
+    status: ResourceStatus;
+    moderatedBy?: number;
+    moderationReason?: ModerationReason;
+    moderationNote?: string;
+    moderatedAt?: string;
     createdAt: string;
     updatedAt: string;
 }

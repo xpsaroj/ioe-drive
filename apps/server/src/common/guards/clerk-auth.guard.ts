@@ -6,12 +6,13 @@ import type { Request } from "express";
 import { CLERK_CLIENT, type ClerkClient } from "../../clerk/clerk.constants";
 import { DRIZZLE } from "../../database/database.constants";
 import type { DrizzleDb } from "../../database/database.types";
-import { usersTable } from "../../database/schema";
+import { usersTable, type UserRole } from "../../database/schema";
 import { toFetchRequest } from "../utils/fetch-request";
 
 export interface AuthenticatedUser {
   id: number;
   clerkUserId: string;
+  role: UserRole;
 }
 
 export type RequestWithAuthUser = Request & { authUser?: AuthenticatedUser };
@@ -50,7 +51,7 @@ export class ClerkAuthGuard implements CanActivate {
 
     const user = await this.db.query.usersTable.findFirst({
       where: eq(usersTable.clerkUserId, clerkUserId),
-      columns: { id: true, clerkUserId: true },
+      columns: { id: true, clerkUserId: true, role: true },
     });
 
     if (!user) {

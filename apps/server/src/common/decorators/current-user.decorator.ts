@@ -11,3 +11,15 @@ export const CurrentUser = createParamDecorator((_data: unknown, ctx: ExecutionC
   const request = ctx.switchToHttp().getRequest<RequestWithAuthUser>();
   return request.authUser!;
 });
+
+/**
+ * Same as CurrentUser, but for routes guarded by @UseGuards(OptionalClerkAuthGuard) -
+ * `authUser` may be undefined (anonymous visitor), so this returns it as-is instead of
+ * asserting it's present.
+ */
+export const OptionalCurrentUser = createParamDecorator(
+  (_data: unknown, ctx: ExecutionContext): AuthenticatedUser | undefined => {
+    const request = ctx.switchToHttp().getRequest<RequestWithAuthUser>();
+    return request.authUser;
+  },
+);

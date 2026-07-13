@@ -1,11 +1,23 @@
 import type { Program, Semester } from "./academics";
 
+export enum UserRole {
+    USER = "USER",
+    MODERATOR = "MODERATOR",
+    ADMIN = "ADMIN",
+}
+
 export interface User {
     id: number;
     clerkUserId: string;
     fullName: string;
     email: string;
+    role: UserRole;
 }
+
+// ADMIN can do everything MODERATOR can (plus manage other users' roles), so anything
+// gated on "is this a moderator" should check this instead of UserRole.MODERATOR alone.
+export const isModeratorOrAdmin = (role?: UserRole): boolean =>
+    role === UserRole.MODERATOR || role === UserRole.ADMIN;
 
 export interface Profile {
     id: number;

@@ -6,8 +6,10 @@ import { ThrottlerGuard, ThrottlerModule } from "@nestjs/throttler";
 import { ClerkModule } from "./clerk/clerk.module";
 import { resolveEnvFilePath, validate } from "./config/env.validation";
 import { DatabaseModule } from "./database/database.module";
+import { AdminModule } from "./modules/admin/admin.module";
 import { HealthModule } from "./modules/health/health.module";
 import { MeModule } from "./modules/me/me.module";
+import { ModerationModule } from "./modules/moderation/moderation.module";
 import { ProgramsModule } from "./modules/programs/programs.module";
 import { ResourcesModule } from "./modules/resources/resources.module";
 import { SubjectsModule } from "./modules/subjects/subjects.module";
@@ -39,6 +41,8 @@ import { AzureBlobModule } from "./storage/azure-blob.module";
     UsersModule,
     MeModule,
     ResourcesModule,
+    ModerationModule,
+    AdminModule,
     WebhooksModule,
   ],
   providers: [
