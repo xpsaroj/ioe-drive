@@ -7,8 +7,7 @@ import SearchDialog from "./SearchDialog";
 export default function SearchBar() {
     const [isOpen, setIsOpen] = useState(false);
 
-    // Ctrl/Cmd+K opens search from anywhere - the universal convention, so worth
-    // supporting globally rather than only via this specific button.
+    // Ctrl/Cmd+K opens search from anywhere, not just via this button.
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {

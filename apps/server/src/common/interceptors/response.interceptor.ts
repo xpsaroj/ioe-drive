@@ -11,12 +11,7 @@ export interface SuccessResponseBody<T> {
   meta?: PaginationMeta;
 }
 
-/**
- * Wraps every successful controller return value into the { success, data, message?,
- * meta? } envelope apps/web's API client expects. A controller returns a bare value
- * for the common case, or ApiResponse.of(data, message, meta) when it needs to set
- * `message`/`meta`.
- */
+// Wraps every controller return value into the { success, data, message?, meta? } envelope apps/web expects.
 @Injectable()
 export class ResponseInterceptor<T> implements NestInterceptor<T, SuccessResponseBody<T>> {
   intercept(_context: ExecutionContext, next: CallHandler<T>): Observable<SuccessResponseBody<T>> {

@@ -11,22 +11,11 @@ interface ResourcePreviewTileProps {
     subjectCode?: string;
     typeLabel: string;
     timeLabel: string;
-    /** When known, renders an uploader row (avatar, name, timeLabel) instead of just
-     * showing timeLabel on its own - omit for previews of the viewer's own uploads,
-     * where naming them as the uploader would be redundant. */
+    /** Omit for previews of the viewer's own uploads, where naming the uploader is redundant. */
     uploader?: UploaderSummary;
 }
 
-/**
- * A compact "shelf" card for a resource preview - file icon, bookmark toggle, title,
- * subject + type, and (when known) who shared it and when. Used anywhere a small taste
- * of a resource list is shown (dashboard's Jump Back In, the library hub's bookmarked/
- * uploaded previews) instead of each place hand-rolling its own row.
- *
- * The whole card is one click target (a stretched overlay link), except the bookmark
- * button and the uploader's own link, which sit above it (relative + z-10) so they
- * keep working independently instead of triggering the card's navigation.
- */
+// Whole card is one stretched-link click target; bookmark button and uploader link sit above it (z-10) to stay independently clickable.
 const ResourcePreviewTile = ({ resourceId, title, subjectCode, typeLabel, timeLabel, uploader }: ResourcePreviewTileProps) => (
     <div className="group/card relative flex flex-col gap-3 border border-border bg-card-background rounded-xl p-4 transition-all duration-150 hover:border-accent hover:bg-card-hover hover:-translate-y-0.5 hover:shadow-md">
         <Link

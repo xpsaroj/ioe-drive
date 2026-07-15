@@ -39,8 +39,7 @@ const ProfilePage = () => {
         defaultValues: { bio: "", programId: "", semester: "", college: "" },
     });
 
-    // Keep the form in sync with the latest profile data - both on first load and
-    // after a successful save (so re-opening Edit always reflects what's saved).
+    // Keep the form in sync with the latest profile data, so re-opening Edit always reflects what's saved.
     useEffect(() => {
         if (!profile) return;
         reset({

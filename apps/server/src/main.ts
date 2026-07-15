@@ -10,9 +10,7 @@ import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
 import { ResponseInterceptor } from "./common/interceptors/response.interceptor";
 
 async function bootstrap() {
-  // rawBody:true keeps the normal JSON body parser for every route, but also stashes
-  // the untouched Buffer on req.rawBody - needed by the Clerk webhook route for
-  // signature verification (see modules/webhooks/webhooks.controller.ts).
+  // rawBody:true stashes the untouched Buffer on req.rawBody, needed by the Clerk webhook route.
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     rawBody: true,
   });
@@ -21,8 +19,7 @@ async function bootstrap() {
   const logger = new Logger("Bootstrap");
 
   if (configService.get<string>("NODE_ENV") === "production") {
-    // Render (or whatever reverse proxy sits in front of this app in prod) requires
-    // trusting the first proxy hop for correct client IP detection.
+    // The prod reverse proxy requires trusting the first hop for correct client IP detection.
     app.set("trust proxy", 1);
   }
 

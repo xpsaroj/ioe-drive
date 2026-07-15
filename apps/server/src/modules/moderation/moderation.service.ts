@@ -74,9 +74,7 @@ export class ModerationService {
     return updatedResource;
   }
 
-  /** The harder moderator action - unlike reject, not resubmittable. The resource row
-   * and its moderation reason/note are kept (so the uploader can see it happened and
-   * why), but its files are actually purged from Azure. */
+  // Unlike reject, not resubmittable - the row is kept, but its files are purged from Azure.
   async removeResource(moderatorId: number, resourceId: number, dto: ModerateResourceDto) {
     const resource = await this.moderationRepository.findForModeration(resourceId);
 

@@ -2,9 +2,7 @@ import { cn } from "@/utils/cn";
 
 interface SubjectCodeTileProps {
     code: string;
-    /** `sm` for compact inline rows (e.g. a resource card's footer); `md` for a
-     * standalone subject block (e.g. the resource detail page's "Related Subject"
-     * card). */
+    /** `sm` for compact inline rows; `md` for a standalone subject block. */
     size?: "sm" | "md";
     className?: string;
 }
@@ -14,9 +12,7 @@ const sizeClasses = {
     md: "size-10 rounded-lg text-sm",
 };
 
-/** The colored subject-initials square used wherever a subject/offering is referenced
- * compactly - keeps that visual language (and the exact two-letter truncation) in one
- * place instead of duplicated inline at each call site. */
+// Keeps the two-letter truncation and visual language in one place instead of duplicated per call site.
 const SubjectCodeTile = ({ code, size = "sm", className }: SubjectCodeTileProps) => (
     <span
         className={cn(

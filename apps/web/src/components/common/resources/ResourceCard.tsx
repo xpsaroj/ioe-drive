@@ -2,6 +2,8 @@ import Link from "next/link";
 
 import ResourceFileList from "./ResourceFileList";
 import BookmarkButton from "./BookmarkButton";
+import ResourceEngagementRow from "./ResourceEngagementRow";
+import NewBadge from "./NewBadge";
 import Badge, { type BadgeVariant } from "@/components/ui/Badge";
 import type { ResourceSummary } from "@/types/api";
 import { UploaderInfo } from "@/components/common/user";
@@ -18,8 +20,6 @@ export const STATUS_BADGE_VARIANT: Record<ResourceStatus, BadgeVariant> = {
     [ResourceStatus.REJECTED]: "error",
     [ResourceStatus.REMOVED]: "secondary",
 };
-
-const NEW_RESOURCE_MAX_AGE_MS = 3 * 24 * 60 * 60 * 1000;
 
 interface ResourceCardProps {
     resource: ResourceSummary;
@@ -42,7 +42,11 @@ const ResourceCard = ({
         type,
         files = [],
         uploader,
+        uploadedBy,
         subjectOffering,
+        upvoteCount,
+        downvoteCount,
+        downloadCount,
     } = resource;
 
     const createdAt = new Date(resource.createdAt);
@@ -51,7 +55,6 @@ const ResourceCard = ({
         month: "short",
         day: "numeric",
     });
-    const isNew = Date.now() - createdAt.getTime() < NEW_RESOURCE_MAX_AGE_MS;
 
     return (
         // Named group (group/card) so the title's hover underline responds to a
@@ -81,7 +84,7 @@ const ResourceCard = ({
                     )}
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
-                    {isNew && <Badge size="sm" variant="info">New</Badge>}
+                    <NewBadge createdAt={resource.createdAt} />
                     <div className="flex items-center gap-1 border border-border p-0.5 rounded-lg">
                         <BookmarkButton resourceId={resource.id} />
                         {actions}
@@ -114,6 +117,15 @@ const ResourceCard = ({
                     </span>
                 </Link>
             </div>
+
+            <ResourceEngagementRow
+                resourceId={resource.id}
+                upvoteCount={upvoteCount}
+                downvoteCount={downvoteCount}
+                downloadCount={downloadCount}
+                uploadedBy={uploadedBy}
+                className="pt-3 border-t border-border"
+            />
         </div>
     )
 }

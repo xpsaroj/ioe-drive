@@ -4,10 +4,7 @@ import { Pool } from "pg";
 
 import * as schema from "./schema";
 
-/**
- * Standalone DB connection for the seeder scripts, run via `tsx` outside of Nest's
- * app/DI lifecycle.
- */
+// Standalone DB connection for the seeder scripts, run via `tsx` outside Nest's DI lifecycle.
 const nodeEnv = process.env.NODE_ENV;
 
 if (nodeEnv === "test") {

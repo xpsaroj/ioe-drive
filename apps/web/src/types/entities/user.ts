@@ -14,8 +14,7 @@ export interface User {
     role: UserRole;
 }
 
-// ADMIN can do everything MODERATOR can (plus manage other users' roles), so anything
-// gated on "is this a moderator" should check this instead of UserRole.MODERATOR alone.
+// ADMIN can do everything MODERATOR can, so gate on this instead of UserRole.MODERATOR alone.
 export const isModeratorOrAdmin = (role?: UserRole): boolean =>
     role === UserRole.MODERATOR || role === UserRole.ADMIN;
 

@@ -18,9 +18,7 @@ import type { ModerateResourceData } from "../resources/resources.types";
 export class ModerationRepository {
   constructor(@Inject(DRIZZLE) private readonly db: DrizzleDb) {}
 
-  /** Just enough to authorize + drive a moderation action: current status (to reject
-   * an approve/reject/remove on a resource that isn't in an actionable state) and
-   * every attached file's blob name (so `remove` can purge them from Azure). */
+  // Just enough to authorize + drive a moderation action: status, and file blob names for `remove` to purge.
   findForModeration(resourceId: number) {
     return this.db.query.resourcesTable.findFirst({
       where: eq(resourcesTable.id, resourceId),
@@ -46,10 +44,7 @@ export class ModerationRepository {
     return { items, total: totalResult[0]?.total ?? 0 };
   }
 
-  /** Updates a resource's status/moderation fields and appends a row to
-   * moderation_actions in the same transaction, so the two can never drift apart -
-   * resourcesTable's moderation fields are just a quick-access copy of this newest
-   * row, not a separate source of truth (see moderationActionsTable in schema.ts). */
+  // Same transaction as the moderation_actions insert, so the two can never drift apart.
   async recordModerationAction(resourceId: number, action: ModerationAction, data: ModerateResourceData) {
     return this.db.transaction(async (tx) => {
       const [updatedResource] = await tx
@@ -107,9 +102,7 @@ export class ModerationRepository {
     return { items, total: totalResult[0]?.total ?? 0 };
   }
 
-  /** Marks every still-OPEN report against a resource RESOLVED - called when a
-   * moderator rejects/removes a resource, since that action already addresses whatever
-   * any pending reports on it were about. */
+  // Called when a moderator rejects/removes a resource - that action already addresses any open reports.
   async resolveReportsForResource(resourceId: number, resolvedBy: number): Promise<void> {
     await this.db
       .update(reportsTable)

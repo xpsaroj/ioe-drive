@@ -4,10 +4,7 @@ import { buildClerkClient } from "../../clerk/clerk-client.factory";
 import { profilesTable, usersTable } from "../schema";
 import { db } from "../seed-db";
 
-/**
- * Sync Clerk users to the local development database, including their profiles.
- * Restricted to Clerk development instances (sk_test_ keys) only.
- */
+// Restricted to Clerk development instances (sk_test_ keys) only.
 async function syncUsers() {
   const secretKey = process.env.CLERK_SECRET_KEY;
   const publishableKey = process.env.CLERK_PUBLISHABLE_KEY;

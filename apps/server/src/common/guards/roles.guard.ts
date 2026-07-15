@@ -5,11 +5,7 @@ import type { UserRole } from "../../database/schema";
 import { ROLES_KEY } from "../decorators/roles.decorator";
 import type { RequestWithAuthUser } from "./clerk-auth.guard";
 
-/**
- * Standard NestJS RBAC guard: reads the roles required by @Roles(...) (if any) and
- * checks them against the user ClerkAuthGuard already attached to the request. Runs
- * after ClerkAuthGuard in @UseGuards(...) - relies on `request.authUser` being set.
- */
+// Runs after ClerkAuthGuard in @UseGuards(...) - relies on `request.authUser` being set.
 @Injectable()
 export class RolesGuard implements CanActivate {
   constructor(private readonly reflector: Reflector) {}

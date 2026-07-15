@@ -16,9 +16,7 @@ export class AdminRepository {
     });
   }
 
-  /** Updates a user's role and appends a row to role_changes in the same transaction,
-   * mirroring how moderation actions keep their own history in sync (see
-   * ModerationRepository.recordModerationAction). */
+  // Same transaction as the role_changes insert, mirroring ModerationRepository.recordModerationAction.
   async changeUserRole(userId: number, changedBy: number, previousRole: UserRole, newRole: UserRole) {
     return this.db.transaction(async (tx) => {
       const [updatedUser] = await tx

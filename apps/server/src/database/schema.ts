@@ -16,14 +16,9 @@ export const SemesterEnum = pgEnum("semester_enum", ["1", "2", "3", "4", "5", "6
 export const YearEnum = pgEnum("year_enum", ["1", "2", "3", "4", "5"]);
 export const SubjectHardnessLevelEnum = pgEnum("subject_hardness_level_enum", ["EASY", "MEDIUM", "HARD", "VERY_HARD"]);
 export const ResourceTypeEnum = pgEnum("resource_type_enum", ["NOTE", "PAST_QUESTION", "ASSESSMENT", "LAB_SHEET", "BOOK", "OTHER"]);
-// ADMIN can do everything MODERATOR can (checked via explicit @Roles("MODERATOR",
-// "ADMIN") lists, not a hierarchy resolver - see roles.guard.ts), plus manage other
-// users' USER/MODERATOR role. Granting/revoking ADMIN itself is never done through the
-// app - only ever a direct database change.
+// Granting/revoking ADMIN itself is never done through the app - only ever a direct database change.
 export const UserRoleEnum = pgEnum("user_role_enum", ["USER", "MODERATOR", "ADMIN"]);
-// REJECTED is resubmittable (owner can edit -> back to PENDING); REMOVED is terminal
-// (moderator took the resource down for good - files get deleted, the row stays only
-// so the uploader can see it happened and why).
+// REJECTED is resubmittable (edit -> back to PENDING); REMOVED is terminal (files deleted, row kept).
 export const ResourceStatusEnum = pgEnum("resource_status_enum", ["PENDING", "APPROVED", "REJECTED", "REMOVED"]);
 export const ModerationReasonEnum = pgEnum("moderation_reason_enum", [
     "INAPPROPRIATE_CONTENT",
@@ -148,17 +143,17 @@ export const resourcesTable = pgTable("resources", {
         .notNull(),
     uploadedBy: integer("uploaded_by")
         .references(() => usersTable.id, { onDelete: "set null" }),
-    // No schema-level default - the application always sets this explicitly
-    // (see ResourcesService.createResource), same as `type` already does. The
-    // migration backfilled every pre-existing resource to APPROVED via a temporary
-    // default, then dropped it (see 0011/0012), mirroring how
-    // 0010_rename_notes_to_resources.sql added `type` to a populated table.
+    // No schema-level default - the application always sets this explicitly.
     status: ResourceStatusEnum("status").notNull(),
     moderatedBy: integer("moderated_by")
         .references(() => usersTable.id, { onDelete: "set null" }),
     moderationReason: ModerationReasonEnum("moderation_reason"),
     moderationNote: text("moderation_note"),
     moderatedAt: timestamp("moderated_at"),
+    // Denormalized counters, updated on vote/download rather than COUNT()'d per row.
+    upvoteCount: integer("upvote_count").notNull().default(0),
+    downvoteCount: integer("downvote_count").notNull().default(0),
+    downloadCount: integer("download_count").notNull().default(0),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at").defaultNow().notNull().$onUpdate(() => new Date()),
 },
@@ -226,6 +221,29 @@ export const userBookmarkedResourcesTable = pgTable("user_bookmarked_resources",
     ]
 );
 
+// One row per user's current vote; aggregates live on resourcesTable, not here.
+export const resourceVotesTable = pgTable("resource_votes", {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    resourceId: integer("resource_id")
+        .references(() => resourcesTable.id, { onDelete: "cascade" })
+        .notNull(),
+    userId: integer("user_id")
+        .references(() => usersTable.id, { onDelete: "cascade" })
+        .notNull(),
+    value: integer("value").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull().$onUpdate(() => new Date()),
+},
+    (table) => [
+        unique("unique_user_resource_vote").on(
+            table.userId,
+            table.resourceId
+        ),
+        index("idx_resource_votes_resource_id").on(table.resourceId),
+        index("idx_resource_votes_user_id").on(table.userId),
+    ]
+);
+
 export const reportsTable = pgTable("reports", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     resourceId: integer("resource_id")
@@ -249,12 +267,7 @@ export const reportsTable = pgTable("reports", {
     ]
 );
 
-// Append-only history of every approve/reject/remove decision made on a resource -
-// resourcesTable.moderatedBy/moderationReason/moderationNote/moderatedAt only ever
-// hold the latest one of these, kept as a quick-access copy for existing read paths
-// (My Uploads, the resource detail page) so nothing has to change there; this table is
-// the actual source of truth if you ever need the full history (e.g. a resource that
-// was rejected, resubmitted, then rejected again).
+// Append-only history; resourcesTable.moderatedBy/moderationReason/etc. only ever hold the latest one.
 export const moderationActionsTable = pgTable("moderation_actions", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     resourceId: integer("resource_id")
@@ -272,9 +285,7 @@ export const moderationActionsTable = pgTable("moderation_actions", {
     ]
 );
 
-// Append-only history of USER <-> MODERATOR role changes made through the admin role
-// endpoint. Granting/revoking ADMIN itself never goes through that endpoint (always a
-// direct database change), so it never shows up here either.
+// Granting/revoking ADMIN never goes through the admin endpoint, so it never shows up here.
 export const roleChangesTable = pgTable("role_changes", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     userId: integer("user_id")
@@ -324,14 +335,12 @@ export const subjectOfferingRelations = relations(subjectOfferingsTable, ({ one 
 
 export const userRelations = relations(usersTable, ({ one, many }) => ({
     profile: one(profilesTable),
-    // resourcesTable has two FKs to usersTable (uploadedBy, moderatedBy), and
-    // reportsTable/roleChangesTable each have two as well (reportedBy/resolvedBy,
-    // userId/changedBy) - relationName pairs disambiguate which "one" on the other
-    // side each of these corresponds to.
+    // relationName pairs disambiguate tables with two FKs to usersTable (uploadedBy/moderatedBy, etc.).
     resources: many(resourcesTable, { relationName: "uploadedResources" }),
     moderatedResources: many(resourcesTable, { relationName: "moderatedResources" }),
     recentResources: many(userRecentResourcesTable),
     bookmarkedResources: many(userBookmarkedResourcesTable),
+    votes: many(resourceVotesTable),
     reportsFiled: many(reportsTable, { relationName: "reportsFiled" }),
     reportsResolved: many(reportsTable, { relationName: "reportsResolved" }),
     moderationActions: many(moderationActionsTable),
@@ -368,6 +377,7 @@ export const resourceRelations = relations(resourcesTable, ({ one, many }) => ({
     files: many(resourceFilesTable),
     reports: many(reportsTable),
     moderationActions: many(moderationActionsTable),
+    votes: many(resourceVotesTable),
 }));
 
 export const resourceFileRelations = relations(resourceFilesTable, ({ one }) => ({
@@ -396,6 +406,17 @@ export const userBookmarkedResourceRelations = relations(userBookmarkedResources
     resource: one(resourcesTable, {
         fields: [userBookmarkedResourcesTable.resourceId],
         references: [resourcesTable.id]
+    }),
+}));
+
+export const resourceVoteRelations = relations(resourceVotesTable, ({ one }) => ({
+    resource: one(resourcesTable, {
+        fields: [resourceVotesTable.resourceId],
+        references: [resourcesTable.id]
+    }),
+    user: one(usersTable, {
+        fields: [resourceVotesTable.userId],
+        references: [usersTable.id]
     }),
 }));
 

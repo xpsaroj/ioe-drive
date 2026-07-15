@@ -18,9 +18,7 @@ const COPY: Record<AuthBrandPanelProps["variant"], { title: string; description:
     },
 };
 
-/** Real IOE bachelor's program codes - the same catalog vocabulary SubjectCodeTile
- * uses elsewhere in the app, scattered here as ambient texture rather than invented
- * decoration. */
+// Real IOE bachelor's program codes, not invented decoration.
 const SCATTERED_CODES: ScatteredTile[] = [
     { code: "BCT", top: "8%", left: "8%", rotate: -6, size: "size-14 text-sm", solid: true, float: true },
     { code: "BEX", top: "10%", left: "28%", rotate: 4, size: "size-12 text-xs", float: true },
@@ -31,10 +29,7 @@ const SCATTERED_CODES: ScatteredTile[] = [
     { code: "BIE", top: "28%", left: "88%", rotate: 6, size: "size-11 text-xs", float: true },
 ];
 
-/** The left-hand branding panel shown alongside the (untouched) Clerk sign-in/sign-up
- * widget - hidden below `lg` so mobile keeps the widget front and center. Deliberately
- * matches the page's own polarity (bg-background-secondary, not an inverted surface) so
- * it reads as one cohesive page in both themes instead of clashing with the header. */
+// Hidden below `lg` so mobile keeps the Clerk widget front and center.
 const AuthBrandPanel = ({ variant }: AuthBrandPanelProps) => {
     const { title, description } = COPY[variant];
 

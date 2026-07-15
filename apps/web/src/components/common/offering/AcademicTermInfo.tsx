@@ -20,9 +20,7 @@ const numberToRoman = (num: number): string => {
 }
 
 interface AcademicTermInfoProps extends Omit<SubjectOffering, "id" | "subjectId" | "programId"> {
-    /** Where the "Browse Resources" button should link - built by the caller since it
-     * needs the offering's id and the program it's actually taught under (see
-     * SubjectOfferingDetails, the only caller). */
+    /** Built by the caller (SubjectOfferingDetails) since it needs the offering's actual program. */
     browseResourcesHref: string;
 }
 

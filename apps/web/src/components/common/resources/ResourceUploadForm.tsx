@@ -109,8 +109,7 @@ export const ResourceUploadForm: React.FC = () => {
     const addFiles = (incoming: File[]) => {
         if (isUploading || incoming.length === 0) return;
 
-        // Silently drop exact duplicates (same name+size already queued) before running
-        // the shared type/size/count checks, which only need to reason about new files.
+        // Silently drop exact duplicates (same name+size already queued).
         const newFiles = incoming.filter(
             (file) => !files.some((existing) => existing.name === file.name && existing.size === file.size)
         );

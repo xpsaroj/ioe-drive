@@ -55,9 +55,7 @@ const FilePreviewPage = ({
         if (userData && resource) {
             markAsRecentlyAccessed(String(resource.id));
         }
-        // Depend on userData.id (not the userData object) so an unrelated profile
-        // refetch producing a new object reference doesn't re-fire this. mutate's
-        // identity is stable across renders (TanStack Query), so it's fine to omit.
+        // Depend on userData.id, not the object, so an unrelated profile refetch doesn't re-fire this.
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [userData?.id, resource?.id]);
 
@@ -71,9 +69,7 @@ const FilePreviewPage = ({
     };
 
     const handleImageError = () => {
-        // The signed URL is short-lived - if it's already expired by the time the
-        // browser actually requests it (e.g. a tab left open for a while), fetch a
-        // fresh one and try exactly once more before giving up.
+        // Signed URL may have expired (e.g. a tab left open a while) - retry once with a fresh one.
         if (!hasRetriedImage) {
             setHasRetriedImage(true);
             refetchDownloadUrl();
@@ -131,12 +127,7 @@ const FilePreviewPage = ({
     return (
         <div className="min-h-screen bg-background text-foreground p-0 max-w-7xl mx-auto">
             <div className="flex flex-col md:flex-row gap-6 items-start">
-                {/* Main preview pane - grows to fill the space the header/download bar used to take.
-                    A fixed viewport-relative height on mobile (rather than flex-1 alone) - in the
-                    md:flex-row layout flex-1's main axis is horizontal so h-screen applies to height
-                    normally, but stacked in flex-col, flex-1's flex-basis:0 would otherwise collapse
-                    this pane's height instead of respecting h-screen. Ordered after the side panel on
-                    mobile (details first, preview below) but before it in the desktop row. */}
+                {/* h-screen (not flex-1 alone) since flex-1's flex-basis:0 would collapse this pane's height when stacked in flex-col on mobile. */}
                 <div className="order-2 w-full h-screen md:order-1 md:flex-1 flex items-center justify-center">
                     {urlPending ? (
                         <Loader text="Preparing preview..." />
@@ -156,9 +147,7 @@ const FilePreviewPage = ({
                             className="w-full h-full"
                         />
                     ) : (
-                        // Signed URLs are per-request and short-lived, so next/image's
-                        // optimizer/cache is a poor fit here - a plain <img> is the
-                        // correct choice, not an oversight.
+                        // Signed URLs are per-request and short-lived - plain <img>, not an oversight.
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
                             src={downloadData.url}
@@ -169,10 +158,7 @@ const FilePreviewPage = ({
                     )}
                 </div>
 
-                {/* Side panel: resource details + file switcher. Sticky on desktop so it
-                    stays in view while a tall preview (e.g. a long PDF) scrolls past. Not
-                    rendered at all while collapsed, so the main pane's flex-1 takes the
-                    full row - the toggle to bring it back floats separately below. */}
+                {/* Unmounted entirely while collapsed, so the main pane's flex-1 takes the full row. */}
                 {showSidebar && (
                     <div className="order-1 w-full md:order-2 md:w-80 shrink-0 flex flex-col gap-4 md:sticky self-start px-4 pt-4 md:px-0 md:pe-6">
                         <div className="flex items-center gap-2">
@@ -195,13 +181,7 @@ const FilePreviewPage = ({
                                     disabled={isPreparingDownload}
                                     aria-label={isPreparingDownload ? "Preparing download..." : "Download file"}
                                 />
-                                {/* Collapsing the side panel only makes sense on desktop, where it
-                                    frees up horizontal space next to the preview - on mobile the
-                                    panel already stacks above the preview, so there's nothing to
-                                    reclaim by hiding it. `hidden md:contents` (rather than putting
-                                    `hidden` directly on the Button) avoids fighting the Button's
-                                    own base `inline-flex` class for which wins at the same
-                                    (unprefixed) breakpoint. */}
+                                {/* Desktop-only collapse toggle; `md:contents` avoids fighting Button's own `inline-flex` at the same breakpoint. */}
                                 <div className="hidden md:contents">
                                     <Button
                                         icon={<PanelRightClose className="size-4" />}
@@ -264,8 +244,7 @@ const FilePreviewPage = ({
                 )}
             </div>
 
-            {/* Floating toggle to bring the side panel back - overlays the now full-width
-                main pane instead of taking up flex layout space. */}
+            {/* Overlays the full-width main pane rather than taking up flex layout space. */}
             {!showSidebar && (
                 <Button
                     variant="ghost"

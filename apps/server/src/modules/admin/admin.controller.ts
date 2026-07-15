@@ -15,9 +15,7 @@ import { ChangeUserRoleDto } from "./dto/change-user-role.dto";
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
-  /** PATCH /api/admin/users/role - promote/demote a user between USER and MODERATOR
-   * by email. Can't grant/revoke ADMIN, and refuses to touch any user who is currently
-   * an admin (see AdminService.changeUserRole). */
+  // Can't grant/revoke ADMIN, and refuses to touch any user who is currently an admin.
   @Patch("users/role")
   async changeUserRole(@CurrentUser() admin: AuthenticatedUser, @Body() dto: ChangeUserRoleDto) {
     const user = await this.adminService.changeUserRole(admin.id, dto.email, dto.role);

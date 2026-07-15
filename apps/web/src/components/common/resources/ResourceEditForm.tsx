@@ -16,9 +16,7 @@ import type { ResourceSummary } from "@/types/api";
 
 interface ResourceEditFormProps {
     resource: ResourceSummary;
-    /** Rendered in the grid's second column, beside Resource Details - kept as a slot
-     * rather than owned by this form since file add/remove act immediately and aren't
-     * part of this form's own submission (see ResourceFilesManager). */
+    /** Rendered beside Resource Details - a slot since file add/remove isn't part of this form's submission. */
     filesPanel?: React.ReactNode;
 }
 
@@ -31,12 +29,7 @@ type FormValues = {
     offeringId: string;
 };
 
-/**
- * Edit form for a resource the current user owns. Prefills the Program/Semester/
- * Subject selects from the resource's current subject offering (fetched via
- * useSubjectDetails, since ResourceSummary only carries the offering's id/subject -
- * not the program/semester needed to seed the cascading selects).
- */
+// Prefills Program/Semester/Subject via useSubjectDetails, since ResourceSummary itself doesn't carry them.
 export const ResourceEditForm = ({ resource, filesPanel }: ResourceEditFormProps) => {
     const router = useRouter();
 
@@ -62,8 +55,7 @@ export const ResourceEditForm = ({ resource, filesPanel }: ResourceEditFormProps
         },
     });
 
-    // Seed Program/Semester/Subject once the current offering's details have loaded -
-    // they aren't known until then, so the cascading selects start out empty.
+    // Cascading selects start empty until the current offering's details load.
     useEffect(() => {
         if (!offeringDetails) return;
 

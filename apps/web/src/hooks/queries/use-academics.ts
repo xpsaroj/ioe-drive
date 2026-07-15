@@ -84,8 +84,7 @@ export function useSubjectsForUpload(programId?: number, semester?: Semester) {
     });
 }
 
-/** Matches the backend's own minimum length validation (see `q` on
- * SearchSubjectsQueryDto). */
+// Matches the backend's own minimum length validation (see `q` on SearchSubjectsQueryDto).
 export const MIN_SEARCH_QUERY_LENGTH = 1;
 
 export function useSearchSubjects(q: string, page: number = 1, limit?: number) {

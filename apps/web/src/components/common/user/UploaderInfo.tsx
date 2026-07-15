@@ -46,9 +46,7 @@ const UploaderInfo = ({ user, subtitle, size = "sm" }: UploaderInfoProps) => {
                     {fullName || "Unknown User"}
                 </span>
                 {subtitle && (
-                    // Same mono-caps voice as timestamps and eyebrow labels elsewhere
-                    // (e.g. ResourcePreviewTile's bare timeLabel), so metadata reads
-                    // the same whether or not an uploader row is present.
+                    // Same mono-caps voice as timestamps/eyebrow labels elsewhere (e.g. ResourcePreviewTile).
                     <span
                         className={cn(
                             subtitleSizes[size],
@@ -71,9 +69,7 @@ const UploaderInfo = ({ user, subtitle, size = "sm" }: UploaderInfoProps) => {
     }
 
     return (
-        // Named group (group/uploader) so this link's own hover is what triggers the
-        // underline on the name - a plain unnamed `group` would also react to an
-        // unrelated ancestor `group` (e.g. a card this is nested in) being hovered.
+        // Named group so this link's hover doesn't also react to an ancestor `group` (e.g. a card).
         <Link
             href={`/users/${user.id}`}
             className={cn(

@@ -12,17 +12,13 @@ export type ButtonSize = "xs" | "sm" | "md" | "lg";
 
 export interface ButtonProps
     extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-    /** When provided the button renders as a link (wrapped with Next.js Link) instead
-     * of a <button>. */
+    /** When provided, renders as a Next.js Link instead of a <button>. */
     href?: string;
     variant?: ButtonVariant;
     size?: ButtonSize;
     icon?: React.ReactNode;
     iconPosition?: "left" | "right";
-    /**
-     * If true, renders a compact icon-only button (children should be empty).
-     * When using iconOnly, provide an aria-label on the Button for accessibility.
-     */
+    /** Compact icon-only button (children should be empty) - provide an aria-label too. */
     iconOnly?: boolean;
     className?: string;
 }

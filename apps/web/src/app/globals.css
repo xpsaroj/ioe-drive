@@ -1,11 +1,6 @@
 @import "tailwindcss";
 
-/*
- * Tailwind v4 defaults `dark:` to the `prefers-color-scheme` media query. We use
- * next-themes to toggle a `.dark` class on <html> instead (system/light/dark, with
- * manual override), so `dark:` needs to respond to that class rather than the OS
- * preference. See https://tailwindcss.com/docs/dark-mode.
- */
+/* Tailwind v4 defaults dark: to prefers-color-scheme; we toggle a .dark class via next-themes instead. */
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
@@ -44,10 +39,7 @@
     /* Border on focus - black */
 
     /* ===== Accent Colors ===== */
-    /* Monochrome by design - this project intentionally stays black/white rather than
-       introducing a brand color. Used wherever something needs to read as "selected" or
-       "brand": the active nav item, hover states in Features/LibraryHub, the selected
-       file in the file preview page. */
+    /* Monochrome by design - stays black/white rather than introducing a brand color. */
     --color-accent: #000000;
     --color-accent-hover: #1a1a1a;
     --color-accent-active: #333333;
@@ -202,9 +194,7 @@
     /* Info badge text */
 
     /* ===== Card Colors ===== */
-    /* One step lighter than the page background (matches --color-background-secondary),
-       same relative step dark mode already uses below - so a card actually reads as a
-       card instead of blending into the page. */
+    /* One step lighter than the page background, so a card doesn't blend into the page. */
     --color-card-background: #fafafa;
     /* Card background */
     --color-card-border: #e5e5e5;
@@ -243,11 +233,7 @@
     /* Skeleton loading highlight */
 
     /* ===== Typography ===== */
-    /* Display/technical face, used sparingly for the wordmark and small "eyebrow"
-       labels (e.g. NAVIGATION) - IBM Plex Mono was designed for technical documentation,
-       fitting for an engineering resource-sharing platform. Body copy and nav labels
-       stay on Outfit (the default sans below), so this is a restrained accent, not a
-       wholesale font swap. --font-plex-mono is set by next/font (see layout.tsx). */
+    /* Used sparingly for the wordmark and small "eyebrow" labels - --font-plex-mono is set by next/font in layout.tsx. */
     --font-display: var(--font-plex-mono), ui-monospace, monospace;
 
     /* ===== Animations ===== */
@@ -276,13 +262,8 @@
     }
 }
 
-/*
- * ===== Dark theme =====
- * Overrides every token above for `.dark` (applied to <html> by next-themes). Since
- * every component in this app is already built on these semantic tokens rather than
- * literal Tailwind colors, this single block is enough to re-theme the whole site -
- * no component-level `dark:` classes needed for anything that already uses a token.
- */
+/* ===== Dark theme ===== */
+/* Re-themes the whole site via tokens - no component-level dark: classes needed. */
 .dark {
     /* ===== Background Colors ===== */
     --color-background: #0a0a0a;

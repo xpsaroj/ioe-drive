@@ -22,8 +22,7 @@ const RESOURCE_TYPE_LABEL: Record<ResourceType, string> = {
   OTHER: "Resource",
 };
 
-/** Rotating set of MIME types (and matching extensions) used to fake out file variety.
- * These are not uploaded anywhere - the URL below is a placeholder, not a real blob. */
+// Not uploaded anywhere - the URL below is a placeholder, not a real blob.
 const FAKE_FILE_TYPES: { mimeType: string; ext: string }[] = [
   { mimeType: "application/pdf", ext: "pdf" },
   { mimeType: "image/jpeg", ext: "jpg" },
@@ -52,13 +51,7 @@ function createFakeFile(subjectCode: string, resourceIndex: number, fileIndex: n
   };
 }
 
-/**
- * Seeds sample resources for local development/testing: for every program except SH
- * (a service department, not a program students are enrolled in) and every semester it
- * offers, one subject gets RESOURCES_PER_SUBJECT resources with FILES_PER_RESOURCE fake
- * files each. No Azure calls are made - resource_files rows get placeholder blob
- * names/URLs/sizes. Not idempotent - assumes a clean `resources` table.
- */
+// Not idempotent - assumes a clean `resources` table. No Azure calls; files get placeholder blob data.
 async function seedResources() {
   const resourcesRepository = new ResourcesRepository(db);
 

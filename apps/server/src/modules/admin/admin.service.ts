@@ -6,11 +6,7 @@ import { AdminRepository } from "./admin.repository";
 export class AdminService {
   constructor(private readonly adminRepository: AdminRepository) {}
 
-  /** Only ever moves a user between USER and MODERATOR - granting/revoking ADMIN
-   * itself always stays a direct database change. Refusing to touch any user who is
-   * currently ADMIN is what makes that guarantee real: it also means an admin can
-   * never demote themselves or another admin through this action, so the number of
-   * admins can never be reduced by it. */
+  // Only ever moves a user between USER and MODERATOR - refusing any current ADMIN keeps that guarantee real.
   async changeUserRole(actingAdminId: number, email: string, newRole: "USER" | "MODERATOR") {
     const targetUser = await this.adminRepository.findUserByEmail(email);
 

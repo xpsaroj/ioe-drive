@@ -121,11 +121,7 @@ export class ResourcesService {
     await this.resourcesRepository.deleteFile(fileId);
   }
 
-  /** Any signed-in user can call this for any APPROVED resource's file - unlike edit/
-   * delete, downloading isn't restricted to the resource's uploader. A file belonging
-   * to a PENDING/REJECTED/REMOVED resource is only downloadable by that resource's
-   * uploader or a moderator/admin, mirroring findResourceById's visibility rule -
-   * everyone else gets the same 404 as a nonexistent file. */
+  /** PENDING/REJECTED/REMOVED files are only downloadable by their uploader or a moderator/admin - everyone else gets the same 404 as a nonexistent file. */
   async getFileDownloadUrl(
     resourceId: number,
     fileId: number,
@@ -148,9 +144,11 @@ export class ResourcesService {
       throw new NotFoundException("File not found");
     }
 
-    // Strip characters that could break the Content-Disposition header's syntax
-    // (originalFileName is user-supplied, from whatever the browser reported at
-    // upload time).
+    if (forceDownload) {
+      await this.resourcesRepository.incrementDownloadCount(resourceId);
+    }
+
+    // Strip chars that'd break Content-Disposition syntax (user-supplied filename).
     const safeFileName = file.originalFileName.replace(/["\r\n]/g, "");
     const disposition = forceDownload ? "attachment" : "inline";
 

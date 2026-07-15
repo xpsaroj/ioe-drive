@@ -11,8 +11,7 @@ export interface ScatteredTile {
     /** Tailwind size + text-size classes, e.g. "size-12 text-sm". */
     size: string;
     solid?: boolean;
-    /** Keeps gently bobbing after it settles in, instead of staying still. Use on a
-     * few tiles per page, not all of them, or it stops reading as ambient motion. */
+    /** Keeps gently bobbing after settling - use on a few tiles per page, not all. */
     float?: boolean;
 }
 
@@ -21,19 +20,11 @@ interface ScatteredCodeTilesProps {
     className?: string;
 }
 
-/**
- * Ambient background texture of program/subject-code tiles - the same catalog
- * vocabulary SubjectCodeTile uses inline elsewhere in the app (see resource cards),
- * scattered here as decoration on "moment" pages (auth, onboarding, 404, dashboard
- * welcome). Meant to sit behind real content inside a `relative overflow-hidden`
- * container, not as a standalone element.
- */
+// Meant to sit behind real content inside a `relative overflow-hidden` container.
 const ScatteredCodeTiles = ({ tiles, className }: ScatteredCodeTilesProps) => (
     <div className={cn("pointer-events-none absolute inset-0", className)}>
         {tiles.map((tile, index) => {
-            // Varying each floating tile's duration/delay keeps them from bobbing in
-            // unison, which would read as one mechanical pulse rather than ambient
-            // drift.
+            // Varies so tiles don't bob in unison.
             const floatDuration = 3.2 + (index % 3) * 0.7;
 
             return (

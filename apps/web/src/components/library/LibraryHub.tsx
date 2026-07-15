@@ -15,8 +15,7 @@ interface PreviewPanelProps {
     viewAllHref: string;
     tiles: React.ReactNode[];
     emptyText: string;
-    /** Grid columns at the sm breakpoint - 2 when this sits in the narrower left
-     * column alongside Jump Back In, 3 for a full-width section. */
+    /** Grid columns at the sm breakpoint - 2 for the narrower column, 3 for full-width. */
     columns?: 2 | 3;
 }
 
@@ -39,11 +38,7 @@ const PreviewPanel = ({ title, viewAllHref, tiles, emptyText, columns = 3 }: Pre
     </div>
 );
 
-/**
- * A compact row for the narrow "Recently Bookmarked" sidebar column - a full
- * ResourcePreviewTile card is too tall to stack multiple of there without dwarfing
- * Jump Back In's height, so this trades the icon/bookmark/uploader detail for density.
- */
+// Trades ResourcePreviewTile's icon/bookmark/uploader detail for density in the narrow sidebar column.
 const BookmarkListRow = ({ resourceId, title, subjectCode }: { resourceId: number; title: string; subjectCode?: string }) => (
     <Link
         href={`/resources/r/${resourceId}`}
@@ -119,9 +114,7 @@ const LibraryHub = () => {
                 />
             </div>
 
-            {/* Jump Back In and My Uploads stack in this column so Recently
-            Bookmarked - which can vary a lot in height depending on how many
-            items it has - never leaves a gap below them. */}
+            {/* Stacked so a shorter Recently Bookmarked column never leaves a gap. */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 <div className="lg:col-span-2 flex flex-col gap-8">
                     <JumpBackIn />

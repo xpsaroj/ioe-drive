@@ -84,11 +84,7 @@ export function useUpdateResource(resourceId: number) {
             if (!response.success) {
                 throw new Error(response.error || 'Failed to update resource');
             }
-            // The PATCH response is just the bare updated row (no files/subjectOffering/
-            // uploader joined in, unlike GET) - don't write it directly into the
-            // full-detail cache slot, or anything reading resource.files/subjectOffering
-            // off that cache will break until the next real refetch. Invalidate instead
-            // so the next read refetches the complete shape.
+            // PATCH response is the bare row only (no files/uploader) - invalidate rather than write it into the full-detail cache slot.
             queryClient.invalidateQueries({ queryKey: resourcesKeys.byId(resourceId) });
             queryClient.invalidateQueries({ queryKey: resourcesKeys.all });
             // The edited resource may show up in the current user's uploads list too
@@ -150,22 +146,11 @@ export function useRemoveResourceFile(resourceId: number) {
     });
 }
 
-// Keep a few minutes of safety margin below the server's actual SAS expiry
-// (generateSasUrl's default `expiresInMinutes`, apps/server/src/utils/azure.ts) so a
-// cached URL is always refetched well before it could actually go dead. gcTime is
-// overridden alongside it (the global default is only 10 min) - gcTime below staleTime
-// would evict the cache before it even has a chance to be reused.
+// A few minutes of safety margin below the server's actual SAS expiry.
 const FILE_DOWNLOAD_URL_STALE_TIME = 13 * 60 * 1000;
 const FILE_DOWNLOAD_URL_GC_TIME = 14 * 60 * 1000;
 
-/**
- * Fetches a short-lived signed URL to view/download a specific file. staleTime is set
- * just under the server's actual SAS expiry (see the consts above) rather than 0, so
- * revisiting the same file shortly after (e.g. navigating back then re-opening it)
- * reuses the cached URL instead of hitting the backend and re-downloading the file from
- * Azure every time - while still guaranteeing a fresh URL is fetched well before the
- * cached one could actually expire.
- */
+// staleTime keeps a revisited file's cached URL usable instead of refetching every time.
 export function useFileDownloadUrl(resourceId: number, fileId?: number) {
     return useQuery({
         queryKey: resourcesKeys.fileDownloadUrl(resourceId, fileId ?? -1),
@@ -185,11 +170,7 @@ export function useFileDownloadUrl(resourceId: number, fileId?: number) {
     });
 }
 
-/**
- * Requests a forced-download (Content-Disposition: attachment) signed URL for a file,
- * on demand - only called when the user actually clicks "Download", rather than
- * generating one eagerly alongside the inline preview URL that most visits won't need.
- */
+// Only called on an explicit "Download" click, not generated eagerly alongside the inline preview URL.
 export function useDownloadFile(resourceId: number) {
     return useMutation({
         mutationFn: async (fileId: number) => {
@@ -242,9 +223,7 @@ export function useSearchResources(q: string, page: number = 1, limit?: number) 
     });
 }
 
-/** Lean, capped-list variant of useSearchResources for live-typing UI (the search
- * palette) - fetches search-suggestions previews instead of the full paginated
- * ResourceSummary shape. */
+// Lean, capped-list variant of useSearchResources for the live-typing search palette.
 export function useSearchSuggestions(q: string, limit?: number) {
     const trimmed = q.trim();
 
@@ -262,10 +241,7 @@ export function useSearchSuggestions(q: string, limit?: number) {
     });
 }
 
-/** Shared invalidation after any moderator action or a report - the resource's own
- * detail/browse caches, the uploader's own uploads list (so they see the new status
- * next time they check it), and the moderation queues (the resource may have just
- * left the pending list, or a report may have just been filed/resolved). */
+// Shared invalidation after any moderator action or a report.
 function invalidateAfterModeration(queryClient: ReturnType<typeof useQueryClient>, resourceId: number) {
     queryClient.invalidateQueries({ queryKey: resourcesKeys.byId(resourceId) });
     queryClient.invalidateQueries({ queryKey: resourcesKeys.all });
@@ -290,8 +266,7 @@ export function useApproveResource(resourceId: number) {
     });
 }
 
-/** Rejects a pending or approved resource with a reason (moderator-only). Resubmittable
- * - the uploader editing it resets it back to pending. */
+// Resubmittable - the uploader editing it resets the resource back to pending.
 export function useRejectResource(resourceId: number) {
     const queryClient = useQueryClient();
 
@@ -307,8 +282,7 @@ export function useRejectResource(resourceId: number) {
     });
 }
 
-/** The harder moderator action: purges the resource's files and marks it permanently
- * removed, with a reason the uploader can see on their own uploads page. */
+// Purges the resource's files and marks it permanently removed.
 export function useRemoveResource(resourceId: number) {
     const queryClient = useQueryClient();
 
@@ -324,8 +298,7 @@ export function useRemoveResource(resourceId: number) {
     });
 }
 
-/** Reports an approved resource (any signed-in user other than its uploader) - stays
- * live until a moderator reviews the report. */
+// Stays live until a moderator reviews the report.
 export function useReportResource(resourceId: number) {
     const queryClient = useQueryClient();
 
@@ -341,8 +314,7 @@ export function useReportResource(resourceId: number) {
     });
 }
 
-/** Other resources from the same subject offering as `resourceId` - backs the resource
- * detail page's "Similar Resources" panel. */
+// Backs the resource detail page's "Similar Resources" panel.
 export function useSimilarResources(resourceId: number, limit?: number) {
     return useQuery({
         queryKey: resourcesKeys.similar(resourceId, limit),

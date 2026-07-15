@@ -3,7 +3,9 @@ import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tansta
 
 import { meApi } from '@/lib/api/me-api';
 import { academicsKeys } from './use-academics';
+import { resourcesKeys } from './use-resources';
 import type { Profile, UserProfile } from '@/types/entities';
+import type { ResourceSummary } from '@/types/api';
 
 export const meKeys = {
     all: ['me'] as const,
@@ -19,7 +21,17 @@ export const meKeys = {
         ? ['me', 'bookmarked-resources'] as const
         : ['me', 'bookmarked-resources', page] as const,
     bookmarkedResourceIds: ['me', 'bookmarked-resource-ids'] as const,
+    resourceVoteValues: ['me', 'resource-vote-values'] as const,
 };
+
+/** Adjusts a cached resource's counts to reflect a vote changing from oldValue to newValue (either can be 0 for "no vote"). */
+function applyVoteDelta(resource: ResourceSummary, oldValue: number, newValue: number): ResourceSummary {
+    return {
+        ...resource,
+        upvoteCount: resource.upvoteCount + (newValue === 1 ? 1 : 0) - (oldValue === 1 ? 1 : 0),
+        downvoteCount: resource.downvoteCount + (newValue === -1 ? 1 : 0) - (oldValue === -1 ? 1 : 0),
+    };
+}
 
 export function useMe() {
     const { isSignedIn } = useAuth();
@@ -190,6 +202,108 @@ export function useBookmarkResource() {
         onSettled: () => {
             queryClient.invalidateQueries({ queryKey: meKeys.bookmarkedResourceIds });
             queryClient.invalidateQueries({ queryKey: meKeys.bookmarkedResources() });
+        },
+    });
+}
+
+/** Every resource the current user has voted on, mapped to their vote (1 or -1) - backs the up/downvote buttons' highlighted state on every ResourceCard. */
+export function useResourceVoteValues() {
+    const { isSignedIn } = useAuth();
+
+    return useQuery({
+        queryKey: meKeys.resourceVoteValues,
+        queryFn: async () => {
+            const response = await meApi.getResourceVoteValues();
+            if (!response.success) {
+                throw new Error(response.error ?? 'Failed to fetch vote values.');
+            }
+            return response.data;
+        },
+        enabled: isSignedIn,
+        staleTime: 30 * 60 * 1000,
+        gcTime: 40 * 60 * 1000,
+    });
+}
+
+export function useSetResourceVote() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: ({ resourceId, value }: { resourceId: string; value: 1 | -1 }) => meApi.setResourceVote(resourceId, value),
+
+        onMutate: async ({ resourceId, value }) => {
+            await queryClient.cancelQueries({ queryKey: meKeys.resourceVoteValues });
+            await queryClient.cancelQueries({ queryKey: resourcesKeys.byId(Number(resourceId)) });
+
+            const previousVoteValues = queryClient.getQueryData<Record<number, 1 | -1>>(meKeys.resourceVoteValues);
+            const previousResource = queryClient.getQueryData<ResourceSummary>(resourcesKeys.byId(Number(resourceId)));
+            const oldValue = previousVoteValues?.[Number(resourceId)] ?? 0;
+
+            queryClient.setQueryData<Record<number, 1 | -1>>(meKeys.resourceVoteValues, (old) =>
+                old ? { ...old, [Number(resourceId)]: value } : old
+            );
+            queryClient.setQueryData<ResourceSummary>(resourcesKeys.byId(Number(resourceId)), (old) =>
+                old ? applyVoteDelta(old, oldValue, value) : old
+            );
+
+            return { previousVoteValues, previousResource, resourceId };
+        },
+
+        onError: (_err, { resourceId }, context) => {
+            if (context?.previousVoteValues) {
+                queryClient.setQueryData(meKeys.resourceVoteValues, context.previousVoteValues);
+            }
+            if (context?.previousResource) {
+                queryClient.setQueryData(resourcesKeys.byId(Number(resourceId)), context.previousResource);
+            }
+        },
+
+        onSettled: (_data, _err, { resourceId }) => {
+            queryClient.invalidateQueries({ queryKey: meKeys.resourceVoteValues });
+            queryClient.invalidateQueries({ queryKey: resourcesKeys.byId(Number(resourceId)) });
+        },
+    });
+}
+
+export function useClearResourceVote() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (resourceId: string) => meApi.clearResourceVote(resourceId),
+
+        onMutate: async (resourceId) => {
+            await queryClient.cancelQueries({ queryKey: meKeys.resourceVoteValues });
+            await queryClient.cancelQueries({ queryKey: resourcesKeys.byId(Number(resourceId)) });
+
+            const previousVoteValues = queryClient.getQueryData<Record<number, 1 | -1>>(meKeys.resourceVoteValues);
+            const previousResource = queryClient.getQueryData<ResourceSummary>(resourcesKeys.byId(Number(resourceId)));
+            const oldValue = previousVoteValues?.[Number(resourceId)] ?? 0;
+
+            queryClient.setQueryData<Record<number, 1 | -1>>(meKeys.resourceVoteValues, (old) => {
+                if (!old) return old;
+                const next = { ...old };
+                delete next[Number(resourceId)];
+                return next;
+            });
+            queryClient.setQueryData<ResourceSummary>(resourcesKeys.byId(Number(resourceId)), (old) =>
+                old ? applyVoteDelta(old, oldValue, 0) : old
+            );
+
+            return { previousVoteValues, previousResource, resourceId };
+        },
+
+        onError: (_err, resourceId, context) => {
+            if (context?.previousVoteValues) {
+                queryClient.setQueryData(meKeys.resourceVoteValues, context.previousVoteValues);
+            }
+            if (context?.previousResource) {
+                queryClient.setQueryData(resourcesKeys.byId(Number(resourceId)), context.previousResource);
+            }
+        },
+
+        onSettled: (_data, _err, resourceId) => {
+            queryClient.invalidateQueries({ queryKey: meKeys.resourceVoteValues });
+            queryClient.invalidateQueries({ queryKey: resourcesKeys.byId(Number(resourceId)) });
         },
     });
 }

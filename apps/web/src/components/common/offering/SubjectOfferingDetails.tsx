@@ -6,10 +6,7 @@ import type { SubjectOfferingWithSubject } from "@/types/entities";
 const SubjectOfferingDetails = ({ offering }: { offering: SubjectOfferingWithSubject }) => {
     const { id, subject, year, semester, isElective, programId } = offering;
 
-    // programId here is deliberately the *offering's* program (the one this subject is
-    // actually taught in for this semester) - not subject.program, which is the
-    // subject's owning department and can differ (e.g. a first-year SH-owned subject
-    // offered to BCT students should browse under BCT, not SH).
+    // Deliberately the *offering's* program, not subject.program - the two can differ (e.g. SH-owned subjects taught to BCT students).
     const browseResourcesHref = `/resources?programId=${programId}&semester=${semester}&offeringId=${id}`;
 
     return (

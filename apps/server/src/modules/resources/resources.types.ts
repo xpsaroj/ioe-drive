@@ -14,9 +14,7 @@ export interface UpdateResourceData {
   description?: string;
   type?: ResourceType;
   offeringId?: number;
-  // Not client-settable via UpdateResourceDto - only ResourcesService sets these, to
-  // reset a REJECTED resource back to PENDING when its owner edits it (an implicit
-  // resubmission).
+  // Not client-settable via UpdateResourceDto - only ResourcesService sets these (implicit resubmission).
   status?: ResourceStatus;
   moderatedBy?: number | null;
   moderationReason?: ModerationReason | null;

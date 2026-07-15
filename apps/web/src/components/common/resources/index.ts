@@ -13,6 +13,8 @@ export { default as ResourcePageStateHandler } from "./ResourcePageStateHandler"
 export { default as EditResourceButton } from "./EditResourceButton";
 export { default as DeleteResourceButton } from "./DeleteResourceButton";
 export { default as BookmarkButton } from "./BookmarkButton";
+export { default as VoteButtons } from "./VoteButtons";
+export { default as ResourceEngagementRow } from "./ResourceEngagementRow";
 export { default as ResourceFilesManager } from "./ResourceFilesManager";
 export { ResourceEditForm } from "./ResourceEditForm";
 export { ResourceUploadForm } from "./ResourceUploadForm";

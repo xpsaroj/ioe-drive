@@ -10,23 +10,11 @@ interface PageHeaderProps {
     /** Optional right-aligned content next to the title (e.g. a primary action button). */
     actions?: React.ReactNode;
     className?: string;
-    /** Optional content rendered before the breadcrumb trail, inside its sticky bar -
-     * e.g. a real back button, for pages reachable from many different contexts where
-     * the breadcrumb's own first crumb isn't a reliable "go back" affordance. */
+    /** Rendered before the breadcrumb trail inside its sticky bar, e.g. a back button. */
     beforeBreadcrumb?: React.ReactNode;
 }
 
-/**
- * Standard page header: a title with optional actions, and a breadcrumb trail beneath
- * it. The title scrolls away with the page; the breadcrumb sticks to the top of the
- * viewport once it gets there, so there's always a compact way back up the hierarchy
- * while the content below keeps scrolling underneath it.
- *
- * Renders as a fragment (no wrapping element) rather than its own container, since a
- * `position: sticky` element only stays stuck for as long as its parent is on screen -
- * it needs to sit directly in the page's own scrollable container, alongside the
- * content below it, not inside a short wrapper of its own.
- */
+// Renders as a fragment, not a wrapping element - the sticky breadcrumb bar needs to sit directly in the page's scroll container to stay stuck.
 const PageHeader = ({ title, breadcrumbs, actions, className, beforeBreadcrumb }: PageHeaderProps) => {
     return (
         <>

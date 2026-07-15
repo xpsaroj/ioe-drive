@@ -30,9 +30,7 @@ const SemesterInformation = () => {
         <div>
           <Link
             href={`/offerings/${item.id}`}
-            // Stop the click from bubbling to the row, which navigates to the
-            // resources list instead - the name specifically goes to the subject's
-            // own detail page.
+            // Stop bubbling to the row, which navigates to the resources list instead.
             onClick={(e) => e.stopPropagation()}
           >
             <span className="font-medium cursor-pointer hover:underline underline-offset-2">

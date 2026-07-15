@@ -33,11 +33,7 @@ interface ResourceFileItemProps {
     file: ResourceFileSummary;
 }
 
-/**
- * A compact file chip - type icon, filename, and a type/size meta line - sized to its
- * content (not a full-width row) so several can wrap in a row wherever a resource's
- * files are listed (a resource card, the detail page, etc).
- */
+// Sized to its content, not a full-width row, so several can wrap wherever a resource's files are listed.
 const ResourceFileItem = ({ file }: ResourceFileItemProps) => {
     const { id: fileId, resourceId, originalFileName, mimeType, fileSize } = file;
     const { icon: Icon, className } = FILE_TYPE_META[getMimeKey(mimeType)] ?? DEFAULT_FILE_TYPE_META;

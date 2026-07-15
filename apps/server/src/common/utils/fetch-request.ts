@@ -1,14 +1,6 @@
 import type { Request as ExpressRequest } from "express";
 
-/**
- * Bridges an Express request into a standard Fetch API Request - what @clerk/backend's
- * authenticateRequest()/verifyWebhook() expect (Clerk's SDK is framework-agnostic,
- * built on the Fetch API rather than Node's IncomingMessage).
- *
- * `body` is only meaningful (and only allowed by the Fetch Request constructor) for
- * methods other than GET/HEAD - pass it for the raw-body webhook route, omit it for
- * the auth guard (Clerk only needs headers/cookies to authenticate a request).
- */
+// Bridges an Express request into a Fetch API Request, which @clerk/backend expects. Pass `body` only for the raw-body webhook route.
 export function toFetchRequest(req: ExpressRequest, body?: Buffer): Request {
   const host = req.get("host") ?? "localhost";
   const url = `${req.protocol}://${host}${req.originalUrl}`;

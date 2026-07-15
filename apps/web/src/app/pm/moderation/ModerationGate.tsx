@@ -13,14 +13,7 @@ const TABS = [
     { label: "Reports", href: "/pm/moderation/reports" },
 ];
 
-/**
- * Role gate + shared shell for every moderation page - redirects non-moderators
- * away rather than rendering anything, on top of the real server-side @Roles guard
- * every moderation endpoint already enforces (this is convenience/UX, not the
- * security boundary). A client component so it can read useMe() - the noindex
- * metadata that keeps this route out of search results lives in the server-component
- * layout.tsx that renders this.
- */
+// UX-only redirect for non-moderators - the real boundary is the server-side @Roles guard.
 const ModerationGate = ({ children }: { children: React.ReactNode }) => {
     const { data: userData, isPending } = useMe();
     const router = useRouter();

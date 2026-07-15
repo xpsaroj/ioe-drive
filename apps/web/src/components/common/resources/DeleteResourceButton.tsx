@@ -9,11 +9,7 @@ import { useDeleteResource } from "@/hooks/queries/use-resources";
 
 interface DeleteResourceButtonProps {
     resourceId: number;
-    /**
-     * Called after a successful deletion (e.g. to redirect away from a page that no
-     * longer has anything to show). Not needed when the button lives in a list, since
-     * the list will simply re-render without the deleted item.
-     */
+    /** Called after a successful deletion, e.g. to redirect away from a now-empty page. */
     onDeleted?: () => void;
 }
 

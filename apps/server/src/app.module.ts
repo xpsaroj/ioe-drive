@@ -24,8 +24,7 @@ import { AzureBlobModule } from "./storage/azure-blob.module";
       envFilePath: resolveEnvFilePath(),
       validate,
     }),
-    // 500 requests / 15 minutes per IP, applied to every /api route (health and the
-    // Clerk webhook opt out via @SkipThrottle()).
+    // 500 requests / 15 minutes per IP - health and the Clerk webhook opt out via @SkipThrottle().
     ThrottlerModule.forRoot([
       {
         ttl: 15 * 60 * 1000,

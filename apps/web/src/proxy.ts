@@ -39,8 +39,7 @@ export const config = {
         // Skip Next.js internals and all static files, unless found in search params
         '/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)',
 
-        // Protect all API routes
-        // BUT Clerk's own API routes are automatically excluded by Clerk
+        // Protect all API routes - Clerk's own routes are automatically excluded by Clerk.
         '/(api|trpc)(.*)',
     ],
 };

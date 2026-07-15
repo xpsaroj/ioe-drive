@@ -16,8 +16,7 @@ import { ModerationService } from "./moderation.service";
 export class ModerationController {
   constructor(private readonly moderationService: ModerationService) {}
 
-  /** GET /api/moderation/pending?page=&limit= - the review queue: resources awaiting a
-   * decision, oldest first. */
+  // The review queue: resources awaiting a decision, oldest first.
   @Get("pending")
   async findPending(@Query() query: PaginationQueryDto) {
     const offset = getPaginationOffset(query.page, query.limit);
@@ -25,8 +24,7 @@ export class ModerationController {
     return ApiResponse.of(items, undefined, buildPaginationMeta(query.page, query.limit, total));
   }
 
-  /** GET /api/moderation/reports?page=&limit= - open reports against already-approved
-   * resources, each with the reporter's identity (never exposed to the uploader). */
+  // Each report includes the reporter's identity, never exposed to the uploader.
   @Get("reports")
   async findReports(@Query() query: PaginationQueryDto) {
     const offset = getPaginationOffset(query.page, query.limit);
@@ -34,8 +32,7 @@ export class ModerationController {
     return ApiResponse.of(items, undefined, buildPaginationMeta(query.page, query.limit, total));
   }
 
-  /** POST /api/moderation/reports/:reportId/dismiss - the "unfounded report" case: closes
-   * the report with no change to the resource. */
+  // The "unfounded report" case: closes the report with no change to the resource.
   @Post("reports/:reportId/dismiss")
   @HttpCode(HttpStatus.OK)
   async dismissReport(
