@@ -108,6 +108,9 @@ export class MeRepository {
 
   async setVote(userId: number, resourceId: number, value: number): Promise<void> {
     await this.db.transaction(async (tx) => {
+      // Locks the resource row so a concurrent vote can't read a stale `existing` value before this transaction's counter update commits.
+      await tx.select({ id: resourcesTable.id }).from(resourcesTable).where(eq(resourcesTable.id, resourceId)).for("update");
+
       const existing = await tx.query.resourceVotesTable.findFirst({
         where: and(eq(resourceVotesTable.userId, userId), eq(resourceVotesTable.resourceId, resourceId)),
         columns: { value: true },
