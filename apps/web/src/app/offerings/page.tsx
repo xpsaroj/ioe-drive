@@ -31,13 +31,10 @@ const OfferingsBrowseContent = () => {
 
     const profileHasDefault = !!(profile?.programId && profile?.semester);
     const waitingForProfileDefault = !!isSignedIn && (!authLoaded || profilePending);
-    // If we're signed in with a complete profile but the URL doesn't reflect it yet,
-    // we're about to auto-redirect below - keep showing a loading state instead of
-    // briefly flashing the "select a program and semester" prompt.
+    // About to auto-redirect below - keep loading instead of flashing the filter prompt.
     const pendingAutoRedirect = !!isSignedIn && !profilePending && profileHasDefault && !urlProgramId && !urlSemester;
 
-    // Default the filter from the signed-in user's profile the first time they land here
-    // with no explicit selection in the URL.
+    // Default the filter from the signed-in user's profile, first landing with no URL selection.
     useEffect(() => {
         if (urlProgramId || urlSemester) return;
         if (!isSignedIn || profilePending) return;

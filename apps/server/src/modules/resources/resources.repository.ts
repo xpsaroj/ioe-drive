@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { and, count, desc, eq, ilike, ne, or } from "drizzle-orm";
+import { and, count, desc, eq, ilike, ne, or, sql, sum } from "drizzle-orm";
 
 import { DRIZZLE } from "../../database/database.constants";
 import type { DrizzleDb } from "../../database/database.types";
@@ -178,6 +178,22 @@ export class ResourcesRepository {
 
   async deleteFile(fileId: number): Promise<void> {
     await this.db.delete(resourceFilesTable).where(eq(resourceFilesTable.id, fileId));
+  }
+
+  async incrementDownloadCount(resourceId: number): Promise<void> {
+    await this.db
+      .update(resourcesTable)
+      .set({ downloadCount: sql`${resourcesTable.downloadCount} + 1` })
+      .where(eq(resourcesTable.id, resourceId));
+  }
+
+  async sumUpvotesByUploader(userId: number): Promise<number> {
+    const [row] = await this.db
+      .select({ total: sum(resourcesTable.upvoteCount) })
+      .from(resourcesTable)
+      .where(and(eq(resourcesTable.uploadedBy, userId), eq(resourcesTable.status, "APPROVED")));
+
+    return Number(row?.total ?? 0);
   }
 
   async findMany(

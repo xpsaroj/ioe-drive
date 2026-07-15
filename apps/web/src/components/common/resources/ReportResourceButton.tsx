@@ -12,11 +12,7 @@ interface ReportResourceButtonProps {
     resourceId: number;
 }
 
-/** Lets any signed-in visitor other than the uploader flag an approved resource for
- * review - reporting doesn't hide it, it stays live until a moderator acts. Rendered
- * as a self-contained bar (matching ModeratorActionBar's visual style) rather than a
- * bare button, since the two are mutually exclusive - a viewer sees exactly one of
- * them in the same spot on the page, never both. */
+// Mutually exclusive with ModeratorActionBar, whose bar style this matches - a viewer sees exactly one.
 const ReportResourceButton = ({ resourceId }: ReportResourceButtonProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const { mutate, isPending } = useReportResource(resourceId);

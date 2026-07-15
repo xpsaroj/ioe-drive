@@ -9,10 +9,7 @@ import { ResourceTypeLabel } from "@/types/entities";
 // Shown as a single row of 2, so only that many are ever fetched/rendered.
 const RECENT_RESOURCES_SHOWN = 2;
 
-/**
- * A quick "continue where you left off" grid of recently-viewed resources. Shared
- * between the dashboard and the library hub, both of which want the same section.
- */
+// Shared between the dashboard and the library hub.
 const JumpBackIn = () => {
   const { data, isPending } = useRecentResources(1);
   const items = data?.items.slice(0, RECENT_RESOURCES_SHOWN);

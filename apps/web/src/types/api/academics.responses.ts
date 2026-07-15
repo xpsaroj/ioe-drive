@@ -17,9 +17,7 @@ export interface ProgramSummary {
     code: string;
 }
 
-/** A lean subject-offering search result row - just enough to render a compact
- * subject/offering preview (e.g. the search palette, the /search page): no marks,
- * description, syllabusUrl, or hardnessLevel, unlike SubjectOfferingWithSubject. */
+// Lean subject-offering search result row - no marks/description/syllabusUrl/hardnessLevel, unlike SubjectOfferingWithSubject.
 export interface SubjectSearchResult {
     id: number;
     semester: Semester;

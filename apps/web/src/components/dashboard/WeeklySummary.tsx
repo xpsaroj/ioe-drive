@@ -1,7 +1,6 @@
 import { Flame, Clock, CheckCircle2 } from "lucide-react";
 
-// Placeholder data - there's no study-streak/goal-tracking backend yet, so these are
-// hardcoded until that's built.
+// Placeholder - no study-streak/goal-tracking backend yet.
 const WEEKLY_STATS = [
     { icon: Flame, label: "Current Streak", value: "12 days" },
     { icon: Clock, label: "Time Studied", value: "8.5 hrs" },

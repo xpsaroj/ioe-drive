@@ -14,8 +14,7 @@ import { GlobalLoader, LayoutWrapper } from "@/components/layout";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
-// Display/technical face used sparingly for the wordmark and nav "eyebrow" labels
-// (see --font-display in globals.css) - not applied globally.
+// Used sparingly for the wordmark and nav "eyebrow" labels (see --font-display in globals.css) - not applied globally.
 const plexMono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["500", "600"], variable: "--font-plex-mono" });
 
 export const metadata: Metadata = {

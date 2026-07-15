@@ -14,10 +14,7 @@ interface ModeratorActionBarProps {
     status: ResourceStatus;
 }
 
-/** Moderator-only Approve/Reject/Remove controls for the resource detail page - only
- * rendered by the page itself when the viewer's role is MODERATOR. Which actions show
- * up depends on the resource's current status: only PENDING can be approved, REMOVED
- * is terminal (no further action), everything else can still be rejected or removed. */
+// Which actions show depends on status: only PENDING can be approved, REMOVED is terminal.
 const ModeratorActionBar = ({ resourceId, status }: ModeratorActionBarProps) => {
     const [openModal, setOpenModal] = useState<"reject" | "remove" | null>(null);
 

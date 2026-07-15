@@ -5,8 +5,7 @@ interface ResourceFileListProps {
     resourceFiles: ResourceFileSummary[];
     loading?: boolean;
     error?: string | null;
-    /** Hide the "Files" heading - for compact contexts (e.g. a resource card in a
-     * list) where it'd repeat on every item and the file chips speak for themselves. */
+    /** Hide the "Files" heading - for compact contexts where it'd repeat on every item. */
     showLabel?: boolean;
 }
 

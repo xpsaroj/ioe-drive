@@ -40,15 +40,7 @@ export class AzureBlobService {
     await blockBlob.deleteIfExists();
   }
 
-  /**
-   * Generates a short-lived, read-only signed (SAS) URL for a blob in our private
-   * container, so a client can fetch/download it directly from Azure without our
-   * server needing to proxy the file's bytes. Since the blob lives on a different
-   * origin than our app, the browser ignores the HTML `download` attribute for it -
-   * whether it shows the file inline or prompts to save it (and under what filename)
-   * is controlled entirely by the Content-Disposition header, overridable per-URL via
-   * `contentDisposition`.
-   */
+  // Cross-origin blob URL ignores the HTML `download` attribute, so inline-vs-attachment is controlled via `contentDisposition` instead.
   async generateSasUrl(
     blobName: string,
     options: { expiresInMinutes?: number; contentDisposition?: string } = {},

@@ -11,12 +11,7 @@ interface NavItemProps {
     onClick?: () => void;
 }
 
-/**
- * A single primary-nav destination, shared by the desktop sidebar (Navbar) and the
- * mobile drawer (MobileNav) so both stay visually identical. The active route gets a
- * soft accent-tinted background plus accent-colored icon/text (see --color-accent in
- * globals.css) - no extra indicator device, so it reads clearly without adding clutter.
- */
+// Shared by the desktop sidebar (Navbar) and mobile drawer (MobileNav) so both stay visually identical.
 const NavItem = ({ href, icon: Icon, name, active, onClick }: NavItemProps) => {
     return (
         <Button

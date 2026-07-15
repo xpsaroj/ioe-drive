@@ -12,9 +12,7 @@ export const createResourceSchema = z.object({
 export type CreateResourceInput = z.infer<typeof createResourceSchema>;
 export type UpdateResourceInput = Partial<CreateResourceInput>;
 
-/** Shared shape for both a moderator action (reject/remove) and a report - same
- * reason dropdown + optional note the backend's ModerateResourceDto/ReportResourceDto
- * both take. */
+// Shared by moderator reject/remove and report - same shape as the backend's ModerateResourceDto/ReportResourceDto.
 export const moderationReasonSchema = z.object({
     reason: z.enum(ModerationReason),
     note: z.string().max(1000, "Note must be at most 1000 characters").optional(),

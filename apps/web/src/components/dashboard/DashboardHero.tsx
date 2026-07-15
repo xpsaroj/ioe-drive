@@ -6,9 +6,7 @@ import { ScatteredCodeTiles, type ScatteredTile } from "@/components/decor"
 import { useMe, useUploadedResources, useBookmarkedResourceIds, useRecentResources } from "@/hooks/queries/use-me"
 import { SemesterLabel } from "@/types/entities"
 
-/** A lighter touch than the auth pages' scatter - kept to a thin band along the top of
- * the banner (freed up by `sm:min-h-[9.5rem]` below, since the row's own content stays
- * bottom-aligned via `sm:items-end`) so it never sits behind the welcome text or stats. */
+// Kept to a thin top band so it never sits behind the welcome text or stats.
 const DASHBOARD_HERO_TILES: ScatteredTile[] = [
     { code: "BCT", top: "6%", left: "10%", rotate: -6, size: "size-8 text-[10px]" },
     { code: "BEE", top: "12%", left: "32%", rotate: 5, size: "size-7 text-[9px]" },

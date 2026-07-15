@@ -17,12 +17,7 @@ export interface AuthenticatedUser {
 
 export type RequestWithAuthUser = Request & { authUser?: AuthenticatedUser };
 
-/**
- * Verifies the Clerk session via @clerk/backend, then requires a matching row in the
- * local `users` table (rejecting as unauthorized even if Clerk itself considers the
- * request signed in - the local table must be kept in sync via the webhook for auth
- * to work end to end).
- */
+// Also requires a matching local `users` row - rejects even if Clerk itself considers the request signed in.
 @Injectable()
 export class ClerkAuthGuard implements CanActivate {
   constructor(

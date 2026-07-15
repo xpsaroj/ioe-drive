@@ -3,9 +3,7 @@ import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/site";
 import { SERVER_API_BASE_URL } from "@/lib/server-api-url";
 
-// Regenerate at most once a day - the curriculum this walks (programs, subjects,
-// offerings) changes about as rarely as data gets, so there's no need to hit the API
-// any more often than this on every crawl.
+// Regenerate at most once a day - the curriculum this walks changes rarely.
 export const revalidate = 86400;
 
 interface ProgramSummary {
@@ -17,17 +15,19 @@ interface SubjectOfferingSummary {
 }
 
 async function fetchJson<T>(path: string): Promise<T | null> {
-    const response = await fetch(`${SERVER_API_BASE_URL}${path}`);
-    if (!response.ok) return null;
+    // Catches connection failures (e.g. no backend reachable at build time), not just non-OK responses - a network error here shouldn't fail the whole build.
+    try {
+        const response = await fetch(`${SERVER_API_BASE_URL}${path}`);
+        if (!response.ok) return null;
 
-    const body = await response.json();
-    return body.success ? (body.data as T) : null;
+        const body = await response.json();
+        return body.success ? (body.data as T) : null;
+    } catch {
+        return null;
+    }
 }
 
-/** Every subject offering's own detail page (`/offerings/:id`) - the one dynamic,
- * mostly-stable content type that's cheap to enumerate fully (no bulk "all resources"
- * endpoint exists yet, so individual resource pages aren't included here; they're still
- * discoverable by crawlers via normal link-following from these and the browse pages). */
+// Individual resource pages aren't included (no bulk "all resources" endpoint yet) but stay crawlable via link-following.
 async function fetchAllOfferingIds(): Promise<number[]> {
     const programs = await fetchJson<ProgramSummary[]>("/programs");
     if (!programs) return [];

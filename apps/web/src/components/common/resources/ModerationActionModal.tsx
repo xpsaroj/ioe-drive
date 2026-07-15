@@ -22,11 +22,7 @@ interface FormValues {
     note: string;
 }
 
-/**
- * Shared reason-dropdown + optional-note form, used for every action that needs one:
- * a moderator's reject/remove, and a visitor's report. All three take the same
- * `{ reason, note? }` shape on the backend (ModerateResourceDto/ReportResourceDto).
- */
+// Shared by moderator reject/remove and visitor report - all three take the same { reason, note? } shape.
 const ModerationActionModal = ({
     isOpen,
     onClose,

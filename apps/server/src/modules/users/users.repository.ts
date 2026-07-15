@@ -22,15 +22,12 @@ export interface ProfileUpdateData {
   college?: string;
 }
 
-/**
- * Shared users/profiles table access, reused by the users, me, and webhooks modules.
- */
+// Shared users/profiles table access, reused by the users, me, and webhooks modules.
 @Injectable()
 export class UsersRepository {
   constructor(@Inject(DRIZZLE) private readonly db: DrizzleDb) {}
 
-  /** Public-facing profile (GET /api/users/:userId) - deliberately omits
-   * clerkUserId/email, unlike findOwnProfileById below. */
+  // Deliberately omits clerkUserId/email, unlike findOwnProfileById below.
   findPublicProfileById(userId: number) {
     return this.db.query.usersTable.findFirst({
       where: eq(usersTable.id, userId),
@@ -97,8 +94,7 @@ export class UsersRepository {
     });
   }
 
-  /** Updates a user + profile from a Clerk `user.updated` webhook. Returns null if no
-   * matching local user exists yet (caller falls back to creating one). */
+  // Returns null if no matching local user exists yet (caller falls back to creating one).
   async updateFromWebhook(userData: WebhookUserData, profileData: WebhookProfileData) {
     return this.db.transaction(async (tx) => {
       const [user] = await tx

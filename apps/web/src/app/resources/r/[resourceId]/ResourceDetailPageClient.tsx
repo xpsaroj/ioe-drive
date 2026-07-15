@@ -18,6 +18,7 @@ import {
     EditResourceButton,
     DeleteResourceButton,
     BookmarkButton,
+    ResourceEngagementRow,
     ModeratorActionBar,
     ReportResourceButton,
     STATUS_BADGE_VARIANT,
@@ -199,6 +200,15 @@ const ResourceDetailContent = ({
                         <div className="rounded-xl border border-border p-6">
                             <ResourceFileList resourceFiles={files} />
                         </div>
+
+                        <ResourceEngagementRow
+                            resourceId={resource.id}
+                            upvoteCount={resource.upvoteCount}
+                            downvoteCount={resource.downvoteCount}
+                            downloadCount={resource.downloadCount}
+                            uploadedBy={resource.uploadedBy}
+                            className="rounded-xl border border-border p-6"
+                        />
 
                         {/* Mutually exclusive: a moderator/admin gets direct action
                         controls; anyone else who isn't the uploader gets a way to flag

@@ -3,10 +3,7 @@ export interface PaginationParams {
     limit?: number;
 }
 
-/**
- * Mutates and returns `params` with `page`/`limit` set if present, so callers can chain
- * it onto filter params already built for a given endpoint.
- */
+// Mutates and returns `params`, so callers can chain it onto filter params already built.
 export const appendPaginationParams = (
     params: URLSearchParams,
     pagination?: PaginationParams

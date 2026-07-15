@@ -5,10 +5,7 @@ export const DEFAULT_PAGE = 1;
 export const DEFAULT_LIMIT = 10;
 export const MAX_LIMIT = 100;
 
-/**
- * Shared page/limit query shape for any paginated list endpoint - extend this in a
- * route's own query DTO, e.g. `class GetResourcesQueryDto extends PaginationQueryDto`.
- */
+// Extend this in a route's own query DTO, e.g. `class GetResourcesQueryDto extends PaginationQueryDto`.
 export class PaginationQueryDto {
   @IsOptional()
   @Type(() => Number)

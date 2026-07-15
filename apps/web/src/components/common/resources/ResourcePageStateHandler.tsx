@@ -7,8 +7,7 @@ interface ResourcePageStateHandlerProps {
     breadcrumbs: BreadcrumbItem[];
     /** Optional right-aligned content next to the title (e.g. bookmark/edit/delete). */
     actions?: React.ReactNode;
-    /** Optional content rendered before the breadcrumb trail, inside its sticky bar -
-     * e.g. a real back button. See PageHeader. */
+    /** Rendered before the breadcrumb trail inside its sticky bar, e.g. a back button. See PageHeader. */
     beforeBreadcrumb?: React.ReactNode;
     isPending: boolean;
     error: Error | null | undefined;

@@ -2,12 +2,7 @@ import { ArgumentsHost, Catch, ExceptionFilter, HttpException, HttpStatus, Logge
 import type { Response } from "express";
 import { MulterError } from "multer";
 
-/**
- * Global exception filter - shapes every error into { success: false, error }.
- * Handles Nest's HttpException (including class-validator's BadRequestException,
- * thrown by the global ValidationPipe, whose `message` is an array of per-field
- * errors), Multer upload errors, and anything unrecognized.
- */
+// Shapes every error into { success: false, error } - HttpException, Multer errors, and anything unrecognized.
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(HttpExceptionFilter.name);

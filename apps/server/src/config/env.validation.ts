@@ -63,10 +63,7 @@ export function validate(config: Record<string, unknown>) {
   return validatedConfig;
 }
 
-/**
- * Picks which dotenv file to load based on NODE_ENV: .env.local for local dev,
- * .env.test for tests, .env as the production/default fallback.
- */
+// .env.local for local dev, .env.test for tests, .env as the production/default fallback.
 export function resolveEnvFilePath(): string {
   const nodeEnv = process.env.NODE_ENV;
 

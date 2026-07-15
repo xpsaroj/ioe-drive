@@ -6,18 +6,12 @@ import { ModerationReasonLabel, ResourceStatus } from "@/types/entities";
 
 interface Props {
     item: ResourceSummary;
-    /**
-     * Whether to show Edit/Delete controls on this card. Only pass this where every
-     * resource shown is guaranteed to belong to the current user (e.g. "My Uploads") -
-     * this card is also reused on other users' public profiles, where it must stay false.
-     */
+    /** Only pass where every resource shown is guaranteed to belong to the current user. */
     showOwnerActions?: boolean;
 }
 
 const UploadedResourceCard = ({ item, showOwnerActions = false }: Props) => {
-    // There's no notification system in this app - this is how an uploader finds out
-    // their resource was rejected/removed and why, the next time they check their own
-    // uploads.
+    // No notification system - this is how an uploader finds out their resource was rejected/removed.
     const showModerationNotice = item.status === ResourceStatus.REJECTED || item.status === ResourceStatus.REMOVED;
 
     return (

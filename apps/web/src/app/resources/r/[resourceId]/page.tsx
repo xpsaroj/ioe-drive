@@ -10,10 +10,7 @@ interface ResourceDetailPageProps {
     }>;
 }
 
-// A resource that isn't APPROVED (and isn't the requester's own, which an
-// unauthenticated request never is) 404s here just like it does for any other
-// unauthorized viewer - falling back to a generic title is the right behavior for that
-// case, not a bug.
+// A non-APPROVED resource 404s here for an unauthenticated request - the generic title fallback is expected, not a bug.
 export async function generateMetadata({ params }: ResourceDetailPageProps): Promise<Metadata> {
     const { resourceId } = await params;
 

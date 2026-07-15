@@ -17,16 +17,13 @@ export class SubjectsController {
     return this.subjectsService.findByProgramAndSemester(query.programId, query.semester);
   }
 
-  /** GET /api/subjects/upload?programId=&semester= - subjects list for the upload form.
-   * Must stay registered before `:subjectId` below so "upload" isn't swallowed as a param. */
+  // Must stay registered before `:subjectId` below so "upload" isn't swallowed as a param.
   @Get("upload")
   findForUpload(@Query() query: GetSubjectsForUploadQueryDto) {
     return this.subjectsService.findForUpload(query.programId, query.semester);
   }
 
-  /** GET /api/subjects/search?q=&page=&limit= - subject offerings whose subject's name
-   * or code matches the query, paginated. Must stay registered before `:subjectId`
-   * below so "search" isn't swallowed as a param. */
+  // Must stay registered before `:subjectId` below so "search" isn't swallowed as a param.
   @Get("search")
   async search(@Query() query: SearchSubjectsQueryDto) {
     const offset = getPaginationOffset(query.page, query.limit);

@@ -6,10 +6,7 @@ import WordmarkText from "./WordmarkText";
 import Button from "@/components/ui/Button";
 import ThemeToggle from "@/components/ui/ThemeToggle";
 
-/**
- * Signed-out top bar - LayoutWrapper renders this instead of Navbar/MobileNav on every
- * route until the visitor signs in.
- */
+// Signed-out top bar - LayoutWrapper renders this instead of Navbar/MobileNav until sign-in.
 export default function Header() {
     return (
         <header className="bg-header-background backdrop-blur-md border-b border-header-border">

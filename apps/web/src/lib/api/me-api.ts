@@ -29,11 +29,7 @@ export const meApi = {
         return apiClient.get<PaginatedApiResponse<BookmarkedResourceItem>>(`${ME_API_BASE_URL}/bookmarked-resources${params ? `?${params}` : ""}`);
     },
 
-    /**
-     * Fetches every resource ID the currently authenticated user has ever bookmarked
-     * (uncapped, IDs only) - meant for checking bookmark status across many resources
-     * at once (e.g. a bookmark icon on every card in a list), not for display.
-     */
+    /** Every resource ID the current user has bookmarked, uncapped - for checking status across a list, not display. */
     async getBookmarkedResourceIds(): Promise<ApiResponse<number[]>> {
         return apiClient.get<ApiResponse<number[]>>(`${ME_API_BASE_URL}/bookmarked-resource-ids`);
     },
@@ -48,5 +44,18 @@ export const meApi = {
 
     async unmarkResourceAsBookmarked(resourceId: string): Promise<EmptyApiResponse> {
         return apiClient.delete<EmptyApiResponse>(`${ME_API_BASE_URL}/resources/${resourceId}/bookmark`);
+    },
+
+    /** Every resource the current user has voted on, mapped to their vote (1 or -1). */
+    async getResourceVoteValues(): Promise<ApiResponse<Record<number, 1 | -1>>> {
+        return apiClient.get<ApiResponse<Record<number, 1 | -1>>>(`${ME_API_BASE_URL}/resources/vote-values`);
+    },
+
+    async setResourceVote(resourceId: string, value: 1 | -1): Promise<EmptyApiResponse> {
+        return apiClient.put<EmptyApiResponse>(`${ME_API_BASE_URL}/resources/${resourceId}/vote`, { value });
+    },
+
+    async clearResourceVote(resourceId: string): Promise<EmptyApiResponse> {
+        return apiClient.delete<EmptyApiResponse>(`${ME_API_BASE_URL}/resources/${resourceId}/vote`);
     },
 }

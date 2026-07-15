@@ -1,10 +1,11 @@
-import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Put, Query, UseGuards } from "@nestjs/common";
 
 import { CurrentUser } from "../../common/decorators/current-user.decorator";
 import { ApiResponse } from "../../common/dto/api-response";
 import { PaginationQueryDto } from "../../common/dto/pagination-query.dto";
 import { ClerkAuthGuard, type AuthenticatedUser } from "../../common/guards/clerk-auth.guard";
 import { buildPaginationMeta, getPaginationOffset } from "../../common/utils/pagination";
+import { SetVoteDto } from "./dto/set-vote.dto";
 import { UpdateProfileDto } from "./dto/update-profile.dto";
 import { MeService } from "./me.service";
 
@@ -53,8 +54,7 @@ export class MeController {
     return ApiResponse.of(items, undefined, buildPaginationMeta(query.page, query.limit, total));
   }
 
-  /** GET /api/me/bookmarked-resource-ids - every resource ID bookmarked by the current
-   * user (uncapped, IDs only - backs the bookmark icon on every resource card). */
+  // Uncapped, IDs only - backs the bookmark icon on every resource card.
   @Get("bookmarked-resource-ids")
   getBookmarkedResourceIds(@CurrentUser() user: AuthenticatedUser) {
     return this.meService.getBookmarkedResourceIds(user.id);
@@ -88,5 +88,29 @@ export class MeController {
   ) {
     await this.meService.unmarkResourceAsBookmarked(user.id, resourceId);
     return ApiResponse.of(null, "Resource unbookmarked");
+  }
+
+  /** GET /api/me/resources/vote-values - every resource the current user has voted on, mapped to their vote (1 or -1). */
+  @Get("resources/vote-values")
+  getVoteValues(@CurrentUser() user: AuthenticatedUser) {
+    return this.meService.getVoteValues(user.id);
+  }
+
+  /** PUT /api/me/resources/:resourceId/vote - set (or switch) the current user's vote. */
+  @Put("resources/:resourceId/vote")
+  async setVote(
+    @CurrentUser() user: AuthenticatedUser,
+    @Param("resourceId", ParseIntPipe) resourceId: number,
+    @Body() dto: SetVoteDto,
+  ) {
+    await this.meService.setResourceVote(user.id, resourceId, dto.value);
+    return ApiResponse.of(null, "Vote recorded");
+  }
+
+  /** DELETE /api/me/resources/:resourceId/vote - clear the current user's vote. */
+  @Delete("resources/:resourceId/vote")
+  async clearVote(@CurrentUser() user: AuthenticatedUser, @Param("resourceId", ParseIntPipe) resourceId: number) {
+    await this.meService.clearResourceVote(user.id, resourceId);
+    return ApiResponse.of(null, "Vote cleared");
   }
 }

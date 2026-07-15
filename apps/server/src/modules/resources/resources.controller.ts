@@ -62,8 +62,7 @@ export class ResourcesController {
     return ApiResponse.of(resource, "Resource created successfully");
   }
 
-  /** PATCH /api/resources/:resourceId - update an existing resource (requires
-   * authentication, must be the uploader). */
+  // PATCH /api/resources/:resourceId - must be the uploader.
   @Patch(":resourceId")
   @UseGuards(ClerkAuthGuard)
   async update(
@@ -84,8 +83,7 @@ export class ResourcesController {
     return ApiResponse.of(resource, "Resource updated successfully");
   }
 
-  /** DELETE /api/resources/:resourceId - delete an existing resource (requires
-   * authentication, must be the uploader). */
+  // DELETE /api/resources/:resourceId - must be the uploader.
   @Delete(":resourceId")
   @UseGuards(ClerkAuthGuard)
   async remove(@CurrentUser() user: AuthenticatedUser, @Param("resourceId", ParseIntPipe) resourceId: number) {
@@ -93,8 +91,7 @@ export class ResourcesController {
     return ApiResponse.of(null, "Resource deleted successfully");
   }
 
-  /** POST /api/resources/:resourceId/approve - approve a pending resource, making it
-   * publicly visible (moderator-only). */
+  // POST /api/resources/:resourceId/approve - moderator-only.
   @Post(":resourceId/approve")
   @UseGuards(ClerkAuthGuard, RolesGuard)
   @Roles("MODERATOR", "ADMIN")
@@ -104,9 +101,7 @@ export class ResourcesController {
     return ApiResponse.of(resource, "Resource approved");
   }
 
-  /** POST /api/resources/:resourceId/reject - reject a pending or approved resource
-   * with a reason (moderator-only). Resubmittable - the uploader editing it resets it
-   * back to pending. */
+  // POST /api/resources/:resourceId/reject - moderator-only; resubmittable, resets to pending on edit.
   @Post(":resourceId/reject")
   @UseGuards(ClerkAuthGuard, RolesGuard)
   @Roles("MODERATOR", "ADMIN")
@@ -120,9 +115,7 @@ export class ResourcesController {
     return ApiResponse.of(resource, "Resource rejected");
   }
 
-  /** POST /api/resources/:resourceId/remove - the harder moderator action: purges the
-   * resource's files and marks it permanently removed, with a reason the uploader can
-   * see on their own uploads page (moderator-only, not resubmittable). */
+  // POST /api/resources/:resourceId/remove - moderator-only, purges files, permanent, not resubmittable.
   @Post(":resourceId/remove")
   @UseGuards(ClerkAuthGuard, RolesGuard)
   @Roles("MODERATOR", "ADMIN")
@@ -136,9 +129,7 @@ export class ResourcesController {
     return ApiResponse.of(resource, "Resource removed");
   }
 
-  /** POST /api/resources/:resourceId/report - report an approved resource (any
-   * signed-in user other than its uploader). The reporter's identity is never surfaced
-   * to the uploader, only to moderators reviewing the reports queue. */
+  // POST /api/resources/:resourceId/report - reporter identity is never surfaced to the uploader.
   @Post(":resourceId/report")
   @UseGuards(ClerkAuthGuard)
   @HttpCode(HttpStatus.OK)
@@ -151,8 +142,7 @@ export class ResourcesController {
     return ApiResponse.of(null, "Resource reported");
   }
 
-  /** POST /api/resources/:resourceId/files - add files to an existing resource
-   * (requires authentication, must be the uploader). */
+  // POST /api/resources/:resourceId/files - must be the uploader.
   @Post(":resourceId/files")
   @UseGuards(ClerkAuthGuard)
   @UseInterceptors(FilesInterceptor(RESOURCE_FILE_FIELD, MAX_RESOURCE_FILES, resourceFileMulterOptions))
@@ -165,8 +155,7 @@ export class ResourcesController {
     return ApiResponse.of(null, "Files added successfully");
   }
 
-  /** DELETE /api/resources/:resourceId/files/:fileId - remove a file from a resource
-   * (requires authentication, must be the uploader). */
+  // DELETE /api/resources/:resourceId/files/:fileId - must be the uploader.
   @Delete(":resourceId/files/:fileId")
   @UseGuards(ClerkAuthGuard)
   async removeFile(
@@ -178,9 +167,7 @@ export class ResourcesController {
     return ApiResponse.of(null, "File removed successfully");
   }
 
-  /** GET /api/resources/:resourceId/files/:fileId/download-url - a short-lived signed
-   * download URL. Any signed-in user for an APPROVED resource; only its uploader or a
-   * moderator/admin otherwise (see ResourcesService.getFileDownloadUrl). */
+  // GET .../download-url - any signed-in user for APPROVED; otherwise only the uploader/a moderator.
   @Get(":resourceId/files/:fileId/download-url")
   @UseGuards(ClerkAuthGuard)
   async getFileDownloadUrl(
@@ -193,21 +180,14 @@ export class ResourcesController {
     return { url };
   }
 
-  /** GET /api/resources/search-suggestions?q=&limit= - a lean, capped list of resource
-   * previews matching a search query (title/description), for live-typing UI like the
-   * search palette - not the full paginated browse shape `findMany` returns (public).
-   * Must stay registered before `:resourceId` below so "search-suggestions" isn't
-   * swallowed as a param. */
+  // Must stay registered before `:resourceId` below so "search-suggestions" isn't swallowed as a param.
   @Get("search-suggestions")
   async searchSuggestions(@Query() query: SearchSuggestionsQueryDto) {
     const suggestions = await this.resourcesService.searchSuggestions(query.q, query.limit ?? 8);
     return ApiResponse.of(suggestions);
   }
 
-  /** GET /api/resources/:resourceId - resource details by ID. Public for APPROVED
-   * resources; a pending/rejected/removed resource is only visible to its uploader or a
-   * moderator (404 for anyone else), so identity is checked when present without
-   * requiring it. */
+  // Public for APPROVED; non-approved only visible to its uploader or a moderator (404 otherwise).
   @Get(":resourceId")
   @UseGuards(OptionalClerkAuthGuard)
   findById(
@@ -217,8 +197,7 @@ export class ResourcesController {
     return this.resourcesService.findResourceById(resourceId, viewer);
   }
 
-  /** GET /api/resources/:resourceId/similar?limit= - other resources from the same
-   * subject offering, for the detail page's "Similar Resources" panel (public). */
+  // Other resources from the same subject offering, for the "Similar Resources" panel.
   @Get(":resourceId/similar")
   async findSimilar(
     @Param("resourceId", ParseIntPipe) resourceId: number,
@@ -228,9 +207,7 @@ export class ResourcesController {
     return ApiResponse.of(similar);
   }
 
-  /** GET /api/resources?offeringId=&userId=&q=&page=&limit= - resources filtered by
-   * subject offering, uploader, or a title/description search query, paginated
-   * (public). */
+  // Resources filtered by subject offering, uploader, or a search query, paginated (public).
   @Get()
   async findMany(@Query() query: GetResourcesQueryDto) {
     if (!query.offeringId && !query.userId && !query.q) {

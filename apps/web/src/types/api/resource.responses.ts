@@ -27,6 +27,10 @@ export interface ResourceSummary {
     moderationNote?: string;
     moderatedAt?: string;
 
+    upvoteCount: number;
+    downvoteCount: number;
+    downloadCount: number;
+
     subjectOffering: SubjectOfferingSummary & {
         subject: SubjectSummary;
     }
@@ -35,8 +39,7 @@ export interface ResourceSummary {
     files: ResourceFileSummary[];
 }
 
-/** A lean resource preview row - just enough for a compact list (e.g. the search
- * palette): no description, uploader, or files, unlike ResourceSummary. */
+// Lean resource preview row - no description, uploader, or files, unlike ResourceSummary.
 export interface ResourceSuggestion {
     id: number;
     title: string;

@@ -15,8 +15,7 @@ export interface ReportReporterSummary {
     fullName: string;
 }
 
-/** An open report against an approved resource - the reporter's identity is only ever
- * exposed here, never on any uploader- or public-facing response. */
+// Reporter's identity is only ever exposed here, never on any uploader- or public-facing response.
 export interface ReportItem {
     id: number;
     resourceId: number;

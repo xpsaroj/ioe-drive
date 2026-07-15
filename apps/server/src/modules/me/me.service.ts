@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from "@nestjs/common";
+import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 
 import { ResourcesRepository } from "../resources/resources.repository";
 import { ResourcesService } from "../resources/resources.service";
@@ -80,5 +80,30 @@ export class MeService {
 
   async unmarkResourceAsBookmarked(userId: number, resourceId: number): Promise<void> {
     await this.meRepository.unmarkBookmarked(userId, resourceId);
+  }
+
+  getVoteValues(userId: number) {
+    return this.meRepository.findVoteValues(userId);
+  }
+
+  async setResourceVote(userId: number, resourceId: number, value: number): Promise<void> {
+    await this.assertVotable(userId, resourceId);
+    await this.meRepository.setVote(userId, resourceId, value);
+  }
+
+  async clearResourceVote(userId: number, resourceId: number): Promise<void> {
+    await this.meRepository.clearVote(userId, resourceId);
+  }
+
+  private async assertVotable(userId: number, resourceId: number): Promise<void> {
+    const resource = await this.resourcesRepository.findOwnership(resourceId);
+
+    if (!resource) {
+      throw new NotFoundException("Resource not found");
+    }
+
+    if (resource.uploadedBy === userId) {
+      throw new ForbiddenException("You can't vote on your own resource");
+    }
   }
 }

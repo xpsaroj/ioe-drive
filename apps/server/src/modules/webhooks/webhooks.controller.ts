@@ -17,12 +17,7 @@ export class WebhooksController {
     private readonly configService: ConfigService,
   ) {}
 
-  /**
-   * POST /api/webhooks/clerk - receives Clerk webhook events. Needs the untouched raw
-   * body for signature verification (see main.ts's `rawBody: true` bootstrap option,
-   * which stashes it on req.rawBody without disabling normal JSON parsing for every
-   * other route).
-   */
+  // Needs the untouched raw body for signature verification (see main.ts's rawBody: true option).
   @Post("clerk")
   async handleClerkWebhook(@Req() req: RawBodyRequest<Request>): Promise<void> {
     if (!req.rawBody) {

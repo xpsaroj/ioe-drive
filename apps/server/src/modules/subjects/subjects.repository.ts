@@ -33,8 +33,7 @@ export class SubjectsRepository {
     });
   }
 
-  /** `subjectId` here is actually a subject *offering* id - this queries
-   * subjectOfferingsTable, which is the entity the app actually browses/filters by. */
+  // `subjectId` here is actually a subject *offering* id.
   findById(subjectId: number) {
     return this.db.query.subjectOfferingsTable.findFirst({
       where: (fields, { eq }) => eq(fields.id, subjectId),
@@ -77,17 +76,7 @@ export class SubjectsRepository {
     });
   }
 
-  /** Drizzle's relational query API (`db.query.X.findMany`) can't filter by a joined
-   * table's column, so this is a two-step query: find subjects whose name/code match,
-   * then find the offerings for those subjects. Returns one row per matching
-   * *offering* (a subject can be offered under more than one program), consistent
-   * with how /offerings already lists offerings rather than deduplicated subjects.
-   *
-   * Only selects the lean `{id, code, name}`/`{id, code, name}` subject/program shape
-   * (matching the existing `SubjectSummary`/`ProgramSummary` frontend types) - neither
-   * search result consumer (the search dialog, the /search page) renders `marks`,
-   * `description`, `syllabusUrl`, or `hardnessLevel`, so there's no reason to join and
-   * ship them over the wire. */
+  // Two-step: find matching subjects first, then their offerings - the relational query API can't filter by a joined column directly.
   async searchByNameOrCode(q: string, pagination: { limit: number; offset: number }) {
     const matchingSubjects = await this.db
       .select({ id: subjectsTable.id })

@@ -18,9 +18,7 @@ interface SearchDialogProps {
 
 const RESULT_LIMITS = { subjects: 5, resources: 8 };
 
-/** A single entry in the flat, keyboard-navigable list backing both result sections -
- * lets ↑/↓/Enter move across subjects and resources as one sequence without the two
- * sections needing to know about each other. */
+// Lets ↑/↓/Enter move across subjects and resources as one flat sequence.
 interface FlatItem {
     key: string;
     href: string;
@@ -46,18 +44,14 @@ const SearchDialog = ({ isOpen, onClose }: SearchDialogProps) => {
         ...(resourceSuggestions ?? []).map((r): FlatItem => ({ key: `resource-${r.id}`, href: `/resources/r/${r.id}` })),
     ], [subjectsData, resourceSuggestions]);
 
-    // A fresh result set (new debounced query) shouldn't keep whatever was highlighted
-    // for the previous one - adjusted during render (not an effect) per React's own
-    // guidance for resetting state when a value changes.
+    // Reset the highlight during render (not an effect) per React's guidance for resetting on a value change.
     const [settledQuery, setSettledQuery] = useState(debouncedQuery);
     if (debouncedQuery !== settledQuery) {
         setSettledQuery(debouncedQuery);
         setHighlightedIndex(-1);
     }
 
-    // The dialog is only ever mounted while open (see SearchBar's `{isOpen && ...}`),
-    // so focusing the input and locking body scroll on mount covers "opened" - no
-    // `isOpen` dependency needed.
+    // Only ever mounted while open, so mount covers "opened" - no isOpen dependency needed.
     useEffect(() => {
         const id = requestAnimationFrame(() => inputRef.current?.focus());
         return () => cancelAnimationFrame(id);
@@ -70,10 +64,7 @@ const SearchDialog = ({ isOpen, onClose }: SearchDialogProps) => {
         };
     }, []);
 
-    // Keyboard nav (unlike a mouse hover) can move the highlight past what's currently
-    // visible in the scrollable results list - keep it in view. `block: "nearest"` is a
-    // no-op when the row is already visible (e.g. highlighted via mouse), so this is
-    // safe to run on every highlight change regardless of what triggered it.
+    // Keeps a keyboard-highlighted row in view; `block: "nearest"` is a no-op if already visible.
     useEffect(() => {
         if (highlightedIndex < 0) return;
         resultsRef.current

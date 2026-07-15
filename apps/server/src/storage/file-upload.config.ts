@@ -10,11 +10,7 @@ const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
 const ALLOWED_MIME_TYPES =
   /^(application\/pdf|application\/vnd\.openxmlformats-officedocument\.wordprocessingml\.document|image\/jpeg|image\/png)$/;
 
-/**
- * Multer options for the resource-file upload field: in-memory storage (files are
- * streamed straight to Azure Blob Storage, never written to disk) plus a hard size
- * cap enforced at the parsing layer.
- */
+// In-memory storage - files stream straight to Azure Blob Storage, never written to disk.
 export const resourceFileMulterOptions: MulterModuleOptions = {
   storage: memoryStorage(),
   limits: {
@@ -22,10 +18,7 @@ export const resourceFileMulterOptions: MulterModuleOptions = {
   },
 };
 
-/**
- * Per-file type/size validation for @UploadedFiles(), layered on top of Multer's hard
- * limits above. Not required - a resource can be created with zero files.
- */
+// Not required - a resource can be created with zero files.
 export const createResourceFileValidationPipe = (): ParseFilePipe =>
   new ParseFilePipe({
     fileIsRequired: false,

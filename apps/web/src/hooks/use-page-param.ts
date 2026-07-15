@@ -5,12 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 const DEFAULT_PAGE = 1;
 
-/**
- * Reads/writes a page-number query param (default `page`) for a paginated list page,
- * consistent with how /resources already keeps its program/semester filter in the URL
- * (shareable/bookmarkable, survives a refresh). Must be used in a component that's
- * wrapped in <Suspense>, since useSearchParams requires it.
- */
+// Must be used in a component wrapped in <Suspense>, since useSearchParams requires it.
 export const usePageParam = (paramName: string = "page") => {
     const router = useRouter();
     const pathname = usePathname();

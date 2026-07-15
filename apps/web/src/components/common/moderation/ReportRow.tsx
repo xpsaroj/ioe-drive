@@ -11,8 +11,7 @@ interface ReportRowProps {
     report: ReportItem;
 }
 
-/** A single open report in the moderation reports queue - the reporter's identity is
- * shown here (moderator-only view), never on any uploader- or public-facing surface. */
+// Reporter's identity shows here (moderator-only view), never on any uploader- or public-facing surface.
 const ReportRow = ({ report }: ReportRowProps) => {
     const { mutate: dismiss, isPending } = useDismissReport();
 

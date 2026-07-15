@@ -14,10 +14,7 @@ interface BreadcrumbsProps {
     className?: string;
 }
 
-/**
- * A wayfinding trail (e.g. "Library > Uploads"). The last item is always rendered as
- * the current page (plain text, not a link) regardless of whether it has an `href`.
- */
+// The last item always renders as plain text, regardless of whether it has an `href`.
 const Breadcrumbs = ({ items, className }: BreadcrumbsProps) => {
     return (
         <nav aria-label="Breadcrumb" className={cn("min-w-0", className)}>

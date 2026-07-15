@@ -6,8 +6,7 @@ export interface NavigationItem {
     name: string;
     href: string;
     icon: LucideIcon;
-    /** Only rendered for users whose role is in this list - filtered out at render
-     * time by Navbar/MobileNav entirely (not just hidden via CSS), for anyone else. */
+    /** Filtered out entirely (not just hidden) for anyone without one of these roles. */
     allowedRoles?: UserRole[];
 }
 
@@ -16,11 +15,7 @@ export interface NavigationGroup {
     items: NavigationItem[];
 }
 
-/**
- * Primary nav destinations, grouped by what they're about rather than one flat list -
- * shared by the desktop sidebar (Navbar) and the mobile drawer (MobileNav) so both stay
- * in sync.
- */
+// Shared by the desktop sidebar (Navbar) and mobile drawer (MobileNav) so both stay in sync.
 export const NAVIGATION_GROUPS: NavigationGroup[] = [
     {
         label: "Personal",
@@ -70,9 +65,7 @@ export const NAVIGATION_GROUPS: NavigationGroup[] = [
     },
 ];
 
-/** Drops role-gated items the given role can't see (and the whole group if that
- * empties it out) - shared by Navbar and MobileNav so both navs agree on who sees
- * what. `role` is undefined for a signed-out visitor, who never sees any gated item. */
+// Drops role-gated items the given role can't see, and the whole group if that empties it.
 export const getVisibleNavigationGroups = (role?: UserRole): NavigationGroup[] =>
     NAVIGATION_GROUPS
         .map((group) => ({
@@ -81,25 +74,13 @@ export const getVisibleNavigationGroups = (role?: UserRole): NavigationGroup[] =
         }))
         .filter((group) => group.items.length > 0);
 
-/** All nav hrefs across every group, used to resolve which item wins when a
- * pathname is nested under more than one of them (see isNavItemActive below). */
+// Used to resolve which item wins when a pathname is nested under more than one.
 const ALL_NAV_HREFS: string[] = NAVIGATION_GROUPS.flatMap((group) => group.items.map((item) => item.href));
 
 const matchesRoute = (pathname: string, href: string): boolean =>
     pathname === href || pathname.startsWith(`${href}/`);
 
-/**
- * Whether a nav item should render as "active" for the given pathname - matches the
- * item's own route or anything nested under it (e.g. `/library/uploads` under
- * `/library`), but not an unrelated route that merely shares a prefix. Shared by
- * Navbar and MobileNav so both navs agree on the same route (previously each had its
- * own slightly different check).
- *
- * Only the most specific (longest) matching href among all nav items is considered
- * active, so a parent route doesn't light up alongside a sibling nested under the
- * same path segment - e.g. `/resources/share` has its own nav entry, so `/resources`
- * (which `/resources/share` would otherwise also match as a prefix) must lose to it.
- */
+// Only the longest matching href wins, so a parent route doesn't light up alongside a nested sibling (e.g. /resources vs /resources/share).
 export const isNavItemActive = (pathname: string, href: string, allHrefs: string[] = ALL_NAV_HREFS): boolean => {
     if (!matchesRoute(pathname, href)) return false;
 

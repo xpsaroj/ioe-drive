@@ -1,9 +1,9 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { and, count, desc, eq, inArray } from "drizzle-orm";
+import { and, count, desc, eq, inArray, sql } from "drizzle-orm";
 
 import { DRIZZLE } from "../../database/database.constants";
 import type { DrizzleDb } from "../../database/database.types";
-import { resourcesTable, userBookmarkedResourcesTable, userRecentResourcesTable } from "../../database/schema";
+import { resourcesTable, resourceVotesTable, userBookmarkedResourcesTable, userRecentResourcesTable } from "../../database/schema";
 import { RESOURCE_DETAIL_RELATIONS } from "../resources/resources.repository";
 
 @Injectable()
@@ -95,5 +95,66 @@ export class MeRepository {
           eq(userBookmarkedResourcesTable.resourceId, resourceId),
         ),
       );
+  }
+
+  async findVoteValues(userId: number): Promise<Record<number, number>> {
+    const rows = await this.db.query.resourceVotesTable.findMany({
+      where: eq(resourceVotesTable.userId, userId),
+      columns: { resourceId: true, value: true },
+    });
+
+    return Object.fromEntries(rows.map((row) => [row.resourceId, row.value]));
+  }
+
+  async setVote(userId: number, resourceId: number, value: number): Promise<void> {
+    await this.db.transaction(async (tx) => {
+      // Locks the resource row so a concurrent vote can't read a stale `existing` value before this transaction's counter update commits.
+      await tx.select({ id: resourcesTable.id }).from(resourcesTable).where(eq(resourcesTable.id, resourceId)).for("update");
+
+      const existing = await tx.query.resourceVotesTable.findFirst({
+        where: and(eq(resourceVotesTable.userId, userId), eq(resourceVotesTable.resourceId, resourceId)),
+        columns: { value: true },
+      });
+
+      if (existing?.value === value) return;
+
+      await tx
+        .insert(resourceVotesTable)
+        .values({ userId, resourceId, value })
+        .onConflictDoUpdate({
+          target: [resourceVotesTable.userId, resourceVotesTable.resourceId],
+          set: { value, updatedAt: new Date() },
+        });
+
+      const upvoteDelta = (value === 1 ? 1 : 0) - (existing?.value === 1 ? 1 : 0);
+      const downvoteDelta = (value === -1 ? 1 : 0) - (existing?.value === -1 ? 1 : 0);
+
+      await tx
+        .update(resourcesTable)
+        .set({
+          upvoteCount: sql`${resourcesTable.upvoteCount} + ${upvoteDelta}`,
+          downvoteCount: sql`${resourcesTable.downvoteCount} + ${downvoteDelta}`,
+        })
+        .where(eq(resourcesTable.id, resourceId));
+    });
+  }
+
+  async clearVote(userId: number, resourceId: number): Promise<void> {
+    await this.db.transaction(async (tx) => {
+      const [deleted] = await tx
+        .delete(resourceVotesTable)
+        .where(and(eq(resourceVotesTable.userId, userId), eq(resourceVotesTable.resourceId, resourceId)))
+        .returning({ value: resourceVotesTable.value });
+
+      if (!deleted) return;
+
+      await tx
+        .update(resourcesTable)
+        .set({
+          upvoteCount: sql`${resourcesTable.upvoteCount} - ${deleted.value === 1 ? 1 : 0}`,
+          downvoteCount: sql`${resourcesTable.downvoteCount} - ${deleted.value === -1 ? 1 : 0}`,
+        })
+        .where(eq(resourcesTable.id, resourceId));
+    });
   }
 }

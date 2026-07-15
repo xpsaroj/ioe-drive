@@ -20,12 +20,6 @@ interface UserDetailsPageProps {
     }>
 }
 
-// No upvote system exists in the data model yet - this is a purely cosmetic placeholder
-// (tracked in docs/todo.md) until a real feature backs it. The derivation gives each
-// profile a small, stable per-user variance rather than an identical number for
-// everyone - it doesn't mean anything beyond "looks distinct."
-const getPlaceholderUpvoteCount = (userId: number) => 50 + ((userId * 83) % 900);
-
 const UserDetailsContent = ({ userId }: { userId: number }) => {
     const router = useRouter();
     const { page, setPage } = usePageParam();
@@ -155,7 +149,7 @@ const UserDetailsContent = ({ userId }: { userId: number }) => {
                                 <div className="flex items-center justify-between py-3">
                                     <span className="text-sm text-foreground-secondary">Upvotes</span>
                                     <span className="text-lg font-semibold text-foreground">
-                                        {getPlaceholderUpvoteCount(user.id)}+
+                                        {user.upvoteCount}
                                     </span>
                                 </div>
                                 <div className="flex items-center justify-between py-3">

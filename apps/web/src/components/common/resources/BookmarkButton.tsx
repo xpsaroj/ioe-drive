@@ -7,8 +7,7 @@ import { useMe, useBookmarkedResourceIds, useBookmarkResource, useUnbookmarkReso
 
 interface BookmarkButtonProps {
     resourceId: number;
-    /** Render as a labeled "Save"/"Saved" button instead of the default icon-only
-     * toggle - for prominent placements like the resource detail page's header. */
+    /** Labeled "Save"/"Saved" button instead of icon-only, for prominent placements. */
     showLabel?: boolean;
 }
 
@@ -18,8 +17,7 @@ const BookmarkButton = ({ resourceId, showLabel = false }: BookmarkButtonProps) 
     const { mutate: bookmark, isPending: isBookmarking } = useBookmarkResource();
     const { mutate: unbookmark, isPending: isUnbookmarking } = useUnbookmarkResource();
 
-    // Bookmarking requires being signed in - guests never see the button at all,
-    // rather than seeing a disabled/dead one.
+    // Guests never see the button at all, rather than a disabled/dead one.
     if (!userData) return null;
 
     const isBookmarked = !!bookmarkedIds?.includes(resourceId);

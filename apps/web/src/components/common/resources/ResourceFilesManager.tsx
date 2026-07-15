@@ -47,13 +47,7 @@ const ExistingFileRow = ({
     );
 };
 
-/**
- * Lets the owner of a resource add or remove files after the fact, independent of the
- * metadata edit form's own save cycle - each action (add/remove) applies immediately,
- * same as deleting the whole resource already does. Unlike the upload form's staged
- * queue, there's no "confirm" step here - a dropped/selected file starts uploading
- * right away, since it isn't tied to a broader form submission.
- */
+// Unlike the upload form's staged queue, add/remove here applies immediately - no confirm step.
 const ResourceFilesManager = ({ resource }: ResourceFilesManagerProps) => {
     const [isDragging, setIsDragging] = useState(false);
     const { mutate: addFiles, isPending: isAdding } = useAddResourceFiles(resource.id);

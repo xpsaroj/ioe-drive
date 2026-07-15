@@ -18,8 +18,7 @@ interface BookSpinesProps {
     className?: string;
 }
 
-// Kept entirely right of ~48% so the shelf never sits behind left-aligned header text,
-// whatever the panel's height ends up being.
+// Kept entirely right of ~48% so the shelf never sits behind left-aligned header text.
 export const DEFAULT_SHELF_SPINES: BookSpine[] = [
     { left: "48%", width: "w-2", height: "38%" },
     { left: "52%", width: "w-1.5", height: "60%", solid: true },
@@ -35,12 +34,7 @@ export const DEFAULT_SHELF_SPINES: BookSpine[] = [
     { left: "95%", width: "w-2.5", height: "52%" },
 ];
 
-/**
- * A row of book spines lining the bottom edge like a shelf - the Library hub's own
- * signature texture (distinct from ScatteredCodeTiles/DotGrid used elsewhere), grown
- * up from the baseline once on load rather than scattered or floating, since "books
- * being shelved" is the more fitting motion for this page's subject.
- */
+// The Library hub's own signature texture, distinct from ScatteredCodeTiles/DotGrid used elsewhere.
 const BookSpines = ({ spines, className }: BookSpinesProps) => (
     <div className={cn("pointer-events-none absolute inset-x-0 bottom-0 h-full", className)}>
         {spines.map((spine, index) => (

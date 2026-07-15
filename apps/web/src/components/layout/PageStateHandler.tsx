@@ -11,8 +11,7 @@ interface PageStateHandlerProps {
     children: React.ReactNode;
     containerClassName?: string;
     stateContainerClassName?: string;
-    /** Rendered at the top of the page in every state (loading/error/empty/content) -
-     * usually a title and back button. */
+    /** Rendered at the top of the page in every state - usually a title and back button. */
     header?: React.ReactNode;
 }
 

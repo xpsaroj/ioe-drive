@@ -1,10 +1,6 @@
 import type { PaginationMeta } from "../utils/pagination";
 
-/**
- * Optional wrapper a controller can return to carry a custom `message`/`meta` through
- * the global ResponseInterceptor. A bare return value (not wrapped in this) becomes
- * `data` with no message/meta.
- */
+// A bare controller return value (not wrapped in this) becomes `data` with no message/meta.
 export class ApiResponse<T> {
   private constructor(
     public readonly data: T,

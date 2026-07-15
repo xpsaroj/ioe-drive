@@ -16,9 +16,7 @@ const MyUploadedResourcesContent = () => {
     const { data, isPending, error, isPlaceholderData } = useUploadedResources(page);
     const uploadedResources = data?.items;
 
-    // Reachable from more than one place (dashboard, library hub) - a real back button
-    // is more reliable than assuming the breadcrumb's own first crumb is where the
-    // visitor actually came from.
+    // Reachable from more than one place, so a real back button beats assuming the breadcrumb's first crumb.
     const backButton = (
         <Button
             icon={<ChevronLeft className="size-4" />}

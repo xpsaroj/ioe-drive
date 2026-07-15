@@ -27,6 +27,7 @@ export interface UserProfileSummary {
     fullName: string;
     createdAt: string;
     profile: ProfileSummary;
+    upvoteCount: number;
 }
 
 /** The response shape of the admin role-change endpoint. */

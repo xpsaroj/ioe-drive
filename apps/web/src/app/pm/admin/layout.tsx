@@ -2,9 +2,7 @@ import type { Metadata } from "next";
 
 import AdminGate from "./AdminGate";
 
-// Kept out of search engines via metadata. The real access control is still the
-// server-side @Roles("ADMIN") guard on the admin endpoint (see AdminGate) - this only
-// keeps it out of search results.
+// Only keeps this out of search results - real access control is the server-side @Roles("ADMIN") guard.
 export const metadata: Metadata = {
     robots: { index: false, follow: false },
 };

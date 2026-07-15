@@ -35,13 +35,10 @@ const ResourcesBrowseContent = () => {
 
     const profileHasDefault = !!(profile?.programId && profile?.semester);
     const waitingForProfileDefault = !!isSignedIn && (!authLoaded || profilePending);
-    // If we're signed in with a complete profile but the URL doesn't reflect it yet,
-    // we're about to auto-redirect below - keep showing a loading state instead of
-    // briefly flashing the "select a program and semester" prompt.
+    // About to auto-redirect below - keep loading instead of flashing the filter prompt.
     const pendingAutoRedirect = !!isSignedIn && !profilePending && profileHasDefault && !urlProgramId && !urlSemester;
 
-    // Default the filter from the signed-in user's profile the first time they land here
-    // with no explicit selection in the URL.
+    // Default the filter from the signed-in user's profile, first landing with no URL selection.
     useEffect(() => {
         if (urlProgramId || urlSemester) return;
         if (!isSignedIn || profilePending) return;
@@ -65,9 +62,7 @@ const ResourcesBrowseContent = () => {
 
     const { data: subjectOfferings, error: offeringsError, isPending: offeringsPending } = useSubjectOfferings(programId, semester);
 
-    // A link into this page (e.g. an offering's "Browse Resources" button) can name a
-    // specific subject via ?offeringId= - preferred over the first-in-list default, but
-    // still overridden the moment the visitor picks a different one from the Select.
+    // ?offeringId= (e.g. from an offering's "Browse Resources" button) beats the first-in-list default.
     const urlOfferingId = searchParams.get("offeringId");
     const linkedOffering = urlOfferingId ? subjectOfferings?.find((s) => String(s.id) === urlOfferingId) : undefined;
 
@@ -75,10 +70,7 @@ const ResourcesBrowseContent = () => {
     const currentOfferingId = selectedSubject?.id ?? linkedOffering?.id ?? subjectOfferings?.[0]?.id;
 
     const { page, setPage } = usePageParam();
-    // Reset back to page 1 whenever the selected subject actually changes (not on the
-    // initial mount's undefined -> loaded transition), so switching subjects never
-    // leaves the user stranded on a page number the new subject doesn't have, while
-    // still letting a shared ?page=N link work on first load.
+    // Reset to page 1 on a real subject change (not the initial mount), so a shared ?page=N link still works on first load.
     const previousOfferingIdRef = useRef<number | undefined>(undefined);
     useEffect(() => {
         if (

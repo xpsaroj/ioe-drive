@@ -18,10 +18,7 @@ export const academicsApi = {
         return apiClient.get<ApiResponse<Program[]>>("/programs");
     },
 
-    /**
-     * Get subjects filtered by program and semester.
-     * - If semester is not provided, fetches all subjects for the program.
-     */
+    // Fetches all subjects for the program if semester is omitted.
     async getSubjectsByProgramAndSemester(filters: SubjectsFilters): Promise<ApiResponse<SubjectOfferingWithSubject[]>> {
         const params = new URLSearchParams({
             programId: filters.programId.toString(),

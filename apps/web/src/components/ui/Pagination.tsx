@@ -14,11 +14,7 @@ interface PaginationProps {
 
 const ELLIPSIS = "ellipsis" as const;
 
-/**
- * Builds a compact page-number list: always shows the first/last page and a window
- * around the current page, collapsing the rest into an ellipsis. E.g. for page=5,
- * totalPages=10: [1, ellipsis, 4, 5, 6, ellipsis, 10].
- */
+// E.g. page=5, totalPages=10 -> [1, ellipsis, 4, 5, 6, ellipsis, 10].
 const getPageNumbers = (page: number, totalPages: number): (number | typeof ELLIPSIS)[] => {
     const pages: (number | typeof ELLIPSIS)[] = [];
     const windowStart = Math.max(2, page - 1);
@@ -33,10 +29,7 @@ const getPageNumbers = (page: number, totalPages: number): (number | typeof ELLI
     return pages;
 };
 
-/**
- * Reusable numbered-pages control, shared across every paginated list page
- * (/resources, /library/uploads, /library/bookmarks, /library/recent, /users/[userId]).
- */
+// Shared across every paginated list page.
 const Pagination = ({ page, totalPages, onPageChange, disabled, className }: PaginationProps) => {
     if (totalPages <= 1) return null;
 

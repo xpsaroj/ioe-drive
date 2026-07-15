@@ -9,13 +9,7 @@ import { usersTable } from "../../database/schema";
 import { toFetchRequest } from "../utils/fetch-request";
 import type { RequestWithAuthUser } from "./clerk-auth.guard";
 
-/**
- * Same identity resolution as ClerkAuthGuard, but never rejects the request - populates
- * `request.authUser` when a valid session exists, leaves it undefined otherwise. For
- * routes that are public but behave differently depending on who's asking (e.g. a
- * resource pending review is visible to its uploader/a moderator, 404 for anyone else),
- * rather than being either fully public or fully gated.
- */
+// Same identity resolution as ClerkAuthGuard, but never rejects - populates request.authUser if present, undefined otherwise.
 @Injectable()
 export class OptionalClerkAuthGuard implements CanActivate {
   constructor(

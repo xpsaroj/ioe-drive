@@ -12,22 +12,12 @@ export interface StatStripItem {
 
 interface StatStripProps {
     items: StatStripItem[];
-    /**
-     * "boxed" (default): a single bordered box divided into equal segments - used
-     * instead of separate stat cards so a row of small numbers doesn't read as several
-     * mostly-empty boxes.
-     * "inline": a lighter, borderless row separated by hairline dividers, for sitting
-     * directly next to other text (e.g. beside the dashboard's welcome heading).
-     * "cards": separate bordered cards with an icon badge - for a page whose stats are
-     * the primary content rather than a small aside (e.g. the library hub).
-     */
+    /** "boxed": one divided box (default). "inline": borderless, for sitting next to other text. "cards": separate cards with an icon, for stats as primary content. */
     variant?: "boxed" | "inline" | "cards";
     className?: string;
 }
 
-/**
- * Shared between the dashboard hero and the library hub.
- */
+// Shared between the dashboard hero and the library hub.
 const StatStrip = ({ items, variant = "boxed", className }: StatStripProps) => {
     if (variant === "cards") {
         return (

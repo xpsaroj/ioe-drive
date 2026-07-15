@@ -20,8 +20,7 @@ type FormValues = {
     college: string
 }
 
-/** Scattered around the page, clear of the center ~60% where the card sits - surrounds
- * the form instead of splitting the page into sections. */
+// Scattered around the page, clear of the center ~60% where the card sits.
 const ONBOARDING_TILES: ScatteredTile[] = [
     { code: "BCT", top: "10%", left: "8%", rotate: -6, size: "size-11 text-xs", solid: true, float: true },
     { code: "BEX", top: "82%", left: "12%", rotate: 4, size: "size-10 text-xs", float: true },
