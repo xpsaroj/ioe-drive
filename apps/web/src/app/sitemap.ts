@@ -15,11 +15,16 @@ interface SubjectOfferingSummary {
 }
 
 async function fetchJson<T>(path: string): Promise<T | null> {
-    const response = await fetch(`${SERVER_API_BASE_URL}${path}`);
-    if (!response.ok) return null;
+    // Catches connection failures (e.g. no backend reachable at build time), not just non-OK responses - a network error here shouldn't fail the whole build.
+    try {
+        const response = await fetch(`${SERVER_API_BASE_URL}${path}`);
+        if (!response.ok) return null;
 
-    const body = await response.json();
-    return body.success ? (body.data as T) : null;
+        const body = await response.json();
+        return body.success ? (body.data as T) : null;
+    } catch {
+        return null;
+    }
 }
 
 // Individual resource pages aren't included (no bulk "all resources" endpoint yet) but stay crawlable via link-following.
