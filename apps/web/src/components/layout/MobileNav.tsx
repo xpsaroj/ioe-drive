@@ -12,12 +12,14 @@ import Logo from "./Logo"
 import WordmarkText from "./WordmarkText"
 import { UserMenu } from "./UserMenu"
 import { useMe } from "@/hooks/queries/use-me"
+import { useUnreadCount } from "@/hooks/queries/use-messaging"
 
 import { getVisibleNavigationGroups, isNavItemActive } from "@/constants/navigations"
 
 export default function MobileNav() {
     const pathname = usePathname()
     const { data: userData } = useMe()
+    const { data: unreadData } = useUnreadCount()
 
     const [menuOpen, setMenuOpen] = useState(false)
 
@@ -91,6 +93,7 @@ export default function MobileNav() {
                                             name={name}
                                             active={isNavItemActive(pathname, href)}
                                             onClick={() => setMenuOpen(false)}
+                                            badgeCount={href === "/messages" ? unreadData?.unreadCount : undefined}
                                         />
                                     ))}
                                 </nav>

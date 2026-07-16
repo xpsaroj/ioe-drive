@@ -1,4 +1,4 @@
-import { LayoutDashboard, NotebookPen, Library, UsersRound, Store, GraduationCap, CloudUpload, BookOpen, UserCircle, ShieldCheck, UserCog, LucideIcon } from "lucide-react";
+import { LayoutDashboard, NotebookPen, Library, UsersRound, Store, GraduationCap, CloudUpload, BookOpen, UserCircle, ShieldCheck, UserCog, MessageCircle, LucideIcon } from "lucide-react";
 
 import { UserRole } from "@/types/entities";
 
@@ -37,6 +37,7 @@ export const NAVIGATION_GROUPS: NavigationGroup[] = [
         items: [
             { name: 'Community', href: '/community', icon: UsersRound },
             { name: 'Market', href: '/market', icon: Store },
+            { name: 'Messages', href: '/messages', icon: MessageCircle },
             { name: 'Alumni', href: '/alumni', icon: GraduationCap },
         ],
     },

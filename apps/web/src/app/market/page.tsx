@@ -1,35 +1,120 @@
-import { Wrench } from "lucide-react";
+"use client"
+import { Suspense, useState } from "react";
+import { Plus } from "lucide-react";
 
-import Badge from "@/components/ui/Badge";
+import { ResourceList } from "@/components/common/resources";
+import { MarketplaceListingCard } from "@/components/common/marketplace";
+import Select from "@/components/ui/Select";
+import Input from "@/components/ui/Input";
+import Button from "@/components/ui/Button";
+import Pagination from "@/components/ui/Pagination";
+import Loader from "@/components/ui/Loader";
+import { useListings } from "@/hooks/queries/use-marketplace";
+import { usePageParam } from "@/hooks/use-page-param";
+import { useDebouncedValue } from "@/hooks/use-debounced-value";
+import {
+    MarketplaceListingType,
+    MarketplaceListingTypeLabel,
+    MarketplaceCategory,
+    MarketplaceCategoryLabel,
+} from "@/types/entities";
+
+const MarketBrowseContent = () => {
+    const { page, setPage } = usePageParam();
+
+    const [type, setType] = useState<MarketplaceListingType | "">("");
+    const [category, setCategory] = useState<MarketplaceCategory | "">("");
+    const [query, setQuery] = useState("");
+    const debouncedQuery = useDebouncedValue(query.trim());
+
+    const filters = {
+        type: type || undefined,
+        category: category || undefined,
+        q: debouncedQuery || undefined,
+    };
+
+    const { data, isPending, error, isPlaceholderData } = useListings(filters, page);
+    const listings = data?.items ?? [];
+
+    return (
+        <div className="min-h-screen flex flex-col bg-background text-foreground max-w-7xl mx-auto md:p-8 p-6 space-y-6">
+            <div className="flex flex-wrap items-start justify-between gap-4 pb-6 border-b border-border">
+                <div>
+                    <h1 className="text-2xl md:text-3xl font-bold text-foreground">Market</h1>
+                    <p className="text-foreground-secondary mt-2 max-w-2xl">
+                        Buy, sell, or trade textbooks, calculators, and drafting tools with fellow IOE students.
+                    </p>
+                </div>
+                <Button href="/market/create" icon={<Plus className="size-4" />} className="shrink-0">
+                    Post a Listing
+                </Button>
+            </div>
+
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-4">
+                <div className="sm:col-span-2">
+                    <Input
+                        placeholder="Search listings..."
+                        value={query}
+                        onChange={(e) => {
+                            setQuery(e.target.value);
+                            setPage(1);
+                        }}
+                    />
+                </div>
+                <Select
+                    placeholder="All Types"
+                    value={type}
+                    onChange={(e) => {
+                        setType(e.target.value as MarketplaceListingType | "");
+                        setPage(1);
+                    }}
+                    options={Object.values(MarketplaceListingType).map((t) => ({
+                        value: t,
+                        label: MarketplaceListingTypeLabel[t],
+                    }))}
+                />
+                <Select
+                    placeholder="All Categories"
+                    value={category}
+                    onChange={(e) => {
+                        setCategory(e.target.value as MarketplaceCategory | "");
+                        setPage(1);
+                    }}
+                    options={Object.values(MarketplaceCategory).map((c) => ({
+                        value: c,
+                        label: MarketplaceCategoryLabel[c],
+                    }))}
+                />
+            </div>
+
+            <div className="space-y-6">
+                <ResourceList
+                    resources={listings}
+                    loading={isPending}
+                    error={error ? "Failed to load listings. Please try again." : null}
+                    renderItem={(listing) => <MarketplaceListingCard listing={listing} />}
+                    emptyMessage="No listings found."
+                />
+                <Pagination
+                    page={page}
+                    totalPages={data?.meta?.totalPages ?? 1}
+                    onPageChange={setPage}
+                    disabled={isPlaceholderData}
+                />
+            </div>
+        </div>
+    );
+};
 
 const MarketPage = () => {
     return (
-        <div className="min-h-screen flex flex-col bg-background text-foreground max-w-7xl mx-auto md:p-8 p-6 space-y-6">
-            <div className="pb-6 border-b border-border">
-                <div className="flex flex-wrap items-center gap-3">
-                    <h1 className="text-2xl md:text-3xl font-bold text-foreground">Market</h1>
-                    <Badge variant="warning" size="sm">Coming Soon</Badge>
-                </div>
-                <p className="text-foreground-secondary mt-2 max-w-2xl">
-                    Buy, sell, or trade textbooks, calculators, and drafting tools with fellow
-                    IOE students.
-                </p>
+        <Suspense fallback={
+            <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+                <Loader text="Loading market listings. Please wait." />
             </div>
-
-            <div className="flex flex-1 items-center justify-center rounded-xl border border-border p-6">
-                <div className="flex max-w-xs flex-col items-center gap-3 text-center">
-                    <span className="flex size-11 items-center justify-center rounded-full bg-background-tertiary text-foreground-secondary">
-                        <Wrench className="size-5" />
-                    </span>
-                    <div>
-                        <p className="font-semibold text-foreground">Listings under construction</p>
-                        <p className="mt-1 text-sm text-foreground-secondary">
-                            This feature is on its way. Check back soon.
-                        </p>
-                    </div>
-                </div>
-            </div>
-        </div>
+        }>
+            <MarketBrowseContent />
+        </Suspense>
     );
 };
 

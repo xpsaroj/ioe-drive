@@ -1,47 +1,18 @@
-import { CanActivate, ExecutionContext, Inject, Injectable } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
-import { eq } from "drizzle-orm";
+import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
 
-import { CLERK_CLIENT, type ClerkClient } from "../../clerk/clerk.constants";
-import { DRIZZLE } from "../../database/database.constants";
-import type { DrizzleDb } from "../../database/database.types";
-import { usersTable } from "../../database/schema";
+import { ClerkIdentityResolver } from "../../clerk/clerk-identity.resolver";
 import { toFetchRequest } from "../utils/fetch-request";
 import type { RequestWithAuthUser } from "./clerk-auth.guard";
 
 // Same identity resolution as ClerkAuthGuard, but never rejects - populates request.authUser if present, undefined otherwise.
 @Injectable()
 export class OptionalClerkAuthGuard implements CanActivate {
-  constructor(
-    @Inject(CLERK_CLIENT) private readonly clerkClient: ClerkClient,
-    @Inject(DRIZZLE) private readonly db: DrizzleDb,
-    private readonly configService: ConfigService,
-  ) {}
+  constructor(private readonly clerkIdentityResolver: ClerkIdentityResolver) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<RequestWithAuthUser>();
 
-    const authorizedParties = this.configService
-      .getOrThrow<string>("ALLOWED_ORIGINS")
-      .split(",")
-      .map((origin) => origin.trim());
-
-    const requestState = await this.clerkClient.authenticateRequest(toFetchRequest(request), {
-      authorizedParties,
-    });
-
-    if (!requestState.isAuthenticated) {
-      return true;
-    }
-
-    const { userId: clerkUserId } = requestState.toAuth();
-
-    const user = await this.db.query.usersTable.findFirst({
-      where: eq(usersTable.clerkUserId, clerkUserId),
-      columns: { id: true, clerkUserId: true, role: true },
-    });
-
-    request.authUser = user ?? undefined;
+    request.authUser = await this.clerkIdentityResolver.resolve(toFetchRequest(request));
     return true;
   }
 }

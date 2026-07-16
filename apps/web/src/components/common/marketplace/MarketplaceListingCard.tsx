@@ -1,0 +1,114 @@
+import Link from "next/link";
+import { ImageOff } from "lucide-react";
+
+import Badge, { type BadgeVariant } from "@/components/ui/Badge";
+import type { ListingSummary } from "@/types/api";
+import { UploaderInfo } from "@/components/common/user";
+import { SubjectCodeTile } from "@/components/common/offering";
+import {
+    MarketplaceListingStatus,
+    MarketplaceListingStatusLabel,
+    MarketplaceListingType,
+    MarketplaceListingTypeLabel,
+    MarketplaceCategoryLabel,
+} from "@/types/entities";
+import { formatListingPrice } from "@/utils/marketplace";
+
+export const LISTING_TYPE_BADGE_VARIANT: Record<MarketplaceListingType, BadgeVariant> = {
+    [MarketplaceListingType.SELLING]: "success",
+    [MarketplaceListingType.WANTED]: "info",
+};
+
+// ACTIVE isn't shown - every public browse card is ACTIVE, so the badge would be pure noise
+// there. It only appears where a non-ACTIVE listing can show up at all: the poster's own
+// listings page and the detail page (reuses this same mapping).
+export const LISTING_STATUS_BADGE_VARIANT: Record<MarketplaceListingStatus, BadgeVariant> = {
+    [MarketplaceListingStatus.ACTIVE]: "success",
+    [MarketplaceListingStatus.FULFILLED]: "secondary",
+    [MarketplaceListingStatus.REMOVED]: "error",
+};
+
+interface MarketplaceListingCardProps {
+    listing: ListingSummary;
+    /** Optional action buttons (e.g. edit/delete for the listing's owner), rendered next to the title. */
+    actions?: React.ReactNode;
+}
+
+const MarketplaceListingCard = ({ listing, actions }: MarketplaceListingCardProps) => {
+    const { title, description, type, category, price, poster, photos, status } = listing;
+    const coverPhoto = photos[0];
+
+    const createdAt = new Date(listing.createdAt);
+    const formattedCreatedAt = createdAt.toLocaleDateString(undefined, {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+    });
+
+    return (
+        <div className="group/card relative flex flex-col gap-4 rounded-xl border border-border bg-card-background p-4 transition-colors duration-400 hover:border-accent sm:flex-row sm:p-5">
+            <Link
+                href={`/market/${listing.id}`}
+                className="relative aspect-[4/3] w-full shrink-0 overflow-hidden rounded-lg bg-background-tertiary sm:w-40"
+            >
+                {coverPhoto ? (
+                    // Signed URLs are per-request and short-lived - plain <img>, not an oversight.
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={coverPhoto.photoUrl} alt={title} className="h-full w-full object-cover" />
+                ) : (
+                    <div className="flex h-full w-full items-center justify-center">
+                        <ImageOff className="size-6 text-foreground-tertiary" />
+                    </div>
+                )}
+            </Link>
+
+            <div className="flex min-w-0 flex-1 flex-col gap-3">
+                <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                        <Link
+                            href={`/market/${listing.id}`}
+                            className="font-semibold text-foreground decoration-2 underline-offset-3 group-hover/card:underline"
+                        >
+                            {title}
+                        </Link>
+                        <Badge size="sm" variant={LISTING_TYPE_BADGE_VARIANT[type]} className="ms-2 align-middle">
+                            {MarketplaceListingTypeLabel[type]}
+                        </Badge>
+                        <Badge size="sm" variant="secondary" className="ms-2 align-middle">
+                            {MarketplaceCategoryLabel[category]}
+                        </Badge>
+                        {status !== MarketplaceListingStatus.ACTIVE && (
+                            <Badge size="sm" variant={LISTING_STATUS_BADGE_VARIANT[status]} className="ms-2 align-middle">
+                                {MarketplaceListingStatusLabel[status]}
+                            </Badge>
+                        )}
+                    </div>
+                    {actions && (
+                        <div className="flex items-center gap-1 shrink-0 border border-border p-0.5 rounded-lg">
+                            {actions}
+                        </div>
+                    )}
+                </div>
+
+                {description && (
+                    <p className="text-sm text-foreground-secondary leading-relaxed line-clamp-2">
+                        {description}
+                    </p>
+                )}
+
+                <div className="mt-auto flex items-center justify-between gap-3 pt-3 border-t border-border">
+                    <UploaderInfo user={poster} subtitle={formattedCreatedAt} />
+
+                    <div className="flex items-center gap-3 shrink-0">
+                        {listing.subjectOffering && (
+                            <SubjectCodeTile code={listing.subjectOffering.subject.code} size="sm" />
+                        )}
+                        <span className="font-semibold text-foreground">{formatListingPrice(price)}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+};
+
+export default MarketplaceListingCard;

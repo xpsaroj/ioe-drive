@@ -30,6 +30,26 @@ export const ModerationReasonEnum = pgEnum("moderation_reason_enum", [
 export const ReportStatusEnum = pgEnum("report_status_enum", ["OPEN", "RESOLVED"]);
 export const ModerationActionEnum = pgEnum("moderation_action_enum", ["APPROVE", "REJECT", "REMOVE"]);
 
+export const MarketplaceListingTypeEnum = pgEnum("marketplace_listing_type_enum", ["SELLING", "WANTED"]);
+export const MarketplaceCategoryEnum = pgEnum("marketplace_category_enum", [
+    "TEXTBOOKS_AND_NOTES",
+    "DRAFTING_AND_STATIONERY",
+    "CALCULATORS_AND_ELECTRONICS",
+    "LAB_AND_WORKSHOP_EQUIPMENT",
+    "FURNITURE_AND_HOSTEL_ITEMS",
+    "OTHER",
+]);
+// FULFILLED is owner-driven and reversible (reactivate); REMOVED is moderator-driven (via report) and terminal, photos purged.
+export const MarketplaceListingStatusEnum = pgEnum("marketplace_listing_status_enum", ["ACTIVE", "FULFILLED", "REMOVED"]);
+export const MarketplaceReportReasonEnum = pgEnum("marketplace_report_reason_enum", [
+    "SCAM_OR_FRAUD",
+    "PROHIBITED_ITEM",
+    "INAPPROPRIATE_CONTENT",
+    "SPAM_OR_MISLEADING",
+    "ALREADY_SOLD_OR_UNAVAILABLE",
+    "OTHER",
+]);
+
 export type Semester = (typeof SemesterEnum.enumValues)[number];
 export type Year = (typeof YearEnum.enumValues)[number];
 export type SubjectHardnessLevel = (typeof SubjectHardnessLevelEnum.enumValues)[number];
@@ -39,6 +59,10 @@ export type ResourceStatus = (typeof ResourceStatusEnum.enumValues)[number];
 export type ModerationReason = (typeof ModerationReasonEnum.enumValues)[number];
 export type ReportStatus = (typeof ReportStatusEnum.enumValues)[number];
 export type ModerationAction = (typeof ModerationActionEnum.enumValues)[number];
+export type MarketplaceListingType = (typeof MarketplaceListingTypeEnum.enumValues)[number];
+export type MarketplaceCategory = (typeof MarketplaceCategoryEnum.enumValues)[number];
+export type MarketplaceListingStatus = (typeof MarketplaceListingStatusEnum.enumValues)[number];
+export type MarketplaceReportReason = (typeof MarketplaceReportReasonEnum.enumValues)[number];
 
 // Tables
 export const webhookEventsTable = pgTable("webhook_events", {
@@ -302,6 +326,120 @@ export const roleChangesTable = pgTable("role_changes", {
     ]
 );
 
+export const marketplaceListingsTable = pgTable("marketplace_listings", {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    title: text("title").notNull(),
+    description: text("description").notNull(),
+    type: MarketplaceListingTypeEnum("type").notNull(),
+    category: MarketplaceCategoryEnum("category").notNull(),
+    // Whole-rupee integer; null = "contact for price" (common for WANTED listings).
+    price: integer("price"),
+    // Only meaningful for notes/books-type listings - not every listing has a course.
+    offeringId: integer("offering_id").references(() => subjectOfferingsTable.id),
+    postedBy: integer("posted_by")
+        .references(() => usersTable.id, { onDelete: "set null" }),
+    // No schema-level default - the application always sets this explicitly.
+    status: MarketplaceListingStatusEnum("status").notNull(),
+    moderatedBy: integer("moderated_by")
+        .references(() => usersTable.id, { onDelete: "set null" }),
+    moderationReason: MarketplaceReportReasonEnum("moderation_reason"),
+    moderationNote: text("moderation_note"),
+    moderatedAt: timestamp("moderated_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    updatedAt: timestamp("updated_at").defaultNow().notNull().$onUpdate(() => new Date()),
+},
+    (table) => [
+        index("idx_marketplace_listings_posted_by").on(table.postedBy),
+        index("idx_marketplace_listings_status").on(table.status),
+        index("idx_marketplace_listings_type").on(table.type),
+        index("idx_marketplace_listings_category").on(table.category),
+        index("idx_marketplace_listings_offering_id").on(table.offeringId),
+    ]
+);
+
+export const marketplaceListingPhotosTable = pgTable("marketplace_listing_photos", {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    listingId: integer("listing_id")
+        .references(() => marketplaceListingsTable.id, { onDelete: "cascade" })
+        .notNull(),
+    photoUrl: text("photo_url").notNull(),
+    fileSize: integer("file_size").notNull(),
+    originalFileName: text("original_file_name").notNull(),
+    blobName: text("blob_name").notNull(),
+    mimeType: varchar("mime_type", { length: 100 }).notNull(),
+    // Lowest sortOrder is the cover photo.
+    sortOrder: integer("sort_order").notNull().default(0),
+    uploadedAt: timestamp("uploaded_at").defaultNow().notNull(),
+},
+    (table) => [
+        index("idx_marketplace_listing_photos_listing_id").on(table.listingId),
+    ]
+);
+
+export const marketplaceReportsTable = pgTable("marketplace_reports", {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    listingId: integer("listing_id")
+        .references(() => marketplaceListingsTable.id, { onDelete: "cascade" })
+        .notNull(),
+    reportedBy: integer("reported_by")
+        .references(() => usersTable.id, { onDelete: "cascade" })
+        .notNull(),
+    reason: MarketplaceReportReasonEnum("reason").notNull(),
+    note: text("note"),
+    status: ReportStatusEnum("status").notNull().default("OPEN"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    resolvedAt: timestamp("resolved_at"),
+    resolvedBy: integer("resolved_by")
+        .references(() => usersTable.id, { onDelete: "set null" }),
+},
+    (table) => [
+        unique("unique_marketplace_report_per_user_listing").on(table.listingId, table.reportedBy),
+        index("idx_marketplace_reports_listing_id").on(table.listingId),
+        index("idx_marketplace_reports_status").on(table.status),
+    ]
+);
+
+// One thread per (listing, initiator) pair - re-contacting reuses it instead of duplicating.
+export const marketplaceConversationsTable = pgTable("marketplace_conversations", {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    listingId: integer("listing_id")
+        .references(() => marketplaceListingsTable.id, { onDelete: "cascade" })
+        .notNull(),
+    posterId: integer("poster_id")
+        .references(() => usersTable.id, { onDelete: "cascade" })
+        .notNull(),
+    initiatorId: integer("initiator_id")
+        .references(() => usersTable.id, { onDelete: "cascade" })
+        .notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    // Bumped explicitly alongside each new message insert - $onUpdate only fires on an UPDATE to this row itself.
+    updatedAt: timestamp("updated_at").defaultNow().notNull(),
+},
+    (table) => [
+        unique("unique_marketplace_conversation_per_listing_initiator").on(table.listingId, table.initiatorId),
+        index("idx_marketplace_conversations_listing_id").on(table.listingId),
+        index("idx_marketplace_conversations_poster_id").on(table.posterId),
+        index("idx_marketplace_conversations_initiator_id").on(table.initiatorId),
+    ]
+);
+
+export const marketplaceMessagesTable = pgTable("marketplace_messages", {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    conversationId: integer("conversation_id")
+        .references(() => marketplaceConversationsTable.id, { onDelete: "cascade" })
+        .notNull(),
+    senderId: integer("sender_id")
+        .references(() => usersTable.id, { onDelete: "set null" }),
+    body: text("body").notNull(),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+    readAt: timestamp("read_at"),
+},
+    (table) => [
+        // Message history is always "this conversation, ordered by time" - a composite index serves that directly.
+        index("idx_marketplace_messages_conversation_id_created_at").on(table.conversationId, table.createdAt),
+    ]
+);
+
 
 // Relations
 export const programRelations = relations(programsTable, ({ many }) => ({
@@ -346,6 +484,13 @@ export const userRelations = relations(usersTable, ({ one, many }) => ({
     moderationActions: many(moderationActionsTable),
     roleChangesReceived: many(roleChangesTable, { relationName: "roleChangeSubject" }),
     roleChangesPerformed: many(roleChangesTable, { relationName: "roleChangeActor" }),
+    postedMarketplaceListings: many(marketplaceListingsTable, { relationName: "postedListings" }),
+    moderatedMarketplaceListings: many(marketplaceListingsTable, { relationName: "moderatedListings" }),
+    marketplaceReportsFiled: many(marketplaceReportsTable, { relationName: "marketplaceReportsFiled" }),
+    marketplaceReportsResolved: many(marketplaceReportsTable, { relationName: "marketplaceReportsResolved" }),
+    marketplaceConversationsAsPoster: many(marketplaceConversationsTable, { relationName: "conversationsAsPoster" }),
+    marketplaceConversationsAsInitiator: many(marketplaceConversationsTable, { relationName: "conversationsAsInitiator" }),
+    marketplaceMessagesSent: many(marketplaceMessagesTable),
 }));
 
 export const profileRelations = relations(profilesTable, ({ one }) => ({
@@ -458,5 +603,78 @@ export const roleChangeRelations = relations(roleChangesTable, ({ one }) => ({
         fields: [roleChangesTable.changedBy],
         references: [usersTable.id],
         relationName: "roleChangeActor",
+    }),
+}));
+
+export const marketplaceListingRelations = relations(marketplaceListingsTable, ({ one, many }) => ({
+    subjectOffering: one(subjectOfferingsTable, {
+        fields: [marketplaceListingsTable.offeringId],
+        references: [subjectOfferingsTable.id]
+    }),
+    poster: one(usersTable, {
+        fields: [marketplaceListingsTable.postedBy],
+        references: [usersTable.id],
+        relationName: "postedListings",
+    }),
+    moderator: one(usersTable, {
+        fields: [marketplaceListingsTable.moderatedBy],
+        references: [usersTable.id],
+        relationName: "moderatedListings",
+    }),
+    photos: many(marketplaceListingPhotosTable),
+    reports: many(marketplaceReportsTable),
+    conversations: many(marketplaceConversationsTable),
+}));
+
+export const marketplaceListingPhotoRelations = relations(marketplaceListingPhotosTable, ({ one }) => ({
+    listing: one(marketplaceListingsTable, {
+        fields: [marketplaceListingPhotosTable.listingId],
+        references: [marketplaceListingsTable.id]
+    }),
+}));
+
+export const marketplaceReportRelations = relations(marketplaceReportsTable, ({ one }) => ({
+    listing: one(marketplaceListingsTable, {
+        fields: [marketplaceReportsTable.listingId],
+        references: [marketplaceListingsTable.id]
+    }),
+    reporter: one(usersTable, {
+        fields: [marketplaceReportsTable.reportedBy],
+        references: [usersTable.id],
+        relationName: "marketplaceReportsFiled",
+    }),
+    resolver: one(usersTable, {
+        fields: [marketplaceReportsTable.resolvedBy],
+        references: [usersTable.id],
+        relationName: "marketplaceReportsResolved",
+    }),
+}));
+
+export const marketplaceConversationRelations = relations(marketplaceConversationsTable, ({ one, many }) => ({
+    listing: one(marketplaceListingsTable, {
+        fields: [marketplaceConversationsTable.listingId],
+        references: [marketplaceListingsTable.id]
+    }),
+    poster: one(usersTable, {
+        fields: [marketplaceConversationsTable.posterId],
+        references: [usersTable.id],
+        relationName: "conversationsAsPoster",
+    }),
+    initiator: one(usersTable, {
+        fields: [marketplaceConversationsTable.initiatorId],
+        references: [usersTable.id],
+        relationName: "conversationsAsInitiator",
+    }),
+    messages: many(marketplaceMessagesTable),
+}));
+
+export const marketplaceMessageRelations = relations(marketplaceMessagesTable, ({ one }) => ({
+    conversation: one(marketplaceConversationsTable, {
+        fields: [marketplaceMessagesTable.conversationId],
+        references: [marketplaceConversationsTable.id]
+    }),
+    sender: one(usersTable, {
+        fields: [marketplaceMessagesTable.senderId],
+        references: [usersTable.id]
     }),
 }));

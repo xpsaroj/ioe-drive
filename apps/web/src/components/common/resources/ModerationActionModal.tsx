@@ -5,7 +5,6 @@ import Modal from "@/components/ui/Modal";
 import Select from "@/components/ui/Select";
 import Textarea from "@/components/ui/Textarea";
 import Button from "@/components/ui/Button";
-import { ModerationReason, ModerationReasonLabel } from "@/types/entities";
 
 interface ModerationActionModalProps {
     isOpen: boolean;
@@ -14,15 +13,17 @@ interface ModerationActionModalProps {
     description?: string;
     submitLabel: string;
     isSubmitting: boolean;
-    onSubmit: (data: { reason: ModerationReason; note?: string }) => void;
+    /** The caller's own reason enum, as {value, label} pairs - resources and marketplace listings each have their own. */
+    reasonOptions: { value: string; label: string }[];
+    onSubmit: (data: { reason: string; note?: string }) => void;
 }
 
 interface FormValues {
-    reason: ModerationReason | "";
+    reason: string;
     note: string;
 }
 
-// Shared by moderator reject/remove and visitor report - all three take the same { reason, note? } shape.
+// Shared by moderator reject/remove and visitor report (both resources and marketplace listings) - same { reason, note? } shape.
 const ModerationActionModal = ({
     isOpen,
     onClose,
@@ -30,6 +31,7 @@ const ModerationActionModal = ({
     description,
     submitLabel,
     isSubmitting,
+    reasonOptions,
     onSubmit,
 }: ModerationActionModalProps) => {
     const {
@@ -46,7 +48,7 @@ const ModerationActionModal = ({
     };
 
     const submit = (data: FormValues) => {
-        onSubmit({ reason: data.reason as ModerationReason, note: data.note.trim() || undefined });
+        onSubmit({ reason: data.reason, note: data.note.trim() || undefined });
     };
 
     return (
@@ -67,10 +69,7 @@ const ModerationActionModal = ({
                             error={errors.reason?.message}
                             disabled={isSubmitting}
                             onChange={field.onChange}
-                            options={Object.values(ModerationReason).map((reason) => ({
-                                value: reason,
-                                label: ModerationReasonLabel[reason],
-                            }))}
+                            options={reasonOptions}
                         />
                     )}
                 />

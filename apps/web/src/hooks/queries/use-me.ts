@@ -2,6 +2,7 @@ import { useAuth } from '@clerk/nextjs';
 import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tanstack/react-query';
 
 import { meApi } from '@/lib/api/me-api';
+import { marketplaceApi } from '@/lib/api/marketplace-api';
 import { academicsKeys } from './use-academics';
 import { resourcesKeys } from './use-resources';
 import type { Profile, UserProfile } from '@/types/entities';
@@ -22,6 +23,9 @@ export const meKeys = {
         : ['me', 'bookmarked-resources', page] as const,
     bookmarkedResourceIds: ['me', 'bookmarked-resource-ids'] as const,
     resourceVoteValues: ['me', 'resource-vote-values'] as const,
+    myMarketplaceListings: (page?: number) => page === undefined
+        ? ['me', 'marketplace-listings'] as const
+        : ['me', 'marketplace-listings', page] as const,
 };
 
 /** Adjusts a cached resource's counts to reflect a vote changing from oldValue to newValue (either can be 0 for "no vote"). */
@@ -93,6 +97,24 @@ export function useUploadedResources(page: number = 1) {
             const response = await meApi.getUploadedResources({ page });
             if (!response.success) {
                 throw new Error(response.error ?? 'Failed to fetch uploaded resources.');
+            }
+            return { items: response.data, meta: response.meta };
+        },
+        enabled: isSignedIn,
+        placeholderData: keepPreviousData,
+    });
+}
+
+/** Marketplace listings the current user has posted, any status - backs the "My Listings" view. */
+export function useMyMarketplaceListings(page: number = 1) {
+    const { isSignedIn } = useAuth();
+
+    return useQuery({
+        queryKey: meKeys.myMarketplaceListings(page),
+        queryFn: async () => {
+            const response = await marketplaceApi.getMyListings({ page });
+            if (!response.success) {
+                throw new Error(response.error ?? 'Failed to fetch your listings.');
             }
             return { items: response.data, meta: response.meta };
         },

@@ -35,6 +35,14 @@ export class MeController {
     return ApiResponse.of(items, undefined, buildPaginationMeta(query.page, query.limit, total));
   }
 
+  /** GET /api/me/marketplace/listings - marketplace listings posted by the current user (any status), paginated. */
+  @Get("marketplace/listings")
+  async getMyMarketplaceListings(@CurrentUser() user: AuthenticatedUser, @Query() query: PaginationQueryDto) {
+    const offset = getPaginationOffset(query.page, query.limit);
+    const { items, total } = await this.meService.getMyMarketplaceListings(user.id, { limit: query.limit, offset });
+    return ApiResponse.of(items, undefined, buildPaginationMeta(query.page, query.limit, total));
+  }
+
   /** GET /api/me/recent-resources - recently accessed resources, paginated. */
   @Get("recent-resources")
   async getRecentResources(@CurrentUser() user: AuthenticatedUser, @Query() query: PaginationQueryDto) {

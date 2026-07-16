@@ -1,11 +1,11 @@
 "use client";
 import Link from "next/link";
-import { Bookmark, File, History, UploadCloud } from "lucide-react";
+import { Bookmark, File, History, ShoppingBag, UploadCloud } from "lucide-react";
 
 import StatStrip from "@/components/ui/StatStrip";
 import { JumpBackIn, ResourcePreviewTile } from "@/components/common/resources";
 import { BookSpines, DEFAULT_SHELF_SPINES } from "@/components/decor";
-import { useRecentResources, useBookmarkedResources, useUploadedResources } from "@/hooks/queries/use-me";
+import { useRecentResources, useBookmarkedResources, useUploadedResources, useMyMarketplaceListings } from "@/hooks/queries/use-me";
 import { getRelativeTime } from "@/utils/time";
 import { ResourceTypeLabel } from "@/types/entities";
 import type { BookmarkedResourceItem } from "@/types/api";
@@ -84,6 +84,7 @@ const LibraryHub = () => {
     const { data: recentResourcesData } = useRecentResources();
     const { data: bookmarkedResourcesData } = useBookmarkedResources();
     const { data: uploadedResourcesData } = useUploadedResources();
+    const { data: myListingsData } = useMyMarketplaceListings();
 
     return (
         <div className="space-y-8">
@@ -106,10 +107,12 @@ const LibraryHub = () => {
             <div className="pb-8 border-b border-border">
                 <StatStrip
                     variant="cards"
+                    className="sm:grid-cols-4"
                     items={[
                         { href: "/library/recent", label: "Recently viewed", value: recentResourcesData?.meta?.total, icon: History },
                         { href: "/library/bookmarks", label: "Bookmarked", value: bookmarkedResourcesData?.meta?.total, icon: Bookmark },
                         { href: "/library/uploads", label: "Uploaded", value: uploadedResourcesData?.meta?.total, icon: UploadCloud },
+                        { href: "/library/marketplace", label: "Listings", value: myListingsData?.meta?.total, icon: ShoppingBag },
                     ]}
                 />
             </div>

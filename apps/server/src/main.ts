@@ -6,6 +6,7 @@ import { NestFactory } from "@nestjs/core";
 import type { NestExpressApplication } from "@nestjs/platform-express";
 
 import { AppModule } from "./app.module";
+import { ConfiguredSocketIoAdapter } from "./common/adapters/socket-io.adapter";
 import { HttpExceptionFilter } from "./common/filters/http-exception.filter";
 import { ResponseInterceptor } from "./common/interceptors/response.interceptor";
 
@@ -23,14 +24,19 @@ async function bootstrap() {
     app.set("trust proxy", 1);
   }
 
+  const allowedOrigins = configService
+    .getOrThrow<string>("ALLOWED_ORIGINS")
+    .split(",")
+    .map((origin) => origin.trim());
+
   app.enableCors({
-    origin: configService
-      .getOrThrow<string>("ALLOWED_ORIGINS")
-      .split(",")
-      .map((origin) => origin.trim()),
+    origin: allowedOrigins,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
     allowedHeaders: ["Content-Type", "Authorization"],
   });
+
+  // Binds socket.io onto the same HTTP server/port - no new infrastructure needed.
+  app.useWebSocketAdapter(new ConfiguredSocketIoAdapter(app, allowedOrigins));
 
   // /health stays unprefixed - liveness checks shouldn't depend on API versioning.
   app.setGlobalPrefix("api", {

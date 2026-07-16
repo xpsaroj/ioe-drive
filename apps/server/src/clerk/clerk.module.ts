@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 
 import { CLERK_CLIENT } from "./clerk.constants";
 import { buildClerkClient } from "./clerk-client.factory";
+import { ClerkIdentityResolver } from "./clerk-identity.resolver";
 
 @Global()
 @Module({
@@ -17,7 +18,8 @@ import { buildClerkClient } from "./clerk-client.factory";
           configService.getOrThrow<string>("CLERK_PUBLISHABLE_KEY"),
         ),
     },
+    ClerkIdentityResolver,
   ],
-  exports: [CLERK_CLIENT],
+  exports: [CLERK_CLIENT, ClerkIdentityResolver],
 })
 export class ClerkModule {}
