@@ -2,7 +2,7 @@ import Link from "next/link";
 import { ImageOff } from "lucide-react";
 
 import Badge from "@/components/ui/Badge";
-import { UploaderInfo } from "@/components/common/user";
+import { UserAvatar } from "@/components/common/user";
 import { getRelativeTime } from "@/utils/time";
 import type { ConversationSummary } from "@/types/api";
 import { MarketplaceListingStatus, MarketplaceListingStatusLabel } from "@/types/entities";
@@ -23,7 +23,7 @@ const ConversationRow = ({ conversation, currentUserId }: { conversation: Conver
             href={`/messages/${conversation.id}`}
             className="flex items-center gap-4 rounded-xl border border-border p-4 transition-colors hover:border-accent hover:bg-background-hover"
         >
-            <div className="relative size-14 shrink-0 overflow-hidden rounded-lg bg-background-tertiary">
+            <div className="relative size-16 shrink-0 overflow-hidden rounded-lg bg-background-tertiary">
                 {coverPhoto ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={coverPhoto.photoUrl} alt={listing.title} className="h-full w-full object-cover" />
@@ -35,33 +35,40 @@ const ConversationRow = ({ conversation, currentUserId }: { conversation: Conver
             </div>
 
             <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2">
-                    <p className="truncate font-semibold text-foreground">{listing.title}</p>
-                    {listing.status !== MarketplaceListingStatus.ACTIVE && (
-                        <Badge size="sm" variant="secondary" className="shrink-0">
-                            {MarketplaceListingStatusLabel[listing.status]}
-                        </Badge>
+                <div className="flex items-center justify-between gap-3">
+                    <div className="flex min-w-0 items-center gap-2">
+                        <p className="truncate font-semibold text-foreground">{listing.title}</p>
+                        {listing.status !== MarketplaceListingStatus.ACTIVE && (
+                            <Badge size="sm" variant="secondary" className="shrink-0">
+                                {MarketplaceListingStatusLabel[listing.status]}
+                            </Badge>
+                        )}
+                    </div>
+                    <span className="shrink-0 text-xs text-foreground-tertiary">
+                        {getRelativeTime(conversation.updatedAt)}
+                    </span>
+                </div>
+
+                <div className="mt-1.5 flex items-center gap-2">
+                    <p className="min-w-0 flex-1 truncate text-sm text-foreground-secondary">
+                        {lastMessage ? lastMessage.body : "No messages yet"}
+                    </p>
+                    <div className="flex shrink-0 items-center gap-1.5">
+                        <UserAvatar
+                            fullName={otherParty?.fullName ?? ""}
+                            avatarUrl={otherParty?.profile?.profilePictureUrl}
+                            size="sm"
+                        />
+                        <span className="text-xs font-medium text-foreground-secondary">
+                            {otherParty?.fullName ?? "Unknown User"}
+                        </span>
+                    </div>
+                    {unreadCount > 0 && (
+                        <span className="flex min-w-5 shrink-0 items-center justify-center rounded-full bg-accent px-1.5 py-0.5 text-[11px] font-semibold text-accent-foreground">
+                            {unreadCount}
+                        </span>
                     )}
                 </div>
-                <div className="mt-1 flex items-center gap-2">
-                    {/* This row is itself a <Link> to the conversation - HTML forbids nesting
-                    <a> inside <a>, so the other party's name here can't also be a profile link. */}
-                    <UploaderInfo user={otherParty} disableLink />
-                </div>
-                {lastMessage && (
-                    <p className="mt-1 truncate text-sm text-foreground-secondary">{lastMessage.body}</p>
-                )}
-            </div>
-
-            <div className="flex shrink-0 flex-col items-end gap-1.5">
-                <span className="text-xs text-foreground-tertiary">
-                    {getRelativeTime(conversation.updatedAt)}
-                </span>
-                {unreadCount > 0 && (
-                    <span className="flex min-w-5 items-center justify-center rounded-full bg-accent px-1.5 py-0.5 text-[11px] font-semibold text-accent-foreground">
-                        {unreadCount}
-                    </span>
-                )}
             </div>
         </Link>
     );

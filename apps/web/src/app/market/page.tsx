@@ -62,28 +62,32 @@ const MarketBrowseContent = () => {
                     />
                 </div>
                 <Select
-                    placeholder="All Types"
                     value={type}
                     onChange={(e) => {
                         setType(e.target.value as MarketplaceListingType | "");
                         setPage(1);
                     }}
-                    options={Object.values(MarketplaceListingType).map((t) => ({
-                        value: t,
-                        label: MarketplaceListingTypeLabel[t],
-                    }))}
+                    options={[
+                        { value: "", label: "All Types" },
+                        ...Object.values(MarketplaceListingType).map((t) => ({
+                            value: t,
+                            label: MarketplaceListingTypeLabel[t],
+                        })),
+                    ]}
                 />
                 <Select
-                    placeholder="All Categories"
                     value={category}
                     onChange={(e) => {
                         setCategory(e.target.value as MarketplaceCategory | "");
                         setPage(1);
                     }}
-                    options={Object.values(MarketplaceCategory).map((c) => ({
-                        value: c,
-                        label: MarketplaceCategoryLabel[c],
-                    }))}
+                    options={[
+                        { value: "", label: "All Categories" },
+                        ...Object.values(MarketplaceCategory).map((c) => ({
+                            value: c,
+                            label: MarketplaceCategoryLabel[c],
+                        })),
+                    ]}
                 />
             </div>
 

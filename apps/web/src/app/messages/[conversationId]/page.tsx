@@ -74,37 +74,37 @@ const ConversationThreadPage = ({
     const coverPhoto = conversation.listing.photos[0];
 
     return (
-        <div className="flex min-h-screen flex-col bg-background text-foreground md:p-8 p-6 max-w-4xl mx-auto space-y-4">
-            <div className="flex items-center gap-3 rounded-xl border border-border p-4">
-                {backButton}
-
-                <div className="relative size-11 shrink-0 overflow-hidden rounded-lg bg-background-tertiary">
-                    {coverPhoto ? (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img src={coverPhoto.photoUrl} alt={conversation.listing.title} className="h-full w-full object-cover" />
-                    ) : (
-                        <div className="flex h-full w-full items-center justify-center">
-                            <ImageOff className="size-4 text-foreground-tertiary" />
-                        </div>
-                    )}
+        <div className="flex h-screen flex-col bg-background text-foreground md:p-8 max-w-7xl mx-auto">
+            <div className="flex shrink-0 items-center justify-between gap-3 p-4 ps-0 border-b">
+                <div className="flex min-w-0 items-center gap-3">
+                    {backButton}
+                    <UploaderInfo user={otherParty} size="md" />
                 </div>
 
-                <div className="min-w-0 flex-1">
-                    <div className="flex items-center gap-2">
-                        <Link
-                            href={`/market/${conversation.listing.id}`}
-                            className="truncate font-semibold text-foreground hover:underline"
-                        >
-                            {conversation.listing.title}
-                        </Link>
+                {/* Secondary context - who you're talking to is the header's focus, what it's about is a compact link off to the side. */}
+                <Link
+                    href={`/market/${conversation.listing.id}`}
+                    className="flex min-w-0 shrink-0 items-center gap-2 rounded-lg p-1.5 transition-colors hover:bg-background-hover"
+                >
+                    <div className="min-w-0 text-right">
+                        <p className="truncate text-sm font-medium text-foreground">{conversation.listing.title}</p>
                         {conversation.listing.status !== MarketplaceListingStatus.ACTIVE && (
-                            <Badge size="sm" variant="secondary" className="shrink-0">
+                            <Badge size="sm" variant="secondary" className="mt-0.5">
                                 {MarketplaceListingStatusLabel[conversation.listing.status]}
                             </Badge>
                         )}
                     </div>
-                    <UploaderInfo user={otherParty} />
-                </div>
+                    <div className="relative size-10 shrink-0 overflow-hidden rounded-lg bg-background-tertiary">
+                        {coverPhoto ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={coverPhoto.photoUrl} alt={conversation.listing.title} className="h-full w-full object-cover" />
+                        ) : (
+                            <div className="flex h-full w-full items-center justify-center">
+                                <ImageOff className="size-4 text-foreground-tertiary" />
+                            </div>
+                        )}
+                    </div>
+                </Link>
             </div>
 
             {userData && <ConversationThread conversationId={conversationId} currentUserId={userData.id} />}

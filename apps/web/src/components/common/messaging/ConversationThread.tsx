@@ -91,7 +91,7 @@ const ConversationThread = ({ conversationId, currentUserId }: ConversationThrea
 
     if (isPending) {
         return (
-            <div className="flex flex-1 items-center justify-center py-16">
+            <div className="flex flex-1 min-h-0 items-center justify-center py-16">
                 <Loader text="Loading messages. Please wait." />
             </div>
         );
@@ -99,15 +99,15 @@ const ConversationThread = ({ conversationId, currentUserId }: ConversationThrea
 
     if (error) {
         return (
-            <div className="flex flex-1 items-center justify-center py-16">
+            <div className="flex flex-1 min-h-0 items-center justify-center py-16">
                 <p className="text-error text-sm">Failed to load messages. Please try again.</p>
             </div>
         );
     }
 
     return (
-        <div className="flex flex-1 flex-col gap-4">
-            <div className="flex-1 space-y-3 overflow-y-auto rounded-xl border border-border p-4">
+        <div className="flex flex-1 min-h-0 flex-col gap-4">
+            <div className="flex-1 min-h-0 space-y-3 overflow-y-auto p-4">
                 {messages.length === 0 ? (
                     <p className="text-center text-sm text-foreground-tertiary py-8">No messages yet. Say hello!</p>
                 ) : (
@@ -133,7 +133,7 @@ const ConversationThread = ({ conversationId, currentUserId }: ConversationThrea
                 <div ref={bottomRef} />
             </div>
 
-            <div className="flex items-end gap-2">
+            <div className="flex shrink-0 items-end gap-2">
                 <Textarea
                     placeholder="Type a message..."
                     rows={2}
@@ -141,7 +141,7 @@ const ConversationThread = ({ conversationId, currentUserId }: ConversationThrea
                     value={draft}
                     onChange={(e) => setDraft(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    className="flex-1"
+                    className="flex-1 resize-none"
                 />
                 <Button
                     icon={<Send className="size-4" />}

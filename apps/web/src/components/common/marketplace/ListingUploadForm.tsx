@@ -420,8 +420,8 @@ export const ListingUploadForm: React.FC = () => {
 
             <div className="flex flex-col gap-4 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between">
                 <p className="text-xs text-foreground-secondary sm:max-w-md">
-                    Your listing goes live immediately. You&apos;re responsible for what you post - other
-                    users can report listings that are misleading, inappropriate, or prohibited.
+                    You&apos;re responsible for what you post here. Listings that are misleading,
+                    inappropriate, or prohibited will be removed.
                 </p>
                 <Button
                     type="submit"

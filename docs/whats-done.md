@@ -52,6 +52,16 @@ A quick, high-level list of what already works. For the full picture see
   `project-overview.md` section 9 for the full picture.
 - Centralized API error handling, request validation (`class-validator`), and basic
   IP-based rate limiting.
+- Resource upvote/downvote and download-count tracking: one vote per user per resource,
+  a real upvote aggregate on public profiles (replacing an old placeholder number), and
+  download counts that only increment on an actual download, not an inline preview.
+- Marketplace listings (`/market`): post something for sale or wanted with 1-6 required
+  photos, browse/search/filter publicly (no sign-in needed), edit/delete/mark-fulfilled/
+  reactivate as the owner, report-to-remove moderation, and a "My Listings" page. See 
+  `project-overview.md` section 10.
+- Real-time messaging (`/messages`) tied to marketplace listings: a WebSocket-backed
+  chat (the project's first real-time feature), a live unread-count nav badge, an inbox,
+  and per-conversation threads. See `project-overview.md` section 11.
 - API rebuilt from Express onto NestJS: consistent Controller -> Service -> Repository
   layering across every module, `class-validator` DTOs, and Clerk auth via
   `@clerk/backend` - same routes, database, and response shapes throughout.

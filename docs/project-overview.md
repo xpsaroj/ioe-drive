@@ -1,6 +1,6 @@
 # IOE Drive - Project Overview
 
-This document is a snapshot of the project as of 2026-07-13. It exists so that anyone
+This document is a snapshot of the project as of 2026-07-17. It exists so that anyone
 (including future contributors and AI assistants) can get oriented quickly without having
 to re-read the entire codebase. Update it as the project evolves; treat it as living
 documentation rather than a historical record.
@@ -59,7 +59,7 @@ ioe-drive/
 ```
 
 There is no shared package between `apps/server` and `apps/web` — types are duplicated by
-hand on each side (see section 10).
+hand on each side (see section 12).
 
 ## 3. Architecture and tech stack
 
@@ -73,7 +73,9 @@ hand on each side (see section 10).
   `class-validator`/`class-transformer` DTOs plus a global `ValidationPipe`; a global
   `HttpExceptionFilter` + `ResponseInterceptor` shape every response into
   `{ success, data?, message?, error?, meta? }`; auth is enforced by a `ClerkAuthGuard`
-  (see section 8); rate limiting is `@nestjs/throttler`.
+  (see section 8); rate limiting is `@nestjs/throttler`. Real-time messaging (section 11)
+  adds `@nestjs/websockets` + `@nestjs/platform-socket.io` on the server and
+  `socket.io-client` on the web app, the only WebSocket usage in the project.
 - **Database**: PostgreSQL 16, Drizzle ORM + drizzle-kit for schema/migrations.
 - **Auth**: Clerk (`@clerk/backend` on the API, `@clerk/nextjs` on the web app), with a
   Clerk webhook keeping a local `users`/`profiles` mirror in sync.
@@ -122,11 +124,11 @@ Tables:
   (no compression is implemented yet).
 - `user_recent_resources` — per-user "recently accessed" tracking, unique on (userId,
   resourceId), used for the dashboard and `/library` "Recently Accessed" lists (paginated,
-  see section 10; nothing is ever deleted from the table itself - fine at this project's
+  see section 12; nothing is ever deleted from the table itself - fine at this project's
   scale since the row count per user is bounded by distinct resources ever viewed, not by
   view count).
 - `user_bookmarked_resources` — per-user bookmarks, unique on (userId, resourceId). The
-  `/library/bookmarks` list itself is paginated (see section 10), but checking whether a
+  `/library/bookmarks` list itself is paginated (see section 12), but checking whether a
   given resource is bookmarked (for the bookmark icon shown on every resource card) goes
   through a separate, uncapped IDs-only endpoint instead.
 - `reports` — a report filed against an already-`APPROVED` resource: resourceId,
@@ -141,8 +143,20 @@ Tables:
   section 9.
 - `webhook_events` — svixId primary key + eventType, used purely for Clerk webhook
   idempotency (see section 8).
+- `resource_votes` — one row per (userId, resourceId) upvote/downvote, unique-constrained
+  so a user can only ever have one active vote per resource; `resources` itself carries
+  denormalized `upvoteCount`/`downvoteCount`/`downloadCount` columns kept in sync inside
+  the same transaction as any vote change (row-level `SELECT ... FOR UPDATE` locking to
+  close a real TOCTOU race caught during a security review — two concurrent votes could
+  otherwise both read the same starting count and double-apply their delta).
+  `downloadCount` increments only on a real download (`Content-Disposition: attachment`),
+  not an inline preview.
+- Marketplace + messaging tables (`marketplace_listings`, `marketplace_listing_photos`,
+  `marketplace_reports`, `marketplace_conversations`, `marketplace_messages`) — see
+  section 10 for the full data model and section 11 for messaging.
 
-Fifteen migrations exist (`0000`..`0014`). Notable history visible in the migrations:
+Seventeen migrations exist (`0000`..`0016`). Notable history visible in the earliest
+migrations:
 subjects.code widened to varchar(15) (`0008`); `notes.subject_id` renamed to
 `notes.offering_id` with the FK repointed from `subjects` to `subject_offerings` (`0009`)
 — i.e. notes were originally tied directly to a subject and were later moved to be tied
@@ -250,10 +264,14 @@ Clerk is the identity provider on both sides.
 
 - **Web** (`apps/web/src/proxy.ts`, a Next.js middleware despite the filename): uses
   `clerkMiddleware`/`createRouteMatcher` to protect `/dashboard`, `/library`,
-  `/resources/share`, `/community`, `/marketplace`, `/alumni`, `/profile`, `/onboarding`,
-  and redirects already-signed-in users away from `/sign-in` and `/sign-up`. `/resources`
-  itself (browsing) and `/resources/r/[resourceId]` are intentionally left public — see
-  section 6.
+  `/resources/share`, `/community`, `/market/create`, `/market/(.*)/edit`, `/messages`,
+  `/alumni`, `/profile`, `/onboarding`, and redirects already-signed-in users away from
+  `/sign-in` and `/sign-up`. `/resources` itself (browsing), `/resources/r/[resourceId]`,
+  and `/market` (browsing/detail) are intentionally left public — see sections 6 and 10.
+  The matcher used to say `/marketplace(.*)` (a name that never matched any real route,
+  since the page lives at `/market`) which silently left the create/edit pages
+  unprotected; fixed to the routes above rather than a blanket `/market(.*)`, since
+  browsing is deliberately public, same as resources.
 - **API** (`apps/server/src/common/guards/clerk-auth.guard.ts`): `ClerkAuthGuard`
   authenticates the request via `@clerk/backend`'s `authenticateRequest` (given a Fetch
   API `Request` bridged from the underlying Express request by
@@ -322,7 +340,109 @@ entries don't render at all for unauthorized users) and, more importantly, serve
 the same `@Roles(...)` guards — the client-side gate is convenience/UX only. Both are
 kept out of search engines via `noindex` response metadata.
 
-## 10. API surface (apps/server)
+## 10. Marketplace listings
+
+`/market` is a campus classifieds board: any signed-in student can post something for
+sale or something they're looking for, browsable by anyone (including guests) without
+needing an account.
+
+- **Data model** (`marketplace_listings`, `marketplace_listing_photos`,
+  `marketplace_reports`): one `marketplace_listings` table with a `type`
+  (`marketplace_listing_type_enum`: `SELLING`/`WANTED`) column, mirroring how
+  `resources` uses a single `type` enum rather than separate tables per kind. A
+  `category` enum (`TEXTBOOKS_AND_NOTES`, `DRAFTING_AND_STATIONERY`,
+  `CALCULATORS_AND_ELECTRONICS`, `LAB_AND_WORKSHOP_EQUIPMENT`,
+  `FURNITURE_AND_HOSTEL_ITEMS`, `OTHER`), an optional integer `price` (null means
+  "contact for price" - common for `WANTED` posts), and an optional `offeringId` FK to
+  `subject_offerings` for textbook/notes-type listings. 1-6 photos are required per
+  listing (`marketplace_listing_photos`, enforced both client- and server-side),
+  uploaded to Azure Blob Storage via the same pattern as resource files.
+- **Moderation model is deliberately different from resources**: a listing goes
+  **live immediately** on posting (no `PENDING` pre-review queue) and relies on
+  **report-to-remove** instead — any signed-in non-owner can report a listing with a
+  structured reason (`marketplace_reports`, one open report per user per listing,
+  mirroring `reports`); a moderator either dismisses the report or removes the listing
+  (terminal, purges its photos from Azure). Because `REMOVE` is the *only* moderation
+  action a listing can ever have (no approve/reject step exists), there's no separate
+  append-only history table the way `moderation_actions` exists for resources — the
+  denormalized `moderatedBy`/`moderationReason`/`moderationNote`/`moderatedAt` columns
+  directly on `marketplace_listings` are a complete record on their own, since a listing
+  can only ever be moderated once. This was a deliberate, explicit trade-off (fast,
+  frictionless posting vs. review latency) chosen with the project owner up front, not
+  an oversight - revisiting it toward a pre-review model later is possible but would need
+  a real `PENDING`/`REJECTED` state and a proper history table, since resubmission
+  (reject → owner edits → back to pending) breaks the "only one moderation event ever"
+  assumption the denormalized columns rely on.
+- **Status lifecycle**: `ACTIVE` → `FULFILLED` (owner marks their own listing as
+  sold/found; reversible via `reactivate`; hidden from the default public browse but
+  still reachable via a direct link or the owner's own "My Listings" page,
+  `/library/marketplace`) → back to `ACTIVE`, or `ACTIVE`/`FULFILLED` → `REMOVED`
+  (moderator-only, terminal). Browsing (`GET /api/marketplace/listings`) is fully public
+  and unfiltered by default (no `offeringId`/`userId`/`q` required, unlike resources'
+  `findMany`), since "just look at everything" is the core use case for a classifieds
+  board, unlike resources which is always course- or search-scoped.
+- **Listing photos are served via signed, short-lived Azure Blob SAS URLs** (60-minute
+  expiry, generated on every read path in `MarketplaceListingsService`/
+  `MessagingService`), not permanent public URLs — the container is private the same
+  way gated resource files are (section 15). This wasn't caught until the frontend photo
+  UI was actually being built: the stored `photoUrl` is the raw, unsigned blob URL and
+  403s directly in a browser.
+- Frontend: `/market` (browse - filters for type/category/price/keyword),
+  `/market/create`, `/market/[listingId]` (detail) + `/market/[listingId]/edit`,
+  `/library/marketplace` ("My Listings" - not originally called out as its own route but
+  needed once fulfilled listings became hidden from the default browse), and a
+  "Marketplace Reports" tab alongside the existing resource moderation queues.
+
+## 11. Real-time messaging
+
+Once a listing exists, any signed-in non-owner can message its poster about it
+(`/messages`). Chat is real-time via WebSockets — a deliberate choice made up front over
+a simpler polling inbox, even though this introduced the project's only WebSocket usage.
+
+- **Data model** (`marketplace_conversations`, `marketplace_messages`): one
+  conversation per (listingId, initiatorId) pair — re-contacting the same poster about
+  the same listing reuses the existing thread rather than duplicating it.
+  `marketplace_conversations.updatedAt` is bumped explicitly inside the same transaction
+  as each new message insert (not via a `$onUpdate` hook, which only fires on an update
+  to that row itself), so the inbox can sort by "most recently active" purely off that
+  column. Self-messaging your own listing, and messaging a `REMOVED` listing, are both
+  blocked server-side.
+- **REST layer** (`MessagingController`, all routes `ClerkAuthGuard`-gated): conversation
+  list (with last-message preview and per-conversation unread count), paginated message
+  history (newest-first), starting a conversation (which sends the first message),
+  marking a conversation read, and a total-unread-count endpoint that seeds the nav
+  badge before the socket takes over. Sending a message into an *already-open*
+  conversation is socket-only — there's no REST fallback for that specific case.
+- **WebSocket gateway** (`MessagingGateway`, namespace `/marketplace-messaging`, built on
+  `@nestjs/websockets` + `socket.io`): every connected socket auto-joins a personal
+  `user:{id}` room (this is what drives live inbox/unread-badge updates without polling,
+  even when no specific thread is open), and joins a `conversation:{id}` room lazily,
+  only while that thread is actually open. `send_message` inserts the message and emits
+  `new_message` to the conversation room plus `conversation_updated` (with an unread
+  delta) to both participants' personal rooms.
+- **Shared auth path**: `ClerkIdentityResolver` (`apps/server/src/clerk/`) was extracted
+  out of the duplicated logic that used to live separately in `ClerkAuthGuard` and
+  `OptionalClerkAuthGuard`, specifically so the WebSocket gateway's handshake
+  authentication (`toSocketFetchRequest`, building a synthetic `Request` from the
+  socket's `handshake.auth.token`) goes through the exact same code path as every HTTP
+  guard, rather than a second hand-rolled implementation.
+  `common/adapters/socket-io.adapter.ts` configures CORS for the gateway imperatively in
+  `main.ts` (`app.useWebSocketAdapter(...)`), since a `@WebSocketGateway()` decorator's
+  own options are static and evaluated before `ConfigService` is available.
+- **Known v1 limitations, not bugs**: the in-memory socket.io adapter doesn't broadcast
+  across multiple server processes (fine at this project's single-instance scale; a
+  `@socket.io/redis-adapter` would be needed to horizontally scale it). Message history
+  has no "load older" pagination — the thread fetches the most recent 100 messages in
+  one request and stops there. Typing indicators, read-receipt UI, and message
+  attachments are also out of scope for v1.
+- Frontend: `MessagingSocketProvider` (in the root layout) owns the single socket
+  connection's lifecycle and the always-on `conversation_updated` → unread-count/inbox
+  cache updates; `/messages` (inbox) and `/messages/[conversationId]` (an open thread,
+  joining/leaving its room on mount/unmount and appending incoming messages to local
+  state directly) are the two pages. `StartConversationButton` on a listing's detail
+  page is hidden for the listing's own owner.
+
+## 12. API surface (apps/server)
 
 Registered via Nest controllers, one feature module per domain under
 `apps/server/src/modules/*`:
@@ -350,7 +470,7 @@ Registered via Nest controllers, one feature module per domain under
   `GET /:resourceId/files/:fileId/download-url?download=true|false` (auth; any signed-in
   user for an `APPROVED` resource, only its uploader or a moderator/admin otherwise —
   same visibility rule as `GET /:resourceId`, see section 9) returns a short-lived Azure
-  SAS URL for that file. See section 12 for ownership enforcement details and section 13
+  SAS URL for that file. See section 14 for ownership enforcement details and section 15
   for the preview page built on this endpoint.
 - `POST /:resourceId/approve` / `POST /:resourceId/reject` / `POST /:resourceId/remove`
   (moderator/admin only) and `POST /:resourceId/report` (any signed-in user but the
@@ -362,9 +482,31 @@ Registered via Nest controllers, one feature module per domain under
 - `/api/subjects` — `GET /?programId=&semester=`, `GET /:subjectId`,
   `GET /upload?programId=&semester=` (subject list scoped for the upload form; always a
   small per-program/semester subset - not paginated).
+- `PUT`/`DELETE /api/me/resources/:resourceId/vote` (auth; self-voting on your own
+  upload is blocked server-side), `GET /api/me/resources/vote-values` (this user's own
+  vote on a batch of resources) — see section 4.
+- `/api/marketplace/listings` — `POST /` (auth, multipart, field `listingPhoto`, 1-6
+  photos required), `PATCH`/`DELETE /:listingId` (auth, must be the poster),
+  `POST /:listingId/{mark-fulfilled,reactivate}` (auth, must be the poster),
+  `POST`/`DELETE /:listingId/photos[/:photoId]` (auth, must be the poster; must always
+  leave at least one photo), `POST /:listingId/report` (any signed-in non-poster),
+  `POST /:listingId/remove` (moderator/admin only), `GET /:listingId` (public for
+  `ACTIVE`/`FULFILLED`, moderator/poster-only for `REMOVED`), `GET /` (fully public,
+  unfiltered browse allowed - filters: `type`, `category`, `offeringId`, `userId`,
+  `minPrice`, `maxPrice`, `q`) — see section 10.
+- `/api/moderation/marketplace/reports` / `/api/moderation/marketplace/reports/
+  :reportId/dismiss` (moderator/admin only) and `/api/me/marketplace/listings` (auth;
+  "My Listings", includes non-`ACTIVE` statuses) — see section 10.
+- `/api/messaging/conversations` — `GET /` (this user's inbox, paginated),
+  `GET /:conversationId` (thread header detail), `GET /:conversationId/messages`
+  (paginated, newest-first), `POST /` (start or reuse a thread + send the first
+  message), `PATCH /:conversationId/read`, and `GET /api/messaging/unread-count` (all
+  auth-required) — see section 11. The WebSocket gateway (`/marketplace-messaging`
+  namespace, same origin/port as the REST API) isn't a REST route; see section 11 for
+  its `join_conversation`/`leave_conversation`/`send_message` events.
 
 All routes under `/api` share one rate limiter (`@nestjs/throttler`): 500 req / 15 min,
-keyed by IP (not by user — see section 14); `/health` and the Clerk webhook opt out via
+keyed by IP (not by user — see section 16); `/health` and the Clerk webhook opt out via
 `@SkipThrottle()`. Responses follow a consistent envelope
 (`{ success, data?, message?, error?, meta? }`) via a global `ResponseInterceptor`
 (wraps every controller return value) and a global `HttpExceptionFilter` (shapes every
@@ -390,7 +532,7 @@ semester filter there) and a shared `<Pagination>` component
 reused across `/resources`, `/library/uploads`, `/library/bookmarks`, `/library/recent`,
 and another user's public profile uploads list.
 
-## 11. File uploads
+## 13. File uploads
 
 `storage/file-upload.config.ts` configures Nest's `FilesInterceptor` with in-memory
 Multer storage, a 10 MB per-file limit, max 5 files per request, and a `ParseFilePipe`
@@ -406,7 +548,7 @@ generation, virus scanning, or compression exists yet (the `compressedSize`/
 `compressionMethod` columns are placeholders for future work); a client-side `.docx`
 inline previewer was attempted and reverted — see `todo.md`.
 
-## 12. Resource editing, deletion, and file management
+## 14. Resource editing, deletion, and file management
 
 Beyond create/read, resources can now be edited, deleted, and have their files managed
 after the fact:
@@ -462,7 +604,7 @@ Bugs found and fixed while building this:
   why toasts stayed white in dark mode; `LayoutWrapper` now passes
   `theme={resolvedTheme ?? "system"}` from `next-themes`.
 
-## 13. File preview
+## 15. File preview
 
 `/resources/r/[resourceId]/files/[fileId]` previews a single file inline instead of
 linking straight to a download (the link from `ResourceFileItem` used to point at a
@@ -485,24 +627,26 @@ route that never existed).
   layout so the preview pane takes the full width, and a small floating button
   (absolutely positioned, not part of the flex layout) brings it back.
 
-## 14. Known discrepancies / rough edges worth knowing about
+## 16. Known discrepancies / rough edges worth knowing about
 
 - **Rate limiting is IP-only.** A hybrid limiter (higher, per-`userId` limits for
   authenticated users; stricter per-IP limits for guests) is planned, to avoid punishing
   campus NAT/shared-IP situations (a real concern for IOE hostel/lab wifi). The current
   implementation (`@nestjs/throttler`, configured in `app.module.ts`) is a single flat
   500 req/15min limiter keyed by IP for everyone. Tracked in `todo.md`.
-- **Placeholder nav destinations.** `Community`, `Market` (nav) / `Marketplace` (proxy.ts
-  route matcher — inconsistent naming between the two), and `Alumni` all exist as nav
-  items and protected routes but their pages (`apps/web/src/app/{community,market,alumni}/page.tsx`)
-  are literally one-line placeholders with no functionality.
+- **Placeholder nav destinations.** `Community` and `Alumni` still exist as nav items
+  and protected routes but their pages (`apps/web/src/app/{community,alumni}/page.tsx`)
+  are literally one-line placeholders with no functionality. `Market` is no longer one
+  of these — it's a fully built marketplace + messaging feature now (sections 10-11);
+  the `proxy.ts` matcher used to say `/marketplace(.*)` (a name that never matched the
+  real `/market` route, silently leaving it unprotected) — fixed.
 - **`/offerings` and `/offerings/[offeringId]` are placeholders/thin.** The list page is
   a static "Offerings here" stub; the detail page exists and is linked to from resource
   detail pages but wasn't deeply audited here.
 - **No tests.** Neither app has a test suite configured today (CI only lints,
   typechecks, and builds).
 
-## 15. Local development
+## 17. Local development
 
 Two paths, both documented in `SETUP.md`:
 
@@ -534,7 +678,7 @@ typecheck, build) and `apps/web` (lint, build) that only trigger on changes unde
 respective path, a `merge-gatekeeper` workflow that requires those checks to pass before
 merge, and a deploy workflow for the server on push to `main`.
 
-## 16. Where things stand, in one paragraph
+## 18. Where things stand, in one paragraph
 
 The core "browse, upload, edit, and delete resources, scoped by program/semester/subject"
 loop is fully built end-to-end, consistently under the "resources" name from the
@@ -551,9 +695,14 @@ URLs, rather than only ever seeing a raw download link. Every list that can grow
 unbounded (`/resources`, `/library/uploads`, `/library/bookmarks`, `/library/recent`, and
 another user's public uploads) is now paginated, sharing one backend helper and one
 frontend `<Pagination>` component. The whole site supports light/dark/system theming,
-including Clerk's own hosted UI.
-Community, Market/Marketplace and Alumni are still placeholder destinations with no
-logic yet; see `todo.md` for what's next. The API itself was rebuilt from Express onto
-NestJS (same routes, same DB, same response shapes), gaining a consistent
-Controller -> Service -> Repository layering across every module, `class-validator`
-DTOs, and Clerk auth via a `ClerkAuthGuard` backed by `@clerk/backend`.
+including Clerk's own hosted UI. Resources also carry a real upvote/downvote/download-
+count aggregate now (section 4), replacing an old placeholder number on public profiles.
+Beyond resources, a full marketplace-listings-plus-real-time-messaging feature is built
+end to end (sections 10-11): post something for sale or wanted, browse/report/moderate
+listings, and message a listing's poster over a WebSocket-backed chat with a live unread
+badge — the project's first real-time feature and its only WebSocket usage. Community
+and Alumni are still placeholder destinations with no logic yet; see `todo.md` for
+what's next. The API itself was rebuilt from Express onto NestJS (same routes, same DB,
+same response shapes), gaining a consistent Controller -> Service -> Repository layering
+across every module, `class-validator` DTOs, and Clerk auth via a `ClerkAuthGuard`
+backed by `@clerk/backend`.
