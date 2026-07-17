@@ -16,7 +16,7 @@ export class AdminRepository {
     });
   }
 
-  // Same transaction as the role_changes insert, mirroring ModerationRepository.recordModerationAction.
+  // Same transaction as the role_changes insert, mirroring ModerationRepository.recordResourceModerationAction.
   async changeUserRole(userId: number, changedBy: number, previousRole: UserRole, newRole: UserRole) {
     return this.db.transaction(async (tx) => {
       const [updatedUser] = await tx

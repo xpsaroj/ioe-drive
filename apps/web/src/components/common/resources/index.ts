@@ -17,5 +17,5 @@ export { default as ResourceEngagementRow } from "./ResourceEngagementRow";
 export { default as ResourceFilesManager } from "./ResourceFilesManager";
 export { ResourceEditForm } from "./ResourceEditForm";
 export { ResourceUploadForm } from "./ResourceUploadForm";
-export { default as ModeratorActionBar } from "./ModeratorActionBar";
+export { default as ResourceModeratorActionBar } from "./ResourceModeratorActionBar";
 export { default as ReportResourceButton } from "./ReportResourceButton";

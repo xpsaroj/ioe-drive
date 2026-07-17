@@ -247,7 +247,7 @@ function invalidateAfterModeration(queryClient: ReturnType<typeof useQueryClient
     queryClient.invalidateQueries({ queryKey: resourcesKeys.all });
     queryClient.invalidateQueries({ queryKey: meKeys.uploadedResources() });
     queryClient.invalidateQueries({ queryKey: moderationKeys.pending() });
-    queryClient.invalidateQueries({ queryKey: moderationKeys.reports() });
+    queryClient.invalidateQueries({ queryKey: moderationKeys.resourceReports() });
 }
 
 /** Approves a pending resource, making it publicly visible (moderator-only). */
@@ -310,7 +310,7 @@ export function useReportResource(resourceId: number) {
             }
             return response;
         },
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: moderationKeys.reports() }),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: moderationKeys.resourceReports() }),
     });
 }
 

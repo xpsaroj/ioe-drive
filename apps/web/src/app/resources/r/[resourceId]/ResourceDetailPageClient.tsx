@@ -18,7 +18,7 @@ import {
     DeleteResourceButton,
     BookmarkButton,
     ResourceEngagementRow,
-    ModeratorActionBar,
+    ResourceModeratorActionBar,
     ReportResourceButton,
     STATUS_BADGE_VARIANT,
 } from "@/components/common/resources";
@@ -213,7 +213,7 @@ const ResourceDetailContent = ({
                         controls; anyone else who isn't the uploader gets a way to flag
                         the resource instead - never both in the same spot. */}
                         {isModerator ? (
-                            <ModeratorActionBar resourceId={resource.id} status={resource.status} />
+                            <ResourceModeratorActionBar resourceId={resource.id} status={resource.status} />
                         ) : (
                             !isOwner && resource.status === ResourceStatus.APPROVED && userData && (
                                 <ReportResourceButton resourceId={resource.id} />

@@ -14,13 +14,13 @@ const REASON_OPTIONS = Object.values(ModerationReason).map((reason) => ({
     label: ModerationReasonLabel[reason],
 }));
 
-interface ModeratorActionBarProps {
+interface ResourceModeratorActionBarProps {
     resourceId: number;
     status: ResourceStatus;
 }
 
 // Which actions show depends on status: only PENDING can be approved, REMOVED is terminal.
-const ModeratorActionBar = ({ resourceId, status }: ModeratorActionBarProps) => {
+const ResourceModeratorActionBar = ({ resourceId, status }: ResourceModeratorActionBarProps) => {
     const [openModal, setOpenModal] = useState<"reject" | "remove" | null>(null);
 
     const { mutate: approve, isPending: isApproving } = useApproveResource(resourceId);
@@ -121,4 +121,4 @@ const ModeratorActionBar = ({ resourceId, status }: ModeratorActionBarProps) => 
     );
 };
 
-export default ModeratorActionBar;
+export default ResourceModeratorActionBar;

@@ -26,20 +26,20 @@ export class ModerationController {
 
   // Each report includes the reporter's identity, never exposed to the uploader.
   @Get("reports")
-  async findReports(@Query() query: PaginationQueryDto) {
+  async findResourceReports(@Query() query: PaginationQueryDto) {
     const offset = getPaginationOffset(query.page, query.limit);
-    const { items, total } = await this.moderationService.findOpenReports({ limit: query.limit, offset });
+    const { items, total } = await this.moderationService.findOpenResourceReports({ limit: query.limit, offset });
     return ApiResponse.of(items, undefined, buildPaginationMeta(query.page, query.limit, total));
   }
 
   // The "unfounded report" case: closes the report with no change to the resource.
   @Post("reports/:reportId/dismiss")
   @HttpCode(HttpStatus.OK)
-  async dismissReport(
+  async dismissResourceReport(
     @CurrentUser() moderator: AuthenticatedUser,
     @Param("reportId", ParseIntPipe) reportId: number,
   ) {
-    await this.moderationService.dismissReport(moderator.id, reportId);
+    await this.moderationService.dismissResourceReport(moderator.id, reportId);
     return ApiResponse.of(null, "Report dismissed");
   }
 

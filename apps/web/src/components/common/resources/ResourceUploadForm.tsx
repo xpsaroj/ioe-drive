@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, Controller, useWatch } from "react-hook-form";
 import { toast } from "sonner";
-import { CloudUpload, Send, X } from "lucide-react";
+import { CloudUpload, File, Send, X } from "lucide-react";
 
 import Select from "@/components/ui/Select";
 import Input from "@/components/ui/Input";
@@ -382,6 +382,13 @@ export const ResourceUploadForm: React.FC = () => {
                                     />
                                 ))}
                             </div>
+                        </div>
+                    )}
+
+                    {files.length === 0 && (
+                        <div className="flex items-center gap-2 rounded-xl border border-border p-4 text-sm text-foreground-tertiary">
+                            <File className="size-4 shrink-0" />
+                            At least one file is required.
                         </div>
                     )}
                 </div>

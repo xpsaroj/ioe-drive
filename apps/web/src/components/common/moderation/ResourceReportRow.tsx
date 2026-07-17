@@ -3,17 +3,17 @@ import Link from "next/link";
 import { toast } from "sonner";
 
 import Button from "@/components/ui/Button";
-import { useDismissReport } from "@/hooks/queries/use-moderation";
+import { useDismissResourceReport } from "@/hooks/queries/use-moderation";
 import { ModerationReasonLabel } from "@/types/entities";
 import type { ReportItem } from "@/types/api";
 
-interface ReportRowProps {
+interface ResourceReportRowProps {
     report: ReportItem;
 }
 
 // Reporter's identity shows here (moderator-only view), never on any uploader- or public-facing surface.
-const ReportRow = ({ report }: ReportRowProps) => {
-    const { mutate: dismiss, isPending } = useDismissReport();
+const ResourceReportRow = ({ report }: ResourceReportRowProps) => {
+    const { mutate: dismiss, isPending } = useDismissResourceReport();
 
     const handleDismiss = () => {
         dismiss(report.id, {
@@ -49,4 +49,4 @@ const ReportRow = ({ report }: ReportRowProps) => {
     );
 };
 
-export default ReportRow;
+export default ResourceReportRow;

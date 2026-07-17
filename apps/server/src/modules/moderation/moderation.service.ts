@@ -18,12 +18,12 @@ export class ModerationService {
     return this.moderationRepository.findPending(pagination);
   }
 
-  findOpenReports(pagination: { limit: number; offset: number }) {
-    return this.moderationRepository.findOpenReports(pagination);
+  findOpenResourceReports(pagination: { limit: number; offset: number }) {
+    return this.moderationRepository.findOpenResourceReports(pagination);
   }
 
-  async dismissReport(moderatorId: number, reportId: number) {
-    const dismissedReport = await this.moderationRepository.resolveReport(reportId, moderatorId);
+  async dismissResourceReport(moderatorId: number, reportId: number) {
+    const dismissedReport = await this.moderationRepository.resolveResourceReport(reportId, moderatorId);
 
     if (!dismissedReport) {
       throw new NotFoundException("Report not found");
@@ -33,7 +33,7 @@ export class ModerationService {
   }
 
   async approveResource(moderatorId: number, resourceId: number) {
-    const resource = await this.moderationRepository.findForModeration(resourceId);
+    const resource = await this.moderationRepository.findForResourceModeration(resourceId);
 
     if (!resource) {
       throw new NotFoundException("Resource not found");
@@ -43,7 +43,7 @@ export class ModerationService {
       throw new BadRequestException("Only pending resources can be approved");
     }
 
-    return this.moderationRepository.recordModerationAction(resourceId, "APPROVE", {
+    return this.moderationRepository.recordResourceModerationAction(resourceId, "APPROVE", {
       status: "APPROVED",
       moderatedBy: moderatorId,
       moderationReason: null,
@@ -53,7 +53,7 @@ export class ModerationService {
   }
 
   async rejectResource(moderatorId: number, resourceId: number, dto: ModerateResourceDto) {
-    const resource = await this.moderationRepository.findForModeration(resourceId);
+    const resource = await this.moderationRepository.findForResourceModeration(resourceId);
 
     if (!resource) {
       throw new NotFoundException("Resource not found");
@@ -63,7 +63,7 @@ export class ModerationService {
       throw new BadRequestException("Only pending or approved resources can be rejected");
     }
 
-    const updatedResource = await this.moderationRepository.recordModerationAction(resourceId, "REJECT", {
+    const updatedResource = await this.moderationRepository.recordResourceModerationAction(resourceId, "REJECT", {
       status: "REJECTED",
       moderatedBy: moderatorId,
       moderationReason: dto.reason,
@@ -78,7 +78,7 @@ export class ModerationService {
 
   // Unlike reject, not resubmittable - the row is kept, but its files are purged from Azure.
   async removeResource(moderatorId: number, resourceId: number, dto: ModerateResourceDto) {
-    const resource = await this.moderationRepository.findForModeration(resourceId);
+    const resource = await this.moderationRepository.findForResourceModeration(resourceId);
 
     if (!resource) {
       throw new NotFoundException("Resource not found");
@@ -91,7 +91,7 @@ export class ModerationService {
     await Promise.all(resource.files.map((file) => this.azureBlobService.delete(file.blobName)));
     await this.moderationRepository.deleteResourceFiles(resourceId);
 
-    const updatedResource = await this.moderationRepository.recordModerationAction(resourceId, "REMOVE", {
+    const updatedResource = await this.moderationRepository.recordResourceModerationAction(resourceId, "REMOVE", {
       status: "REMOVED",
       moderatedBy: moderatorId,
       moderationReason: dto.reason,
@@ -105,7 +105,7 @@ export class ModerationService {
   }
 
   async reportResource(userId: number, resourceId: number, dto: ReportResourceDto) {
-    const resource = await this.moderationRepository.findForModeration(resourceId);
+    const resource = await this.moderationRepository.findForResourceModeration(resourceId);
 
     if (!resource) {
       throw new NotFoundException("Resource not found");
@@ -119,13 +119,13 @@ export class ModerationService {
       throw new BadRequestException("You can't report your own resource");
     }
 
-    const existingReport = await this.moderationRepository.findExistingReport(resourceId, userId);
+    const existingReport = await this.moderationRepository.findExistingResourceReport(resourceId, userId);
 
     if (existingReport) {
       throw new BadRequestException("You have already reported this resource");
     }
 
-    return this.moderationRepository.createReport({
+    return this.moderationRepository.createResourceReport({
       resourceId,
       reportedBy: userId,
       reason: dto.reason,

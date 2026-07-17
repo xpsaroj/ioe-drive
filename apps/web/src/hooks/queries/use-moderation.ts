@@ -8,9 +8,9 @@ export const moderationKeys = {
     pending: (page?: number) => page === undefined
         ? ['moderation', 'pending'] as const
         : ['moderation', 'pending', page] as const,
-    reports: (page?: number) => page === undefined
-        ? ['moderation', 'reports'] as const
-        : ['moderation', 'reports', page] as const,
+    resourceReports: (page?: number) => page === undefined
+        ? ['moderation', 'resource-reports'] as const
+        : ['moderation', 'resource-reports', page] as const,
     marketplaceReports: (page?: number) => page === undefined
         ? ['moderation', 'marketplace-reports'] as const
         : ['moderation', 'marketplace-reports', page] as const,
@@ -32,11 +32,11 @@ export function usePendingResources(page: number = 1) {
 }
 
 /** Open reports against already-approved resources. */
-export function useReports(page: number = 1) {
+export function useResourceReports(page: number = 1) {
     return useQuery({
-        queryKey: moderationKeys.reports(page),
+        queryKey: moderationKeys.resourceReports(page),
         queryFn: async () => {
-            const response = await moderationApi.getReports({ page });
+            const response = await moderationApi.getResourceReports({ page });
             if (!response.success) {
                 throw new Error(response.error || 'Failed to fetch reports');
             }
@@ -47,18 +47,18 @@ export function useReports(page: number = 1) {
 }
 
 /** Closes a report with no change to the resource - the "unfounded report" case. */
-export function useDismissReport() {
+export function useDismissResourceReport() {
     const queryClient = useQueryClient();
 
     return useMutation({
         mutationFn: async (reportId: number) => {
-            const response = await moderationApi.dismissReport(reportId);
+            const response = await moderationApi.dismissResourceReport(reportId);
             if (!response.success) {
                 throw new Error(response.error || 'Failed to dismiss report');
             }
             return response;
         },
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: moderationKeys.reports() }),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: moderationKeys.resourceReports() }),
     });
 }
 

@@ -24,7 +24,7 @@ export class ModerationRepository {
   constructor(@Inject(DRIZZLE) private readonly db: DrizzleDb) {}
 
   // Just enough to authorize + drive a moderation action: status, and file blob names for `remove` to purge.
-  findForModeration(resourceId: number) {
+  findForResourceModeration(resourceId: number) {
     return this.db.query.resourcesTable.findFirst({
       where: eq(resourcesTable.id, resourceId),
       columns: { id: true, status: true, uploadedBy: true },
@@ -50,7 +50,7 @@ export class ModerationRepository {
   }
 
   // Same transaction as the moderation_actions insert, so the two can never drift apart.
-  async recordModerationAction(resourceId: number, action: ModerationAction, data: ModerateResourceData) {
+  async recordResourceModerationAction(resourceId: number, action: ModerationAction, data: ModerateResourceData) {
     return this.db.transaction(async (tx) => {
       const [updatedResource] = await tx
         .update(resourcesTable)
@@ -74,20 +74,20 @@ export class ModerationRepository {
     await this.db.delete(resourceFilesTable).where(eq(resourceFilesTable.resourceId, resourceId));
   }
 
-  findExistingReport(resourceId: number, reportedBy: number) {
+  findExistingResourceReport(resourceId: number, reportedBy: number) {
     return this.db.query.reportsTable.findFirst({
       where: and(eq(reportsTable.resourceId, resourceId), eq(reportsTable.reportedBy, reportedBy)),
       columns: { id: true },
     });
   }
 
-  async createReport(data: { resourceId: number; reportedBy: number; reason: ModerationReason; note?: string }) {
+  async createResourceReport(data: { resourceId: number; reportedBy: number; reason: ModerationReason; note?: string }) {
     const [createdReport] = await this.db.insert(reportsTable).values(data).returning();
 
     return createdReport;
   }
 
-  async findOpenReports(pagination: { limit: number; offset: number }) {
+  async findOpenResourceReports(pagination: { limit: number; offset: number }) {
     const whereClause = eq(reportsTable.status, "OPEN");
 
     const [items, totalResult] = await Promise.all([
@@ -115,7 +115,7 @@ export class ModerationRepository {
       .where(and(eq(reportsTable.resourceId, resourceId), eq(reportsTable.status, "OPEN")));
   }
 
-  async resolveReport(reportId: number, resolvedBy: number) {
+  async resolveResourceReport(reportId: number, resolvedBy: number) {
     const [resolvedReport] = await this.db
       .update(reportsTable)
       .set({ status: "RESOLVED", resolvedAt: new Date(), resolvedBy })

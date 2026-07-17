@@ -10,7 +10,7 @@ import { isModeratorOrAdmin } from "@/types/entities";
 
 const TABS = [
     { label: "Pending Review", href: "/pm/moderation/pending" },
-    { label: "Reports", href: "/pm/moderation/reports" },
+    { label: "Resource Reports", href: "/pm/moderation/reports" },
     { label: "Marketplace Reports", href: "/pm/moderation/marketplace-reports" },
 ];
 
@@ -44,7 +44,7 @@ const ModerationGate = ({ children }: { children: React.ReactNode }) => {
                 </p>
                 <h1 className="text-2xl md:text-3xl font-bold text-foreground">Moderation</h1>
                 <p className="text-foreground-secondary text-base leading-relaxed">
-                    Review pending uploads and reports on already-approved resources.
+                    Review pending resource uploads, resource reports, and marketplace listing reports.
                 </p>
             </div>
 

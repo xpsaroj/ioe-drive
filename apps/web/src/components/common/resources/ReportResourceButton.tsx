@@ -18,7 +18,7 @@ interface ReportResourceButtonProps {
     resourceId: number;
 }
 
-// Mutually exclusive with ModeratorActionBar, whose bar style this matches - a viewer sees exactly one.
+// Mutually exclusive with ResourceModeratorActionBar, whose bar style this matches - a viewer sees exactly one.
 const ReportResourceButton = ({ resourceId }: ReportResourceButtonProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const { mutate, isPending } = useReportResource(resourceId);
