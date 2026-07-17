@@ -4,7 +4,7 @@ import { use } from "react"
 import { ChevronLeft } from "lucide-react"
 
 import Button from "@/components/ui/Button";
-import { PageStateHandler, Breadcrumbs } from "@/components/layout";
+import { EntityPageStateHandler, type BreadcrumbItem } from "@/components/layout";
 import { useSubjectDetails } from "@/hooks/queries/use-academics";
 import { SubjectOfferingDetails } from "@/components/common/offering";
 
@@ -19,41 +19,41 @@ const OfferingPageClient = ({
     const { offeringId } = use(params)
     const { data: offering, isPending, error } = useSubjectDetails(Number(offeringId));
 
-    const header = (
-        <div className="sticky top-0 z-10 mb-6 flex items-center gap-2 border-b border-border bg-background/95 py-2.5 backdrop-blur-sm">
-            <Button
-                icon={<ChevronLeft className="size-4" />}
-                iconOnly
-                variant="ghost"
-                size="xs"
-                className="border border-border shrink-0"
-                onClick={() => router.back()}
-                aria-label="Go back"
-            />
-            <Breadcrumbs items={[{ label: "Offerings", href: "/offerings" }, { label: offering?.subject.code ?? "Offering Details" }]} />
-        </div>
-    )
+    const backButton = (
+        <Button
+            icon={<ChevronLeft className="size-4" />}
+            iconOnly
+            variant="ghost"
+            size="xs"
+            className="border border-border shrink-0"
+            onClick={() => router.back()}
+            aria-label="Go back"
+        />
+    );
 
-    const emptyContent = (
-        <div className="flex flex-col justify-center items-center">
-            <p className="text-4xl">404</p>
-            <p className="text-foreground-secondary">Oops! The subject offering you are looking for does not exist.</p>
-        </div>
-    )
+    const breadcrumbs: BreadcrumbItem[] = [
+        { label: "Offerings", href: "/offerings" },
+        { label: offering?.subject.code ?? "Offering Details" },
+    ];
 
     return (
-        <PageStateHandler
+        <EntityPageStateHandler
+            title={offering ? `${offering.subject.code} - ${offering.subject.name}` : "Offering Details"}
+            breadcrumbs={breadcrumbs}
+            beforeBreadcrumb={backButton}
             isPending={isPending}
             error={error}
             isEmpty={!offering}
-            header={header}
             loaderText="Loading offering details. Please wait."
-            emptyContent={emptyContent}
+            emptyTitle="Subject offering not found"
+            emptyDescription="This subject offering may not exist, or the link you followed is incorrect."
+            emptyButtonText="Browse Offerings"
+            emptyButtonHref="/offerings"
         >
             {offering && (
                 <SubjectOfferingDetails offering={offering} />
             )}
-        </PageStateHandler>
+        </EntityPageStateHandler>
     )
 }
 

@@ -35,8 +35,8 @@ essays here once something is actively being worked on.
 
 ## Frontend
 
-- [ ] Build out the placeholder destinations: Community, Alumni, Offerings list page —
-      all currently one-line stub pages linked from the nav.
+- [ ] Build out the placeholder destinations: Community, Alumni —
+      both currently one-line stub pages linked from the nav.
 - [ ] Inline preview for .docx files on the file preview page (currently only PDF/JPEG/PNG
       render inline; .docx falls back to "download to view"). Tried `docx-preview` client-side
       - rendering itself worked once the storage account's CORS was configured for JS `fetch()`,
