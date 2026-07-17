@@ -1,12 +1,8 @@
-import { CanActivate, ExecutionContext, Inject, Injectable, UnauthorizedException } from "@nestjs/common";
-import { ConfigService } from "@nestjs/config";
-import { eq } from "drizzle-orm";
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from "@nestjs/common";
 import type { Request } from "express";
 
-import { CLERK_CLIENT, type ClerkClient } from "../../clerk/clerk.constants";
-import { DRIZZLE } from "../../database/database.constants";
-import type { DrizzleDb } from "../../database/database.types";
-import { usersTable, type UserRole } from "../../database/schema";
+import { ClerkIdentityResolver } from "../../clerk/clerk-identity.resolver";
+import type { UserRole } from "../../database/schema";
 import { toFetchRequest } from "../utils/fetch-request";
 
 export interface AuthenticatedUser {
@@ -20,37 +16,15 @@ export type RequestWithAuthUser = Request & { authUser?: AuthenticatedUser };
 // Also requires a matching local `users` row - rejects even if Clerk itself considers the request signed in.
 @Injectable()
 export class ClerkAuthGuard implements CanActivate {
-  constructor(
-    @Inject(CLERK_CLIENT) private readonly clerkClient: ClerkClient,
-    @Inject(DRIZZLE) private readonly db: DrizzleDb,
-    private readonly configService: ConfigService,
-  ) {}
+  constructor(private readonly clerkIdentityResolver: ClerkIdentityResolver) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<RequestWithAuthUser>();
 
-    const authorizedParties = this.configService
-      .getOrThrow<string>("ALLOWED_ORIGINS")
-      .split(",")
-      .map((origin) => origin.trim());
-
-    const requestState = await this.clerkClient.authenticateRequest(toFetchRequest(request), {
-      authorizedParties,
-    });
-
-    if (!requestState.isAuthenticated) {
-      throw new UnauthorizedException("User not authenticated");
-    }
-
-    const { userId: clerkUserId } = requestState.toAuth();
-
-    const user = await this.db.query.usersTable.findFirst({
-      where: eq(usersTable.clerkUserId, clerkUserId),
-      columns: { id: true, clerkUserId: true, role: true },
-    });
+    const user = await this.clerkIdentityResolver.resolve(toFetchRequest(request));
 
     if (!user) {
-      throw new UnauthorizedException("User not registered in database");
+      throw new UnauthorizedException("User not authenticated");
     }
 
     request.authUser = user;

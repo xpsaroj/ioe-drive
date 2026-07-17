@@ -1,5 +1,5 @@
 import React from 'react';
-import clsx from 'clsx';
+import { cn } from '@/utils/cn';
 
 interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
     label?: string;
@@ -28,7 +28,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
                     id={textareaId}
                     rows={rows}
                     placeholder={placeholder}
-                    className={clsx(
+                    className={cn(
                         'w-full px-3 py-2.5 border rounded-lg transition-all resize-y',
                         'focus:ring-2 focus:ring-foreground focus:border-transparent outline-none',
                         'disabled:bg-input-disabled disabled:text-foreground-tertiary disabled:cursor-not-allowed',

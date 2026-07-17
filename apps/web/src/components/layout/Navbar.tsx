@@ -12,12 +12,14 @@ import Logo from "./Logo"
 import WordmarkText from "./WordmarkText"
 import { UserMenu } from "./UserMenu"
 import { useMe } from "@/hooks/queries/use-me"
+import { useUnreadCount } from "@/hooks/queries/use-messaging"
 
 import { getVisibleNavigationGroups, isNavItemActive } from "@/constants/navigations"
 
 export default function Navbar() {
   const pathname = usePathname()
   const { data: userData } = useMe()
+  const { data: unreadData } = useUnreadCount()
 
   const [showDesktopNav, setShowDesktopNav] = useState(true)
 
@@ -75,6 +77,7 @@ export default function Navbar() {
                   icon={icon}
                   name={name}
                   active={isNavItemActive(pathname, href)}
+                  badgeCount={href === "/messages" ? unreadData?.unreadCount : undefined}
                 />
               ))}
             </nav>

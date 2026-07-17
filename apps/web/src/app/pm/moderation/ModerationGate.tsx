@@ -11,6 +11,7 @@ import { isModeratorOrAdmin } from "@/types/entities";
 const TABS = [
     { label: "Pending Review", href: "/pm/moderation/pending" },
     { label: "Reports", href: "/pm/moderation/reports" },
+    { label: "Marketplace Reports", href: "/pm/moderation/marketplace-reports" },
 ];
 
 // UX-only redirect for non-moderators - the real boundary is the server-side @Roles guard.

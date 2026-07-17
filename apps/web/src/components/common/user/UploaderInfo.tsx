@@ -9,6 +9,8 @@ interface UploaderInfoProps {
     subtitle?: string;
     /** `sm` for rows inside cards/tiles (default); `md` for page-level bylines. */
     size?: "sm" | "md";
+    /** Renders as plain text instead of a link to the profile - for use inside an ancestor that's already a link/button, since HTML forbids nesting <a> inside <a>. */
+    disableLink?: boolean;
 }
 
 const rowGap = {
@@ -26,7 +28,7 @@ const subtitleSizes = {
     md: "text-[11px]",
 };
 
-const UploaderInfo = ({ user, subtitle, size = "sm" }: UploaderInfoProps) => {
+const UploaderInfo = ({ user, subtitle, size = "sm", disableLink = false }: UploaderInfoProps) => {
     const fullName = user?.fullName ?? "";
 
     const content = (
@@ -60,7 +62,7 @@ const UploaderInfo = ({ user, subtitle, size = "sm" }: UploaderInfoProps) => {
         </>
     );
 
-    if (!user?.id) {
+    if (!user?.id || disableLink) {
         return (
             <span className={cn(rowGap[size], "flex min-w-0 items-center")}>
                 {content}

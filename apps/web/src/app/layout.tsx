@@ -9,6 +9,7 @@ import { ClerkApiProvider } from "@/providers/ClerkApiProvider";
 import { QueryProvider } from '@/providers/query-provider';
 import { AuthStateWatcher } from "@/providers/AuthStateWatcher";
 import { AppDataInitializer } from "@/providers/AppDataInitializer";
+import { MessagingSocketProvider } from "@/providers/MessagingSocketProvider";
 
 import { GlobalLoader, LayoutWrapper } from "@/components/layout";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
@@ -60,13 +61,15 @@ export default function RootLayout({
               <ClerkApiProvider>
                 <QueryProvider>
                   <AuthStateWatcher>
-                    <AppDataInitializer>
-                      <GlobalLoader>
-                        <LayoutWrapper>
-                          {children}
-                        </LayoutWrapper>
-                      </GlobalLoader>
-                    </AppDataInitializer>
+                    <MessagingSocketProvider>
+                      <AppDataInitializer>
+                        <GlobalLoader>
+                          <LayoutWrapper>
+                            {children}
+                          </LayoutWrapper>
+                        </GlobalLoader>
+                      </AppDataInitializer>
+                    </MessagingSocketProvider>
                   </AuthStateWatcher>
                 </QueryProvider>
               </ClerkApiProvider>

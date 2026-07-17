@@ -6,8 +6,13 @@ import { Check, ShieldOff, X } from "lucide-react";
 import Button from "@/components/ui/Button";
 import ModerationActionModal from "./ModerationActionModal";
 import { useApproveResource, useRejectResource, useRemoveResource } from "@/hooks/queries/use-resources";
-import { ResourceStatus } from "@/types/entities";
+import { ModerationReason, ModerationReasonLabel, ResourceStatus } from "@/types/entities";
 import type { ModerationReasonInput } from "@/lib/validators/resources";
+
+const REASON_OPTIONS = Object.values(ModerationReason).map((reason) => ({
+    value: reason,
+    label: ModerationReasonLabel[reason],
+}));
 
 interface ModeratorActionBarProps {
     resourceId: number;
@@ -35,8 +40,8 @@ const ModeratorActionBar = ({ resourceId, status }: ModeratorActionBarProps) => 
         });
     };
 
-    const handleReject = (data: ModerationReasonInput) => {
-        reject(data, {
+    const handleReject = (data: { reason: string; note?: string }) => {
+        reject(data as ModerationReasonInput, {
             onSuccess: () => {
                 toast.success("Resource rejected.");
                 setOpenModal(null);
@@ -45,8 +50,8 @@ const ModeratorActionBar = ({ resourceId, status }: ModeratorActionBarProps) => 
         });
     };
 
-    const handleRemove = (data: ModerationReasonInput) => {
-        remove(data, {
+    const handleRemove = (data: { reason: string; note?: string }) => {
+        remove(data as ModerationReasonInput, {
             onSuccess: () => {
                 toast.success("Resource removed.");
                 setOpenModal(null);
@@ -98,6 +103,7 @@ const ModeratorActionBar = ({ resourceId, status }: ModeratorActionBarProps) => 
                 description="This sends the resource back to its uploader along with your reason - they can edit and resubmit it for another review."
                 submitLabel="Reject"
                 isSubmitting={isRejecting}
+                reasonOptions={REASON_OPTIONS}
                 onSubmit={handleReject}
             />
 
@@ -108,6 +114,7 @@ const ModeratorActionBar = ({ resourceId, status }: ModeratorActionBarProps) => 
                 description="This permanently deletes the resource's files and can't be undone or resubmitted. The uploader will see your reason on their own uploads page."
                 submitLabel="Remove"
                 isSubmitting={isRemoving}
+                reasonOptions={REASON_OPTIONS}
                 onSubmit={handleRemove}
             />
         </div>

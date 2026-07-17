@@ -3,6 +3,8 @@ import { BadRequestException, Injectable, NotFoundException } from "@nestjs/comm
 import { AzureBlobService } from "../../storage/azure-blob.service";
 import type { ModerateResourceDto } from "../resources/dto/moderate-resource.dto";
 import type { ReportResourceDto } from "../resources/dto/report-resource.dto";
+import type { ModerateListingDto } from "../marketplace/dto/moderate-listing.dto";
+import type { ReportListingDto } from "../marketplace/dto/report-listing.dto";
 import { ModerationRepository } from "./moderation.repository";
 
 @Injectable()
@@ -125,6 +127,77 @@ export class ModerationService {
 
     return this.moderationRepository.createReport({
       resourceId,
+      reportedBy: userId,
+      reason: dto.reason,
+      note: dto.note,
+    });
+  }
+
+  findOpenMarketplaceReports(pagination: { limit: number; offset: number }) {
+    return this.moderationRepository.findOpenMarketplaceReports(pagination);
+  }
+
+  async dismissMarketplaceReport(moderatorId: number, reportId: number) {
+    const dismissedReport = await this.moderationRepository.resolveMarketplaceReport(reportId, moderatorId);
+
+    if (!dismissedReport) {
+      throw new NotFoundException("Report not found");
+    }
+
+    return dismissedReport;
+  }
+
+  // Unlike resources, there's no reject/resubmit cycle - REMOVE is the only moderator action a listing can receive.
+  async removeListing(moderatorId: number, listingId: number, dto: ModerateListingDto) {
+    const listing = await this.moderationRepository.findForListingModeration(listingId);
+
+    if (!listing) {
+      throw new NotFoundException("Listing not found");
+    }
+
+    if (listing.status === "REMOVED") {
+      throw new BadRequestException("Listing has already been removed");
+    }
+
+    await Promise.all(listing.photos.map((photo) => this.azureBlobService.delete(photo.blobName)));
+    await this.moderationRepository.deleteListingPhotos(listingId);
+
+    const updatedListing = await this.moderationRepository.recordMarketplaceModerationAction(listingId, {
+      status: "REMOVED",
+      moderatedBy: moderatorId,
+      moderationReason: dto.reason,
+      moderationNote: dto.note ?? null,
+      moderatedAt: new Date(),
+    });
+
+    await this.moderationRepository.resolveMarketplaceReportsForListing(listingId, moderatorId);
+
+    return updatedListing;
+  }
+
+  async reportListing(userId: number, listingId: number, dto: ReportListingDto) {
+    const listing = await this.moderationRepository.findForListingModeration(listingId);
+
+    if (!listing) {
+      throw new NotFoundException("Listing not found");
+    }
+
+    if (listing.status === "REMOVED") {
+      throw new BadRequestException("This listing has already been removed");
+    }
+
+    if (listing.postedBy === userId) {
+      throw new BadRequestException("You can't report your own listing");
+    }
+
+    const existingReport = await this.moderationRepository.findExistingMarketplaceReport(listingId, userId);
+
+    if (existingReport) {
+      throw new BadRequestException("You have already reported this listing");
+    }
+
+    return this.moderationRepository.createMarketplaceReport({
+      listingId,
       reportedBy: userId,
       reason: dto.reason,
       note: dto.note,

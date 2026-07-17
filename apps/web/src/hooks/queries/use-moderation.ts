@@ -11,6 +11,9 @@ export const moderationKeys = {
     reports: (page?: number) => page === undefined
         ? ['moderation', 'reports'] as const
         : ['moderation', 'reports', page] as const,
+    marketplaceReports: (page?: number) => page === undefined
+        ? ['moderation', 'marketplace-reports'] as const
+        : ['moderation', 'marketplace-reports', page] as const,
 };
 
 /** The review queue: resources awaiting a moderator's decision, oldest first. */
@@ -56,5 +59,36 @@ export function useDismissReport() {
             return response;
         },
         onSuccess: () => queryClient.invalidateQueries({ queryKey: moderationKeys.reports() }),
+    });
+}
+
+/** Open reports against marketplace listings. */
+export function useMarketplaceReports(page: number = 1) {
+    return useQuery({
+        queryKey: moderationKeys.marketplaceReports(page),
+        queryFn: async () => {
+            const response = await moderationApi.getMarketplaceReports({ page });
+            if (!response.success) {
+                throw new Error(response.error || 'Failed to fetch marketplace reports');
+            }
+            return { items: response.data, meta: response.meta };
+        },
+        placeholderData: keepPreviousData,
+    });
+}
+
+/** Closes a marketplace report with no change to the listing - the "unfounded report" case. */
+export function useDismissMarketplaceReport() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (reportId: number) => {
+            const response = await moderationApi.dismissMarketplaceReport(reportId);
+            if (!response.success) {
+                throw new Error(response.error || 'Failed to dismiss report');
+            }
+            return response;
+        },
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: moderationKeys.marketplaceReports() }),
     });
 }

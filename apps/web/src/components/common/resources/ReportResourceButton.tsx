@@ -6,7 +6,13 @@ import { Flag } from "lucide-react";
 import Button from "@/components/ui/Button";
 import ModerationActionModal from "./ModerationActionModal";
 import { useReportResource } from "@/hooks/queries/use-resources";
+import { ModerationReason, ModerationReasonLabel } from "@/types/entities";
 import type { ModerationReasonInput } from "@/lib/validators/resources";
+
+const REASON_OPTIONS = Object.values(ModerationReason).map((reason) => ({
+    value: reason,
+    label: ModerationReasonLabel[reason],
+}));
 
 interface ReportResourceButtonProps {
     resourceId: number;
@@ -17,8 +23,8 @@ const ReportResourceButton = ({ resourceId }: ReportResourceButtonProps) => {
     const [isOpen, setIsOpen] = useState(false);
     const { mutate, isPending } = useReportResource(resourceId);
 
-    const handleSubmit = (data: ModerationReasonInput) => {
-        mutate(data, {
+    const handleSubmit = (data: { reason: string; note?: string }) => {
+        mutate(data as ModerationReasonInput, {
             onSuccess: () => {
                 toast.success("Thanks - we've received your report.");
                 setIsOpen(false);
@@ -49,6 +55,7 @@ const ReportResourceButton = ({ resourceId }: ReportResourceButtonProps) => {
                 description="Let a moderator know what's wrong with this resource. Your identity isn't shared with its uploader."
                 submitLabel="Submit Report"
                 isSubmitting={isPending}
+                reasonOptions={REASON_OPTIONS}
                 onSubmit={handleSubmit}
             />
         </div>

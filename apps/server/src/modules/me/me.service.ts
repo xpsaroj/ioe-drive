@@ -1,5 +1,6 @@
 import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 
+import { MarketplaceListingsService } from "../marketplace/marketplace-listings.service";
 import { ResourcesRepository } from "../resources/resources.repository";
 import { ResourcesService } from "../resources/resources.service";
 import { UsersRepository } from "../users/users.repository";
@@ -12,6 +13,7 @@ export class MeService {
     private readonly usersRepository: UsersRepository,
     private readonly resourcesService: ResourcesService,
     private readonly resourcesRepository: ResourcesRepository,
+    private readonly marketplaceListingsService: MarketplaceListingsService,
     private readonly meRepository: MeRepository,
   ) {}
 
@@ -46,6 +48,10 @@ export class MeService {
    * pending/rejected/removed resources and any moderation reason attached to them. */
   getUploadedResources(userId: number, pagination: { limit: number; offset: number }) {
     return this.resourcesService.findResources({ userId, includeAllStatuses: true }, pagination);
+  }
+
+  getMyMarketplaceListings(userId: number, pagination: { limit: number; offset: number }) {
+    return this.marketplaceListingsService.findListings({ userId, includeAllStatuses: true }, pagination);
   }
 
   getRecentlyAccessedResources(userId: number, pagination: { limit: number; offset: number }) {

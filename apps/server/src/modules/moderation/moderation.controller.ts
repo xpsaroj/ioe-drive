@@ -42,4 +42,23 @@ export class ModerationController {
     await this.moderationService.dismissReport(moderator.id, reportId);
     return ApiResponse.of(null, "Report dismissed");
   }
+
+  // Open marketplace-listing reports, oldest first.
+  @Get("marketplace/reports")
+  async findMarketplaceReports(@Query() query: PaginationQueryDto) {
+    const offset = getPaginationOffset(query.page, query.limit);
+    const { items, total } = await this.moderationService.findOpenMarketplaceReports({ limit: query.limit, offset });
+    return ApiResponse.of(items, undefined, buildPaginationMeta(query.page, query.limit, total));
+  }
+
+  // The "unfounded report" case for a listing: closes the report with no change to the listing.
+  @Post("marketplace/reports/:reportId/dismiss")
+  @HttpCode(HttpStatus.OK)
+  async dismissMarketplaceReport(
+    @CurrentUser() moderator: AuthenticatedUser,
+    @Param("reportId", ParseIntPipe) reportId: number,
+  ) {
+    await this.moderationService.dismissMarketplaceReport(moderator.id, reportId);
+    return ApiResponse.of(null, "Report dismissed");
+  }
 }

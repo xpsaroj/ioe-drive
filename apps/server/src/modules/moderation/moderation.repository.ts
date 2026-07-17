@@ -4,15 +4,20 @@ import { and, asc, count, eq } from "drizzle-orm";
 import { DRIZZLE } from "../../database/database.constants";
 import type { DrizzleDb } from "../../database/database.types";
 import {
+  marketplaceListingPhotosTable,
+  marketplaceListingsTable,
+  marketplaceReportsTable,
   moderationActionsTable,
   reportsTable,
   resourceFilesTable,
   resourcesTable,
+  type MarketplaceReportReason,
   type ModerationAction,
   type ModerationReason,
 } from "../../database/schema";
 import { RESOURCE_DETAIL_RELATIONS, RESOURCE_PREVIEW_RELATIONS } from "../resources/resources.repository";
 import type { ModerateResourceData } from "../resources/resources.types";
+import type { ModerateListingData } from "../marketplace/marketplace-listing.types";
 
 @Injectable()
 export class ModerationRepository {
@@ -115,6 +120,81 @@ export class ModerationRepository {
       .update(reportsTable)
       .set({ status: "RESOLVED", resolvedAt: new Date(), resolvedBy })
       .where(and(eq(reportsTable.id, reportId), eq(reportsTable.status, "OPEN")))
+      .returning();
+
+    return resolvedReport;
+  }
+
+  // Just enough to authorize + drive a moderation action: status, and photo blob names for `remove` to purge.
+  findForListingModeration(listingId: number) {
+    return this.db.query.marketplaceListingsTable.findFirst({
+      where: eq(marketplaceListingsTable.id, listingId),
+      columns: { id: true, status: true, postedBy: true },
+      with: { photos: { columns: { blobName: true } } },
+    });
+  }
+
+  // No separate audit table for marketplace listings - REMOVE is the only action and it's terminal, so these denormalized columns are a complete record.
+  async recordMarketplaceModerationAction(listingId: number, data: ModerateListingData) {
+    const [updatedListing] = await this.db
+      .update(marketplaceListingsTable)
+      .set(data)
+      .where(eq(marketplaceListingsTable.id, listingId))
+      .returning();
+
+    return updatedListing;
+  }
+
+  async deleteListingPhotos(listingId: number): Promise<void> {
+    await this.db.delete(marketplaceListingPhotosTable).where(eq(marketplaceListingPhotosTable.listingId, listingId));
+  }
+
+  findExistingMarketplaceReport(listingId: number, reportedBy: number) {
+    return this.db.query.marketplaceReportsTable.findFirst({
+      where: and(eq(marketplaceReportsTable.listingId, listingId), eq(marketplaceReportsTable.reportedBy, reportedBy)),
+      columns: { id: true },
+    });
+  }
+
+  async createMarketplaceReport(data: { listingId: number; reportedBy: number; reason: MarketplaceReportReason; note?: string }) {
+    const [createdReport] = await this.db.insert(marketplaceReportsTable).values(data).returning();
+
+    return createdReport;
+  }
+
+  async findOpenMarketplaceReports(pagination: { limit: number; offset: number }) {
+    const whereClause = eq(marketplaceReportsTable.status, "OPEN");
+
+    const [items, totalResult] = await Promise.all([
+      this.db.query.marketplaceReportsTable.findMany({
+        where: whereClause,
+        orderBy: [asc(marketplaceReportsTable.createdAt)],
+        limit: pagination.limit,
+        offset: pagination.offset,
+        with: {
+          listing: { columns: { id: true, title: true, type: true, category: true } },
+          reporter: { columns: { id: true, fullName: true } },
+        },
+      }),
+      this.db.select({ total: count() }).from(marketplaceReportsTable).where(whereClause),
+    ]);
+
+    return { items, total: totalResult[0]?.total ?? 0 };
+  }
+
+  // Called when a moderator removes a listing - that action already addresses any open reports.
+  async resolveMarketplaceReportsForListing(listingId: number, resolvedBy: number): Promise<void> {
+    await this.db
+      .update(marketplaceReportsTable)
+      .set({ status: "RESOLVED", resolvedAt: new Date(), resolvedBy })
+      .where(and(eq(marketplaceReportsTable.listingId, listingId), eq(marketplaceReportsTable.status, "OPEN")));
+  }
+
+  async resolveMarketplaceReport(reportId: number, resolvedBy: number) {
+    const [resolvedReport] = await this.db
+      .update(marketplaceReportsTable)
+      .set({ status: "RESOLVED", resolvedAt: new Date(), resolvedBy })
+      .where(and(eq(marketplaceReportsTable.id, reportId), eq(marketplaceReportsTable.status, "OPEN")))
       .returning();
 
     return resolvedReport;
