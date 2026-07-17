@@ -3,7 +3,8 @@ import { Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 
-import { ResourceList, ResourcePageStateHandler } from "@/components/common/resources";
+import { EntityPageStateHandler } from "@/components/layout";
+import { ItemList } from "@/components/common/list";
 import { MyListingCard } from "@/components/common/marketplace";
 import Button from "@/components/ui/Button";
 import Pagination from "@/components/ui/Pagination";
@@ -31,7 +32,7 @@ const MyListingsContent = () => {
     );
 
     return (
-        <ResourcePageStateHandler
+        <EntityPageStateHandler
             title="My Listings"
             breadcrumbs={[{ label: "Library", href: "/library" }, { label: "Listings" }]}
             beforeBreadcrumb={backButton}
@@ -45,8 +46,8 @@ const MyListingsContent = () => {
             emptyButtonHref="/market/create"
         >
             <div className="space-y-6">
-                <ResourceList
-                    resources={listings || []}
+                <ItemList
+                    items={listings || []}
                     renderItem={(item) => <MyListingCard listing={item} />}
                 />
                 <Pagination
@@ -56,7 +57,7 @@ const MyListingsContent = () => {
                     disabled={isPlaceholderData}
                 />
             </div>
-        </ResourcePageStateHandler>
+        </EntityPageStateHandler>
     )
 }
 

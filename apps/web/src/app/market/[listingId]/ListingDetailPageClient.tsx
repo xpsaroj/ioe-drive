@@ -8,7 +8,6 @@ import { useMe } from "@/hooks/queries/use-me";
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import Loader from "@/components/ui/Loader";
-import { ResourcePageStateHandler } from "@/components/common/resources";
 import {
     LISTING_TYPE_BADGE_VARIANT,
     LISTING_STATUS_BADGE_VARIANT,
@@ -24,7 +23,7 @@ import { StartConversationButton } from "@/components/common/messaging";
 import { cn } from "@/utils/cn";
 import { formatListingPrice } from "@/utils/marketplace";
 import { isModeratorOrAdmin, MarketplaceListingStatus, MarketplaceListingStatusLabel, MarketplaceListingType, MarketplaceListingTypeLabel, MarketplaceCategoryLabel } from "@/types/entities";
-import type { BreadcrumbItem } from "@/components/layout";
+import { EntityPageStateHandler, type BreadcrumbItem } from "@/components/layout";
 
 interface ListingDetailPageClientProps {
     params: Promise<{
@@ -95,7 +94,7 @@ const ListingDetailContent = ({
 
     if (isMissing) {
         return (
-            <ResourcePageStateHandler
+            <EntityPageStateHandler
                 title={title}
                 breadcrumbs={breadcrumbs}
                 beforeBreadcrumb={backButton}
@@ -109,7 +108,7 @@ const ListingDetailContent = ({
                 emptyButtonHref="/market"
             >
                 {null}
-            </ResourcePageStateHandler>
+            </EntityPageStateHandler>
         );
     }
 
@@ -123,7 +122,7 @@ const ListingDetailContent = ({
     });
 
     return (
-        <ResourcePageStateHandler
+        <EntityPageStateHandler
             title={title}
             breadcrumbs={breadcrumbs}
             beforeBreadcrumb={backButton}
@@ -238,7 +237,7 @@ const ListingDetailContent = ({
                     </div>
                 </div>
             </div>
-        </ResourcePageStateHandler>
+        </EntityPageStateHandler>
     )
 }
 

@@ -1,7 +1,7 @@
 "use client";
 import { Suspense } from "react";
 
-import { ResourceList } from "@/components/common/resources";
+import { ItemList } from "@/components/common/list";
 import { MarketplaceReportRow } from "@/components/common/moderation";
 import Loader from "@/components/ui/Loader";
 import Pagination from "@/components/ui/Pagination";
@@ -14,8 +14,8 @@ const MarketplaceReportsQueueContent = () => {
 
     return (
         <div className="space-y-6">
-            <ResourceList
-                resources={data?.items || []}
+            <ItemList
+                items={data?.items || []}
                 loading={isPending}
                 error={error ? "Failed to load reports" : null}
                 emptyMessage="No open reports - every reported listing has been reviewed."

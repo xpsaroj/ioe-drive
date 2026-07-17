@@ -1,6 +1,6 @@
 import type { ReactNode } from "react";
-import { Inbox, AlertCircle } from "lucide-react";
 
+import { ItemList } from "@/components/common/list";
 import ResourceCardSkeleton from "./ResourceCardSkeleton";
 
 interface ResourceListProps<T> {
@@ -13,6 +13,9 @@ interface ResourceListProps<T> {
     emptyState?: ReactNode;
 }
 
+// Thin resource-flavored wrapper around the generic ItemList - just supplies the
+// resource-shaped loading skeleton, so every existing resource-domain call site keeps
+// working unchanged.
 const ResourceList = <T,>({
     resources,
     loading,
@@ -21,47 +24,17 @@ const ResourceList = <T,>({
     emptyMessage = "No resources found.",
     emptyState,
 }: ResourceListProps<T>) => {
-    if (loading) {
-        return (
-            <div className="flex flex-col gap-4">
-                {Array.from({ length: 3 }).map((_, index) => (
-                    <ResourceCardSkeleton key={index} />
-                ))}
-            </div>
-        )
-    }
-
-    if (error) {
-        return (
-            <div className="flex flex-col items-center gap-2 rounded-xl border border-border py-16">
-                <AlertCircle className="size-5 text-error" />
-                <p className="text-error text-sm">{error}</p>
-            </div>
-        )
-    }
-
-    if (!resources || resources.length === 0) {
-        return (
-            <div className="flex flex-col items-center gap-2 rounded-xl border border-border py-16">
-                {emptyState ?? (
-                    <>
-                        <Inbox className="size-5 text-foreground-tertiary" />
-                        <p className="text-sm text-foreground-tertiary">{emptyMessage}</p>
-                    </>
-                )}
-            </div>
-        )
-    }
-
     return (
-        <div className="flex flex-col gap-4">
-            {resources.map((resource, index) => (
-                <div key={index}>
-                    {renderItem(resource)}
-                </div>
-            ))}
-        </div>
-    )
+        <ItemList
+            items={resources}
+            loading={loading}
+            error={error}
+            renderItem={renderItem}
+            emptyMessage={emptyMessage}
+            emptyState={emptyState}
+            renderSkeleton={() => <ResourceCardSkeleton />}
+        />
+    );
 }
 
 export default ResourceList;

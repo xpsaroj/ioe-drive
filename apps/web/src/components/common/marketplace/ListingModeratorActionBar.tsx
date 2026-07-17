@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { ShieldOff } from "lucide-react";
 
 import Button from "@/components/ui/Button";
-import { ModerationActionModal } from "@/components/common/resources";
+import { ModerationActionModal } from "@/components/common/moderation";
 import { useRemoveListingAsModerator } from "@/hooks/queries/use-marketplace";
 import { MarketplaceListingStatus, MarketplaceReportReason, MarketplaceReportReasonLabel } from "@/types/entities";
 import type { MarketplaceReportReasonInput } from "@/lib/validators/marketplace";

@@ -11,10 +11,9 @@ import { useMe, useMarkResourceAsRecentlyAccessed } from "@/hooks/queries/use-me
 import Badge from "@/components/ui/Badge";
 import Button from "@/components/ui/Button";
 import Loader from "@/components/ui/Loader";
-import type { BreadcrumbItem } from "@/components/layout";
+import { EntityPageStateHandler, type BreadcrumbItem } from "@/components/layout";
 import {
     ResourceFileList,
-    ResourcePageStateHandler,
     EditResourceButton,
     DeleteResourceButton,
     BookmarkButton,
@@ -112,7 +111,7 @@ const ResourceDetailContent = ({
 
     if (isMissing) {
         return (
-            <ResourcePageStateHandler
+            <EntityPageStateHandler
                 title={title}
                 breadcrumbs={breadcrumbs}
                 beforeBreadcrumb={backButton}
@@ -126,7 +125,7 @@ const ResourceDetailContent = ({
                 emptyButtonHref="/resources"
             >
                 {null}
-            </ResourcePageStateHandler>
+            </EntityPageStateHandler>
         );
     }
 
@@ -153,7 +152,7 @@ const ResourceDetailContent = ({
     };
 
     return (
-        <ResourcePageStateHandler
+        <EntityPageStateHandler
             title={title}
             breadcrumbs={breadcrumbs}
             beforeBreadcrumb={backButton}
@@ -277,7 +276,7 @@ const ResourceDetailContent = ({
                     </div>
                 </div>
             </div>
-        </ResourcePageStateHandler>
+        </EntityPageStateHandler>
     )
 }
 

@@ -2,7 +2,7 @@
 import { PageHeader, PageStateHandler, type BreadcrumbItem } from "@/components/layout";
 import Button from "@/components/ui/Button";
 
-interface ResourcePageStateHandlerProps {
+interface EntityPageStateHandlerProps {
     title: React.ReactNode;
     breadcrumbs: BreadcrumbItem[];
     /** Optional right-aligned content next to the title (e.g. bookmark/edit/delete). */
@@ -20,7 +20,10 @@ interface ResourcePageStateHandlerProps {
     children: React.ReactNode;
 }
 
-const ResourcePageStateHandler = ({
+// Combines PageHeader + PageStateHandler with a standard "empty state with a CTA
+// button" convention - generic across any single-entity detail page (a resource, a
+// marketplace listing, an inbox, etc.), not tied to any one domain.
+const EntityPageStateHandler = ({
     title,
     breadcrumbs,
     actions,
@@ -34,7 +37,7 @@ const ResourcePageStateHandler = ({
     emptyButtonText,
     emptyButtonHref,
     children,
-}: ResourcePageStateHandlerProps) => {
+}: EntityPageStateHandlerProps) => {
     const headerSection = (
         <PageHeader title={title} breadcrumbs={breadcrumbs} actions={actions} beforeBreadcrumb={beforeBreadcrumb} />
     );
@@ -63,4 +66,4 @@ const ResourcePageStateHandler = ({
     );
 };
 
-export default ResourcePageStateHandler;
+export default EntityPageStateHandler;

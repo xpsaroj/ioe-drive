@@ -3,7 +3,8 @@ import { Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 
-import { ResourceList, UploadedResourceCard, ResourcePageStateHandler } from "@/components/common/resources";
+import { ResourceList, UploadedResourceCard } from "@/components/common/resources";
+import { EntityPageStateHandler } from "@/components/layout";
 import Button from "@/components/ui/Button";
 import Pagination from "@/components/ui/Pagination";
 import Loader from "@/components/ui/Loader";
@@ -30,7 +31,7 @@ const MyUploadedResourcesContent = () => {
     );
 
     return (
-        <ResourcePageStateHandler
+        <EntityPageStateHandler
             title="My Uploaded Resources"
             breadcrumbs={[{ label: "Library", href: "/library" }, { label: "Uploads" }]}
             beforeBreadcrumb={backButton}
@@ -60,7 +61,7 @@ const MyUploadedResourcesContent = () => {
                     disabled={isPlaceholderData}
                 />
             </div>
-        </ResourcePageStateHandler>
+        </EntityPageStateHandler>
     )
 }
 

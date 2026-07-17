@@ -2,7 +2,7 @@
 import { Suspense, useState } from "react";
 import { Plus } from "lucide-react";
 
-import { ResourceList } from "@/components/common/resources";
+import { ItemList } from "@/components/common/list";
 import { MarketplaceListingCard } from "@/components/common/marketplace";
 import Select from "@/components/ui/Select";
 import Input from "@/components/ui/Input";
@@ -92,8 +92,8 @@ const MarketBrowseContent = () => {
             </div>
 
             <div className="space-y-6">
-                <ResourceList
-                    resources={listings}
+                <ItemList
+                    items={listings}
                     loading={isPending}
                     error={error ? "Failed to load listings. Please try again." : null}
                     renderItem={(listing) => <MarketplaceListingCard listing={listing} />}

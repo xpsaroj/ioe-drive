@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { Check, ShieldOff, X } from "lucide-react";
 
 import Button from "@/components/ui/Button";
-import ModerationActionModal from "./ModerationActionModal";
+import { ModerationActionModal } from "@/components/common/moderation";
 import { useApproveResource, useRejectResource, useRemoveResource } from "@/hooks/queries/use-resources";
 import { ModerationReason, ModerationReasonLabel, ResourceStatus } from "@/types/entities";
 import type { ModerationReasonInput } from "@/lib/validators/resources";

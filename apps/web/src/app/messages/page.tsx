@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 
-import { ResourcePageStateHandler } from "@/components/common/resources";
+import { EntityPageStateHandler } from "@/components/layout";
 import { ConversationList } from "@/components/common/messaging";
 import Button from "@/components/ui/Button";
 import Pagination from "@/components/ui/Pagination";
@@ -32,7 +32,7 @@ const MessagesContent = () => {
     );
 
     return (
-        <ResourcePageStateHandler
+        <EntityPageStateHandler
             title="Messages"
             breadcrumbs={[{ label: "Messages" }]}
             beforeBreadcrumb={backButton}
@@ -56,7 +56,7 @@ const MessagesContent = () => {
                     disabled={isPlaceholderData}
                 />
             </div>
-        </ResourcePageStateHandler>
+        </EntityPageStateHandler>
     )
 }
 

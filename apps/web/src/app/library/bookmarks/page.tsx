@@ -3,7 +3,8 @@ import { Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 
-import { ResourceList, BookmarkedResourceCard, ResourcePageStateHandler } from "@/components/common/resources";
+import { ResourceList, BookmarkedResourceCard } from "@/components/common/resources";
+import { EntityPageStateHandler } from "@/components/layout";
 import Button from "@/components/ui/Button";
 import Pagination from "@/components/ui/Pagination";
 import Loader from "@/components/ui/Loader";
@@ -30,7 +31,7 @@ const MyBookmarkedResourcesContent = () => {
     );
 
     return (
-        <ResourcePageStateHandler
+        <EntityPageStateHandler
             title="My Bookmarked Resources"
             breadcrumbs={[{ label: "Library", href: "/library" }, { label: "Bookmarks" }]}
             beforeBreadcrumb={backButton}
@@ -57,7 +58,7 @@ const MyBookmarkedResourcesContent = () => {
                     disabled={isPlaceholderData}
                 />
             </div>
-        </ResourcePageStateHandler>
+        </EntityPageStateHandler>
     )
 }
 

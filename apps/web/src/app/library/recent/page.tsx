@@ -3,7 +3,8 @@ import { Suspense } from "react";
 import { useRouter } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
 
-import { ResourceList, RecentResourceCard, ResourcePageStateHandler } from "@/components/common/resources";
+import { ResourceList, RecentResourceCard } from "@/components/common/resources";
+import { EntityPageStateHandler } from "@/components/layout";
 import Button from "@/components/ui/Button";
 import Pagination from "@/components/ui/Pagination";
 import Loader from "@/components/ui/Loader";
@@ -30,7 +31,7 @@ const MyRecentResourcesContent = () => {
     );
 
     return (
-        <ResourcePageStateHandler
+        <EntityPageStateHandler
             title="My Recent Resources"
             breadcrumbs={[{ label: "Library", href: "/library" }, { label: "Recent" }]}
             beforeBreadcrumb={backButton}
@@ -57,7 +58,7 @@ const MyRecentResourcesContent = () => {
                     disabled={isPlaceholderData}
                 />
             </div>
-        </ResourcePageStateHandler>
+        </EntityPageStateHandler>
     )
 }
 

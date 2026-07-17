@@ -93,7 +93,7 @@ const ResourceCard = ({
             </div>
 
             {description && (
-                <p className="text-sm text-foreground-secondary leading-relaxed line-clamp-2">
+                <p className="text-sm sm:text-base text-foreground-secondary leading-relaxed line-clamp-2">
                     {description}
                 </p>
             )}

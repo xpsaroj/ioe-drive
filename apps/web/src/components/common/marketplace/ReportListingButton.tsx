@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { Flag } from "lucide-react";
 
 import Button from "@/components/ui/Button";
-import { ModerationActionModal } from "@/components/common/resources";
+import { ModerationActionModal } from "@/components/common/moderation";
 import { useReportListing } from "@/hooks/queries/use-marketplace";
 import { MarketplaceReportReason, MarketplaceReportReasonLabel } from "@/types/entities";
 import type { MarketplaceReportReasonInput } from "@/lib/validators/marketplace";
