@@ -120,6 +120,13 @@
       "when": 1784139403458,
       "tag": "0016_low_shiver_man",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1784363296386,
+      "tag": "0017_fixed_annihilus",
+      "breakpoints": true
     }
   ]
 }

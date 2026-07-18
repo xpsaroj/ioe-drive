@@ -30,11 +30,13 @@ export const LISTING_STATUS_BADGE_VARIANT: Record<MarketplaceListingStatus, Badg
 
 interface MarketplaceListingCardProps {
     listing: ListingSummary;
+    /** Self-contained alert block rendered above everything else, e.g. a removed notice. */
+    notice?: React.ReactNode;
     /** Optional action buttons (e.g. edit/delete for the listing's owner), rendered next to the title. */
     actions?: React.ReactNode;
 }
 
-const MarketplaceListingCard = ({ listing, actions }: MarketplaceListingCardProps) => {
+const MarketplaceListingCard = ({ listing, notice, actions }: MarketplaceListingCardProps) => {
     const { title, description, type, category, price, poster, photos, status } = listing;
     const coverPhoto = photos[0];
 
@@ -46,64 +48,72 @@ const MarketplaceListingCard = ({ listing, actions }: MarketplaceListingCardProp
     });
 
     return (
-        <div className="group/card relative flex flex-col gap-4 rounded-xl border border-border bg-card-background p-4 transition-colors duration-400 hover:border-accent sm:flex-row sm:p-5">
-            <Link
-                href={`/market/${listing.id}`}
-                className="relative aspect-[4/3] w-full shrink-0 overflow-hidden rounded-lg bg-background-tertiary sm:w-40"
-            >
-                {coverPhoto ? (
-                    // Signed URLs are per-request and short-lived - plain <img>, not an oversight.
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={coverPhoto.photoUrl} alt={title} className="h-full w-full object-cover" />
-                ) : (
-                    <div className="flex h-full w-full items-center justify-center">
-                        <ImageOff className="size-6 text-foreground-tertiary" />
-                    </div>
-                )}
-            </Link>
+        <div className="group/card relative flex flex-col gap-4 rounded-xl border border-border bg-card-background p-4 transition-colors duration-400 hover:border-accent sm:p-5">
+            {notice && (
+                <div className="rounded-lg border border-border bg-background-tertiary px-3 py-2.5 text-sm">
+                    {notice}
+                </div>
+            )}
 
-            <div className="flex min-w-0 flex-1 flex-col gap-3">
-                <div className="flex items-start justify-between gap-3">
-                    <div className="min-w-0">
-                        <Link
-                            href={`/market/${listing.id}`}
-                            className="font-semibold text-foreground decoration-2 underline-offset-3 group-hover/card:underline"
-                        >
-                            {title}
-                        </Link>
-                        <Badge size="sm" variant={LISTING_TYPE_BADGE_VARIANT[type]} className="ms-2 align-middle">
-                            {MarketplaceListingTypeLabel[type]}
-                        </Badge>
-                        <Badge size="sm" variant="secondary" className="ms-2 align-middle">
-                            {MarketplaceCategoryLabel[category]}
-                        </Badge>
-                        {status !== MarketplaceListingStatus.ACTIVE && (
-                            <Badge size="sm" variant={LISTING_STATUS_BADGE_VARIANT[status]} className="ms-2 align-middle">
-                                {MarketplaceListingStatusLabel[status]}
-                            </Badge>
-                        )}
-                    </div>
-                    {actions && (
-                        <div className="flex items-center gap-1 shrink-0 border border-border p-0.5 rounded-lg">
-                            {actions}
+            <div className="flex flex-col gap-4 sm:flex-row">
+                <Link
+                    href={`/market/${listing.id}`}
+                    className="relative aspect-[4/3] w-full shrink-0 overflow-hidden rounded-lg bg-background-tertiary sm:w-40"
+                >
+                    {coverPhoto ? (
+                        // Signed URLs are per-request and short-lived - plain <img>, not an oversight.
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={coverPhoto.photoUrl} alt={title} className="h-full w-full object-cover" />
+                    ) : (
+                        <div className="flex h-full w-full items-center justify-center">
+                            <ImageOff className="size-6 text-foreground-tertiary" />
                         </div>
                     )}
-                </div>
+                </Link>
 
-                {description && (
-                    <p className="text-sm text-foreground-secondary leading-relaxed line-clamp-2">
-                        {description}
-                    </p>
-                )}
-
-                <div className="mt-auto flex items-center justify-between gap-3 pt-3 border-t border-border">
-                    <UploaderInfo user={poster} subtitle={formattedCreatedAt} />
-
-                    <div className="flex items-center gap-3 shrink-0">
-                        {listing.subjectOffering && (
-                            <SubjectCodeTile code={listing.subjectOffering.subject.code} size="sm" />
+                <div className="flex min-w-0 flex-1 flex-col gap-3">
+                    <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                            <Link
+                                href={`/market/${listing.id}`}
+                                className="font-semibold text-foreground decoration-2 underline-offset-3 group-hover/card:underline"
+                            >
+                                {title}
+                            </Link>
+                            <Badge size="sm" variant={LISTING_TYPE_BADGE_VARIANT[type]} className="ms-2 align-middle">
+                                {MarketplaceListingTypeLabel[type]}
+                            </Badge>
+                            <Badge size="sm" variant="secondary" className="ms-2 align-middle">
+                                {MarketplaceCategoryLabel[category]}
+                            </Badge>
+                            {status !== MarketplaceListingStatus.ACTIVE && (
+                                <Badge size="sm" variant={LISTING_STATUS_BADGE_VARIANT[status]} className="ms-2 align-middle">
+                                    {MarketplaceListingStatusLabel[status]}
+                                </Badge>
+                            )}
+                        </div>
+                        {actions && (
+                            <div className="flex items-center gap-1 shrink-0 border border-border p-0.5 rounded-lg">
+                                {actions}
+                            </div>
                         )}
-                        <span className="font-semibold text-foreground">{formatListingPrice(price)}</span>
+                    </div>
+
+                    {description && (
+                        <p className="text-sm text-foreground-secondary leading-relaxed line-clamp-2">
+                            {description}
+                        </p>
+                    )}
+
+                    <div className="mt-auto flex items-center justify-between gap-3 pt-3 border-t border-border">
+                        <UploaderInfo user={poster} subtitle={formattedCreatedAt} />
+
+                        <div className="flex items-center gap-3 shrink-0">
+                            {listing.subjectOffering && (
+                                <SubjectCodeTile code={listing.subjectOffering.subject.code} size="sm" />
+                            )}
+                            <span className="font-semibold text-foreground">{formatListingPrice(price)}</span>
+                        </div>
                     </div>
                 </div>
             </div>

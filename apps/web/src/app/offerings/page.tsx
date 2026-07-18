@@ -2,9 +2,9 @@
 import { Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowRight, ListChecks } from "lucide-react";
+import { ListChecks } from "lucide-react";
 
-import { SubjectHardnessBadge } from "@/components/common/offering";
+import { SubjectOfferingCard } from "@/components/common/offering";
 import { BookSpines, DEFAULT_SHELF_SPINES } from "@/components/decor";
 import Select from "@/components/ui/Select";
 import Loader from "@/components/ui/Loader";
@@ -175,34 +175,7 @@ const OfferingsBrowseContent = () => {
             ) : (
                 <div className="mb-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 md:mb-8">
                     {subjectOfferings.map((offering) => (
-                        <Link
-                            key={offering.id}
-                            href={`/offerings/${offering.id}`}
-                            className="group flex flex-col rounded-xl border border-border bg-card-background p-5 transition-colors hover:border-foreground-tertiary hover:bg-card-hover"
-                        >
-                            <div className="flex items-start justify-between gap-3">
-                                <span className="rounded-md border border-border px-2 py-1 font-display text-xs uppercase tracking-wide text-foreground-tertiary">
-                                    {offering.subject.code}
-                                </span>
-                                <SubjectHardnessBadge level={offering.subject.hardnessLevel} dot className="shrink-0" />
-                            </div>
-
-                            <p className="mt-3 font-semibold text-foreground">{offering.subject.name}</p>
-
-                            {offering.subject.description ? (
-                                <p className="mt-1 line-clamp-2 text-sm text-foreground-secondary">
-                                    {offering.subject.description}
-                                </p>
-                            ) : (
-                                <p className="mt-1 text-sm italic text-foreground-tertiary">
-                                    No description available yet.
-                                </p>
-                            )}
-
-                            <div className="mt-4 flex items-center justify-end border-t border-border pt-3">
-                                <ArrowRight className="size-4 text-foreground-tertiary transition-transform group-hover:translate-x-0.5 group-hover:text-foreground" />
-                            </div>
-                        </Link>
+                        <SubjectOfferingCard key={offering.id} offering={offering} />
                     ))}
                 </div>
             )}

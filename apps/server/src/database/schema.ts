@@ -29,6 +29,12 @@ export const ModerationReasonEnum = pgEnum("moderation_reason_enum", [
 ]);
 export const ReportStatusEnum = pgEnum("report_status_enum", ["OPEN", "RESOLVED"]);
 export const ModerationActionEnum = pgEnum("moderation_action_enum", ["APPROVE", "REJECT", "REMOVE"]);
+export const NotificationTypeEnum = pgEnum("notification_type_enum", [
+    "RESOURCE_APPROVED",
+    "RESOURCE_REJECTED",
+    "RESOURCE_REMOVED",
+    "LISTING_REMOVED",
+]);
 
 export const MarketplaceListingTypeEnum = pgEnum("marketplace_listing_type_enum", ["SELLING", "WANTED"]);
 export const MarketplaceCategoryEnum = pgEnum("marketplace_category_enum", [
@@ -59,6 +65,7 @@ export type ResourceStatus = (typeof ResourceStatusEnum.enumValues)[number];
 export type ModerationReason = (typeof ModerationReasonEnum.enumValues)[number];
 export type ReportStatus = (typeof ReportStatusEnum.enumValues)[number];
 export type ModerationAction = (typeof ModerationActionEnum.enumValues)[number];
+export type NotificationType = (typeof NotificationTypeEnum.enumValues)[number];
 export type MarketplaceListingType = (typeof MarketplaceListingTypeEnum.enumValues)[number];
 export type MarketplaceCategory = (typeof MarketplaceCategoryEnum.enumValues)[number];
 export type MarketplaceListingStatus = (typeof MarketplaceListingStatusEnum.enumValues)[number];
@@ -440,6 +447,25 @@ export const marketplaceMessagesTable = pgTable("marketplace_messages", {
     ]
 );
 
+// `link` is a self-contained relative URL (e.g. "/resources/r/42") rather than a FK to
+// resourcesTable/marketplaceListingsTable, so deleting the underlying resource/listing
+// doesn't silently wipe notification history.
+export const notificationsTable = pgTable("notifications", {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    userId: integer("user_id")
+        .references(() => usersTable.id, { onDelete: "cascade" })
+        .notNull(),
+    type: NotificationTypeEnum("type").notNull(),
+    message: text("message").notNull(),
+    link: text("link"),
+    readAt: timestamp("read_at"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+},
+    (table) => [
+        index("idx_notifications_user_id").on(table.userId),
+    ]
+);
+
 
 // Relations
 export const programRelations = relations(programsTable, ({ many }) => ({
@@ -491,6 +517,7 @@ export const userRelations = relations(usersTable, ({ one, many }) => ({
     marketplaceConversationsAsPoster: many(marketplaceConversationsTable, { relationName: "conversationsAsPoster" }),
     marketplaceConversationsAsInitiator: many(marketplaceConversationsTable, { relationName: "conversationsAsInitiator" }),
     marketplaceMessagesSent: many(marketplaceMessagesTable),
+    notifications: many(notificationsTable),
 }));
 
 export const profileRelations = relations(profilesTable, ({ one }) => ({
@@ -675,6 +702,13 @@ export const marketplaceMessageRelations = relations(marketplaceMessagesTable, (
     }),
     sender: one(usersTable, {
         fields: [marketplaceMessagesTable.senderId],
+        references: [usersTable.id]
+    }),
+}));
+
+export const notificationRelations = relations(notificationsTable, ({ one }) => ({
+    user: one(usersTable, {
+        fields: [notificationsTable.userId],
         references: [usersTable.id]
     }),
 }));

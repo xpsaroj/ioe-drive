@@ -22,7 +22,7 @@ import { SubjectCodeTile } from "@/components/common/offering";
 import { StartConversationButton } from "@/components/common/messaging";
 import { cn } from "@/utils/cn";
 import { formatListingPrice } from "@/utils/marketplace";
-import { isModeratorOrAdmin, MarketplaceListingStatus, MarketplaceListingStatusLabel, MarketplaceListingType, MarketplaceListingTypeLabel, MarketplaceCategoryLabel } from "@/types/entities";
+import { isModeratorOrAdmin, MarketplaceListingStatus, MarketplaceListingStatusLabel, MarketplaceListingType, MarketplaceListingTypeLabel, MarketplaceCategoryLabel, MarketplaceReportReasonLabel } from "@/types/entities";
 import { EntityPageStateHandler, type BreadcrumbItem } from "@/components/layout";
 
 interface ListingDetailPageClientProps {
@@ -67,7 +67,7 @@ const ListingDetailContent = ({
         <div className="flex items-center gap-2 shrink-0">
             <ListingStatusToggleButton listingId={listing.id} status={listing.status} />
             <div className="flex items-center gap-1 border border-border p-0.5 rounded-lg">
-                <EditListingButton listingId={listing.id} />
+                <EditListingButton listingId={listing.id} status={listing.status} />
                 <DeleteListingButton listingId={listing.id} onDeleted={() => router.push("/market")} />
             </div>
         </div>
@@ -112,6 +112,11 @@ const ListingDetailContent = ({
         );
     }
 
+    // Owner needs this to find out why their listing was removed (no notification system);
+    // a moderator needs it too since ListingModeratorActionBar only exposes actions to take
+    // next, not the reason recorded by whoever already actioned it.
+    const showModerationNotice = (isOwner || isModerator) && listing.status === MarketplaceListingStatus.REMOVED;
+
     const photos = listing.photos ?? [];
     const activePhoto = photos[activePhotoIndex] ?? photos[0];
     const createdAt = new Date(listing.createdAt);
@@ -137,6 +142,18 @@ const ListingDetailContent = ({
             emptyButtonHref="/market"
         >
             <div className="space-y-8">
+                {showModerationNotice && (
+                    <div className="rounded-xl border border-border bg-background-tertiary p-6">
+                        <p className="font-medium text-foreground">
+                            This listing was removed
+                            {listing.moderationReason && `: ${MarketplaceReportReasonLabel[listing.moderationReason]}`}
+                        </p>
+                        {listing.moderationNote && (
+                            <p className="mt-1 text-sm text-foreground-secondary">{listing.moderationNote}</p>
+                        )}
+                    </div>
+                )}
+
                 <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
                     <div className="space-y-8 lg:col-span-2">
                         <div className="space-y-3">

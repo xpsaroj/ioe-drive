@@ -13,31 +13,30 @@ interface MyListingCardProps {
 const MyListingCard = ({ listing }: MyListingCardProps) => {
     const showModerationNotice = listing.status === MarketplaceListingStatus.REMOVED;
 
-    return (
-        <div className="space-y-2">
-            <MarketplaceListingCard
-                listing={listing}
-                actions={
-                    <div className="flex items-center gap-2 shrink-0">
-                        <ListingStatusToggleButton listingId={listing.id} status={listing.status} />
-                        <EditListingButton listingId={listing.id} />
-                        <DeleteListingButton listingId={listing.id} />
-                    </div>
-                }
-            />
-
-            {showModerationNotice && (
-                <div className="rounded-lg border border-border bg-background-tertiary px-4 py-3 text-sm">
-                    <p className="font-medium text-foreground">
-                        This listing was removed
-                        {listing.moderationReason && `: ${MarketplaceReportReasonLabel[listing.moderationReason]}`}
-                    </p>
-                    {listing.moderationNote && (
-                        <p className="mt-1 text-foreground-secondary">{listing.moderationNote}</p>
-                    )}
-                </div>
+    const moderationNotice = showModerationNotice ? (
+        <>
+            <p className="font-medium text-foreground">
+                This listing was removed
+                {listing.moderationReason && `: ${MarketplaceReportReasonLabel[listing.moderationReason]}`}
+            </p>
+            {listing.moderationNote && (
+                <p className="mt-1 text-foreground-secondary">{listing.moderationNote}</p>
             )}
-        </div>
+        </>
+    ) : undefined;
+
+    return (
+        <MarketplaceListingCard
+            listing={listing}
+            notice={moderationNotice}
+            actions={
+                <div className="flex items-center gap-2 shrink-0">
+                    <ListingStatusToggleButton listingId={listing.id} status={listing.status} />
+                    <EditListingButton listingId={listing.id} status={listing.status} />
+                    <DeleteListingButton listingId={listing.id} />
+                </div>
+            }
+        />
     );
 };
 

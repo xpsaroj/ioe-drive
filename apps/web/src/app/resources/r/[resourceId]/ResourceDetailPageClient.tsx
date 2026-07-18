@@ -24,7 +24,7 @@ import {
 } from "@/components/common/resources";
 import { UploaderInfo } from "@/components/common/user";
 import { SubjectCodeTile } from "@/components/common/offering";
-import { isModeratorOrAdmin, ResourceStatus, ResourceStatusLabel, ResourceTypeLabel, SemesterLabel } from "@/types/entities";
+import { isModeratorOrAdmin, ModerationReasonLabel, ResourceStatus, ResourceStatusLabel, ResourceTypeLabel, SemesterLabel } from "@/types/entities";
 
 interface ResourceDetailPageClientProps {
     params: Promise<{
@@ -129,6 +129,13 @@ const ResourceDetailContent = ({
         );
     }
 
+    // Owner needs this to find out why their upload was actioned (no notification system);
+    // a moderator needs it too since ResourceModeratorActionBar only exposes actions to take
+    // next, not the reason recorded by whoever already actioned it.
+    const showModerationNotice =
+        (isOwner || isModerator) &&
+        (resource.status === ResourceStatus.REJECTED || resource.status === ResourceStatus.REMOVED);
+
     const { files = [], subjectOffering } = resource;
     const createdAt = new Date(resource.createdAt);
     const formattedCreatedAt = createdAt.toLocaleDateString(undefined, {
@@ -191,6 +198,21 @@ const ResourceDetailContent = ({
 
                 <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
                     <div className="space-y-8 lg:col-span-2">
+                        {showModerationNotice && (
+                            <div className="rounded-xl border border-border bg-background-tertiary p-6">
+                                <p className="font-medium text-foreground">
+                                    {resource.status === ResourceStatus.REMOVED ? "This resource was removed" : "This resource was rejected"}
+                                    {resource.moderationReason && `: ${ModerationReasonLabel[resource.moderationReason]}`}
+                                </p>
+                                {resource.moderationNote && (
+                                    <p className="mt-1 text-sm text-foreground-secondary">{resource.moderationNote}</p>
+                                )}
+                                {isOwner && resource.status === ResourceStatus.REJECTED && (
+                                    <p className="mt-1 text-sm text-foreground-secondary">Edit this resource to resubmit it for review.</p>
+                                )}
+                            </div>
+                        )}
+
                         <div className="rounded-xl border border-border p-6">
                             <h2 className="mb-3 text-lg font-semibold text-foreground">Description</h2>
                             <p className="text-foreground-secondary leading-relaxed">{resource.description}</p>
@@ -206,6 +228,7 @@ const ResourceDetailContent = ({
                             downvoteCount={resource.downvoteCount}
                             downloadCount={resource.downloadCount}
                             uploadedBy={resource.uploadedBy}
+                            status={resource.status}
                             className="rounded-xl border border-border p-6"
                         />
 

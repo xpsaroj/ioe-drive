@@ -1,4 +1,4 @@
-import { NotebookPen, Store, UsersRound, Library, type LucideIcon } from "lucide-react";
+import { NotebookPen, GraduationCap, Store, UsersRound, Library, type LucideIcon } from "lucide-react";
 
 export interface Feature {
     title: string;
@@ -13,6 +13,12 @@ export const features: Feature[] = [
         description: "Access and share notes, question banks, and resources organized by department and courses.",
         href: "/resources",
         icon: NotebookPen,
+    },
+    {
+        title: "Programs",
+        description: "Browse every IOE engineering program's full curriculum, grouped by semester, all in one place.",
+        href: "/programs",
+        icon: GraduationCap,
     },
     {
         title: "Marketplace",

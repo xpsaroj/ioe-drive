@@ -23,11 +23,12 @@ import type { ModerateListingData } from "../marketplace/marketplace-listing.typ
 export class ModerationRepository {
   constructor(@Inject(DRIZZLE) private readonly db: DrizzleDb) {}
 
-  // Just enough to authorize + drive a moderation action: status, and file blob names for `remove` to purge.
+  // Just enough to authorize + drive a moderation action: status, file blob names for `remove`
+  // to purge, and title (for the notification message ModerationService builds afterward).
   findForResourceModeration(resourceId: number) {
     return this.db.query.resourcesTable.findFirst({
       where: eq(resourcesTable.id, resourceId),
-      columns: { id: true, status: true, uploadedBy: true },
+      columns: { id: true, status: true, uploadedBy: true, title: true },
       with: { files: { columns: { blobName: true } } },
     });
   }
@@ -125,11 +126,12 @@ export class ModerationRepository {
     return resolvedReport;
   }
 
-  // Just enough to authorize + drive a moderation action: status, and photo blob names for `remove` to purge.
+  // Just enough to authorize + drive a moderation action: status, photo blob names for `remove`
+  // to purge, and title (for the notification message ModerationService builds afterward).
   findForListingModeration(listingId: number) {
     return this.db.query.marketplaceListingsTable.findFirst({
       where: eq(marketplaceListingsTable.id, listingId),
-      columns: { id: true, status: true, postedBy: true },
+      columns: { id: true, status: true, postedBy: true, title: true },
       with: { photos: { columns: { blobName: true } } },
     });
   }

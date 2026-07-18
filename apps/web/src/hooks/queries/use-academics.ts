@@ -13,12 +13,14 @@ export const academicsKeys = {
     search: (q: string, page?: number) => [...academicsKeys.all, "search", q, page] as const,
 };
 
+// `semester` is optional - omit it to get every semester's offerings for the program, already
+// ordered by semester on the backend.
 export function useSubjectOfferings(programId?: number, semester?: Semester) {
     return useQuery({
         queryKey: academicsKeys.subjectOfferings(programId, semester),
         queryFn: async () => {
-            if (!programId || !semester) {
-                throw new Error("Program ID and semester are required");
+            if (!programId) {
+                throw new Error("Program ID is required");
             }
             const response = await academicsApi.getSubjectsByProgramAndSemester({ programId, semester })
             if (!response.success) {
@@ -26,7 +28,7 @@ export function useSubjectOfferings(programId?: number, semester?: Semester) {
             }
             return response.data;
         },
-        enabled: !!programId && !!semester,
+        enabled: !!programId,
         staleTime: 20 * 60 * 1000,
         gcTime: 30 * 60 * 1000,
     });

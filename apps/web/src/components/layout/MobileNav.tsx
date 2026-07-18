@@ -7,6 +7,7 @@ import { Menu, X } from "lucide-react"
 
 import { SearchBar } from "@/components/layout"
 import NavItem from "./NavItem"
+import NotificationsBell from "./NotificationsBell"
 import ThemeToggle from "@/components/ui/ThemeToggle"
 import Logo from "./Logo"
 import WordmarkText from "./WordmarkText"
@@ -64,6 +65,7 @@ export default function MobileNav() {
                         </Link>
                         <div className="flex items-center gap-0.5">
                             <ThemeToggle />
+                            <NotificationsBell />
                             <button
                                 onClick={() => setMenuOpen(false)}
                                 aria-label="Close menu"

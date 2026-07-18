@@ -133,11 +133,11 @@ export class ResourcesRepository {
   }
 
   /** Minimal data needed to authorize an action against a resource, without pulling in
-   * any related data. */
+   * any related data. Includes `status` so callers can also block mutating a REMOVED resource. */
   findOwnership(resourceId: number) {
     return this.db.query.resourcesTable.findFirst({
       where: eq(resourcesTable.id, resourceId),
-      columns: { id: true, uploadedBy: true },
+      columns: { id: true, uploadedBy: true, status: true },
     });
   }
 
