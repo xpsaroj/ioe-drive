@@ -12,6 +12,7 @@ import { MarketplaceModule } from "./modules/marketplace/marketplace.module";
 import { MeModule } from "./modules/me/me.module";
 import { MessagingModule } from "./modules/messaging/messaging.module";
 import { ModerationModule } from "./modules/moderation/moderation.module";
+import { NotificationsModule } from "./modules/notifications/notifications.module";
 import { ProgramsModule } from "./modules/programs/programs.module";
 import { ResourcesModule } from "./modules/resources/resources.module";
 import { SubjectsModule } from "./modules/subjects/subjects.module";
@@ -45,6 +46,7 @@ import { AzureBlobModule } from "./storage/azure-blob.module";
     MarketplaceModule,
     MessagingModule,
     ModerationModule,
+    NotificationsModule,
     AdminModule,
     WebhooksModule,
   ],

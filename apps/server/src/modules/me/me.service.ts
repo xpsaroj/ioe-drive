@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 
 import { MarketplaceListingsService } from "../marketplace/marketplace-listings.service";
 import { ResourcesRepository } from "../resources/resources.repository";
@@ -98,6 +98,7 @@ export class MeService {
   }
 
   async clearResourceVote(userId: number, resourceId: number): Promise<void> {
+    await this.assertVotable(userId, resourceId);
     await this.meRepository.clearVote(userId, resourceId);
   }
 
@@ -110,6 +111,10 @@ export class MeService {
 
     if (resource.uploadedBy === userId) {
       throw new ForbiddenException("You can't vote on your own resource");
+    }
+
+    if (resource.status !== "APPROVED") {
+      throw new BadRequestException("Only approved resources can be voted on");
     }
   }
 }

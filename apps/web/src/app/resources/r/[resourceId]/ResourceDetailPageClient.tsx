@@ -228,6 +228,7 @@ const ResourceDetailContent = ({
                             downvoteCount={resource.downvoteCount}
                             downloadCount={resource.downloadCount}
                             uploadedBy={resource.uploadedBy}
+                            status={resource.status}
                             className="rounded-xl border border-border p-6"
                         />
 

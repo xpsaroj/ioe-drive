@@ -129,6 +129,7 @@ const ResourceCard = ({
                 downvoteCount={downvoteCount}
                 downloadCount={downloadCount}
                 uploadedBy={uploadedBy}
+                status={resource.status}
                 className="pt-3 border-t border-border"
             />
         </div>

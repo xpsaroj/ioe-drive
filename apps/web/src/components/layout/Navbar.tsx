@@ -6,6 +6,7 @@ import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 
 import { SearchBar } from "@/components/layout"
 import NavItem from "./NavItem"
+import NotificationsBell from "./NotificationsBell"
 import Button from "@/components/ui/Button"
 import ThemeToggle from "@/components/ui/ThemeToggle"
 import Logo from "./Logo"
@@ -49,6 +50,7 @@ export default function Navbar() {
           </Link>
           <div className="flex items-center gap-0.5 shrink-0">
             <ThemeToggle />
+            <NotificationsBell />
             <Button
               variant="ghost"
               size="sm"

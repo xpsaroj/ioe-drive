@@ -5,6 +5,7 @@ import type { ModerateResourceDto } from "../resources/dto/moderate-resource.dto
 import type { ReportResourceDto } from "../resources/dto/report-resource.dto";
 import type { ModerateListingDto } from "../marketplace/dto/moderate-listing.dto";
 import type { ReportListingDto } from "../marketplace/dto/report-listing.dto";
+import { NotificationsService } from "../notifications/notifications.service";
 import { ModerationRepository } from "./moderation.repository";
 
 @Injectable()
@@ -12,6 +13,7 @@ export class ModerationService {
   constructor(
     private readonly moderationRepository: ModerationRepository,
     private readonly azureBlobService: AzureBlobService,
+    private readonly notificationsService: NotificationsService,
   ) {}
 
   findPendingResources(pagination: { limit: number; offset: number }) {
@@ -43,13 +45,24 @@ export class ModerationService {
       throw new BadRequestException("Only pending resources can be approved");
     }
 
-    return this.moderationRepository.recordResourceModerationAction(resourceId, "APPROVE", {
+    const updatedResource = await this.moderationRepository.recordResourceModerationAction(resourceId, "APPROVE", {
       status: "APPROVED",
       moderatedBy: moderatorId,
       moderationReason: null,
       moderationNote: null,
       moderatedAt: new Date(),
     });
+
+    if (resource.uploadedBy) {
+      await this.notificationsService.create(
+        resource.uploadedBy,
+        "RESOURCE_APPROVED",
+        `Your resource "${resource.title}" was approved.`,
+        `/resources/r/${resourceId}`,
+      );
+    }
+
+    return updatedResource;
   }
 
   async rejectResource(moderatorId: number, resourceId: number, dto: ModerateResourceDto) {
@@ -72,6 +85,15 @@ export class ModerationService {
     });
 
     await this.moderationRepository.resolveReportsForResource(resourceId, moderatorId);
+
+    if (resource.uploadedBy) {
+      await this.notificationsService.create(
+        resource.uploadedBy,
+        "RESOURCE_REJECTED",
+        `Your resource "${resource.title}" was rejected.`,
+        `/resources/r/${resourceId}`,
+      );
+    }
 
     return updatedResource;
   }
@@ -100,6 +122,15 @@ export class ModerationService {
     });
 
     await this.moderationRepository.resolveReportsForResource(resourceId, moderatorId);
+
+    if (resource.uploadedBy) {
+      await this.notificationsService.create(
+        resource.uploadedBy,
+        "RESOURCE_REMOVED",
+        `Your resource "${resource.title}" was removed.`,
+        `/resources/r/${resourceId}`,
+      );
+    }
 
     return updatedResource;
   }
@@ -171,6 +202,15 @@ export class ModerationService {
     });
 
     await this.moderationRepository.resolveMarketplaceReportsForListing(listingId, moderatorId);
+
+    if (listing.postedBy) {
+      await this.notificationsService.create(
+        listing.postedBy,
+        "LISTING_REMOVED",
+        `Your listing "${listing.title}" was removed.`,
+        `/market/${listingId}`,
+      );
+    }
 
     return updatedListing;
   }

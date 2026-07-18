@@ -7,3 +7,6 @@ export type UserUpdate = Partial<UserInsert>;
 export type Profile = typeof schemas.profilesTable.$inferSelect;
 export type ProfileInsert = typeof schemas.profilesTable.$inferInsert;
 export type ProfileUpdate = Partial<ProfileInsert>;
+
+export type Notification = typeof schemas.notificationsTable.$inferSelect;
+export type NotificationInsert = typeof schemas.notificationsTable.$inferInsert;

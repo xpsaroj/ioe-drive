@@ -10,6 +10,7 @@ import { QueryProvider } from '@/providers/query-provider';
 import { AuthStateWatcher } from "@/providers/AuthStateWatcher";
 import { AppDataInitializer } from "@/providers/AppDataInitializer";
 import { MessagingSocketProvider } from "@/providers/MessagingSocketProvider";
+import { NotificationsSocketProvider } from "@/providers/NotificationsSocketProvider";
 
 import { GlobalLoader, LayoutWrapper } from "@/components/layout";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
@@ -62,13 +63,15 @@ export default function RootLayout({
                 <QueryProvider>
                   <AuthStateWatcher>
                     <MessagingSocketProvider>
-                      <AppDataInitializer>
-                        <GlobalLoader>
-                          <LayoutWrapper>
-                            {children}
-                          </LayoutWrapper>
-                        </GlobalLoader>
-                      </AppDataInitializer>
+                      <NotificationsSocketProvider>
+                        <AppDataInitializer>
+                          <GlobalLoader>
+                            <LayoutWrapper>
+                              {children}
+                            </LayoutWrapper>
+                          </GlobalLoader>
+                        </AppDataInitializer>
+                      </NotificationsSocketProvider>
                     </MessagingSocketProvider>
                   </AuthStateWatcher>
                 </QueryProvider>
