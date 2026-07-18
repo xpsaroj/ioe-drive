@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 
 import { DRIZZLE } from "../../database/database.constants";
 import type { DrizzleDb } from "../../database/database.types";
@@ -61,6 +61,10 @@ export class ResourcesService {
       throw new NotFoundException("Resource not found");
     }
 
+    if (existingResource.status === "REMOVED") {
+      throw new BadRequestException("This resource has been removed and can no longer be edited.");
+    }
+
     // Editing a rejected resource is treated as an implicit resubmission - back to the
     // review queue, with the previous moderation verdict cleared. Approved/pending
     // resources are left as-is by an edit.
@@ -92,12 +96,17 @@ export class ResourcesService {
   /** Verifies a resource exists and is owned by the given user - shared by every
    * action below that mutates an existing resource or its files. A resource that
    * doesn't exist and one that isn't yours are indistinguishable (both 404), so a
-   * non-owner can't probe for a resource's existence. */
+   * non-owner can't probe for a resource's existence. A REMOVED resource's files were
+   * already purged by moderation, so it's terminal - no further file changes either. */
   private async assertOwnership(userId: number, resourceId: number): Promise<void> {
     const resource = await this.resourcesRepository.findOwnership(resourceId);
 
     if (!resource || resource.uploadedBy !== userId) {
       throw new NotFoundException("Resource not found");
+    }
+
+    if (resource.status === "REMOVED") {
+      throw new BadRequestException("This resource has been removed and can no longer be edited.");
     }
   }
 
@@ -159,7 +168,7 @@ export class ResourcesService {
 
   /** `viewer` is absent for an anonymous request (OptionalClerkAuthGuard). An APPROVED
    * resource is visible to anyone; anything else (PENDING/REJECTED/REMOVED) only to its
-   * own uploader or a moderator - everyone else gets the same 404 as a nonexistent
+   * own uploader or a moderator/admin - everyone else gets the same 404 as a nonexistent
    * resource, so a pending resource's existence can't be probed for. */
   async findResourceById(resourceId: number, viewer?: AuthenticatedUser) {
     const resource = await this.resourcesRepository.findById(resourceId);
@@ -170,7 +179,7 @@ export class ResourcesService {
 
     const isVisible =
       resource.status === "APPROVED" ||
-      (viewer && (viewer.id === resource.uploadedBy || viewer.role === "MODERATOR"));
+      (viewer && (viewer.id === resource.uploadedBy || viewer.role === "MODERATOR" || viewer.role === "ADMIN"));
 
     if (!isVisible) {
       throw new NotFoundException("Resource not found");

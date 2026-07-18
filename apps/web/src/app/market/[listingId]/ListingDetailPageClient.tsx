@@ -67,7 +67,7 @@ const ListingDetailContent = ({
         <div className="flex items-center gap-2 shrink-0">
             <ListingStatusToggleButton listingId={listing.id} status={listing.status} />
             <div className="flex items-center gap-1 border border-border p-0.5 rounded-lg">
-                <EditListingButton listingId={listing.id} />
+                <EditListingButton listingId={listing.id} status={listing.status} />
                 <DeleteListingButton listingId={listing.id} onDeleted={() => router.push("/market")} />
             </div>
         </div>

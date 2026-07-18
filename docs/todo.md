@@ -35,6 +35,14 @@ essays here once something is actively being worked on.
 
 ## Frontend
 
+- [ ] `sitemap.ts` is missing entries for `/programs`, `/programs/[id]`, and `/market` -
+      the programs list is already fetched there (to enumerate offering IDs), so adding
+      `/programs` + per-program entries is nearly free; `/market` was never added even
+      though it's been a public browse page since marketplace shipped.
+- [ ] `robots.ts`'s disallow list is stale against `proxy.ts`'s actual protected routes -
+      missing `/community`, `/alumni`, `/messages`, `/market/create`, `/market/*/edit`,
+      and `/resources/r/*/files/*`. Crawlers can currently hit these and just bounce off
+      the sign-in redirect.
 - [ ] Build out the placeholder destinations: Community, Alumni —
       both currently one-line stub pages linked from the nav.
 - [ ] Inline preview for .docx files on the file preview page (currently only PDF/JPEG/PNG

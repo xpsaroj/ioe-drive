@@ -24,6 +24,8 @@ export const STATUS_BADGE_VARIANT: Record<ResourceStatus, BadgeVariant> = {
 interface ResourceCardProps {
     resource: ResourceSummary;
     meta?: string;
+    /** Self-contained alert block rendered above everything else, e.g. a removed/rejected notice. */
+    notice?: React.ReactNode;
     /**
      * Optional action buttons (e.g. edit/delete for the resource's owner), rendered
      * next to the title.
@@ -34,6 +36,7 @@ interface ResourceCardProps {
 const ResourceCard = ({
     resource,
     meta,
+    notice,
     actions,
 }: ResourceCardProps) => {
     const {
@@ -57,11 +60,13 @@ const ResourceCard = ({
     });
 
     return (
-        // Named group (group/card) so the title's hover underline responds to a
-        // pointer anywhere over the card, matching ResourcePreviewTile's convention -
-        // the card's own hover border sits directly on this div rather than behind
-        // `group-hover`, since it's on the element being hovered.
         <div className="group/card relative flex flex-col gap-4 rounded-xl border border-border bg-card-background p-4 transition-colors duration-400 hover:border-accent sm:p-5">
+            {notice && (
+                <div className="rounded-lg border border-border bg-background-tertiary px-3 py-2.5 text-sm">
+                    {notice}
+                </div>
+            )}
+
             {meta && (
                 <p className="font-display text-[10px] uppercase tracking-wide text-foreground-tertiary">
                     {meta}

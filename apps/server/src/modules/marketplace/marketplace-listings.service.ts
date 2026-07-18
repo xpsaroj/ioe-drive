@@ -95,12 +95,17 @@ export class MarketplaceListingsService {
   }
 
   /** Verifies a listing exists and is owned by the given user - a listing that doesn't
-   * exist and one that isn't yours are indistinguishable (both 404). */
+   * exist and one that isn't yours are indistinguishable (both 404). A REMOVED listing's
+   * photos were already purged by moderation, so it's terminal - no further edits either. */
   private async assertOwnership(userId: number, listingId: number): Promise<void> {
     const listing = await this.marketplaceListingsRepository.findOwnership(listingId);
 
     if (!listing || listing.postedBy !== userId) {
       throw new NotFoundException("Listing not found");
+    }
+
+    if (listing.status === "REMOVED") {
+      throw new BadRequestException("This listing has been removed and can no longer be edited.");
     }
   }
 
