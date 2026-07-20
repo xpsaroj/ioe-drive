@@ -45,23 +45,37 @@ export function useConversations(page: number = 1) {
     });
 }
 
-// Matches the backend's PaginationQueryDto MAX_LIMIT - a single fetch of the most recent 100
-// messages, no "load older" pagination. Fine for a peer-to-peer negotiation thread; a very long
-// conversation would need real pagination, which is out of scope for v1.
-const MESSAGE_HISTORY_LIMIT = 100;
+// Chunk size for both the initial load and each "load older" fetch.
+export const MESSAGE_PAGE_SIZE = 50;
 
-/** Newest-first from the API - reverse before rendering as a chat thread. */
+/** First (most recent) page only - ConversationThread drives further pages itself via
+ * useLoadOlderMessages, merging into its own local message list rather than a cached query. */
 export function useConversationMessages(conversationId: number) {
     return useQuery({
         queryKey: messagingKeys.messages(conversationId),
         queryFn: async () => {
-            const response = await messagingApi.getMessages(conversationId, { limit: MESSAGE_HISTORY_LIMIT });
+            const response = await messagingApi.getMessages(conversationId, { page: 1, limit: MESSAGE_PAGE_SIZE });
             if (!response.success) {
                 throw new Error(response.error || 'Failed to fetch messages');
             }
             return { items: response.data, meta: response.meta };
         },
         enabled: !!conversationId,
+    });
+}
+
+/** Fetches one older page of a conversation's thread on demand ("Load older messages").
+ * A one-shot mutation rather than a cached query - the thread keeps its own merged,
+ * append/prepend-friendly message list in local state (see ConversationThread). */
+export function useLoadOlderMessages(conversationId: number) {
+    return useMutation({
+        mutationFn: async (page: number) => {
+            const response = await messagingApi.getMessages(conversationId, { page, limit: MESSAGE_PAGE_SIZE });
+            if (!response.success) {
+                throw new Error(response.error || 'Failed to fetch messages');
+            }
+            return { items: response.data, meta: response.meta };
+        },
     });
 }
 
@@ -78,7 +92,11 @@ export function useStartConversation() {
             return response.data;
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: messagingKeys.all });
+            // Just the inbox list, not messagingKeys.all - that prefix also matches
+            // messagingKeys.messages(conversationId), and an open thread's messages are
+            // deliberately not query-driven (see useConversationMessages) - invalidating them
+            // here would refetch page 1 and stomp the thread's local state/scroll position.
+            queryClient.invalidateQueries({ queryKey: messagingKeys.conversations() });
         },
     });
 }
@@ -95,7 +113,9 @@ export function useMarkConversationRead(conversationId: number) {
             return response;
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({ queryKey: messagingKeys.all });
+            // Same reasoning as useStartConversation above - avoid messagingKeys.all.
+            queryClient.invalidateQueries({ queryKey: messagingKeys.conversations() });
+            queryClient.invalidateQueries({ queryKey: messagingKeys.unreadCount });
         },
     });
 }
