@@ -74,7 +74,7 @@ export class MeController {
     @CurrentUser() user: AuthenticatedUser,
     @Param("resourceId", ParseIntPipe) resourceId: number,
   ) {
-    await this.meService.markResourceAsRecentlyAccessed(user.id, resourceId);
+    await this.meService.markResourceAsRecentlyAccessed(user, resourceId);
     return ApiResponse.of(null, "Resource marked as recently accessed");
   }
 
@@ -84,7 +84,7 @@ export class MeController {
     @CurrentUser() user: AuthenticatedUser,
     @Param("resourceId", ParseIntPipe) resourceId: number,
   ) {
-    await this.meService.markResourceAsBookmarked(user.id, resourceId);
+    await this.meService.markResourceAsBookmarked(user, resourceId);
     return ApiResponse.of(null, "Resource bookmarked");
   }
 

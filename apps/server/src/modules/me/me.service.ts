@@ -1,5 +1,6 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 
+import type { AuthenticatedUser } from "../../common/guards/clerk-auth.guard";
 import { MarketplaceListingsService } from "../marketplace/marketplace-listings.service";
 import { ResourcesRepository } from "../resources/resources.repository";
 import { ResourcesService } from "../resources/resources.service";
@@ -66,22 +67,32 @@ export class MeService {
     return this.meRepository.findBookmarkedResourceIds(userId);
   }
 
-  private async assertResourceExists(resourceId: number): Promise<void> {
+  /** Same visibility rule as ResourcesService.findResourceById - APPROVED, or the viewer
+   * is the uploader/a moderator/admin. Anything else 404s, so a pending/rejected/removed
+   * resource's existence can't be probed for via the recent/bookmark endpoints either. */
+  private async assertResourceVisible(viewer: AuthenticatedUser, resourceId: number): Promise<void> {
     const resource = await this.resourcesRepository.findOwnership(resourceId);
 
-    if (!resource) {
+    const isVisible =
+      resource &&
+      (resource.status === "APPROVED" ||
+        resource.uploadedBy === viewer.id ||
+        viewer.role === "MODERATOR" ||
+        viewer.role === "ADMIN");
+
+    if (!isVisible) {
       throw new NotFoundException("Resource not found");
     }
   }
 
-  async markResourceAsRecentlyAccessed(userId: number, resourceId: number): Promise<void> {
-    await this.assertResourceExists(resourceId);
-    await this.meRepository.markRecentlyAccessed(userId, resourceId);
+  async markResourceAsRecentlyAccessed(viewer: AuthenticatedUser, resourceId: number): Promise<void> {
+    await this.assertResourceVisible(viewer, resourceId);
+    await this.meRepository.markRecentlyAccessed(viewer.id, resourceId);
   }
 
-  async markResourceAsBookmarked(userId: number, resourceId: number): Promise<void> {
-    await this.assertResourceExists(resourceId);
-    await this.meRepository.markBookmarked(userId, resourceId);
+  async markResourceAsBookmarked(viewer: AuthenticatedUser, resourceId: number): Promise<void> {
+    await this.assertResourceVisible(viewer, resourceId);
+    await this.meRepository.markBookmarked(viewer.id, resourceId);
   }
 
   async unmarkResourceAsBookmarked(userId: number, resourceId: number): Promise<void> {
