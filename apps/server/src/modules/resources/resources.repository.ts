@@ -234,6 +234,16 @@ export class ResourcesRepository {
     return { items, total: totalResult[0]?.total ?? 0 };
   }
 
+  // Flat ids only, no joins - backs the sitemap, which never needs more than the id.
+  async findAllApprovedIds(): Promise<number[]> {
+    const rows = await this.db.query.resourcesTable.findMany({
+      where: eq(resourcesTable.status, "APPROVED"),
+      columns: { id: true },
+    });
+
+    return rows.map((row) => row.id);
+  }
+
   /** Lean, uncapped-pagination search for live-typing UI (the search palette) - just a
    * flat, capped list of preview rows, not the full paginated browse shape `findMany`
    * returns. Flattens `subjectOffering.subject.code` to a top-level `subjectCode` since

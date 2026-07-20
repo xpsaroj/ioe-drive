@@ -65,3 +65,8 @@ A quick, high-level list of what already works. For the full picture see
 - API rebuilt from Express onto NestJS: consistent Controller -> Service -> Repository
   layering across every module, `class-validator` DTOs, and Clerk auth via
   `@clerk/backend` - same routes, database, and response shapes throughout.
+- `sitemap.ts`/`robots.ts` cover the full public surface: `/programs` (+ one entry per
+  program), `/market`, and every approved resource page (`/resources/r/:id`) are now
+  listed, backed by two new lean, IDs-only endpoints (`GET /api/subjects/offering-ids`,
+  `GET /api/resources/approved-ids`); `robots.ts`'s disallow list matches `proxy.ts`'s
+  actual protected routes.

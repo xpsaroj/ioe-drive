@@ -56,6 +56,16 @@ export class SubjectsRepository {
     });
   }
 
+  // Flat ids only, no joins - backs the sitemap, which never needs the full offering shape.
+  async findOfferingIdsByProgram(programId: number): Promise<number[]> {
+    const rows = await this.db.query.subjectOfferingsTable.findMany({
+      where: (fields, { eq }) => eq(fields.programId, programId),
+      columns: { id: true },
+    });
+
+    return rows.map((row) => row.id);
+  }
+
   findForUpload(programId: number, semester: Semester) {
     return this.db.query.subjectOfferingsTable.findMany({
       where: (fields, { eq, and }) => and(eq(fields.programId, programId), eq(fields.semester, semester)),

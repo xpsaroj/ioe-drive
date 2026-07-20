@@ -199,6 +199,10 @@ export class ResourcesService {
     return this.resourcesRepository.searchSuggestions(q, limit);
   }
 
+  findAllApprovedResourceIds() {
+    return this.resourcesRepository.findAllApprovedIds();
+  }
+
   async findSimilarResources(resourceId: number, limit: number) {
     const resource = await this.resourcesRepository.findOfferingId(resourceId);
 

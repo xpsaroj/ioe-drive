@@ -187,6 +187,12 @@ export class ResourcesController {
     return ApiResponse.of(suggestions);
   }
 
+  // Must stay registered before `:resourceId` below so "approved-ids" isn't swallowed as a param.
+  @Get("approved-ids")
+  findApprovedIds() {
+    return this.resourcesService.findAllApprovedResourceIds();
+  }
+
   // Public for APPROVED; non-approved only visible to its uploader or a moderator (404 otherwise).
   @Get(":resourceId")
   @UseGuards(OptionalClerkAuthGuard)

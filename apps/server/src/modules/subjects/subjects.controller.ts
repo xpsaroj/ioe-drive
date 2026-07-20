@@ -2,6 +2,7 @@ import { Controller, Get, Param, ParseIntPipe, Query } from "@nestjs/common";
 
 import { ApiResponse } from "../../common/dto/api-response";
 import { buildPaginationMeta, getPaginationOffset } from "../../common/utils/pagination";
+import { GetOfferingIdsQueryDto } from "./dto/get-offering-ids-query.dto";
 import { GetSubjectsForUploadQueryDto } from "./dto/get-subjects-for-upload-query.dto";
 import { GetSubjectsQueryDto } from "./dto/get-subjects-query.dto";
 import { SearchSubjectsQueryDto } from "./dto/search-subjects-query.dto";
@@ -33,6 +34,12 @@ export class SubjectsController {
     });
 
     return ApiResponse.of(items, undefined, buildPaginationMeta(query.page, query.limit, total));
+  }
+
+  // Must stay registered before `:subjectId` below so "offering-ids" isn't swallowed as a param.
+  @Get("offering-ids")
+  findOfferingIds(@Query() query: GetOfferingIdsQueryDto) {
+    return this.subjectsService.findOfferingIdsByProgram(query.programId);
   }
 
   /** GET /api/subjects/:subjectId - a subject offering's full detail. */

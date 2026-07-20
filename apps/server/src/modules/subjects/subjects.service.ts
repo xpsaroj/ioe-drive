@@ -25,6 +25,10 @@ export class SubjectsService {
     return this.subjectsRepository.findForUpload(programId, semester);
   }
 
+  findOfferingIdsByProgram(programId: number) {
+    return this.subjectsRepository.findOfferingIdsByProgram(programId);
+  }
+
   searchSubjects(q: string, pagination: { limit: number; offset: number }) {
     return this.subjectsRepository.searchByNameOrCode(q, pagination);
   }

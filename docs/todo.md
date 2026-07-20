@@ -9,16 +9,6 @@ essays here once something is actively being worked on.
 - [ ] Replace the flat IP-keyed rate limiter with a hybrid one: higher limits keyed by
       `userId` for authenticated requests, stricter limits keyed by IP for guests. Needed
       because campus/hostel wifi NATs put many students behind one IP.
-- [ ] Add a lean, ID-only subject-offerings endpoint (mirroring the existing
-      `RESOURCE_PREVIEW_RELATIONS`-style lean-projection pattern). `sitemap.ts` currently
-      calls `/subjects?programId=` once per program to enumerate offering IDs, which joins
-      subject+program+marks for every row just to read `.id`. Not a real problem at current
-      scale (~592 rows, cached daily), but wasteful and worth fixing before it compounds.
-- [ ] Add a bulk "list all approved resource IDs" endpoint. `sitemap.ts` only lists subject
-      offering pages today, not individual resource pages (`/resources/r/:id`) - no existing
-      endpoint returns all approved resources unfiltered (only scoped by offeringId/userId/
-      q). Resource pages are still crawlable via normal links from browse/offering pages,
-      just not listed directly in the sitemap.
 - [ ] Consider moving marketplace listings from report-to-remove to a pre-review
       (`PENDING`/`REJECTED`) model like resources have, if reports turn out to be too
       reactive in practice. Would need a real history table (the current denormalized
@@ -35,14 +25,6 @@ essays here once something is actively being worked on.
 
 ## Frontend
 
-- [ ] `sitemap.ts` is missing entries for `/programs`, `/programs/[id]`, and `/market` -
-      the programs list is already fetched there (to enumerate offering IDs), so adding
-      `/programs` + per-program entries is nearly free; `/market` was never added even
-      though it's been a public browse page since marketplace shipped.
-- [ ] `robots.ts`'s disallow list is stale against `proxy.ts`'s actual protected routes -
-      missing `/community`, `/alumni`, `/messages`, `/market/create`, `/market/*/edit`,
-      and `/resources/r/*/files/*`. Crawlers can currently hit these and just bounce off
-      the sign-in redirect.
 - [ ] Build out the placeholder destinations: Community, Alumni —
       both currently one-line stub pages linked from the nav.
 - [ ] Inline preview for .docx files on the file preview page (currently only PDF/JPEG/PNG

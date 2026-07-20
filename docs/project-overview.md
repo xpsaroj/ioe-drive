@@ -1,6 +1,6 @@
 # IOE Drive - Project Overview
 
-This document is a snapshot of the project as of 2026-07-17. It exists so that anyone
+This document is a snapshot of the project as of 2026-07-20. It exists so that anyone
 (including future contributors and AI assistants) can get oriented quickly without having
 to re-read the entire codebase. Update it as the project evolves; treat it as living
 documentation rather than a historical record.
@@ -471,7 +471,9 @@ Registered via Nest controllers, one feature module per domain under
   user for an `APPROVED` resource, only its uploader or a moderator/admin otherwise —
   same visibility rule as `GET /:resourceId`, see section 9) returns a short-lived Azure
   SAS URL for that file. See section 14 for ownership enforcement details and section 15
-  for the preview page built on this endpoint.
+  for the preview page built on this endpoint. `GET /approved-ids` returns a flat,
+  IDs-only list of every `APPROVED` resource (no pagination, no joins) - backs the
+  sitemap.
 - `POST /:resourceId/approve` / `POST /:resourceId/reject` / `POST /:resourceId/remove`
   (moderator/admin only) and `POST /:resourceId/report` (any signed-in user but the
   uploader) — see section 9.
@@ -481,7 +483,8 @@ Registered via Nest controllers, one feature module per domain under
 - `/api/programs` — `GET /`, list all programs (small, fixed set - not paginated).
 - `/api/subjects` — `GET /?programId=&semester=`, `GET /:subjectId`,
   `GET /upload?programId=&semester=` (subject list scoped for the upload form; always a
-  small per-program/semester subset - not paginated).
+  small per-program/semester subset - not paginated), `GET /offering-ids?programId=`
+  (flat, IDs-only list of a program's subject-offering ids - backs the sitemap).
 - `PUT`/`DELETE /api/me/resources/:resourceId/vote` (auth; self-voting on your own
   upload is blocked server-side), `GET /api/me/resources/vote-values` (this user's own
   vote on a batch of resources) — see section 4.
