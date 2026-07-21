@@ -182,6 +182,45 @@ export function useReportListing(listingId: number) {
     });
 }
 
+/** Approves a pending listing, making it publicly visible (moderator-only). */
+export function useApproveListingAsModerator(listingId: number) {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async () => {
+            const response = await marketplaceApi.approveListing(listingId);
+            if (!response.success) {
+                throw new Error(response.error || 'Failed to approve listing');
+            }
+            return response;
+        },
+        onSuccess: () => {
+            invalidateAfterStatusChange(queryClient, listingId);
+            queryClient.invalidateQueries({ queryKey: moderationKeys.pendingListings() });
+        },
+    });
+}
+
+// Resubmittable - the poster editing it resets the listing back to pending.
+export function useRejectListingAsModerator(listingId: number) {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: async (data: MarketplaceReportReasonInput) => {
+            const response = await marketplaceApi.rejectListing(listingId, data);
+            if (!response.success) {
+                throw new Error(response.error || 'Failed to reject listing');
+            }
+            return response;
+        },
+        onSuccess: () => {
+            invalidateAfterStatusChange(queryClient, listingId);
+            queryClient.invalidateQueries({ queryKey: moderationKeys.pendingListings() });
+            queryClient.invalidateQueries({ queryKey: moderationKeys.marketplaceReports() });
+        },
+    });
+}
+
 /** Moderator-only: purges photos and marks the listing permanently removed. */
 export function useRemoveListingAsModerator(listingId: number) {
     const queryClient = useQueryClient();

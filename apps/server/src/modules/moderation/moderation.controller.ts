@@ -43,6 +43,14 @@ export class ModerationController {
     return ApiResponse.of(null, "Report dismissed");
   }
 
+  // The review queue: listings awaiting a decision, oldest first.
+  @Get("marketplace/pending")
+  async findPendingListings(@Query() query: PaginationQueryDto) {
+    const offset = getPaginationOffset(query.page, query.limit);
+    const { items, total } = await this.moderationService.findPendingListings({ limit: query.limit, offset });
+    return ApiResponse.of(items, undefined, buildPaginationMeta(query.page, query.limit, total));
+  }
+
   // Open marketplace-listing reports, oldest first.
   @Get("marketplace/reports")
   async findMarketplaceReports(@Query() query: PaginationQueryDto) {

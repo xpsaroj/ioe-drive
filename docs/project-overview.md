@@ -347,40 +347,40 @@ sale or something they're looking for, browsable by anyone (including guests) wi
 needing an account.
 
 - **Data model** (`marketplace_listings`, `marketplace_listing_photos`,
-  `marketplace_reports`): one `marketplace_listings` table with a `type`
-  (`marketplace_listing_type_enum`: `SELLING`/`WANTED`) column, mirroring how
-  `resources` uses a single `type` enum rather than separate tables per kind. A
-  `category` enum (`TEXTBOOKS_AND_NOTES`, `DRAFTING_AND_STATIONERY`,
+  `marketplace_reports`, `marketplace_moderation_actions`): one `marketplace_listings`
+  table with a `type` (`marketplace_listing_type_enum`: `SELLING`/`WANTED`) column,
+  mirroring how `resources` uses a single `type` enum rather than separate tables per
+  kind. A `category` enum (`TEXTBOOKS_AND_NOTES`, `DRAFTING_AND_STATIONERY`,
   `CALCULATORS_AND_ELECTRONICS`, `LAB_AND_WORKSHOP_EQUIPMENT`,
   `FURNITURE_AND_HOSTEL_ITEMS`, `OTHER`), an optional integer `price` (null means
   "contact for price" - common for `WANTED` posts), and an optional `offeringId` FK to
   `subject_offerings` for textbook/notes-type listings. 1-6 photos are required per
   listing (`marketplace_listing_photos`, enforced both client- and server-side),
   uploaded to Azure Blob Storage via the same pattern as resource files.
-- **Moderation model is deliberately different from resources**: a listing goes
-  **live immediately** on posting (no `PENDING` pre-review queue) and relies on
-  **report-to-remove** instead — any signed-in non-owner can report a listing with a
-  structured reason (`marketplace_reports`, one open report per user per listing,
-  mirroring `reports`); a moderator either dismisses the report or removes the listing
-  (terminal, purges its photos from Azure). Because `REMOVE` is the *only* moderation
-  action a listing can ever have (no approve/reject step exists), there's no separate
-  append-only history table the way `moderation_actions` exists for resources — the
-  denormalized `moderatedBy`/`moderationReason`/`moderationNote`/`moderatedAt` columns
-  directly on `marketplace_listings` are a complete record on their own, since a listing
-  can only ever be moderated once. This was a deliberate, explicit trade-off (fast,
-  frictionless posting vs. review latency) chosen with the project owner up front, not
-  an oversight - revisiting it toward a pre-review model later is possible but would need
-  a real `PENDING`/`REJECTED` state and a proper history table, since resubmission
-  (reject → owner edits → back to pending) breaks the "only one moderation event ever"
-  assumption the denormalized columns rely on.
-- **Status lifecycle**: `ACTIVE` → `FULFILLED` (owner marks their own listing as
-  sold/found; reversible via `reactivate`; hidden from the default public browse but
-  still reachable via a direct link or the owner's own "My Listings" page,
-  `/library/marketplace`) → back to `ACTIVE`, or `ACTIVE`/`FULFILLED` → `REMOVED`
+- **Moderation model now mirrors resources**: a new listing starts `PENDING` and is
+  invisible to everyone but its poster and moderators/admins until a moderator approves
+  it (`ACTIVE`) or rejects it with a reason (`REJECTED`, resubmittable - the poster
+  editing it resets it back to `PENDING`, same implicit-resubmission behavior resources
+  have). This replaced an earlier "live immediately, report-to-remove only" model once
+  reports turned out to be too reactive in practice. Reporting still exists as
+  defense-in-depth after approval (any signed-in non-owner can report an
+  `ACTIVE`/`FULFILLED` listing with a structured reason, `marketplace_reports`, one open
+  report per user per listing, mirroring `reports`); a moderator dismisses the report or
+  removes the listing (terminal, purges its photos from Azure). Every
+  approve/reject/remove is recorded in an append-only `marketplace_moderation_actions`
+  table, mirroring `moderation_actions` - REJECT's resubmission cycle is exactly why a
+  single denormalized "latest action" snapshot alone is no longer sufficient the way it
+  was under the old REMOVE-only model.
+- **Status lifecycle**: `PENDING` → `ACTIVE` (moderator-approved) → `FULFILLED` (owner
+  marks their own listing as sold/found; reversible via `reactivate`; hidden from the
+  default public browse but still reachable via a direct link or the owner's own "My
+  Listings" page, `/library/marketplace`) → back to `ACTIVE`; `PENDING`/`ACTIVE` →
+  `REJECTED` (moderator-only, resubmittable); `ACTIVE`/`FULFILLED` → `REMOVED`
   (moderator-only, terminal). Browsing (`GET /api/marketplace/listings`) is fully public
   and unfiltered by default (no `offeringId`/`userId`/`q` required, unlike resources'
   `findMany`), since "just look at everything" is the core use case for a classifieds
-  board, unlike resources which is always course- or search-scoped.
+  board, unlike resources which is always course- or search-scoped; it only ever
+  returns `ACTIVE` listings unless `includeAllStatuses` is set.
 - **Listing photos are served via signed, short-lived Azure Blob SAS URLs** (60-minute
   expiry, generated on every read path in `MarketplaceListingsService`/
   `MessagingService`), not permanent public URLs — the container is private the same
@@ -390,8 +390,9 @@ needing an account.
 - Frontend: `/market` (browse - filters for type/category/price/keyword),
   `/market/create`, `/market/[listingId]` (detail) + `/market/[listingId]/edit`,
   `/library/marketplace` ("My Listings" - not originally called out as its own route but
-  needed once fulfilled listings became hidden from the default browse), and a
-  "Marketplace Reports" tab alongside the existing resource moderation queues.
+  needed once fulfilled listings became hidden from the default browse), and
+  "Marketplace Pending" + "Marketplace Reports" tabs alongside the existing resource
+  moderation queues.
 
 ## 11. Real-time messaging
 
@@ -405,8 +406,10 @@ a simpler polling inbox, even though this introduced the project's only WebSocke
   `marketplace_conversations.updatedAt` is bumped explicitly inside the same transaction
   as each new message insert (not via a `$onUpdate` hook, which only fires on an update
   to that row itself), so the inbox can sort by "most recently active" purely off that
-  column. Self-messaging your own listing, and messaging a `REMOVED` listing, are both
-  blocked server-side.
+  column. Self-messaging your own listing, and messaging a listing that isn't currently
+  `ACTIVE`/`FULFILLED` (`PENDING`/`REJECTED`/`REMOVED`), are both blocked server-side -
+  including into an already-open conversation, if the listing's status changes out from
+  under it after the fact.
 - **REST layer** (`MessagingController`, all routes `ClerkAuthGuard`-gated): conversation
   list (with last-message preview and per-conversation unread count), paginated message
   history (newest-first), starting a conversation (which sends the first message),
@@ -489,15 +492,18 @@ Registered via Nest controllers, one feature module per domain under
   upload is blocked server-side), `GET /api/me/resources/vote-values` (this user's own
   vote on a batch of resources) — see section 4.
 - `/api/marketplace/listings` — `POST /` (auth, multipart, field `listingPhoto`, 1-6
-  photos required), `PATCH`/`DELETE /:listingId` (auth, must be the poster),
-  `POST /:listingId/{mark-fulfilled,reactivate}` (auth, must be the poster),
-  `POST`/`DELETE /:listingId/photos[/:photoId]` (auth, must be the poster; must always
-  leave at least one photo), `POST /:listingId/report` (any signed-in non-poster),
-  `POST /:listingId/remove` (moderator/admin only), `GET /:listingId` (public for
-  `ACTIVE`/`FULFILLED`, moderator/poster-only for `REMOVED`), `GET /` (fully public,
-  unfiltered browse allowed - filters: `type`, `category`, `offeringId`, `userId`,
-  `minPrice`, `maxPrice`, `q`) — see section 10.
-- `/api/moderation/marketplace/reports` / `/api/moderation/marketplace/reports/
+  photos required, always created `PENDING`), `PATCH`/`DELETE /:listingId` (auth, must
+  be the poster), `POST /:listingId/{mark-fulfilled,reactivate}` (auth, must be the
+  poster), `POST`/`DELETE /:listingId/photos[/:photoId]` (auth, must be the poster; must
+  always leave at least one photo), `POST /:listingId/report` (any signed-in
+  non-poster, `ACTIVE`/`FULFILLED` only), `POST /:listingId/{approve,reject}`
+  (moderator/admin only) and `POST /:listingId/remove` (moderator/admin only,
+  `ACTIVE`/`FULFILLED` only), `GET /:listingId` (public for `ACTIVE`/`FULFILLED`,
+  moderator/poster-only otherwise), `GET /` (fully public, unfiltered browse allowed -
+  filters: `type`, `category`, `offeringId`, `userId`, `minPrice`, `maxPrice`, `q`) —
+  see section 10.
+- `/api/moderation/marketplace/pending` (moderator/admin only, the listing review
+  queue) / `/api/moderation/marketplace/reports` / `/api/moderation/marketplace/reports/
   :reportId/dismiss` (moderator/admin only) and `/api/me/marketplace/listings` (auth;
   "My Listings", includes non-`ACTIVE` statuses) — see section 10.
 - `/api/messaging/conversations` — `GET /` (this user's inbox, paginated),

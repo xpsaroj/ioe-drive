@@ -11,12 +11,12 @@ interface ListingStatusToggleButtonProps {
     status: MarketplaceListingStatus;
 }
 
-// Only meaningful for ACTIVE/FULFILLED - a REMOVED listing has no toggle at all.
+// Only meaningful for ACTIVE/FULFILLED - PENDING/REJECTED/REMOVED all have no toggle at all.
 const ListingStatusToggleButton = ({ listingId, status }: ListingStatusToggleButtonProps) => {
     const { mutate: markFulfilled, isPending: isMarking } = useMarkListingFulfilled(listingId);
     const { mutate: reactivate, isPending: isReactivating } = useReactivateListing(listingId);
 
-    if (status === MarketplaceListingStatus.REMOVED) return null;
+    if (status !== MarketplaceListingStatus.ACTIVE && status !== MarketplaceListingStatus.FULFILLED) return null;
 
     if (status === MarketplaceListingStatus.FULFILLED) {
         return (

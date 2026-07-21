@@ -26,16 +26,23 @@ export const MarketplaceCategoryLabel: Record<MarketplaceCategory, string> = {
     [MarketplaceCategory.OTHER]: "Other",
 };
 
-// ACTIVE: live. FULFILLED: owner marked sold/found, hidden from default browse, reversible. REMOVED: moderator took it down, terminal.
+// PENDING: awaiting moderator review, invisible except to poster/moderators. ACTIVE: live.
+// FULFILLED: owner marked sold/found, hidden from default browse, reversible. REJECTED: moderator
+// sent it back with a reason, resubmittable (edit -> back to PENDING). REMOVED: moderator took it
+// down, terminal.
 export enum MarketplaceListingStatus {
+    PENDING = "PENDING",
     ACTIVE = "ACTIVE",
     FULFILLED = "FULFILLED",
+    REJECTED = "REJECTED",
     REMOVED = "REMOVED",
 }
 
 export const MarketplaceListingStatusLabel: Record<MarketplaceListingStatus, string> = {
+    [MarketplaceListingStatus.PENDING]: "Pending Review",
     [MarketplaceListingStatus.ACTIVE]: "Active",
     [MarketplaceListingStatus.FULFILLED]: "Fulfilled",
+    [MarketplaceListingStatus.REJECTED]: "Rejected",
     [MarketplaceListingStatus.REMOVED]: "Removed",
 };
 

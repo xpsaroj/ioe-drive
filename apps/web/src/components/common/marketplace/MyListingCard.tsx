@@ -11,16 +11,20 @@ interface MyListingCardProps {
 
 // Only ever rendered on the poster's own "My Listings" page - every item shown is guaranteed to be theirs.
 const MyListingCard = ({ listing }: MyListingCardProps) => {
-    const showModerationNotice = listing.status === MarketplaceListingStatus.REMOVED;
+    const showModerationNotice =
+        listing.status === MarketplaceListingStatus.REJECTED || listing.status === MarketplaceListingStatus.REMOVED;
 
     const moderationNotice = showModerationNotice ? (
         <>
             <p className="font-medium text-foreground">
-                This listing was removed
+                {listing.status === MarketplaceListingStatus.REMOVED ? "This listing was removed" : "This listing was rejected"}
                 {listing.moderationReason && `: ${MarketplaceReportReasonLabel[listing.moderationReason]}`}
             </p>
             {listing.moderationNote && (
                 <p className="mt-1 text-foreground-secondary">{listing.moderationNote}</p>
+            )}
+            {listing.status === MarketplaceListingStatus.REJECTED && (
+                <p className="mt-1 text-foreground-secondary">Edit this listing to resubmit it for review.</p>
             )}
         </>
     ) : undefined;

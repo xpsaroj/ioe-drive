@@ -33,6 +33,8 @@ export const NotificationTypeEnum = pgEnum("notification_type_enum", [
     "RESOURCE_APPROVED",
     "RESOURCE_REJECTED",
     "RESOURCE_REMOVED",
+    "LISTING_APPROVED",
+    "LISTING_REJECTED",
     "LISTING_REMOVED",
 ]);
 
@@ -45,8 +47,16 @@ export const MarketplaceCategoryEnum = pgEnum("marketplace_category_enum", [
     "FURNITURE_AND_HOSTEL_ITEMS",
     "OTHER",
 ]);
-// FULFILLED is owner-driven and reversible (reactivate); REMOVED is moderator-driven (via report) and terminal, photos purged.
-export const MarketplaceListingStatusEnum = pgEnum("marketplace_listing_status_enum", ["ACTIVE", "FULFILLED", "REMOVED"]);
+// PENDING is pre-review (new listing, invisible except to poster/moderators); REJECTED is resubmittable
+// (edit -> back to PENDING); FULFILLED is owner-driven and reversible (reactivate); REMOVED is
+// moderator-driven and terminal, photos purged.
+export const MarketplaceListingStatusEnum = pgEnum("marketplace_listing_status_enum", [
+    "PENDING",
+    "ACTIVE",
+    "FULFILLED",
+    "REJECTED",
+    "REMOVED",
+]);
 export const MarketplaceReportReasonEnum = pgEnum("marketplace_report_reason_enum", [
     "SCAM_OR_FRAUD",
     "PROHIBITED_ITEM",
@@ -406,6 +416,24 @@ export const marketplaceReportsTable = pgTable("marketplace_reports", {
     ]
 );
 
+// Append-only history; marketplaceListingsTable.moderatedBy/moderationReason/etc. only ever hold the latest one.
+export const marketplaceModerationActionsTable = pgTable("marketplace_moderation_actions", {
+    id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
+    listingId: integer("listing_id")
+        .references(() => marketplaceListingsTable.id, { onDelete: "cascade" })
+        .notNull(),
+    actorId: integer("actor_id")
+        .references(() => usersTable.id, { onDelete: "set null" }),
+    action: ModerationActionEnum("action").notNull(),
+    reason: MarketplaceReportReasonEnum("reason"),
+    note: text("note"),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+},
+    (table) => [
+        index("idx_marketplace_moderation_actions_listing_id").on(table.listingId),
+    ]
+);
+
 // One thread per (listing, initiator) pair - re-contacting reuses it instead of duplicating.
 export const marketplaceConversationsTable = pgTable("marketplace_conversations", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
@@ -508,6 +536,7 @@ export const userRelations = relations(usersTable, ({ one, many }) => ({
     reportsFiled: many(reportsTable, { relationName: "reportsFiled" }),
     reportsResolved: many(reportsTable, { relationName: "reportsResolved" }),
     moderationActions: many(moderationActionsTable),
+    marketplaceModerationActions: many(marketplaceModerationActionsTable),
     roleChangesReceived: many(roleChangesTable, { relationName: "roleChangeSubject" }),
     roleChangesPerformed: many(roleChangesTable, { relationName: "roleChangeActor" }),
     postedMarketplaceListings: many(marketplaceListingsTable, { relationName: "postedListings" }),
@@ -650,6 +679,7 @@ export const marketplaceListingRelations = relations(marketplaceListingsTable, (
     }),
     photos: many(marketplaceListingPhotosTable),
     reports: many(marketplaceReportsTable),
+    moderationActions: many(marketplaceModerationActionsTable),
     conversations: many(marketplaceConversationsTable),
 }));
 
@@ -674,6 +704,17 @@ export const marketplaceReportRelations = relations(marketplaceReportsTable, ({ 
         fields: [marketplaceReportsTable.resolvedBy],
         references: [usersTable.id],
         relationName: "marketplaceReportsResolved",
+    }),
+}));
+
+export const marketplaceModerationActionRelations = relations(marketplaceModerationActionsTable, ({ one }) => ({
+    listing: one(marketplaceListingsTable, {
+        fields: [marketplaceModerationActionsTable.listingId],
+        references: [marketplaceListingsTable.id]
+    }),
+    actor: one(usersTable, {
+        fields: [marketplaceModerationActionsTable.actorId],
+        references: [usersTable.id]
     }),
 }));
 

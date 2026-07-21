@@ -45,6 +45,14 @@ export const marketplaceApi = {
         return apiClient.delete<EmptyApiResponse>(`${MARKETPLACE_API_BASE_URL}/${listingId}/photos/${photoId}`);
     },
 
+    async approveListing(listingId: number): Promise<ApiResponse<MarketplaceListing>> {
+        return apiClient.post<ApiResponse<MarketplaceListing>>(`${MARKETPLACE_API_BASE_URL}/${listingId}/approve`);
+    },
+
+    async rejectListing(listingId: number, data: MarketplaceReportReasonInput): Promise<ApiResponse<MarketplaceListing>> {
+        return apiClient.post<ApiResponse<MarketplaceListing>>(`${MARKETPLACE_API_BASE_URL}/${listingId}/reject`, data);
+    },
+
     async reportListing(listingId: number, data: MarketplaceReportReasonInput): Promise<EmptyApiResponse> {
         return apiClient.post<EmptyApiResponse>(`${MARKETPLACE_API_BASE_URL}/${listingId}/report`, data);
     },

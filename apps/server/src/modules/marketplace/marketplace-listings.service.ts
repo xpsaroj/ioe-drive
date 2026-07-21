@@ -73,14 +73,37 @@ export class MarketplaceListingsService {
     const uploadedPhotos = await this.uploadPhotos(photos);
 
     return this.marketplaceListingsRepository.create(
-      { ...listingData, postedBy: userId, status: "ACTIVE" },
+      { ...listingData, postedBy: userId, status: "PENDING" },
       uploadedPhotos,
     );
   }
 
   async updateListing(userId: number, listingId: number, updateData: UpdateListingData) {
-    await this.assertOwnership(userId, listingId);
-    return this.marketplaceListingsRepository.update(listingId, userId, updateData);
+    const existingListing = await this.marketplaceListingsRepository.findOwnership(listingId);
+
+    if (!existingListing || existingListing.postedBy !== userId) {
+      throw new NotFoundException("Listing not found");
+    }
+
+    if (existingListing.status === "REMOVED") {
+      throw new BadRequestException("This listing has been removed and can no longer be edited.");
+    }
+
+    // Editing a rejected listing is treated as an implicit resubmission - back to the
+    // review queue, with the previous moderation verdict cleared. Pending/active/fulfilled
+    // listings are left as-is by an edit.
+    const resubmission =
+      existingListing.status === "REJECTED"
+        ? {
+            status: "PENDING" as const,
+            moderatedBy: null,
+            moderationReason: null,
+            moderationNote: null,
+            moderatedAt: null,
+          }
+        : {};
+
+    return this.marketplaceListingsRepository.update(listingId, userId, { ...updateData, ...resubmission });
   }
 
   async deleteListing(userId: number, listingId: number): Promise<void> {
@@ -167,8 +190,8 @@ export class MarketplaceListingsService {
   }
 
   /** `viewer` is absent for an anonymous request. ACTIVE/FULFILLED are visible to anyone;
-   * REMOVED only to its own poster or a moderator - everyone else gets the same 404 as a
-   * nonexistent listing. */
+   * anything else (PENDING/REJECTED/REMOVED) only to its own poster or a moderator/admin -
+   * everyone else gets the same 404 as a nonexistent listing. */
   async findListingById(listingId: number, viewer?: AuthenticatedUser) {
     const listing = await this.marketplaceListingsRepository.findById(listingId);
 
@@ -177,7 +200,8 @@ export class MarketplaceListingsService {
     }
 
     const isVisible =
-      listing.status !== "REMOVED" ||
+      listing.status === "ACTIVE" ||
+      listing.status === "FULFILLED" ||
       (viewer && (viewer.id === listing.postedBy || viewer.role === "MODERATOR" || viewer.role === "ADMIN"));
 
     if (!isVisible) {

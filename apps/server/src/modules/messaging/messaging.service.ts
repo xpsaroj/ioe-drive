@@ -73,7 +73,7 @@ export class MessagingService {
       throw new ForbiddenException("You can't message yourself about your own listing");
     }
 
-    if (listing.status === "REMOVED") {
+    if (listing.status !== "ACTIVE" && listing.status !== "FULFILLED") {
       throw new BadRequestException("This listing is no longer available");
     }
 
@@ -91,7 +91,7 @@ export class MessagingService {
 
     const listing = await this.marketplaceListingsRepository.findOwnership(conversation.listingId);
 
-    if (!listing || listing.status === "REMOVED") {
+    if (!listing || (listing.status !== "ACTIVE" && listing.status !== "FULFILLED")) {
       throw new BadRequestException("This listing is no longer available");
     }
 

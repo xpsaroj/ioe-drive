@@ -178,7 +178,75 @@ export class ModerationService {
     return dismissedReport;
   }
 
-  // Unlike resources, there's no reject/resubmit cycle - REMOVE is the only moderator action a listing can receive.
+  findPendingListings(pagination: { limit: number; offset: number }) {
+    return this.moderationRepository.findPendingListings(pagination);
+  }
+
+  async approveListing(moderatorId: number, listingId: number) {
+    const listing = await this.moderationRepository.findForListingModeration(listingId);
+
+    if (!listing) {
+      throw new NotFoundException("Listing not found");
+    }
+
+    if (listing.status !== "PENDING") {
+      throw new BadRequestException("Only pending listings can be approved");
+    }
+
+    const updatedListing = await this.moderationRepository.recordMarketplaceModerationAction(listingId, "APPROVE", {
+      status: "ACTIVE",
+      moderatedBy: moderatorId,
+      moderationReason: null,
+      moderationNote: null,
+      moderatedAt: new Date(),
+    });
+
+    if (listing.postedBy) {
+      await this.notificationsService.create(
+        listing.postedBy,
+        "LISTING_APPROVED",
+        `Your listing "${listing.title}" was approved.`,
+        `/market/${listingId}`,
+      );
+    }
+
+    return updatedListing;
+  }
+
+  async rejectListing(moderatorId: number, listingId: number, dto: ModerateListingDto) {
+    const listing = await this.moderationRepository.findForListingModeration(listingId);
+
+    if (!listing) {
+      throw new NotFoundException("Listing not found");
+    }
+
+    if (listing.status !== "PENDING" && listing.status !== "ACTIVE") {
+      throw new BadRequestException("Only pending or active listings can be rejected");
+    }
+
+    const updatedListing = await this.moderationRepository.recordMarketplaceModerationAction(listingId, "REJECT", {
+      status: "REJECTED",
+      moderatedBy: moderatorId,
+      moderationReason: dto.reason,
+      moderationNote: dto.note ?? null,
+      moderatedAt: new Date(),
+    });
+
+    await this.moderationRepository.resolveMarketplaceReportsForListing(listingId, moderatorId);
+
+    if (listing.postedBy) {
+      await this.notificationsService.create(
+        listing.postedBy,
+        "LISTING_REJECTED",
+        `Your listing "${listing.title}" was rejected.`,
+        `/market/${listingId}`,
+      );
+    }
+
+    return updatedListing;
+  }
+
+  // Unlike reject, not resubmittable - the row is kept, but its photos are purged from Azure.
   async removeListing(moderatorId: number, listingId: number, dto: ModerateListingDto) {
     const listing = await this.moderationRepository.findForListingModeration(listingId);
 
@@ -186,14 +254,14 @@ export class ModerationService {
       throw new NotFoundException("Listing not found");
     }
 
-    if (listing.status === "REMOVED") {
-      throw new BadRequestException("Listing has already been removed");
+    if (listing.status !== "ACTIVE" && listing.status !== "FULFILLED") {
+      throw new BadRequestException("Only active or fulfilled listings can be removed");
     }
 
     await Promise.all(listing.photos.map((photo) => this.azureBlobService.delete(photo.blobName)));
     await this.moderationRepository.deleteListingPhotos(listingId);
 
-    const updatedListing = await this.moderationRepository.recordMarketplaceModerationAction(listingId, {
+    const updatedListing = await this.moderationRepository.recordMarketplaceModerationAction(listingId, "REMOVE", {
       status: "REMOVED",
       moderatedBy: moderatorId,
       moderationReason: dto.reason,
@@ -222,8 +290,8 @@ export class ModerationService {
       throw new NotFoundException("Listing not found");
     }
 
-    if (listing.status === "REMOVED") {
-      throw new BadRequestException("This listing has already been removed");
+    if (listing.status !== "ACTIVE" && listing.status !== "FULFILLED") {
+      throw new BadRequestException("Only active or fulfilled listings can be reported");
     }
 
     if (listing.postedBy === userId) {

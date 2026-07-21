@@ -57,7 +57,8 @@ A quick, high-level list of what already works. For the full picture see
   download counts that only increment on an actual download, not an inline preview.
 - Marketplace listings (`/market`): post something for sale or wanted with 1-6 required
   photos, browse/search/filter publicly (no sign-in needed), edit/delete/mark-fulfilled/
-  reactivate as the owner, report-to-remove moderation, and a "My Listings" page. See 
+  reactivate as the owner, a pre-review pending/approve/reject moderation queue (plus
+  report-to-remove for already-live listings), and a "My Listings" page. See
   `project-overview.md` section 10.
 - Real-time messaging (`/messages`) tied to marketplace listings: a WebSocket-backed
   chat (the project's first real-time feature), a live unread-count nav badge, an inbox,

@@ -108,6 +108,30 @@ export class MarketplaceListingsController {
     return ApiResponse.of(listing, "Listing reactivated");
   }
 
+  // POST /api/marketplace/listings/:listingId/approve - moderator-only.
+  @Post(":listingId/approve")
+  @UseGuards(ClerkAuthGuard, RolesGuard)
+  @Roles("MODERATOR", "ADMIN")
+  @HttpCode(HttpStatus.OK)
+  async approve(@CurrentUser() moderator: AuthenticatedUser, @Param("listingId", ParseIntPipe) listingId: number) {
+    const listing = await this.moderationService.approveListing(moderator.id, listingId);
+    return ApiResponse.of(listing, "Listing approved");
+  }
+
+  // POST /api/marketplace/listings/:listingId/reject - moderator-only; resubmittable, resets to pending on edit.
+  @Post(":listingId/reject")
+  @UseGuards(ClerkAuthGuard, RolesGuard)
+  @Roles("MODERATOR", "ADMIN")
+  @HttpCode(HttpStatus.OK)
+  async reject(
+    @CurrentUser() moderator: AuthenticatedUser,
+    @Param("listingId", ParseIntPipe) listingId: number,
+    @Body() dto: ModerateListingDto,
+  ) {
+    const listing = await this.moderationService.rejectListing(moderator.id, listingId, dto);
+    return ApiResponse.of(listing, "Listing rejected");
+  }
+
   // POST /api/marketplace/listings/:listingId/report - reporter identity is never surfaced to the poster.
   @Post(":listingId/report")
   @UseGuards(ClerkAuthGuard)

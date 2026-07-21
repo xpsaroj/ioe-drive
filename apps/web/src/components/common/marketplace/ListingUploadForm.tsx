@@ -158,10 +158,10 @@ export const ListingUploadForm: React.FC = () => {
         data.photos.forEach((file) => formData.append("listingPhoto", file));
 
         mutate(formData, {
-            onSuccess: () => {
-                toast.success("Listing posted! It's live right away.");
+            onSuccess: (response) => {
+                toast.success("Listing submitted! It's pending review and will go live once a moderator approves it.");
                 reset();
-                router.push("/market");
+                router.push(`/market/${response.data.id}`);
             },
             onError: (error) => {
                 toast.error(error instanceof Error ? error.message : "Failed to post listing.");

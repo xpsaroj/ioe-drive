@@ -1,4 +1,10 @@
-export type NotificationType = "RESOURCE_APPROVED" | "RESOURCE_REJECTED" | "RESOURCE_REMOVED" | "LISTING_REMOVED";
+export type NotificationType =
+    | "RESOURCE_APPROVED"
+    | "RESOURCE_REJECTED"
+    | "RESOURCE_REMOVED"
+    | "LISTING_APPROVED"
+    | "LISTING_REJECTED"
+    | "LISTING_REMOVED";
 
 export interface NotificationSummary {
     id: number;

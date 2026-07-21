@@ -112,10 +112,12 @@ const ListingDetailContent = ({
         );
     }
 
-    // Owner needs this to find out why their listing was removed (no notification system);
+    // Owner needs this to find out why their listing was rejected/removed (no notification system);
     // a moderator needs it too since ListingModeratorActionBar only exposes actions to take
     // next, not the reason recorded by whoever already actioned it.
-    const showModerationNotice = (isOwner || isModerator) && listing.status === MarketplaceListingStatus.REMOVED;
+    const showModerationNotice =
+        (isOwner || isModerator) &&
+        (listing.status === MarketplaceListingStatus.REJECTED || listing.status === MarketplaceListingStatus.REMOVED);
 
     const photos = listing.photos ?? [];
     const activePhoto = photos[activePhotoIndex] ?? photos[0];
@@ -145,11 +147,14 @@ const ListingDetailContent = ({
                 {showModerationNotice && (
                     <div className="rounded-xl border border-border bg-background-tertiary p-6">
                         <p className="font-medium text-foreground">
-                            This listing was removed
+                            {listing.status === MarketplaceListingStatus.REMOVED ? "This listing was removed" : "This listing was rejected"}
                             {listing.moderationReason && `: ${MarketplaceReportReasonLabel[listing.moderationReason]}`}
                         </p>
                         {listing.moderationNote && (
                             <p className="mt-1 text-sm text-foreground-secondary">{listing.moderationNote}</p>
+                        )}
+                        {isOwner && listing.status === MarketplaceListingStatus.REJECTED && (
+                            <p className="mt-1 text-sm text-foreground-secondary">Edit this listing to resubmit it for review.</p>
                         )}
                     </div>
                 )}
@@ -203,7 +208,10 @@ const ListingDetailContent = ({
                         {isModerator ? (
                             <ListingModeratorActionBar listingId={listing.id} status={listing.status} />
                         ) : (
-                            !isOwner && listing.status !== MarketplaceListingStatus.REMOVED && userData && (
+                            !isOwner &&
+                            userData &&
+                            (listing.status === MarketplaceListingStatus.ACTIVE ||
+                                listing.status === MarketplaceListingStatus.FULFILLED) && (
                                 <ReportListingButton listingId={listing.id} />
                             )
                         )}
@@ -224,7 +232,10 @@ const ListingDetailContent = ({
                                 />
                             </div>
 
-                            {userData && !isOwner && listing.status !== MarketplaceListingStatus.REMOVED && (
+                            {userData &&
+                                !isOwner &&
+                                (listing.status === MarketplaceListingStatus.ACTIVE ||
+                                    listing.status === MarketplaceListingStatus.FULFILLED) && (
                                 <div className="mt-4 border-t border-border pt-4">
                                     <StartConversationButton
                                         listingId={listing.id}

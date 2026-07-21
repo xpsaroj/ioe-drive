@@ -1,11 +1,15 @@
 "use client";
 import { useState } from "react";
 import { toast } from "sonner";
-import { ShieldOff } from "lucide-react";
+import { Check, ShieldOff, X } from "lucide-react";
 
 import Button from "@/components/ui/Button";
 import { ModerationActionModal } from "@/components/common/moderation";
-import { useRemoveListingAsModerator } from "@/hooks/queries/use-marketplace";
+import {
+    useApproveListingAsModerator,
+    useRejectListingAsModerator,
+    useRemoveListingAsModerator,
+} from "@/hooks/queries/use-marketplace";
 import { MarketplaceListingStatus, MarketplaceReportReason, MarketplaceReportReasonLabel } from "@/types/entities";
 import type { MarketplaceReportReasonInput } from "@/lib/validators/marketplace";
 
@@ -19,18 +23,43 @@ interface ListingModeratorActionBarProps {
     status: MarketplaceListingStatus;
 }
 
-// Marketplace has no pre-review queue, unlike resources - Remove is the only moderator action here.
+// Which actions show depends on status: only PENDING can be approved, PENDING/ACTIVE can be
+// rejected, ACTIVE/FULFILLED can be removed.
 const ListingModeratorActionBar = ({ listingId, status }: ListingModeratorActionBarProps) => {
-    const [isOpen, setIsOpen] = useState(false);
-    const { mutate, isPending } = useRemoveListingAsModerator(listingId);
+    const [openModal, setOpenModal] = useState<"reject" | "remove" | null>(null);
 
-    if (status === MarketplaceListingStatus.REMOVED) return null;
+    const { mutate: approve, isPending: isApproving } = useApproveListingAsModerator(listingId);
+    const { mutate: reject, isPending: isRejecting } = useRejectListingAsModerator(listingId);
+    const { mutate: remove, isPending: isRemoving } = useRemoveListingAsModerator(listingId);
+
+    const canApprove = status === MarketplaceListingStatus.PENDING;
+    const canReject = status === MarketplaceListingStatus.PENDING || status === MarketplaceListingStatus.ACTIVE;
+    const canRemove = status === MarketplaceListingStatus.ACTIVE || status === MarketplaceListingStatus.FULFILLED;
+
+    if (!canApprove && !canReject && !canRemove) return null;
+
+    const handleApprove = () => {
+        approve(undefined, {
+            onSuccess: () => toast.success("Listing approved."),
+            onError: (error) => toast.error(error instanceof Error ? error.message : "Failed to approve listing."),
+        });
+    };
+
+    const handleReject = (data: { reason: string; note?: string }) => {
+        reject(data as MarketplaceReportReasonInput, {
+            onSuccess: () => {
+                toast.success("Listing rejected.");
+                setOpenModal(null);
+            },
+            onError: (error) => toast.error(error instanceof Error ? error.message : "Failed to reject listing."),
+        });
+    };
 
     const handleRemove = (data: { reason: string; note?: string }) => {
-        mutate(data as MarketplaceReportReasonInput, {
+        remove(data as MarketplaceReportReasonInput, {
             onSuccess: () => {
                 toast.success("Listing removed.");
-                setIsOpen(false);
+                setOpenModal(null);
             },
             onError: (error) => toast.error(error instanceof Error ? error.message : "Failed to remove listing."),
         });
@@ -42,22 +71,54 @@ const ListingModeratorActionBar = ({ listingId, status }: ListingModeratorAction
                 Moderator Actions
             </p>
 
-            <Button
-                size="sm"
-                variant="destructive"
-                icon={<ShieldOff className="size-4" />}
-                onClick={() => setIsOpen(true)}
-            >
-                Remove
-            </Button>
+            <div className="flex flex-wrap items-center gap-2">
+                {canApprove && (
+                    <Button size="sm" icon={<Check className="size-4" />} onClick={handleApprove} disabled={isApproving}>
+                        {isApproving ? "Approving..." : "Approve"}
+                    </Button>
+                )}
+
+                {canReject && (
+                    <Button
+                        size="sm"
+                        variant="secondary"
+                        icon={<X className="size-4" />}
+                        onClick={() => setOpenModal("reject")}
+                    >
+                        Reject
+                    </Button>
+                )}
+
+                {canRemove && (
+                    <Button
+                        size="sm"
+                        variant="destructive"
+                        icon={<ShieldOff className="size-4" />}
+                        onClick={() => setOpenModal("remove")}
+                    >
+                        Remove
+                    </Button>
+                )}
+            </div>
 
             <ModerationActionModal
-                isOpen={isOpen}
-                onClose={() => setIsOpen(false)}
+                isOpen={openModal === "reject"}
+                onClose={() => setOpenModal(null)}
+                title="Reject Listing"
+                description="This sends the listing back to its poster along with your reason - they can edit and resubmit it for another review."
+                submitLabel="Reject"
+                isSubmitting={isRejecting}
+                reasonOptions={REASON_OPTIONS}
+                onSubmit={handleReject}
+            />
+
+            <ModerationActionModal
+                isOpen={openModal === "remove"}
+                onClose={() => setOpenModal(null)}
                 title="Remove Listing"
-                description="This permanently deletes the listing's photos and can't be undone. The poster will see your reason on their own listings page."
+                description="This permanently deletes the listing's photos and can't be undone or resubmitted. The poster will see your reason on their own listings page."
                 submitLabel="Remove"
-                isSubmitting={isPending}
+                isSubmitting={isRemoving}
                 reasonOptions={REASON_OPTIONS}
                 onSubmit={handleRemove}
             />

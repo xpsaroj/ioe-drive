@@ -6,6 +6,7 @@ import type { DrizzleDb } from "../../database/database.types";
 import {
   marketplaceListingPhotosTable,
   marketplaceListingsTable,
+  marketplaceModerationActionsTable,
   marketplaceReportsTable,
   moderationActionsTable,
   reportsTable,
@@ -17,6 +18,7 @@ import {
 } from "../../database/schema";
 import { RESOURCE_DETAIL_RELATIONS, RESOURCE_PREVIEW_RELATIONS } from "../resources/resources.repository";
 import type { ModerateResourceData } from "../resources/resources.types";
+import { MARKETPLACE_LISTING_DETAIL_RELATIONS } from "../marketplace/marketplace-listings.repository";
 import type { ModerateListingData } from "../marketplace/marketplace-listing.types";
 
 @Injectable()
@@ -136,15 +138,42 @@ export class ModerationRepository {
     });
   }
 
-  // No separate audit table for marketplace listings - REMOVE is the only action and it's terminal, so these denormalized columns are a complete record.
-  async recordMarketplaceModerationAction(listingId: number, data: ModerateListingData) {
-    const [updatedListing] = await this.db
-      .update(marketplaceListingsTable)
-      .set(data)
-      .where(eq(marketplaceListingsTable.id, listingId))
-      .returning();
+  async findPendingListings(pagination: { limit: number; offset: number }) {
+    const whereClause = eq(marketplaceListingsTable.status, "PENDING");
 
-    return updatedListing;
+    const [items, totalResult] = await Promise.all([
+      this.db.query.marketplaceListingsTable.findMany({
+        where: whereClause,
+        orderBy: [asc(marketplaceListingsTable.createdAt)],
+        limit: pagination.limit,
+        offset: pagination.offset,
+        with: MARKETPLACE_LISTING_DETAIL_RELATIONS,
+      }),
+      this.db.select({ total: count() }).from(marketplaceListingsTable).where(whereClause),
+    ]);
+
+    return { items, total: totalResult[0]?.total ?? 0 };
+  }
+
+  // Same transaction as the marketplace_moderation_actions insert, so the two can never drift apart.
+  async recordMarketplaceModerationAction(listingId: number, action: ModerationAction, data: ModerateListingData) {
+    return this.db.transaction(async (tx) => {
+      const [updatedListing] = await tx
+        .update(marketplaceListingsTable)
+        .set(data)
+        .where(eq(marketplaceListingsTable.id, listingId))
+        .returning();
+
+      await tx.insert(marketplaceModerationActionsTable).values({
+        listingId,
+        actorId: data.moderatedBy,
+        action,
+        reason: data.moderationReason,
+        note: data.moderationNote,
+      });
+
+      return updatedListing;
+    });
   }
 
   async deleteListingPhotos(listingId: number): Promise<void> {

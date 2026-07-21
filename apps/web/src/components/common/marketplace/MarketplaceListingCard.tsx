@@ -23,8 +23,10 @@ export const LISTING_TYPE_BADGE_VARIANT: Record<MarketplaceListingType, BadgeVar
 // there. It only appears where a non-ACTIVE listing can show up at all: the poster's own
 // listings page and the detail page (reuses this same mapping).
 export const LISTING_STATUS_BADGE_VARIANT: Record<MarketplaceListingStatus, BadgeVariant> = {
+    [MarketplaceListingStatus.PENDING]: "warning",
     [MarketplaceListingStatus.ACTIVE]: "success",
     [MarketplaceListingStatus.FULFILLED]: "secondary",
+    [MarketplaceListingStatus.REJECTED]: "error",
     [MarketplaceListingStatus.REMOVED]: "error",
 };
 

@@ -8,6 +8,9 @@ export const moderationKeys = {
     pending: (page?: number) => page === undefined
         ? ['moderation', 'pending'] as const
         : ['moderation', 'pending', page] as const,
+    pendingListings: (page?: number) => page === undefined
+        ? ['moderation', 'pending-listings'] as const
+        : ['moderation', 'pending-listings', page] as const,
     resourceReports: (page?: number) => page === undefined
         ? ['moderation', 'resource-reports'] as const
         : ['moderation', 'resource-reports', page] as const,
@@ -24,6 +27,21 @@ export function usePendingResources(page: number = 1) {
             const response = await moderationApi.getPendingResources({ page });
             if (!response.success) {
                 throw new Error(response.error || 'Failed to fetch pending resources');
+            }
+            return { items: response.data, meta: response.meta };
+        },
+        placeholderData: keepPreviousData,
+    });
+}
+
+/** The review queue: marketplace listings awaiting a moderator's decision, oldest first. */
+export function usePendingListings(page: number = 1) {
+    return useQuery({
+        queryKey: moderationKeys.pendingListings(page),
+        queryFn: async () => {
+            const response = await moderationApi.getPendingListings({ page });
+            if (!response.success) {
+                throw new Error(response.error || 'Failed to fetch pending listings');
             }
             return { items: response.data, meta: response.meta };
         },
