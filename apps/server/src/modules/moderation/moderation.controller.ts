@@ -17,15 +17,15 @@ export class ModerationController {
   constructor(private readonly moderationService: ModerationService) {}
 
   // The review queue: resources awaiting a decision, oldest first.
-  @Get("pending")
-  async findPending(@Query() query: PaginationQueryDto) {
+  @Get("resources/pending")
+  async findPendingResources(@Query() query: PaginationQueryDto) {
     const offset = getPaginationOffset(query.page, query.limit);
     const { items, total } = await this.moderationService.findPendingResources({ limit: query.limit, offset });
     return ApiResponse.of(items, undefined, buildPaginationMeta(query.page, query.limit, total));
   }
 
   // Each report includes the reporter's identity, never exposed to the uploader.
-  @Get("reports")
+  @Get("resources/reports")
   async findResourceReports(@Query() query: PaginationQueryDto) {
     const offset = getPaginationOffset(query.page, query.limit);
     const { items, total } = await this.moderationService.findOpenResourceReports({ limit: query.limit, offset });
@@ -33,7 +33,7 @@ export class ModerationController {
   }
 
   // The "unfounded report" case: closes the report with no change to the resource.
-  @Post("reports/:reportId/dismiss")
+  @Post("resources/reports/:reportId/dismiss")
   @HttpCode(HttpStatus.OK)
   async dismissResourceReport(
     @CurrentUser() moderator: AuthenticatedUser,
@@ -44,7 +44,7 @@ export class ModerationController {
   }
 
   // The review queue: listings awaiting a decision, oldest first.
-  @Get("marketplace/pending")
+  @Get("listings/pending")
   async findPendingListings(@Query() query: PaginationQueryDto) {
     const offset = getPaginationOffset(query.page, query.limit);
     const { items, total } = await this.moderationService.findPendingListings({ limit: query.limit, offset });
@@ -52,21 +52,21 @@ export class ModerationController {
   }
 
   // Open marketplace-listing reports, oldest first.
-  @Get("marketplace/reports")
-  async findMarketplaceReports(@Query() query: PaginationQueryDto) {
+  @Get("listings/reports")
+  async findListingReports(@Query() query: PaginationQueryDto) {
     const offset = getPaginationOffset(query.page, query.limit);
-    const { items, total } = await this.moderationService.findOpenMarketplaceReports({ limit: query.limit, offset });
+    const { items, total } = await this.moderationService.findOpenListingReports({ limit: query.limit, offset });
     return ApiResponse.of(items, undefined, buildPaginationMeta(query.page, query.limit, total));
   }
 
   // The "unfounded report" case for a listing: closes the report with no change to the listing.
-  @Post("marketplace/reports/:reportId/dismiss")
+  @Post("listings/reports/:reportId/dismiss")
   @HttpCode(HttpStatus.OK)
-  async dismissMarketplaceReport(
+  async dismissListingReport(
     @CurrentUser() moderator: AuthenticatedUser,
     @Param("reportId", ParseIntPipe) reportId: number,
   ) {
-    await this.moderationService.dismissMarketplaceReport(moderator.id, reportId);
+    await this.moderationService.dismissListingReport(moderator.id, reportId);
     return ApiResponse.of(null, "Report dismissed");
   }
 }

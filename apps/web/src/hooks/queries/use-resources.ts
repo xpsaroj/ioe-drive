@@ -246,7 +246,7 @@ function invalidateAfterModeration(queryClient: ReturnType<typeof useQueryClient
     queryClient.invalidateQueries({ queryKey: resourcesKeys.byId(resourceId) });
     queryClient.invalidateQueries({ queryKey: resourcesKeys.all });
     queryClient.invalidateQueries({ queryKey: meKeys.uploadedResources() });
-    queryClient.invalidateQueries({ queryKey: moderationKeys.pending() });
+    queryClient.invalidateQueries({ queryKey: moderationKeys.pendingResources() });
     queryClient.invalidateQueries({ queryKey: moderationKeys.resourceReports() });
 }
 

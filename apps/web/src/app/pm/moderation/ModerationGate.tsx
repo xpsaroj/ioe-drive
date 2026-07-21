@@ -9,10 +9,10 @@ import { useMe } from "@/hooks/queries/use-me";
 import { isModeratorOrAdmin } from "@/types/entities";
 
 const TABS = [
-    { label: "Pending Review", href: "/pm/moderation/pending" },
-    { label: "Resource Reports", href: "/pm/moderation/reports" },
-    { label: "Marketplace Pending", href: "/pm/moderation/marketplace-pending" },
-    { label: "Marketplace Reports", href: "/pm/moderation/marketplace-reports" },
+    { label: "Pending Resources", href: "/pm/moderation/resources/pending" },
+    { label: "Resource Reports", href: "/pm/moderation/resources/reports" },
+    { label: "Pending Listings", href: "/pm/moderation/listings/pending" },
+    { label: "Marketplace Reports", href: "/pm/moderation/listings/reports" },
 ];
 
 // UX-only redirect for non-moderators - the real boundary is the server-side @Roles guard.

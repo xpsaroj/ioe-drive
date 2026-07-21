@@ -178,7 +178,7 @@ export function useReportListing(listingId: number) {
             }
             return response;
         },
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: moderationKeys.marketplaceReports() }),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: moderationKeys.listingReports() }),
     });
 }
 
@@ -216,7 +216,7 @@ export function useRejectListingAsModerator(listingId: number) {
         onSuccess: () => {
             invalidateAfterStatusChange(queryClient, listingId);
             queryClient.invalidateQueries({ queryKey: moderationKeys.pendingListings() });
-            queryClient.invalidateQueries({ queryKey: moderationKeys.marketplaceReports() });
+            queryClient.invalidateQueries({ queryKey: moderationKeys.listingReports() });
         },
     });
 }
@@ -235,7 +235,7 @@ export function useRemoveListingAsModerator(listingId: number) {
         },
         onSuccess: () => {
             invalidateAfterStatusChange(queryClient, listingId);
-            queryClient.invalidateQueries({ queryKey: moderationKeys.marketplaceReports() });
+            queryClient.invalidateQueries({ queryKey: moderationKeys.listingReports() });
         },
     });
 }

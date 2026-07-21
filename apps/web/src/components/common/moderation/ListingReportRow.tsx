@@ -3,17 +3,17 @@ import Link from "next/link";
 import { toast } from "sonner";
 
 import Button from "@/components/ui/Button";
-import { useDismissMarketplaceReport } from "@/hooks/queries/use-moderation";
+import { useDismissListingReport } from "@/hooks/queries/use-moderation";
 import { MarketplaceReportReasonLabel } from "@/types/entities";
-import type { MarketplaceReportItem } from "@/types/api";
+import type { ListingReportItem } from "@/types/api";
 
-interface MarketplaceReportRowProps {
-    report: MarketplaceReportItem;
+interface ListingReportRowProps {
+    report: ListingReportItem;
 }
 
 // Reporter's identity shows here (moderator-only view), never on any poster- or public-facing surface.
-const MarketplaceReportRow = ({ report }: MarketplaceReportRowProps) => {
-    const { mutate: dismiss, isPending } = useDismissMarketplaceReport();
+const ListingReportRow = ({ report }: ListingReportRowProps) => {
+    const { mutate: dismiss, isPending } = useDismissListingReport();
 
     const handleDismiss = () => {
         dismiss(report.id, {
@@ -49,4 +49,4 @@ const MarketplaceReportRow = ({ report }: MarketplaceReportRowProps) => {
     );
 };
 
-export default MarketplaceReportRow;
+export default ListingReportRow;

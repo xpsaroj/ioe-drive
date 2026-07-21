@@ -285,7 +285,7 @@ export const resourceVotesTable = pgTable("resource_votes", {
     ]
 );
 
-export const reportsTable = pgTable("reports", {
+export const resourceReportsTable = pgTable("resource_reports", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     resourceId: integer("resource_id")
         .references(() => resourcesTable.id, { onDelete: "cascade" })
@@ -302,14 +302,14 @@ export const reportsTable = pgTable("reports", {
         .references(() => usersTable.id, { onDelete: "set null" }),
 },
     (table) => [
-        unique("unique_report_per_user_resource").on(table.resourceId, table.reportedBy),
-        index("idx_reports_resource_id").on(table.resourceId),
-        index("idx_reports_status").on(table.status),
+        unique("unique_resource_report_per_user_resource").on(table.resourceId, table.reportedBy),
+        index("idx_resource_reports_resource_id").on(table.resourceId),
+        index("idx_resource_reports_status").on(table.status),
     ]
 );
 
 // Append-only history; resourcesTable.moderatedBy/moderationReason/etc. only ever hold the latest one.
-export const moderationActionsTable = pgTable("moderation_actions", {
+export const resourceModerationActionsTable = pgTable("resource_moderation_actions", {
     id: integer("id").primaryKey().generatedAlwaysAsIdentity(),
     resourceId: integer("resource_id")
         .references(() => resourcesTable.id, { onDelete: "cascade" })
@@ -322,7 +322,7 @@ export const moderationActionsTable = pgTable("moderation_actions", {
     createdAt: timestamp("created_at").defaultNow().notNull(),
 },
     (table) => [
-        index("idx_moderation_actions_resource_id").on(table.resourceId),
+        index("idx_resource_moderation_actions_resource_id").on(table.resourceId),
     ]
 );
 
@@ -533,9 +533,9 @@ export const userRelations = relations(usersTable, ({ one, many }) => ({
     recentResources: many(userRecentResourcesTable),
     bookmarkedResources: many(userBookmarkedResourcesTable),
     votes: many(resourceVotesTable),
-    reportsFiled: many(reportsTable, { relationName: "reportsFiled" }),
-    reportsResolved: many(reportsTable, { relationName: "reportsResolved" }),
-    moderationActions: many(moderationActionsTable),
+    resourceReportsFiled: many(resourceReportsTable, { relationName: "resourceReportsFiled" }),
+    resourceReportsResolved: many(resourceReportsTable, { relationName: "resourceReportsResolved" }),
+    resourceModerationActions: many(resourceModerationActionsTable),
     marketplaceModerationActions: many(marketplaceModerationActionsTable),
     roleChangesReceived: many(roleChangesTable, { relationName: "roleChangeSubject" }),
     roleChangesPerformed: many(roleChangesTable, { relationName: "roleChangeActor" }),
@@ -576,8 +576,8 @@ export const resourceRelations = relations(resourcesTable, ({ one, many }) => ({
         relationName: "moderatedResources",
     }),
     files: many(resourceFilesTable),
-    reports: many(reportsTable),
-    moderationActions: many(moderationActionsTable),
+    reports: many(resourceReportsTable),
+    moderationActions: many(resourceModerationActionsTable),
     votes: many(resourceVotesTable),
 }));
 
@@ -621,30 +621,30 @@ export const resourceVoteRelations = relations(resourceVotesTable, ({ one }) => 
     }),
 }));
 
-export const reportRelations = relations(reportsTable, ({ one }) => ({
+export const resourceReportRelations = relations(resourceReportsTable, ({ one }) => ({
     resource: one(resourcesTable, {
-        fields: [reportsTable.resourceId],
+        fields: [resourceReportsTable.resourceId],
         references: [resourcesTable.id]
     }),
     reporter: one(usersTable, {
-        fields: [reportsTable.reportedBy],
+        fields: [resourceReportsTable.reportedBy],
         references: [usersTable.id],
-        relationName: "reportsFiled",
+        relationName: "resourceReportsFiled",
     }),
     resolver: one(usersTable, {
-        fields: [reportsTable.resolvedBy],
+        fields: [resourceReportsTable.resolvedBy],
         references: [usersTable.id],
-        relationName: "reportsResolved",
+        relationName: "resourceReportsResolved",
     }),
 }));
 
-export const moderationActionRelations = relations(moderationActionsTable, ({ one }) => ({
+export const resourceModerationActionRelations = relations(resourceModerationActionsTable, ({ one }) => ({
     resource: one(resourcesTable, {
-        fields: [moderationActionsTable.resourceId],
+        fields: [resourceModerationActionsTable.resourceId],
         references: [resourcesTable.id]
     }),
     actor: one(usersTable, {
-        fields: [moderationActionsTable.actorId],
+        fields: [resourceModerationActionsTable.actorId],
         references: [usersTable.id]
     }),
 }));

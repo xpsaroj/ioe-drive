@@ -5,24 +5,24 @@ import { moderationApi } from '@/lib/api/moderation-api';
 export const moderationKeys = {
     all: ['moderation'] as const,
     // Called with no `page` to get a stable prefix for invalidating every page at once.
-    pending: (page?: number) => page === undefined
-        ? ['moderation', 'pending'] as const
-        : ['moderation', 'pending', page] as const,
+    pendingResources: (page?: number) => page === undefined
+        ? ['moderation', 'pending-resources'] as const
+        : ['moderation', 'pending-resources', page] as const,
     pendingListings: (page?: number) => page === undefined
         ? ['moderation', 'pending-listings'] as const
         : ['moderation', 'pending-listings', page] as const,
     resourceReports: (page?: number) => page === undefined
         ? ['moderation', 'resource-reports'] as const
         : ['moderation', 'resource-reports', page] as const,
-    marketplaceReports: (page?: number) => page === undefined
-        ? ['moderation', 'marketplace-reports'] as const
-        : ['moderation', 'marketplace-reports', page] as const,
+    listingReports: (page?: number) => page === undefined
+        ? ['moderation', 'listing-reports'] as const
+        : ['moderation', 'listing-reports', page] as const,
 };
 
 /** The review queue: resources awaiting a moderator's decision, oldest first. */
 export function usePendingResources(page: number = 1) {
     return useQuery({
-        queryKey: moderationKeys.pending(page),
+        queryKey: moderationKeys.pendingResources(page),
         queryFn: async () => {
             const response = await moderationApi.getPendingResources({ page });
             if (!response.success) {
@@ -81,13 +81,13 @@ export function useDismissResourceReport() {
 }
 
 /** Open reports against marketplace listings. */
-export function useMarketplaceReports(page: number = 1) {
+export function useListingReports(page: number = 1) {
     return useQuery({
-        queryKey: moderationKeys.marketplaceReports(page),
+        queryKey: moderationKeys.listingReports(page),
         queryFn: async () => {
-            const response = await moderationApi.getMarketplaceReports({ page });
+            const response = await moderationApi.getListingReports({ page });
             if (!response.success) {
-                throw new Error(response.error || 'Failed to fetch marketplace reports');
+                throw new Error(response.error || 'Failed to fetch listing reports');
             }
             return { items: response.data, meta: response.meta };
         },
@@ -95,18 +95,18 @@ export function useMarketplaceReports(page: number = 1) {
     });
 }
 
-/** Closes a marketplace report with no change to the listing - the "unfounded report" case. */
-export function useDismissMarketplaceReport() {
+/** Closes a listing report with no change to the listing - the "unfounded report" case. */
+export function useDismissListingReport() {
     const queryClient = useQueryClient();
 
     return useMutation({
         mutationFn: async (reportId: number) => {
-            const response = await moderationApi.dismissMarketplaceReport(reportId);
+            const response = await moderationApi.dismissListingReport(reportId);
             if (!response.success) {
                 throw new Error(response.error || 'Failed to dismiss report');
             }
             return response;
         },
-        onSuccess: () => queryClient.invalidateQueries({ queryKey: moderationKeys.marketplaceReports() }),
+        onSuccess: () => queryClient.invalidateQueries({ queryKey: moderationKeys.listingReports() }),
     });
 }

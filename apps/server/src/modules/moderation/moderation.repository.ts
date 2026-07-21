@@ -8,9 +8,9 @@ import {
   marketplaceListingsTable,
   marketplaceModerationActionsTable,
   marketplaceReportsTable,
-  moderationActionsTable,
-  reportsTable,
   resourceFilesTable,
+  resourceModerationActionsTable,
+  resourceReportsTable,
   resourcesTable,
   type MarketplaceReportReason,
   type ModerationAction,
@@ -35,7 +35,7 @@ export class ModerationRepository {
     });
   }
 
-  async findPending(pagination: { limit: number; offset: number }) {
+  async findPendingResources(pagination: { limit: number; offset: number }) {
     const whereClause = eq(resourcesTable.status, "PENDING");
 
     const [items, totalResult] = await Promise.all([
@@ -52,7 +52,7 @@ export class ModerationRepository {
     return { items, total: totalResult[0]?.total ?? 0 };
   }
 
-  // Same transaction as the moderation_actions insert, so the two can never drift apart.
+  // Same transaction as the resource_moderation_actions insert, so the two can never drift apart.
   async recordResourceModerationAction(resourceId: number, action: ModerationAction, data: ModerateResourceData) {
     return this.db.transaction(async (tx) => {
       const [updatedResource] = await tx
@@ -61,7 +61,7 @@ export class ModerationRepository {
         .where(eq(resourcesTable.id, resourceId))
         .returning();
 
-      await tx.insert(moderationActionsTable).values({
+      await tx.insert(resourceModerationActionsTable).values({
         resourceId,
         actorId: data.moderatedBy,
         action,
@@ -78,25 +78,25 @@ export class ModerationRepository {
   }
 
   findExistingResourceReport(resourceId: number, reportedBy: number) {
-    return this.db.query.reportsTable.findFirst({
-      where: and(eq(reportsTable.resourceId, resourceId), eq(reportsTable.reportedBy, reportedBy)),
+    return this.db.query.resourceReportsTable.findFirst({
+      where: and(eq(resourceReportsTable.resourceId, resourceId), eq(resourceReportsTable.reportedBy, reportedBy)),
       columns: { id: true },
     });
   }
 
   async createResourceReport(data: { resourceId: number; reportedBy: number; reason: ModerationReason; note?: string }) {
-    const [createdReport] = await this.db.insert(reportsTable).values(data).returning();
+    const [createdReport] = await this.db.insert(resourceReportsTable).values(data).returning();
 
     return createdReport;
   }
 
   async findOpenResourceReports(pagination: { limit: number; offset: number }) {
-    const whereClause = eq(reportsTable.status, "OPEN");
+    const whereClause = eq(resourceReportsTable.status, "OPEN");
 
     const [items, totalResult] = await Promise.all([
-      this.db.query.reportsTable.findMany({
+      this.db.query.resourceReportsTable.findMany({
         where: whereClause,
-        orderBy: [asc(reportsTable.createdAt)],
+        orderBy: [asc(resourceReportsTable.createdAt)],
         limit: pagination.limit,
         offset: pagination.offset,
         with: {
@@ -104,7 +104,7 @@ export class ModerationRepository {
           reporter: { columns: { id: true, fullName: true } },
         },
       }),
-      this.db.select({ total: count() }).from(reportsTable).where(whereClause),
+      this.db.select({ total: count() }).from(resourceReportsTable).where(whereClause),
     ]);
 
     return { items, total: totalResult[0]?.total ?? 0 };
@@ -113,16 +113,16 @@ export class ModerationRepository {
   // Called when a moderator rejects/removes a resource - that action already addresses any open reports.
   async resolveReportsForResource(resourceId: number, resolvedBy: number): Promise<void> {
     await this.db
-      .update(reportsTable)
+      .update(resourceReportsTable)
       .set({ status: "RESOLVED", resolvedAt: new Date(), resolvedBy })
-      .where(and(eq(reportsTable.resourceId, resourceId), eq(reportsTable.status, "OPEN")));
+      .where(and(eq(resourceReportsTable.resourceId, resourceId), eq(resourceReportsTable.status, "OPEN")));
   }
 
   async resolveResourceReport(reportId: number, resolvedBy: number) {
     const [resolvedReport] = await this.db
-      .update(reportsTable)
+      .update(resourceReportsTable)
       .set({ status: "RESOLVED", resolvedAt: new Date(), resolvedBy })
-      .where(and(eq(reportsTable.id, reportId), eq(reportsTable.status, "OPEN")))
+      .where(and(eq(resourceReportsTable.id, reportId), eq(resourceReportsTable.status, "OPEN")))
       .returning();
 
     return resolvedReport;
@@ -180,20 +180,20 @@ export class ModerationRepository {
     await this.db.delete(marketplaceListingPhotosTable).where(eq(marketplaceListingPhotosTable.listingId, listingId));
   }
 
-  findExistingMarketplaceReport(listingId: number, reportedBy: number) {
+  findExistingListingReport(listingId: number, reportedBy: number) {
     return this.db.query.marketplaceReportsTable.findFirst({
       where: and(eq(marketplaceReportsTable.listingId, listingId), eq(marketplaceReportsTable.reportedBy, reportedBy)),
       columns: { id: true },
     });
   }
 
-  async createMarketplaceReport(data: { listingId: number; reportedBy: number; reason: MarketplaceReportReason; note?: string }) {
+  async createListingReport(data: { listingId: number; reportedBy: number; reason: MarketplaceReportReason; note?: string }) {
     const [createdReport] = await this.db.insert(marketplaceReportsTable).values(data).returning();
 
     return createdReport;
   }
 
-  async findOpenMarketplaceReports(pagination: { limit: number; offset: number }) {
+  async findOpenListingReports(pagination: { limit: number; offset: number }) {
     const whereClause = eq(marketplaceReportsTable.status, "OPEN");
 
     const [items, totalResult] = await Promise.all([
@@ -214,14 +214,14 @@ export class ModerationRepository {
   }
 
   // Called when a moderator removes a listing - that action already addresses any open reports.
-  async resolveMarketplaceReportsForListing(listingId: number, resolvedBy: number): Promise<void> {
+  async resolveReportsForListing(listingId: number, resolvedBy: number): Promise<void> {
     await this.db
       .update(marketplaceReportsTable)
       .set({ status: "RESOLVED", resolvedAt: new Date(), resolvedBy })
       .where(and(eq(marketplaceReportsTable.listingId, listingId), eq(marketplaceReportsTable.status, "OPEN")));
   }
 
-  async resolveMarketplaceReport(reportId: number, resolvedBy: number) {
+  async resolveListingReport(reportId: number, resolvedBy: number) {
     const [resolvedReport] = await this.db
       .update(marketplaceReportsTable)
       .set({ status: "RESOLVED", resolvedAt: new Date(), resolvedBy })

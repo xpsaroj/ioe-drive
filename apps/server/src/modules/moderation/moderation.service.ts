@@ -17,7 +17,7 @@ export class ModerationService {
   ) {}
 
   findPendingResources(pagination: { limit: number; offset: number }) {
-    return this.moderationRepository.findPending(pagination);
+    return this.moderationRepository.findPendingResources(pagination);
   }
 
   findOpenResourceReports(pagination: { limit: number; offset: number }) {
@@ -164,12 +164,12 @@ export class ModerationService {
     });
   }
 
-  findOpenMarketplaceReports(pagination: { limit: number; offset: number }) {
-    return this.moderationRepository.findOpenMarketplaceReports(pagination);
+  findOpenListingReports(pagination: { limit: number; offset: number }) {
+    return this.moderationRepository.findOpenListingReports(pagination);
   }
 
-  async dismissMarketplaceReport(moderatorId: number, reportId: number) {
-    const dismissedReport = await this.moderationRepository.resolveMarketplaceReport(reportId, moderatorId);
+  async dismissListingReport(moderatorId: number, reportId: number) {
+    const dismissedReport = await this.moderationRepository.resolveListingReport(reportId, moderatorId);
 
     if (!dismissedReport) {
       throw new NotFoundException("Report not found");
@@ -232,7 +232,7 @@ export class ModerationService {
       moderatedAt: new Date(),
     });
 
-    await this.moderationRepository.resolveMarketplaceReportsForListing(listingId, moderatorId);
+    await this.moderationRepository.resolveReportsForListing(listingId, moderatorId);
 
     if (listing.postedBy) {
       await this.notificationsService.create(
@@ -269,7 +269,7 @@ export class ModerationService {
       moderatedAt: new Date(),
     });
 
-    await this.moderationRepository.resolveMarketplaceReportsForListing(listingId, moderatorId);
+    await this.moderationRepository.resolveReportsForListing(listingId, moderatorId);
 
     if (listing.postedBy) {
       await this.notificationsService.create(
@@ -298,13 +298,13 @@ export class ModerationService {
       throw new BadRequestException("You can't report your own listing");
     }
 
-    const existingReport = await this.moderationRepository.findExistingMarketplaceReport(listingId, userId);
+    const existingReport = await this.moderationRepository.findExistingListingReport(listingId, userId);
 
     if (existingReport) {
       throw new BadRequestException("You have already reported this listing");
     }
 
-    return this.moderationRepository.createMarketplaceReport({
+    return this.moderationRepository.createListingReport({
       listingId,
       reportedBy: userId,
       reason: dto.reason,

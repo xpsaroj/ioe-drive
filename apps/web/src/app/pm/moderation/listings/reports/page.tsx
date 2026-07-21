@@ -2,15 +2,15 @@
 import { Suspense } from "react";
 
 import { ItemList } from "@/components/common/list";
-import { MarketplaceReportRow } from "@/components/common/moderation";
+import { ListingReportRow } from "@/components/common/moderation";
 import Loader from "@/components/ui/Loader";
 import Pagination from "@/components/ui/Pagination";
-import { useMarketplaceReports } from "@/hooks/queries/use-moderation";
+import { useListingReports } from "@/hooks/queries/use-moderation";
 import { usePageParam } from "@/hooks/use-page-param";
 
-const MarketplaceReportsQueueContent = () => {
+const ListingReportsQueueContent = () => {
     const { page, setPage } = usePageParam();
-    const { data, isPending, error, isPlaceholderData } = useMarketplaceReports(page);
+    const { data, isPending, error, isPlaceholderData } = useListingReports(page);
 
     return (
         <div className="space-y-6">
@@ -19,7 +19,7 @@ const MarketplaceReportsQueueContent = () => {
                 loading={isPending}
                 error={error ? "Failed to load reports" : null}
                 emptyMessage="No open reports - every reported listing has been reviewed."
-                renderItem={(report) => <MarketplaceReportRow report={report} />}
+                renderItem={(report) => <ListingReportRow report={report} />}
             />
             <Pagination
                 page={page}
@@ -31,14 +31,14 @@ const MarketplaceReportsQueueContent = () => {
     );
 };
 
-const MarketplaceReportsQueuePage = () => (
+const ListingReportsQueuePage = () => (
     <Suspense fallback={
         <div className="flex items-center justify-center py-16">
             <Loader text="Loading reports. Please wait." />
         </div>
     }>
-        <MarketplaceReportsQueueContent />
+        <ListingReportsQueueContent />
     </Suspense>
 );
 
-export default MarketplaceReportsQueuePage;
+export default ListingReportsQueuePage;

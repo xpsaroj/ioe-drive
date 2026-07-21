@@ -38,7 +38,7 @@ export interface ListingSummary {
     photos: ListingPhotoSummary[];
 }
 
-export interface MarketplaceReportListingPreview {
+export interface ListingReportPreview {
     id: number;
     title: string;
     type: MarketplaceListingType;
@@ -46,7 +46,7 @@ export interface MarketplaceReportListingPreview {
 }
 
 // Reporter's identity is only ever exposed here, never on any poster- or public-facing response.
-export interface MarketplaceReportItem {
+export interface ListingReportItem {
     id: number;
     listingId: number;
     reportedBy: number;
@@ -55,6 +55,6 @@ export interface MarketplaceReportItem {
     status: "OPEN" | "RESOLVED";
     createdAt: string;
     resolvedAt: string | null;
-    listing: MarketplaceReportListingPreview;
+    listing: ListingReportPreview;
     reporter: { id: number; fullName: string };
 }
