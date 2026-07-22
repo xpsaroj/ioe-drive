@@ -5,14 +5,16 @@ import { ChevronLeft } from "lucide-react"
 
 import { useUserById } from "@/hooks/queries/use-user"
 import { useResourcesByUploaderId } from "@/hooks/queries/use-resources"
-import { usePageParam } from "@/hooks/use-page-param"
+import { useListings } from "@/hooks/queries/use-marketplace"
 import { PageStateHandler, Breadcrumbs } from "@/components/layout"
 import { UserAvatar } from "@/components/common/user"
-import Pagination from "@/components/ui/Pagination"
+import { PreviewPanel } from "@/components/common/list"
+import { ResourcePreviewTile } from "@/components/common/resources"
+import { ListingPreviewTile } from "@/components/common/marketplace"
 import Button from "@/components/ui/Button"
 import Loader from "@/components/ui/Loader"
-import { SemesterLabel } from "@/types/entities"
-import { ResourceList, UploadedResourceCard } from "@/components/common/resources";
+import { SemesterLabel, MarketplaceCategoryLabel, ResourceTypeLabel } from "@/types/entities"
+import { getRelativeTime } from "@/utils/time"
 
 interface UserDetailsPageProps {
     params: Promise<{
@@ -22,7 +24,6 @@ interface UserDetailsPageProps {
 
 const UserDetailsContent = ({ userId }: { userId: number }) => {
     const router = useRouter();
-    const { page, setPage } = usePageParam();
 
     const {
         data: user,
@@ -30,13 +31,8 @@ const UserDetailsContent = ({ userId }: { userId: number }) => {
         error: userLoadError
     } = useUserById(userId);
 
-    const {
-        data: resourcesData,
-        isPending: resourcesPending,
-        error: resourcesLoadError,
-        isPlaceholderData: resourcesPlaceholder,
-    } = useResourcesByUploaderId(userId, page);
-    const resources = resourcesData?.items;
+    const { data: resourcesData } = useResourcesByUploaderId(userId);
+    const { data: listingsData } = useListings({ userId });
 
     // "Community" is the only sensible parent for a user profile today, even though
     // that section itself is still just a placeholder page - a real back button sits
@@ -162,41 +158,38 @@ const UserDetailsContent = ({ userId }: { userId: number }) => {
                         </div>
                     </div>
 
-                    <PageStateHandler
-                        isPending={resourcesPending}
-                        error={resourcesLoadError}
-                        isEmpty={resources ? resources.length === 0 : true}
-                        loaderText="Loading user's uploaded resources. Please wait."
-                        emptyContent={
-                            <div className="flex flex-col justify-center items-center">
-                                <p className="text-2xl">No resources uploaded yet.</p>
-                                <p className="text-foreground-secondary">This user has not uploaded any resources.</p>
-                            </div>
-                        }
-                        containerClassName=""
-                        header={
-                            <h2 className="text-xl font-medium mb-2">
-                                Uploaded Resources
-                            </h2>
-                        }
-                    >
-                        <div className="space-y-6">
-                            <ResourceList
-                                resources={resources || []}
-                                renderItem={(item) => (
-                                    <UploadedResourceCard
-                                        item={item}
-                                    />
-                                )}
+                    <PreviewPanel
+                        title="Uploaded Resources"
+                        viewAllHref={`/users/${userId}/resources`}
+                        emptyText="This user has not uploaded any resources yet."
+                        tiles={(resourcesData?.items ?? []).slice(0, 3).map((item) => (
+                            <ResourcePreviewTile
+                                key={item.id}
+                                resourceId={item.id}
+                                title={item.title}
+                                subjectCode={item.subjectOffering?.subject?.code}
+                                typeLabel={ResourceTypeLabel[item.type]}
+                                timeLabel={`Uploaded ${getRelativeTime(item.createdAt)}`}
                             />
-                            <Pagination
-                                page={page}
-                                totalPages={resourcesData?.meta?.totalPages ?? 1}
-                                onPageChange={setPage}
-                                disabled={resourcesPlaceholder}
+                        ))}
+                    />
+
+                    <PreviewPanel
+                        title="Posted Listings"
+                        viewAllHref={`/users/${userId}/listings`}
+                        emptyText="This user has not posted any listings yet."
+                        tiles={(listingsData?.items ?? []).slice(0, 3).map((item) => (
+                            <ListingPreviewTile
+                                key={item.id}
+                                listingId={item.id}
+                                title={item.title}
+                                photoUrl={item.photos[0]?.photoUrl}
+                                price={item.price}
+                                categoryLabel={MarketplaceCategoryLabel[item.category]}
+                                timeLabel={`Posted ${getRelativeTime(item.createdAt)}`}
                             />
-                        </div>
-                    </PageStateHandler>
+                        ))}
+                    />
                 </div>
             )}
         </PageStateHandler>

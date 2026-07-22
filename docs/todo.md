@@ -12,6 +12,15 @@ essays here once something is actively being worked on.
 - [ ] Add a `@socket.io/redis-adapter` if the API is ever horizontally scaled - the
       marketplace-messaging gateway's in-memory adapter only broadcasts within one
       server process today.
+- [ ] `startConversation` (REST, the first message of a new conversation via "Message
+      Seller"/"Message Poster") never emits `conversation_updated`, unlike `sendMessage`
+      (socket, every message after the first) - so the recipient's nav badge doesn't
+      update live for a brand-new conversation, only on next refresh. Fix needs
+      `MessagingService` and `MessagingGateway` to both react to "a message was created"
+      without a direct dependency in either direction (they'd otherwise form a cycle,
+      since the gateway already depends on the service) - likely an event-emitter
+      (`@nestjs/event-emitter`, not currently used anywhere in this codebase) decoupling
+      the two sides instead.
 
 ## Frontend
 
