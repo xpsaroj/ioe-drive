@@ -2,10 +2,11 @@
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { ChevronRight, ChevronDown } from "lucide-react";
+import { ChevronRight, ChevronDown, Search, SlidersHorizontal } from "lucide-react";
 
 import { SubjectDetails } from "@/components/common/offering";
 import { ResourceList, ResourceCard } from "@/components/common/resources";
+import SearchDialog from "@/components/layout/SearchDialog";
 import Pagination from "@/components/ui/Pagination";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
@@ -53,6 +54,8 @@ const ResourcesBrowseContent = () => {
 
     const [selectedSubject, setSelectedSubject] = useState<SubjectOfferingWithSubject | null>(null);
     const [showSubjectDetails, setShowSubjectDetails] = useState(false);
+    const [showFilters, setShowFilters] = useState(true);
+    const [searchOpen, setSearchOpen] = useState(false);
 
     // Reset the in-page subject-tab selection whenever the program/semester filter changes
     useEffect(() => {
@@ -114,6 +117,24 @@ const ResourcesBrowseContent = () => {
             <div>
                 <h1 className="text-2xl md:text-3xl font-bold text-foreground">Resource Explorer</h1>
                 <p className="text-foreground-secondary mt-1">Browse, filter, and access academic materials.</p>
+            </div>
+            <div className="flex items-center gap-2 shrink-0">
+                <Button
+                    variant={showFilters ? "secondary" : "primary"}
+                    size="sm"
+                    iconOnly
+                    icon={<SlidersHorizontal className="size-4" />}
+                    onClick={() => setShowFilters((prev) => !prev)}
+                    aria-label={showFilters ? "Hide filters" : "Show filters"}
+                />
+                <Button
+                    variant="secondary"
+                    size="sm"
+                    iconOnly
+                    icon={<Search className="size-4" />}
+                    onClick={() => setSearchOpen(true)}
+                    aria-label="Search"
+                />
             </div>
         </div>
     );
@@ -185,6 +206,7 @@ const ResourcesBrowseContent = () => {
                 <div className="flex-1 flex items-center justify-center py-16">
                     <Loader text="Loading your resources. Please wait." />
                 </div>
+                {searchOpen && <SearchDialog isOpen={searchOpen} onClose={() => setSearchOpen(false)} />}
             </div>
         );
     }
@@ -193,18 +215,20 @@ const ResourcesBrowseContent = () => {
         <div className="min-h-screen bg-background text-foreground max-w-7xl mx-auto md:px-8 px-6 md:space-y-8 space-y-6">
             <div className="pt-6 md:pt-8">{pageHeader}</div>
 
-            <div className="sticky md:top-0 z-10 bg-background/40 backdrop-blur-sm">
-                {filterBar}
-                {isSignedIn && authLoaded && !profilePending && !profileHasDefault && (
-                    <p className="text-xs text-foreground-tertiary mt-2">
-                        Tip: set your program and semester in your{" "}
-                        <Link href="/profile" className="underline hover:text-foreground">
-                            profile
-                        </Link>{" "}
-                        to see your current semester here by default.
-                    </p>
-                )}
-            </div>
+            {showFilters && (
+                <div className="sticky md:top-0 z-10 bg-background/40 backdrop-blur-sm">
+                    {filterBar}
+                    {isSignedIn && authLoaded && !profilePending && !profileHasDefault && (
+                        <p className="text-xs text-foreground-tertiary mt-2">
+                            Tip: set your program and semester in your{" "}
+                            <Link href="/profile" className="underline hover:text-foreground">
+                                profile
+                            </Link>{" "}
+                            to see your current semester here by default.
+                        </p>
+                    )}
+                </div>
+            )}
 
             {!programId || !semester ? (
                 <div className="flex-1 border flex items-center justify-center rounded-lg py-16">
@@ -280,6 +304,8 @@ const ResourcesBrowseContent = () => {
                     </div>
                 </>
             )}
+
+            {searchOpen && <SearchDialog isOpen={searchOpen} onClose={() => setSearchOpen(false)} />}
         </div>
     )
 }

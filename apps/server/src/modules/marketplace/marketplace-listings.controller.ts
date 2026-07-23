@@ -35,6 +35,7 @@ import { CreateListingDto } from "./dto/create-listing.dto";
 import { GetListingsQueryDto } from "./dto/get-listings-query.dto";
 import { ModerateListingDto } from "./dto/moderate-listing.dto";
 import { ReportListingDto } from "./dto/report-listing.dto";
+import { SearchSuggestionsQueryDto } from "./dto/search-suggestions-query.dto";
 import { UpdateListingDto } from "./dto/update-listing.dto";
 import { MarketplaceListingsService } from "./marketplace-listings.service";
 
@@ -182,6 +183,13 @@ export class MarketplaceListingsController {
   ) {
     await this.marketplaceListingsService.removeListingPhoto(user.id, listingId, photoId);
     return ApiResponse.of(null, "Photo removed successfully");
+  }
+
+  // Must stay registered before `:listingId` below so "search-suggestions" isn't swallowed as a param.
+  @Get("search-suggestions")
+  async searchSuggestions(@Query() query: SearchSuggestionsQueryDto) {
+    const suggestions = await this.marketplaceListingsService.searchSuggestions(query.q, query.limit ?? 8);
+    return ApiResponse.of(suggestions);
   }
 
   // Public for ACTIVE/FULFILLED; REMOVED only visible to its poster or a moderator (404 otherwise).

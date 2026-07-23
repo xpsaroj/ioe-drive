@@ -38,6 +38,15 @@ export interface ListingSummary {
     photos: ListingPhotoSummary[];
 }
 
+// Lean listing preview row - no description, poster, or subject, unlike ListingSummary.
+export interface ListingSuggestion {
+    id: number;
+    title: string;
+    price?: number;
+    category: MarketplaceCategory;
+    photoUrl?: string;
+}
+
 export interface ListingReportPreview {
     id: number;
     title: string;

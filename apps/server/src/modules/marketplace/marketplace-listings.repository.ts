@@ -46,6 +46,28 @@ export interface MarketplaceListingFilters {
 export class MarketplaceListingsRepository {
   constructor(@Inject(DRIZZLE) private readonly db: DrizzleDb) {}
 
+  /** Lean, capped-list search for the live-typing search palette - just a flat, small
+   * list of preview rows (title, price, category, cover photo), not the full paginated
+   * browse shape `findMany` returns. Mirrors ResourcesRepository.searchSuggestions. */
+  async searchSuggestions(q: string, limit: number) {
+    return this.db.query.marketplaceListingsTable.findMany({
+      where: and(
+        eq(marketplaceListingsTable.status, "ACTIVE"),
+        or(ilike(marketplaceListingsTable.title, `%${q}%`), ilike(marketplaceListingsTable.description, `%${q}%`)),
+      ),
+      orderBy: [desc(marketplaceListingsTable.createdAt)],
+      limit,
+      columns: { id: true, title: true, price: true, category: true },
+      with: {
+        photos: {
+          orderBy: asc(marketplaceListingPhotosTable.sortOrder),
+          limit: 1,
+          columns: { blobName: true, photoUrl: true },
+        },
+      },
+    });
+  }
+
   async create(listingData: CreateListingData, photos: FileMetadata[]) {
     return this.db.transaction(async (tx) => {
       const [createdListing] = await tx.insert(marketplaceListingsTable).values(listingData).returning();

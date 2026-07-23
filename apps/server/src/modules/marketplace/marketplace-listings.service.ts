@@ -217,4 +217,17 @@ export class MarketplaceListingsService {
 
     return { items: signedItems, total };
   }
+
+  async searchSuggestions(q: string, limit: number) {
+    const results = await this.marketplaceListingsRepository.searchSuggestions(q, limit);
+    const signedResults = await Promise.all(results.map((r) => this.signPhotoUrls(r)));
+
+    return signedResults.map((r) => ({
+      id: r.id,
+      title: r.title,
+      price: r.price ?? undefined,
+      category: r.category,
+      photoUrl: r.photos[0]?.photoUrl,
+    }));
+  }
 }

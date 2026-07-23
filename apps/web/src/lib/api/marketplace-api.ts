@@ -1,7 +1,7 @@
 import { apiClient } from "./api-client";
 import { appendPaginationParams, type PaginationParams } from "./pagination";
 import type { MarketplaceListing } from "@/types/entities";
-import type { ApiResponse, EmptyApiResponse, PaginatedApiResponse, ListingSummary } from "@/types/api";
+import type { ApiResponse, EmptyApiResponse, PaginatedApiResponse, ListingSummary, ListingSuggestion } from "@/types/api";
 import type { MarketplaceReportReasonInput, UpdateListingInput } from "../validators/marketplace";
 
 const MARKETPLACE_API_BASE_URL = "/marketplace/listings";
@@ -84,5 +84,11 @@ export const marketplaceApi = {
         const params = new URLSearchParams();
         appendPaginationParams(params, pagination);
         return apiClient.get<PaginatedApiResponse<ListingSummary>>(`/me/marketplace/listings?${params.toString()}`);
+    },
+
+    async searchSuggestions(q: string, limit?: number): Promise<ApiResponse<ListingSuggestion[]>> {
+        const params = new URLSearchParams({ q });
+        if (limit) params.set("limit", String(limit));
+        return apiClient.get<ApiResponse<ListingSuggestion[]>>(`${MARKETPLACE_API_BASE_URL}/search-suggestions?${params.toString()}`);
     },
 };

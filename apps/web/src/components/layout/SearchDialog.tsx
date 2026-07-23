@@ -2,23 +2,25 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Search, FileText, Loader2 } from "lucide-react";
+import { Search, FileText, ImageOff, Loader2 } from "lucide-react";
 
 import { useSearchSuggestions } from "@/hooks/queries/use-resources";
 import { useSearchSubjects } from "@/hooks/queries/use-academics";
+import { useListingSearchSuggestions } from "@/hooks/queries/use-marketplace";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { SubjectCodeTile } from "@/components/common/offering";
 import { cn } from "@/utils/cn";
-import { ResourceTypeLabel, SemesterLabel } from "@/types/entities";
+import { formatListingPrice } from "@/utils/marketplace";
+import { ResourceTypeLabel, SemesterLabel, MarketplaceCategoryLabel } from "@/types/entities";
 
 interface SearchDialogProps {
     isOpen: boolean;
     onClose: () => void;
 }
 
-const RESULT_LIMITS = { subjects: 5, resources: 8 };
+const RESULT_LIMITS = { subjects: 5, resources: 8, listings: 5 };
 
-// Lets ↑/↓/Enter move across subjects and resources as one flat sequence.
+// Lets ↑/↓/Enter move across subjects, resources, and listings as one flat sequence.
 interface FlatItem {
     key: string;
     href: string;
@@ -36,13 +38,16 @@ const SearchDialog = ({ isOpen, onClose }: SearchDialogProps) => {
 
     const { data: subjectsData, isFetching: subjectsFetching } = useSearchSubjects(debouncedQuery, 1, RESULT_LIMITS.subjects);
     const { data: resourceSuggestions, isFetching: resourcesFetching } = useSearchSuggestions(debouncedQuery, RESULT_LIMITS.resources);
+    const { data: listingSuggestions, isFetching: listingsFetching } = useListingSearchSuggestions(debouncedQuery, RESULT_LIMITS.listings);
     const subjects = subjectsData?.items ?? [];
     const resources = resourceSuggestions ?? [];
+    const listings = listingSuggestions ?? [];
 
     const flatItems: FlatItem[] = useMemo(() => [
         ...(subjectsData?.items ?? []).map((s): FlatItem => ({ key: `subject-${s.id}`, href: `/offerings/${s.id}` })),
         ...(resourceSuggestions ?? []).map((r): FlatItem => ({ key: `resource-${r.id}`, href: `/resources/r/${r.id}` })),
-    ], [subjectsData, resourceSuggestions]);
+        ...(listingSuggestions ?? []).map((l): FlatItem => ({ key: `listing-${l.id}`, href: `/market/${l.id}` })),
+    ], [subjectsData, resourceSuggestions, listingSuggestions]);
 
     // Reset the highlight during render (not an effect) per React's guidance for resetting on a value change.
     const [settledQuery, setSettledQuery] = useState(debouncedQuery);
@@ -108,9 +113,9 @@ const SearchDialog = ({ isOpen, onClose }: SearchDialogProps) => {
 
     if (!isOpen) return null;
 
-    const isSearching = subjectsFetching || resourcesFetching;
+    const isSearching = subjectsFetching || resourcesFetching || listingsFetching;
     const hasQuery = trimmedQuery.length > 0;
-    const hasResults = subjects.length > 0 || resources.length > 0;
+    const hasResults = subjects.length > 0 || resources.length > 0 || listings.length > 0;
 
     return (
         <div
@@ -126,7 +131,7 @@ const SearchDialog = ({ isOpen, onClose }: SearchDialogProps) => {
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
                         onKeyDown={handleKeyDown}
-                        placeholder="Search resources and subjects..."
+                        placeholder="Search resources, subjects, and listings..."
                         className="w-full bg-transparent text-sm text-foreground placeholder:text-foreground-tertiary focus:outline-none"
                     />
                     {isSearching && <Loader2 className="size-4 shrink-0 animate-spin text-foreground-tertiary" />}
@@ -176,7 +181,7 @@ const SearchDialog = ({ isOpen, onClose }: SearchDialogProps) => {
                             )}
 
                             {resources.length > 0 && (
-                                <div>
+                                <div className="mb-1">
                                     <p className="px-3 pb-1 pt-2 font-display text-[10px] uppercase tracking-wide text-foreground-tertiary">
                                         Resources
                                     </p>
@@ -201,6 +206,45 @@ const SearchDialog = ({ isOpen, onClose }: SearchDialogProps) => {
                                                     <p className="truncate text-sm font-medium text-foreground">{resource.title}</p>
                                                     <p className="truncate text-xs text-foreground-secondary">
                                                         {resource.subjectCode}, {ResourceTypeLabel[resource.type]}
+                                                    </p>
+                                                </div>
+                                            </Link>
+                                        );
+                                    })}
+                                </div>
+                            )}
+
+                            {listings.length > 0 && (
+                                <div>
+                                    <p className="px-3 pb-1 pt-2 font-display text-[10px] uppercase tracking-wide text-foreground-tertiary">
+                                        Listings
+                                    </p>
+                                    {listings.map((listing) => {
+                                        const index = flatItems.findIndex((f) => f.key === `listing-${listing.id}`);
+                                        return (
+                                            <Link
+                                                key={listing.id}
+                                                href={`/market/${listing.id}`}
+                                                onClick={onClose}
+                                                onMouseEnter={() => setHighlightedIndex(index)}
+                                                data-result-index={index}
+                                                className={cn(
+                                                    "flex items-center gap-3 rounded-md px-3 py-2 transition-colors",
+                                                    index === highlightedIndex ? "bg-background-hover" : "hover:bg-background-hover"
+                                                )}
+                                            >
+                                                <span className="relative flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-md bg-background-tertiary">
+                                                    {listing.photoUrl ? (
+                                                        // eslint-disable-next-line @next/next/no-img-element
+                                                        <img src={listing.photoUrl} alt="" className="h-full w-full object-cover" />
+                                                    ) : (
+                                                        <ImageOff className="size-4 text-foreground-secondary" />
+                                                    )}
+                                                </span>
+                                                <div className="min-w-0 flex-1">
+                                                    <p className="truncate text-sm font-medium text-foreground">{listing.title}</p>
+                                                    <p className="truncate text-xs text-foreground-secondary">
+                                                        {MarketplaceCategoryLabel[listing.category]}, {formatListingPrice(listing.price)}
                                                     </p>
                                                 </div>
                                             </Link>

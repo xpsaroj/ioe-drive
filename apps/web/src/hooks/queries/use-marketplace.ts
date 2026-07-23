@@ -3,6 +3,7 @@ import { useQuery, useMutation, useQueryClient, keepPreviousData } from '@tansta
 import { marketplaceApi, type GetListingsFilters } from '@/lib/api/marketplace-api';
 import { meKeys } from './use-me';
 import { moderationKeys } from './use-moderation';
+import { MIN_SEARCH_QUERY_LENGTH } from './use-resources';
 import type { MarketplaceReportReasonInput, UpdateListingInput } from '@/lib/validators/marketplace';
 
 export const marketplaceKeys = {
@@ -12,6 +13,7 @@ export const marketplaceKeys = {
     browse: (filters?: Omit<GetListingsFilters, 'page' | 'limit'>, page?: number) => page === undefined
         ? ['marketplace-listings', 'browse', filters] as const
         : ['marketplace-listings', 'browse', filters, page] as const,
+    searchSuggestions: (q: string, limit?: number) => ['marketplace-listings', 'search-suggestions', q, limit] as const,
 };
 
 export function useListing(listingId: number) {
@@ -38,6 +40,24 @@ export function useListings(filters?: Omit<GetListingsFilters, 'page' | 'limit'>
             }
             return { items: response.data, meta: response.meta };
         },
+        placeholderData: keepPreviousData,
+    });
+}
+
+// Lean, capped-list variant of useListings for the live-typing search palette.
+export function useListingSearchSuggestions(q: string, limit?: number) {
+    const trimmed = q.trim();
+
+    return useQuery({
+        queryKey: marketplaceKeys.searchSuggestions(trimmed, limit),
+        queryFn: async () => {
+            const response = await marketplaceApi.searchSuggestions(trimmed, limit);
+            if (!response.success) {
+                throw new Error(response.error || 'Failed to search listings');
+            }
+            return response.data;
+        },
+        enabled: trimmed.length >= MIN_SEARCH_QUERY_LENGTH,
         placeholderData: keepPreviousData,
     });
 }
