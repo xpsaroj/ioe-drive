@@ -1,7 +1,7 @@
 import { apiClient } from "./api-client";
 import { appendPaginationParams, type PaginationParams } from "./pagination";
 import type { UserProfile, Profile } from "@/types/entities";
-import type { ApiResponse, EmptyApiResponse, PaginatedApiResponse, ResourceSummary, RecentResourceItem, BookmarkedResourceItem } from "@/types/api";
+import type { ApiResponse, EmptyApiResponse, PaginatedApiResponse, ResourceSummary, RecentResourceItem, BookmarkedResourceItem, WeeklySummary } from "@/types/api";
 
 const ME_API_BASE_URL = "/me";
 
@@ -12,6 +12,10 @@ export const meApi = {
 
     async updateMyProfile(profileData: Partial<Omit<Profile, "id" | "userId">>): Promise<EmptyApiResponse> {
         return apiClient.patch<EmptyApiResponse>(`${ME_API_BASE_URL}`, profileData);
+    },
+
+    async getWeeklySummary(): Promise<ApiResponse<WeeklySummary>> {
+        return apiClient.get<ApiResponse<WeeklySummary>>(`${ME_API_BASE_URL}/weekly-summary`);
     },
 
     async getUploadedResources(pagination?: PaginationParams): Promise<PaginatedApiResponse<ResourceSummary>> {

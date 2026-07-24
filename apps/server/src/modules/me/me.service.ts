@@ -67,6 +67,11 @@ export class MeService {
     return this.meRepository.findBookmarkedResourceIds(userId);
   }
 
+  getWeeklySummary(userId: number) {
+    const since = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    return this.meRepository.getWeeklySummary(userId, since);
+  }
+
   /** Same visibility rule as ResourcesService.findResourceById - APPROVED, or the viewer
    * is the uploader/a moderator/admin. Anything else 404s, so a pending/rejected/removed
    * resource's existence can't be probed for via the recent/bookmark endpoints either. */

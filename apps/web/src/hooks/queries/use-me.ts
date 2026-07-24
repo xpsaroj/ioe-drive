@@ -11,6 +11,7 @@ import type { ResourceSummary } from '@/types/api';
 export const meKeys = {
     all: ['me'] as const,
     user: ['me', 'user'] as const,
+    weeklySummary: ['me', 'weekly-summary'] as const,
     // Called with no `page` to get a stable prefix for invalidating every page at once.
     uploadedResources: (page?: number) => page === undefined
         ? ['me', 'uploaded-resources'] as const
@@ -85,6 +86,22 @@ export function useUpdateProfile() {
                 queryKey: [...academicsKeys.all, "subject-offerings"],
             });
         },
+    });
+}
+
+export function useWeeklySummary() {
+    const { isSignedIn } = useAuth();
+
+    return useQuery({
+        queryKey: meKeys.weeklySummary,
+        queryFn: async () => {
+            const response = await meApi.getWeeklySummary();
+            if (!response.success) {
+                throw new Error(response.error ?? 'Failed to fetch weekly summary.');
+            }
+            return response.data;
+        },
+        enabled: isSignedIn,
     });
 }
 

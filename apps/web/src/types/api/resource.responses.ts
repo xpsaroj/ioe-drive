@@ -64,3 +64,10 @@ export interface BookmarkedResourceItem {
 
     resource: ResourceSummary;
 }
+
+// Counts over the last 7 days.
+export interface WeeklySummary {
+    resourcesShared: number;
+    resourcesViewed: number;
+    resourcesBookmarked: number;
+}

@@ -1,54 +1,88 @@
+"use client";
 import Link from "next/link";
-import { UploadCloud, Lightbulb, Play, ArrowRight } from "lucide-react";
+import { UploadCloud, Lightbulb, FileText, ArrowRight } from "lucide-react";
 
 import { DotGrid } from "@/components/decor";
+import { useRecentResources } from "@/hooks/queries/use-me";
+import { useSimilarResources } from "@/hooks/queries/use-resources";
+import { ResourceTypeLabel } from "@/types/entities";
 
-const DashboardActions = () => (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Link
-            href="/resources/share"
-            className="group flex flex-col items-center justify-center gap-3 rounded-xl border border-border bg-background-secondary px-6 py-10 text-center transition-colors duration-150 hover:border-accent hover:bg-background-tertiary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-        >
-            <span className="flex size-11 items-center justify-center rounded-full bg-accent text-accent-foreground">
-                <UploadCloud className="size-5" />
-            </span>
-            <span className="text-base font-semibold text-foreground">Upload Notes</span>
-            <span className="text-sm text-foreground-secondary">
-                Share notes, past questions, or study guides with your batch.
-            </span>
-        </Link>
+const DashboardActions = () => {
+    const { data: recentData, isPending: recentPending } = useRecentResources(1);
+    const recentItem = recentData?.items[0];
 
-        {/* Placeholder data - there's no recommendation engine yet, so this is a
-        hardcoded example of what a future "recommended for you" card would show. */}
-        <div className="relative overflow-hidden lg:col-span-2 rounded-xl border border-border bg-background-secondary p-6">
-            <DotGrid />
+    const { data: similar, isPending: similarPending } = useSimilarResources(recentItem?.resourceId ?? 0, 1);
+    const recommendation = similar?.[0];
 
-            <div className="relative z-10">
-                <div className="flex items-center gap-2 text-sm text-foreground-secondary mb-4">
-                    <Lightbulb className="size-4" />
-                    <span>Recommended for you</span>
-                </div>
-                <p className="text-sm text-foreground-secondary mb-4">
-                    Based on your activity in <span className="text-foreground font-medium">Data Communication</span>
-                </p>
-                <div className="flex items-center justify-between gap-4 rounded-lg bg-background px-4 py-3">
-                    <div className="flex items-center gap-3 min-w-0">
-                        <span className="flex size-9 items-center justify-center rounded-full bg-background-tertiary text-foreground shrink-0">
-                            <Play className="size-3.5" fill="currentColor" />
-                        </span>
-                        <div className="min-w-0">
-                            <p className="text-sm font-semibold text-foreground truncate">OSI Model Crash Course</p>
-                            <p className="text-xs text-foreground-secondary flex items-center gap-2">
-                                <span>Video</span>
-                                <span>12 mins</span>
-                            </p>
-                        </div>
+    const isPending = recentPending || (!!recentItem && similarPending);
+
+    return (
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <Link
+                href="/resources/share"
+                className="group flex flex-col items-center justify-center gap-3 rounded-xl border border-border bg-background-secondary px-6 py-10 text-center transition-colors duration-150 hover:border-accent hover:bg-background-tertiary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            >
+                <span className="flex size-11 items-center justify-center rounded-full bg-accent text-accent-foreground">
+                    <UploadCloud className="size-5" />
+                </span>
+                <span className="text-base font-semibold text-foreground">Upload Notes</span>
+                <span className="text-sm text-foreground-secondary">
+                    Share notes, past questions, or study guides with your batch.
+                </span>
+            </Link>
+
+            <div className="relative overflow-hidden lg:col-span-2 rounded-xl border border-border bg-background-secondary p-6">
+                <DotGrid />
+
+                <div className="relative z-10">
+                    <div className="flex items-center gap-2 text-sm text-foreground-secondary mb-4">
+                        <Lightbulb className="size-4" />
+                        <span>Recommended for you</span>
                     </div>
-                    <ArrowRight className="size-4 text-foreground-secondary shrink-0" />
+
+                    {isPending ? (
+                        <div className="h-16 animate-pulse rounded-lg bg-skeleton-base" />
+                    ) : recommendation && recentItem ? (
+                        <>
+                            <p className="text-sm text-foreground-secondary mb-4">
+                                Because you viewed{" "}
+                                <span className="text-foreground font-medium">{recentItem.resource.title}</span>
+                            </p>
+                            <Link
+                                href={`/resources/r/${recommendation.id}`}
+                                className="flex items-center justify-between gap-4 rounded-lg bg-background px-4 py-3 transition-colors hover:bg-background-hover"
+                            >
+                                <div className="flex items-center gap-3 min-w-0">
+                                    <span className="flex size-9 items-center justify-center rounded-full bg-background-tertiary text-foreground shrink-0">
+                                        <FileText className="size-4" />
+                                    </span>
+                                    <div className="min-w-0">
+                                        <p className="text-sm font-semibold text-foreground truncate">{recommendation.title}</p>
+                                        <p className="text-xs text-foreground-secondary">
+                                            {ResourceTypeLabel[recommendation.type]}
+                                        </p>
+                                    </div>
+                                </div>
+                                <ArrowRight className="size-4 text-foreground-secondary shrink-0" />
+                            </Link>
+                        </>
+                    ) : (
+                        <div className="flex items-center justify-between gap-4">
+                            <p className="text-sm text-foreground-secondary">
+                                Browse resources to get personalized picks here.
+                            </p>
+                            <Link
+                                href="/resources"
+                                className="flex items-center gap-1 text-sm font-medium text-foreground shrink-0 hover:underline"
+                            >
+                                Browse <ArrowRight className="size-3.5" />
+                            </Link>
+                        </div>
+                    )}
                 </div>
             </div>
         </div>
-    </div>
-);
+    );
+};
 
 export default DashboardActions;

@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { and, count, desc, eq, inArray, sql } from "drizzle-orm";
+import { and, count, desc, eq, gte, inArray, sql } from "drizzle-orm";
 
 import { DRIZZLE } from "../../database/database.constants";
 import type { DrizzleDb } from "../../database/database.types";
@@ -95,6 +95,29 @@ export class MeRepository {
           eq(userBookmarkedResourcesTable.resourceId, resourceId),
         ),
       );
+  }
+
+  async getWeeklySummary(userId: number, since: Date) {
+    const [shared, viewed, bookmarked] = await Promise.all([
+      this.db
+        .select({ total: count() })
+        .from(resourcesTable)
+        .where(and(eq(resourcesTable.uploadedBy, userId), gte(resourcesTable.createdAt, since))),
+      this.db
+        .select({ total: count() })
+        .from(userRecentResourcesTable)
+        .where(and(eq(userRecentResourcesTable.userId, userId), gte(userRecentResourcesTable.accessedAt, since))),
+      this.db
+        .select({ total: count() })
+        .from(userBookmarkedResourcesTable)
+        .where(and(eq(userBookmarkedResourcesTable.userId, userId), gte(userBookmarkedResourcesTable.bookmarkedAt, since))),
+    ]);
+
+    return {
+      resourcesShared: shared[0]?.total ?? 0,
+      resourcesViewed: viewed[0]?.total ?? 0,
+      resourcesBookmarked: bookmarked[0]?.total ?? 0,
+    };
   }
 
   async findVoteValues(userId: number): Promise<Record<number, number>> {

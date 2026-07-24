@@ -27,6 +27,12 @@ export class MeController {
     return ApiResponse.of(null, "Profile updated successfully");
   }
 
+  /** GET /api/me/weekly-summary - resources shared, viewed, and bookmarked in the last 7 days. */
+  @Get("weekly-summary")
+  getWeeklySummary(@CurrentUser() user: AuthenticatedUser) {
+    return this.meService.getWeeklySummary(user.id);
+  }
+
   /** GET /api/me/resources - resources uploaded by the current user, paginated. */
   @Get("resources")
   async getUploadedResources(@CurrentUser() user: AuthenticatedUser, @Query() query: PaginationQueryDto) {
