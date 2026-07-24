@@ -45,13 +45,16 @@ export class ModerationService {
       throw new BadRequestException("Only pending resources can be approved");
     }
 
-    const updatedResource = await this.moderationRepository.recordResourceModerationAction(resourceId, "APPROVE", {
-      status: "APPROVED",
-      moderatedBy: moderatorId,
-      moderationReason: null,
-      moderationNote: null,
-      moderatedAt: new Date(),
-    });
+    const updatedResource = await this.moderationRepository.recordResourceModerationAction(
+      resourceId,
+      "APPROVE",
+      { status: "APPROVED", moderatedBy: moderatorId, moderationReason: null, moderationNote: null, moderatedAt: new Date() },
+      ["PENDING"],
+    );
+
+    if (!updatedResource) {
+      throw new BadRequestException("Only pending resources can be approved");
+    }
 
     if (resource.uploadedBy) {
       await this.notificationsService.create(
@@ -76,13 +79,22 @@ export class ModerationService {
       throw new BadRequestException("Only pending or approved resources can be rejected");
     }
 
-    const updatedResource = await this.moderationRepository.recordResourceModerationAction(resourceId, "REJECT", {
-      status: "REJECTED",
-      moderatedBy: moderatorId,
-      moderationReason: dto.reason,
-      moderationNote: dto.note ?? null,
-      moderatedAt: new Date(),
-    });
+    const updatedResource = await this.moderationRepository.recordResourceModerationAction(
+      resourceId,
+      "REJECT",
+      {
+        status: "REJECTED",
+        moderatedBy: moderatorId,
+        moderationReason: dto.reason,
+        moderationNote: dto.note ?? null,
+        moderatedAt: new Date(),
+      },
+      ["PENDING", "APPROVED"],
+    );
+
+    if (!updatedResource) {
+      throw new BadRequestException("Only pending or approved resources can be rejected");
+    }
 
     await this.moderationRepository.resolveReportsForResource(resourceId, moderatorId);
 
@@ -113,13 +125,22 @@ export class ModerationService {
     await Promise.all(resource.files.map((file) => this.azureBlobService.delete(file.blobName)));
     await this.moderationRepository.deleteResourceFiles(resourceId);
 
-    const updatedResource = await this.moderationRepository.recordResourceModerationAction(resourceId, "REMOVE", {
-      status: "REMOVED",
-      moderatedBy: moderatorId,
-      moderationReason: dto.reason,
-      moderationNote: dto.note ?? null,
-      moderatedAt: new Date(),
-    });
+    const updatedResource = await this.moderationRepository.recordResourceModerationAction(
+      resourceId,
+      "REMOVE",
+      {
+        status: "REMOVED",
+        moderatedBy: moderatorId,
+        moderationReason: dto.reason,
+        moderationNote: dto.note ?? null,
+        moderatedAt: new Date(),
+      },
+      ["PENDING", "APPROVED", "REJECTED"],
+    );
+
+    if (!updatedResource) {
+      throw new BadRequestException("Resource has already been removed");
+    }
 
     await this.moderationRepository.resolveReportsForResource(resourceId, moderatorId);
 
@@ -193,13 +214,16 @@ export class ModerationService {
       throw new BadRequestException("Only pending listings can be approved");
     }
 
-    const updatedListing = await this.moderationRepository.recordMarketplaceModerationAction(listingId, "APPROVE", {
-      status: "ACTIVE",
-      moderatedBy: moderatorId,
-      moderationReason: null,
-      moderationNote: null,
-      moderatedAt: new Date(),
-    });
+    const updatedListing = await this.moderationRepository.recordMarketplaceModerationAction(
+      listingId,
+      "APPROVE",
+      { status: "ACTIVE", moderatedBy: moderatorId, moderationReason: null, moderationNote: null, moderatedAt: new Date() },
+      ["PENDING"],
+    );
+
+    if (!updatedListing) {
+      throw new BadRequestException("Only pending listings can be approved");
+    }
 
     if (listing.postedBy) {
       await this.notificationsService.create(
@@ -224,13 +248,22 @@ export class ModerationService {
       throw new BadRequestException("Only pending or active listings can be rejected");
     }
 
-    const updatedListing = await this.moderationRepository.recordMarketplaceModerationAction(listingId, "REJECT", {
-      status: "REJECTED",
-      moderatedBy: moderatorId,
-      moderationReason: dto.reason,
-      moderationNote: dto.note ?? null,
-      moderatedAt: new Date(),
-    });
+    const updatedListing = await this.moderationRepository.recordMarketplaceModerationAction(
+      listingId,
+      "REJECT",
+      {
+        status: "REJECTED",
+        moderatedBy: moderatorId,
+        moderationReason: dto.reason,
+        moderationNote: dto.note ?? null,
+        moderatedAt: new Date(),
+      },
+      ["PENDING", "ACTIVE"],
+    );
+
+    if (!updatedListing) {
+      throw new BadRequestException("Only pending or active listings can be rejected");
+    }
 
     await this.moderationRepository.resolveReportsForListing(listingId, moderatorId);
 
@@ -261,13 +294,22 @@ export class ModerationService {
     await Promise.all(listing.photos.map((photo) => this.azureBlobService.delete(photo.blobName)));
     await this.moderationRepository.deleteListingPhotos(listingId);
 
-    const updatedListing = await this.moderationRepository.recordMarketplaceModerationAction(listingId, "REMOVE", {
-      status: "REMOVED",
-      moderatedBy: moderatorId,
-      moderationReason: dto.reason,
-      moderationNote: dto.note ?? null,
-      moderatedAt: new Date(),
-    });
+    const updatedListing = await this.moderationRepository.recordMarketplaceModerationAction(
+      listingId,
+      "REMOVE",
+      {
+        status: "REMOVED",
+        moderatedBy: moderatorId,
+        moderationReason: dto.reason,
+        moderationNote: dto.note ?? null,
+        moderatedAt: new Date(),
+      },
+      ["ACTIVE", "FULFILLED"],
+    );
+
+    if (!updatedListing) {
+      throw new BadRequestException("Only active or fulfilled listings can be removed");
+    }
 
     await this.moderationRepository.resolveReportsForListing(listingId, moderatorId);
 

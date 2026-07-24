@@ -203,13 +203,15 @@ export class ResourcesController {
     return this.resourcesService.findResourceById(resourceId, viewer);
   }
 
-  // Other resources from the same subject offering, for the "Similar Resources" panel.
+  // Other resources from the same subject offering, for the "Similar Resources" panel. Same visibility as GET /:resourceId.
   @Get(":resourceId/similar")
+  @UseGuards(OptionalClerkAuthGuard)
   async findSimilar(
     @Param("resourceId", ParseIntPipe) resourceId: number,
     @Query() query: GetSimilarResourcesQueryDto,
+    @OptionalCurrentUser() viewer?: AuthenticatedUser,
   ) {
-    const similar = await this.resourcesService.findSimilarResources(resourceId, query.limit ?? 5);
+    const similar = await this.resourcesService.findSimilarResources(resourceId, query.limit ?? 5, viewer);
     return ApiResponse.of(similar);
   }
 

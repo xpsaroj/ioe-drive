@@ -141,11 +141,11 @@ export class ResourcesRepository {
     });
   }
 
-  /** Just enough to resolve "similar" resources against - see findSimilar below. */
+  /** Includes status/uploadedBy for the visibility check in findSimilarResources. */
   findOfferingId(resourceId: number) {
     return this.db.query.resourcesTable.findFirst({
       where: eq(resourcesTable.id, resourceId),
-      columns: { offeringId: true },
+      columns: { offeringId: true, status: true, uploadedBy: true },
     });
   }
 

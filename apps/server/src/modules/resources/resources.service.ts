@@ -203,10 +203,16 @@ export class ResourcesService {
     return this.resourcesRepository.findAllApprovedIds();
   }
 
-  async findSimilarResources(resourceId: number, limit: number) {
+  /** Same visibility rule as findResourceById, so this can't leak non-approved resource existence. */
+  async findSimilarResources(resourceId: number, limit: number, viewer?: AuthenticatedUser) {
     const resource = await this.resourcesRepository.findOfferingId(resourceId);
 
-    if (!resource) {
+    const isVisible =
+      resource &&
+      (resource.status === "APPROVED" ||
+        (viewer && (viewer.id === resource.uploadedBy || viewer.role === "MODERATOR" || viewer.role === "ADMIN")));
+
+    if (!isVisible) {
       throw new NotFoundException("Resource not found");
     }
 

@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { and, asc, count, eq } from "drizzle-orm";
+import { and, asc, count, eq, inArray } from "drizzle-orm";
 
 import { DRIZZLE } from "../../database/database.constants";
 import type { DrizzleDb } from "../../database/database.types";
@@ -12,9 +12,11 @@ import {
   resourceModerationActionsTable,
   resourceReportsTable,
   resourcesTable,
+  type MarketplaceListingStatus,
   type MarketplaceReportReason,
   type ModerationAction,
   type ModerationReason,
+  type ResourceStatus,
 } from "../../database/schema";
 import { RESOURCE_DETAIL_RELATIONS, RESOURCE_PREVIEW_RELATIONS } from "../resources/resources.repository";
 import type { ModerateResourceData } from "../resources/resources.types";
@@ -52,14 +54,21 @@ export class ModerationRepository {
     return { items, total: totalResult[0]?.total ?? 0 };
   }
 
-  // Same transaction as the resource_moderation_actions insert, so the two can never drift apart.
-  async recordResourceModerationAction(resourceId: number, action: ModerationAction, data: ModerateResourceData) {
+  // Same transaction as the resource_moderation_actions insert. WHERE re-checks fromStatuses too, so a concurrent action can't double-apply.
+  async recordResourceModerationAction(
+    resourceId: number,
+    action: ModerationAction,
+    data: ModerateResourceData,
+    fromStatuses: ResourceStatus[],
+  ) {
     return this.db.transaction(async (tx) => {
       const [updatedResource] = await tx
         .update(resourcesTable)
         .set(data)
-        .where(eq(resourcesTable.id, resourceId))
+        .where(and(eq(resourcesTable.id, resourceId), inArray(resourcesTable.status, fromStatuses)))
         .returning();
+
+      if (!updatedResource) return undefined;
 
       await tx.insert(resourceModerationActionsTable).values({
         resourceId,
@@ -155,14 +164,21 @@ export class ModerationRepository {
     return { items, total: totalResult[0]?.total ?? 0 };
   }
 
-  // Same transaction as the marketplace_moderation_actions insert, so the two can never drift apart.
-  async recordMarketplaceModerationAction(listingId: number, action: ModerationAction, data: ModerateListingData) {
+  // Same transaction as the marketplace_moderation_actions insert. WHERE re-checks fromStatuses too, so a concurrent action can't double-apply.
+  async recordMarketplaceModerationAction(
+    listingId: number,
+    action: ModerationAction,
+    data: ModerateListingData,
+    fromStatuses: MarketplaceListingStatus[],
+  ) {
     return this.db.transaction(async (tx) => {
       const [updatedListing] = await tx
         .update(marketplaceListingsTable)
         .set(data)
-        .where(eq(marketplaceListingsTable.id, listingId))
+        .where(and(eq(marketplaceListingsTable.id, listingId), inArray(marketplaceListingsTable.status, fromStatuses)))
         .returning();
+
+      if (!updatedListing) return undefined;
 
       await tx.insert(marketplaceModerationActionsTable).values({
         listingId,
