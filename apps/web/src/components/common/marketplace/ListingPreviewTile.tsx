@@ -7,7 +7,7 @@ interface ListingPreviewTileProps {
     listingId: number;
     title: string;
     photoUrl?: string;
-    price?: number;
+    price?: number | null;
     categoryLabel: string;
     timeLabel: string;
 }

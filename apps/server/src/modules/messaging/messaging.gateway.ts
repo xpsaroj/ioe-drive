@@ -13,6 +13,7 @@ import { ClerkIdentityResolver } from "../../clerk/clerk-identity.resolver";
 import { WsExceptionFilter } from "../../common/filters/ws-exception.filter";
 import type { AuthenticatedUser } from "../../common/guards/clerk-auth.guard";
 import { toSocketFetchRequest } from "../../common/utils/fetch-request";
+import type { Message } from "../../database/types";
 import { JoinConversationDto } from "./dto/join-conversation.dto";
 import { SendMessageDto } from "./dto/send-message.dto";
 import { MessagingService } from "./messaging.service";
@@ -57,15 +58,16 @@ export class MessagingGateway implements OnGatewayConnection {
 
   @SubscribeMessage("send_message")
   async onSendMessage(@ConnectedSocket() client: AuthenticatedSocket, @MessageBody() dto: SendMessageDto): Promise<void> {
-    const userId = client.data.authUser.id;
-    const { message, conversationId, otherParticipantId } = await this.messagingService.sendMessage(
-      userId,
-      dto.conversationId,
-      dto.body,
-    );
+    await this.messagingService.sendMessage(client.data.authUser.id, dto.conversationId, dto.body);
+  }
 
+  // Called by MessagingService (via ModuleRef, see there) so every message-creation
+  // path emits the same way, instead of only the socket path doing it here.
+  emitNewMessage(conversationId: number, message: Message): void {
     this.server.to(`conversation:${conversationId}`).emit("new_message", message);
-    this.server.to(`user:${otherParticipantId}`).emit("conversation_updated", { conversationId, lastMessage: message, unreadDelta: 1 });
-    this.server.to(`user:${userId}`).emit("conversation_updated", { conversationId, lastMessage: message, unreadDelta: 0 });
+  }
+
+  emitConversationUpdated(userId: number, payload: { conversationId: number; lastMessage: Message; unreadDelta: number }): void {
+    this.server.to(`user:${userId}`).emit("conversation_updated", payload);
   }
 }

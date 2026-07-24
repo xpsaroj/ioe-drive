@@ -1,2 +1,2 @@
-export const formatListingPrice = (price?: number): string =>
-    price !== undefined ? `Rs. ${price.toLocaleString()}` : "Contact for price";
+export const formatListingPrice = (price?: number | null): string =>
+    price != null ? `Rs. ${price.toLocaleString()}` : "Contact for price";

@@ -10,3 +10,5 @@ export type ProfileUpdate = Partial<ProfileInsert>;
 
 export type Notification = typeof schemas.notificationsTable.$inferSelect;
 export type NotificationInsert = typeof schemas.notificationsTable.$inferInsert;
+
+export type Message = typeof schemas.marketplaceMessagesTable.$inferSelect;

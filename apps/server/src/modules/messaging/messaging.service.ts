@@ -1,7 +1,14 @@
 import { BadRequestException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
+import { ModuleRef } from "@nestjs/core";
 
 import { AzureBlobService } from "../../storage/azure-blob.service";
 import { MarketplaceListingsRepository } from "../marketplace/marketplace-listings.repository";
+// Type-only: MessagingGateway's constructor already depends on MessagingService, so a
+// real (value) import here would load messaging.gateway.ts mid-way through this file's
+// own load, handing its decorator metadata an undefined MessagingService. Looked up via
+// the "MESSAGING_GATEWAY" string token below instead - keep it in sync with the
+// provider alias of the same name in messaging.module.ts.
+import type { MessagingGateway } from "./messaging.gateway";
 import { MessagingRepository } from "./messaging.repository";
 
 @Injectable()
@@ -10,7 +17,14 @@ export class MessagingService {
     private readonly messagingRepository: MessagingRepository,
     private readonly marketplaceListingsRepository: MarketplaceListingsRepository,
     private readonly azureBlobService: AzureBlobService,
+    private readonly moduleRef: ModuleRef,
   ) {}
+
+  // Looked up lazily instead of injected, since MessagingGateway injects MessagingService -
+  // a constructor-level dependency the other way would be circular.
+  private get gateway(): MessagingGateway {
+    return this.moduleRef.get<MessagingGateway>("MESSAGING_GATEWAY", { strict: false });
+  }
 
   // The conversation list's listing preview carries the same unsigned, private blob URL as the
   // listings endpoints (see MarketplaceListingsService.signPhotoUrls) - signs it the same way.
@@ -83,6 +97,10 @@ export class MessagingService {
 
     const createdMessage = await this.messagingRepository.createMessage(conversation.id, userId, message);
 
+    this.gateway.emitNewMessage(conversation.id, createdMessage);
+    this.gateway.emitConversationUpdated(listing.postedBy, { conversationId: conversation.id, lastMessage: createdMessage, unreadDelta: 1 });
+    this.gateway.emitConversationUpdated(userId, { conversationId: conversation.id, lastMessage: createdMessage, unreadDelta: 0 });
+
     return { conversationId: conversation.id, message: createdMessage };
   }
 
@@ -97,6 +115,10 @@ export class MessagingService {
 
     const message = await this.messagingRepository.createMessage(conversationId, userId, body);
     const otherParticipantId = conversation.posterId === userId ? conversation.initiatorId : conversation.posterId;
+
+    this.gateway.emitNewMessage(conversationId, message);
+    this.gateway.emitConversationUpdated(otherParticipantId, { conversationId, lastMessage: message, unreadDelta: 1 });
+    this.gateway.emitConversationUpdated(userId, { conversationId, lastMessage: message, unreadDelta: 0 });
 
     return { message, conversationId, listingId: conversation.listingId, otherParticipantId };
   }

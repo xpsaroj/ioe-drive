@@ -71,3 +71,15 @@ A quick, high-level list of what already works. For the full picture see
   listed, backed by two new lean, IDs-only endpoints (`GET /api/subjects/offering-ids`,
   `GET /api/resources/approved-ids`); `robots.ts`'s disallow list matches `proxy.ts`'s
   actual protected routes.
+- Global search now covers marketplace listings alongside subjects/resources: the nav
+  search palette (`Ctrl/Cmd+K`) gets a third "Listings" section, and `/search` splits
+  results into Resources/Listings tabs (each independently paginated, with a sticky tab
+  bar) with Subjects staying as an un-tabbed preview at top. Backed by a new
+  `GET /api/marketplace/listings/search-suggestions` endpoint mirroring resources'
+  existing one. `/resources` also gained a header search button (opens the same
+  palette) and a toggle to collapse the Program/Semester/Subject filter bar.
+- Dashboard's "Recommended for you" and weekly-summary cards show real data instead of
+  hardcoded placeholders: a same-subject pick seeded from the user's most-recently-
+  viewed resource (via the existing `/resources/:id/similar` endpoint), and real weekly
+  counts - resources shared/viewed/bookmarked - via a new `GET /api/me/weekly-summary`
+  endpoint.

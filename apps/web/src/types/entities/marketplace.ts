@@ -70,7 +70,7 @@ export interface MarketplaceListing {
     description: string;
     type: MarketplaceListingType;
     category: MarketplaceCategory;
-    price?: number;
+    price: number | null;
     offeringId?: number;
     postedBy?: number;
     status: MarketplaceListingStatus;

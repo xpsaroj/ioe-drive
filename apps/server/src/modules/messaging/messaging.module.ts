@@ -9,7 +9,14 @@ import { MessagingService } from "./messaging.service";
 @Module({
   imports: [MarketplaceModule],
   controllers: [MessagingController],
-  providers: [MessagingService, MessagingRepository, MessagingGateway],
+  providers: [
+    MessagingService,
+    MessagingRepository,
+    MessagingGateway,
+    // String token so MessagingService can look this up via ModuleRef without a real
+    // (circular) import of MessagingGateway - see messaging.service.ts.
+    { provide: "MESSAGING_GATEWAY", useExisting: MessagingGateway },
+  ],
   exports: [MessagingService],
 })
 export class MessagingModule {}

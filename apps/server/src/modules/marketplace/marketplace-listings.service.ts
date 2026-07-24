@@ -225,7 +225,7 @@ export class MarketplaceListingsService {
     return signedResults.map((r) => ({
       id: r.id,
       title: r.title,
-      price: r.price ?? undefined,
+      price: r.price,
       category: r.category,
       photoUrl: r.photos[0]?.photoUrl,
     }));

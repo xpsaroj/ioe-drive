@@ -18,7 +18,7 @@ export interface ListingSummary {
     description: string;
     type: MarketplaceListingType;
     category: MarketplaceCategory;
-    price?: number;
+    price: number | null;
     createdAt: string;
     updatedAt: string;
 
@@ -42,7 +42,7 @@ export interface ListingSummary {
 export interface ListingSuggestion {
     id: number;
     title: string;
-    price?: number;
+    price: number | null;
     category: MarketplaceCategory;
     photoUrl?: string;
 }

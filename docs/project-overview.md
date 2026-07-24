@@ -412,17 +412,22 @@ a simpler polling inbox, even though this introduced the project's only WebSocke
   under it after the fact.
 - **REST layer** (`MessagingController`, all routes `ClerkAuthGuard`-gated): conversation
   list (with last-message preview and per-conversation unread count), paginated message
-  history (newest-first), starting a conversation (which sends the first message),
-  marking a conversation read, and a total-unread-count endpoint that seeds the nav
-  badge before the socket takes over. Sending a message into an *already-open*
-  conversation is socket-only — there's no REST fallback for that specific case.
+  history (newest-first, with "load older" pagination in the thread UI), starting a
+  conversation (which sends the first message), marking a conversation read, and a
+  total-unread-count endpoint that seeds the nav badge before the socket takes over.
+  Sending a message into an *already-open* conversation is socket-only — there's no REST
+  fallback for that specific case.
 - **WebSocket gateway** (`MessagingGateway`, namespace `/marketplace-messaging`, built on
   `@nestjs/websockets` + `socket.io`): every connected socket auto-joins a personal
   `user:{id}` room (this is what drives live inbox/unread-badge updates without polling,
   even when no specific thread is open), and joins a `conversation:{id}` room lazily,
-  only while that thread is actually open. `send_message` inserts the message and emits
-  `new_message` to the conversation room plus `conversation_updated` (with an unread
-  delta) to both participants' personal rooms.
+  only while that thread is actually open. Emitting `new_message`/`conversation_updated`
+  lives on the gateway (`emitNewMessage`/`emitConversationUpdated`) but is triggered from
+  `MessagingService` for every message-creation path (REST `startConversation` included,
+  not just the socket's `send_message`) - `MessagingService` looks the gateway up
+  lazily via `ModuleRef` rather than injecting it directly, since `MessagingGateway`
+  already depends on `MessagingService` and a constructor-level dependency the other way
+  would be circular.
 - **Shared auth path**: `ClerkIdentityResolver` (`apps/server/src/clerk/`) was extracted
   out of the duplicated logic that used to live separately in `ClerkAuthGuard` and
   `OptionalClerkAuthGuard`, specifically so the WebSocket gateway's handshake
@@ -434,10 +439,8 @@ a simpler polling inbox, even though this introduced the project's only WebSocke
   own options are static and evaluated before `ConfigService` is available.
 - **Known v1 limitations, not bugs**: the in-memory socket.io adapter doesn't broadcast
   across multiple server processes (fine at this project's single-instance scale; a
-  `@socket.io/redis-adapter` would be needed to horizontally scale it). Message history
-  has no "load older" pagination — the thread fetches the most recent 100 messages in
-  one request and stops there. Typing indicators, read-receipt UI, and message
-  attachments are also out of scope for v1.
+  `@socket.io/redis-adapter` would be needed to horizontally scale it). Typing
+  indicators, read-receipt UI, and message attachments are out of scope for v1.
 - Frontend: `MessagingSocketProvider` (in the root layout) owns the single socket
   connection's lifecycle and the always-on `conversation_updated` → unread-count/inbox
   cache updates; `/messages` (inbox) and `/messages/[conversationId]` (an open thread,
