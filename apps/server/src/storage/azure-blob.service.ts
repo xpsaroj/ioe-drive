@@ -5,6 +5,10 @@ import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { BlobSASPermissions, BlobServiceClient, type ContainerClient } from "@azure/storage-blob";
 
+// Blob name prefix per upload source - purely a naming convention (Azure containers are
+// flat), but it's what makes the Portal/Storage Explorer show these as separate folders.
+export type BlobPrefix = "resources" | "listings";
+
 /** Wraps Azure Blob Storage access as an injectable provider. */
 @Injectable()
 export class AzureBlobService {
@@ -20,9 +24,9 @@ export class AzureBlobService {
     );
   }
 
-  generateBlobName(originalName: string): string {
+  generateBlobName(originalName: string, prefix: BlobPrefix): string {
     const ext = path.extname(originalName);
-    return `${crypto.randomUUID()}${ext}`;
+    return `${prefix}/${crypto.randomUUID()}${ext}`;
   }
 
   async upload(buffer: Buffer, blobName: string, mimeType: string): Promise<string> {

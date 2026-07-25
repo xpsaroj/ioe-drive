@@ -18,7 +18,7 @@ export class ResourcesService {
   private async uploadFiles(files: Express.Multer.File[]) {
     return Promise.all(
       files.map(async (file) => {
-        const blobName = this.azureBlobService.generateBlobName(file.originalname);
+        const blobName = this.azureBlobService.generateBlobName(file.originalname, "resources");
         const url = await this.azureBlobService.upload(file.buffer, blobName, file.mimetype);
 
         return {

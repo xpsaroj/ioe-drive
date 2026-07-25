@@ -442,3 +442,65 @@ body {
 ::-webkit-scrollbar-thumb:hover {
     background: var(--color-foreground-tertiary);
 }
+
+/* ===== Docx Preview ===== */
+/* mammoth's output is plain semantic HTML with no fixed widths of its own - these rules
+   just restore readable heading/list/table spacing that Tailwind's preflight reset strips,
+   and cap tables/images at 100% width so wide content can't overflow the preview pane. */
+.docx-preview-content :is(h1, h2, h3, h4, h5, h6) {
+    font-weight: 600;
+    margin-top: 1.25em;
+    margin-bottom: 0.5em;
+}
+
+.docx-preview-content h1 {
+    font-size: 1.5rem;
+}
+
+.docx-preview-content h2 {
+    font-size: 1.25rem;
+}
+
+.docx-preview-content h3 {
+    font-size: 1.125rem;
+}
+
+.docx-preview-content p {
+    margin-bottom: 0.75em;
+}
+
+.docx-preview-content ul,
+.docx-preview-content ol {
+    margin-bottom: 0.75em;
+    padding-left: 1.5em;
+}
+
+.docx-preview-content ul {
+    list-style: disc;
+}
+
+.docx-preview-content ol {
+    list-style: decimal;
+}
+
+.docx-preview-content table {
+    border-collapse: collapse;
+    margin-bottom: 0.75em;
+    max-width: 100%;
+}
+
+.docx-preview-content td,
+.docx-preview-content th {
+    border: 1px solid var(--color-border);
+    padding: 0.375em 0.625em;
+}
+
+.docx-preview-content img {
+    max-width: 100%;
+    height: auto;
+}
+
+.docx-preview-content a {
+    color: var(--color-accent);
+    text-decoration: underline;
+}

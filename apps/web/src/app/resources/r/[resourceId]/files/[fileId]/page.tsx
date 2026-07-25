@@ -6,6 +6,7 @@ import { ChevronLeft, Download, FileWarning, PanelRightClose, PanelRightOpen } f
 
 import { useResource, useFileDownloadUrl, useDownloadFile } from "@/hooks/queries/use-resources";
 import { useMe, useMarkResourceAsRecentlyAccessed } from "@/hooks/queries/use-me";
+import { useDocxPreviewHtml } from "@/hooks/queries/use-docx-preview";
 import Button from "@/components/ui/Button";
 import Loader from "@/components/ui/Loader";
 import { PageStateHandler } from "@/components/layout";
@@ -19,8 +20,10 @@ interface FilePreviewPageProps {
     }>
 }
 
-// Types the browser can render natively, without any third-party viewer/conversion.
-const INLINE_PREVIEWABLE_MIME_TYPES = new Set(["application/pdf", "image/jpeg", "image/png"]);
+const DOCX_MIME_TYPE = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+
+// Types the browser can render natively (PDF/images) or that we convert client-side (docx).
+const INLINE_PREVIEWABLE_MIME_TYPES = new Set(["application/pdf", "image/jpeg", "image/png", DOCX_MIME_TYPE]);
 
 const FilePreviewPage = ({
     params
@@ -42,6 +45,13 @@ const FilePreviewPage = ({
     } = useFileDownloadUrl(resourceId, activeFile?.id);
 
     const { mutate: requestDownload, isPending: isPreparingDownload } = useDownloadFile(resourceId);
+
+    const isDocx = activeFile?.mimeType === DOCX_MIME_TYPE;
+    const {
+        data: docxHtml,
+        isPending: docxPending,
+        isError: docxError,
+    } = useDocxPreviewHtml(isDocx ? downloadData?.url : undefined);
 
     const { data: userData } = useMe();
     const { mutate: markAsRecentlyAccessed } = useMarkResourceAsRecentlyAccessed();
@@ -125,7 +135,7 @@ const FilePreviewPage = ({
     });
 
     return (
-        <div className="min-h-screen bg-background text-foreground p-0 max-w-7xl mx-auto">
+        <div className="min-h-screen bg-background text-foreground p-0 mx-auto">
             <div className="flex flex-col md:flex-row gap-6 items-start">
                 {/* h-screen (not flex-1 alone) since flex-1's flex-basis:0 would collapse this pane's height when stacked in flex-col on mobile. */}
                 <div className="order-2 w-full h-screen md:order-1 md:flex-1 flex items-center justify-center">
@@ -146,6 +156,17 @@ const FilePreviewPage = ({
                             title={activeFile.originalFileName}
                             className="w-full h-full"
                         />
+                    ) : activeFile.mimeType === DOCX_MIME_TYPE ? (
+                        <div className="w-full h-full overflow-auto rounded-md bg-background p-6">
+                            {docxPending ? (
+                                <Loader text="Converting document..." />
+                            ) : docxError || !docxHtml ? (
+                                <p className="text-error text-sm">Couldn&apos;t render this document&apos;s preview.</p>
+                            ) : (
+                                // Sanitized via DOMPurify in useDocxPreviewHtml before it ever gets here.
+                                <div className="docx-preview-content max-w-full" dangerouslySetInnerHTML={{ __html: docxHtml }} />
+                            )}
+                        </div>
                     ) : (
                         // Signed URLs are per-request and short-lived - plain <img>, not an oversight.
                         // eslint-disable-next-line @next/next/no-img-element
