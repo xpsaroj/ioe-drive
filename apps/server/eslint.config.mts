@@ -23,4 +23,10 @@ export default defineConfig([
     },
   },
   tseslint.configs.recommended,
+  {
+    files: ["src/**/*.spec.ts"],
+    languageOptions: {
+      globals: globals.jest
+    },
+  },
 ]);

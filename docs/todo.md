@@ -17,14 +17,10 @@ essays here once something is actively being worked on.
 
 - [ ] Build out the placeholder destinations: Community, Alumni —
       both currently one-line stub pages linked from the nav.
-- [ ] Inline preview for .docx files on the file preview page (currently only PDF/JPEG/PNG
-      render inline; .docx falls back to "download to view"). Tried `docx-preview` client-side
-      - rendering itself worked once the storage account's CORS was configured for JS `fetch()`,
-      but the rendered page's fixed real-world width kept overflowing its container and pushing
-      the rest of the layout off-screen; reverted for now, revisit the layout/containment
-      approach later.
 
 ## Housekeeping
 
-- [ ] Add a basic test suite to at least the API (currently no tests on either app; CI
-      only lints/typechecks/builds).
+- [ ] Extend API test coverage beyond the current two pure-function suites
+      (`common/utils/pagination`, `config/env.validation`) - service/controller/repository
+      tests need either `@nestjs/testing` + mocked Drizzle, or a real test database.
+      `apps/web` still has no test suite at all.

@@ -652,11 +652,10 @@ route that never existed).
   of these — it's a fully built marketplace + messaging feature now (sections 10-11);
   the `proxy.ts` matcher used to say `/marketplace(.*)` (a name that never matched the
   real `/market` route, silently leaving it unprotected) — fixed.
-- **`/offerings` and `/offerings/[offeringId]` are placeholders/thin.** The list page is
-  a static "Offerings here" stub; the detail page exists and is linked to from resource
-  detail pages but wasn't deeply audited here.
-- **No tests.** Neither app has a test suite configured today (CI only lints,
-  typechecks, and builds).
+- **Test coverage is minimal.** `apps/server` has a starter Jest suite (`jest.config.js`,
+  wired into `server.yml`'s CI job) covering a couple of pure-function modules
+  (`common/utils/pagination`, `config/env.validation`) - no service/controller/repository
+  tests yet. `apps/web` has no test suite at all.
 
 ## 17. Local development
 

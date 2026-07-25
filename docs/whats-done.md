@@ -83,3 +83,11 @@ A quick, high-level list of what already works. For the full picture see
   viewed resource (via the existing `/resources/:id/similar` endpoint), and real weekly
   counts - resources shared/viewed/bookmarked - via a new `GET /api/me/weekly-summary`
   endpoint.
+- Inline `.docx` preview on the file preview page (previously PDF/JPEG/PNG only,
+  `.docx` fell back to "download to view"), converted client-side via `mammoth` and
+  sanitized with `DOMPurify` before rendering. Uploaded blob names are now namespaced by
+  source (`resources/`, `listings/`) instead of a flat root, via a `BlobPrefix` param on
+  `AzureBlobService.generateBlobName`.
+- A first Jest test suite for `apps/server` (`jest.config.js`, wired into CI): two
+  pure-function suites so far (`common/utils/pagination`, `config/env.validation`),
+  more coverage to follow.
