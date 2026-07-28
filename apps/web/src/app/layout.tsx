@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Outfit, IBM_Plex_Mono } from "next/font/google";
+import { IBM_Plex_Sans, IBM_Plex_Mono } from "next/font/google";
 
 import "./globals.css";
 import { ThemeProvider } from "@/providers/theme-provider";
@@ -15,7 +15,8 @@ import { NotificationsSocketProvider } from "@/providers/NotificationsSocketProv
 import { GlobalLoader, LayoutWrapper } from "@/components/layout";
 import { SITE_DESCRIPTION, SITE_NAME, SITE_URL } from "@/lib/site";
 
-const outfit = Outfit({ subsets: ["latin"], variable: "--font-outfit" });
+// Body copy and headings - see --font-sans in globals.css.
+const plexSans = IBM_Plex_Sans({ subsets: ["latin"], weight: ["400", "500", "600", "700"], variable: "--font-plex-sans" });
 // Used sparingly for the wordmark and nav "eyebrow" labels (see --font-display in globals.css) - not applied globally.
 const plexMono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["500", "600"], variable: "--font-plex-mono" });
 
@@ -55,7 +56,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`bg-background text-foreground min-h-screen ${outfit.className} ${plexMono.variable}`}>
+      <body className={`bg-background text-foreground min-h-screen ${plexSans.className} ${plexMono.variable}`}>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           <MotionProvider>
             <ClerkThemeProvider>

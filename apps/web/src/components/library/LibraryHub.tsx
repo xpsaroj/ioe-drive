@@ -1,14 +1,14 @@
 "use client";
 import Link from "next/link";
-import { Bookmark, File, History, ShoppingBag, UploadCloud } from "lucide-react";
+import { Bookmark, ChevronRight, File, History, ShoppingBag, UploadCloud } from "lucide-react";
 
 import StatStrip from "@/components/ui/StatStrip";
+import Button from "@/components/ui/Button";
 import { JumpBackIn, ResourcePreviewTile } from "@/components/common/resources";
 import { PreviewPanel } from "@/components/common/list";
 import { BookSpines, DEFAULT_SHELF_SPINES } from "@/components/decor";
 import { useRecentResources, useBookmarkedResources, useUploadedResources, useMyMarketplaceListings } from "@/hooks/queries/use-me";
 import { getRelativeTime } from "@/utils/time";
-import { ResourceTypeLabel } from "@/types/entities";
 import type { BookmarkedResourceItem } from "@/types/api";
 
 // Trades ResourcePreviewTile's icon/bookmark/uploader detail for density in the narrow sidebar column.
@@ -31,13 +31,20 @@ const RecentlyBookmarkedPanel = ({ items }: { items: BookmarkedResourceItem[] })
     <div>
         <div className="flex items-center justify-between gap-4 mb-6">
             <h3 className="text-lg font-semibold text-foreground">Recently Bookmarked</h3>
-            <Link href="/library/bookmarks" className="text-xs font-medium text-foreground-secondary hover:text-foreground transition-colors shrink-0">
+            <Button
+                href="/library/bookmarks"
+                variant="ghost"
+                size="xs"
+                icon={<ChevronRight className="size-3.5" />}
+                iconPosition="right"
+                className="text-foreground-secondary hover:text-foreground shrink-0"
+            >
                 View all
-            </Link>
+            </Button>
         </div>
 
         {items.length > 0 ? (
-            <div className="rounded-xl border border-border bg-background-secondary divide-y divide-border">
+            <div className="rounded-lg border border-border bg-background-secondary divide-y divide-border">
                 {items.map((item) => (
                     <BookmarkListRow
                         key={item.resourceId}
@@ -48,7 +55,16 @@ const RecentlyBookmarkedPanel = ({ items }: { items: BookmarkedResourceItem[] })
                 ))}
             </div>
         ) : (
-            <p className="text-sm text-foreground-secondary">Nothing bookmarked yet.</p>
+            <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border py-10 text-center">
+                <span className="flex size-10 items-center justify-center rounded-full bg-accent-soft text-accent">
+                    <Bookmark className="size-5" />
+                </span>
+                <div>
+                    <p className="text-sm font-medium text-foreground">Nothing bookmarked yet</p>
+                    <p className="text-sm text-foreground-secondary mt-1">Save resources here to find them again quickly.</p>
+                </div>
+                <Button href="/resources" size="sm" variant="secondary">Browse resources</Button>
+            </div>
         )}
     </div>
 );
@@ -61,7 +77,7 @@ const LibraryHub = () => {
 
     return (
         <div className="space-y-8">
-            <div className="relative overflow-hidden rounded-2xl border border-border bg-background-secondary p-6 sm:p-8">
+            <div className="relative overflow-hidden rounded-lg border border-border bg-background-secondary p-6 sm:p-8">
                 <BookSpines spines={DEFAULT_SHELF_SPINES} />
 
                 <div className="relative z-10 space-y-2 max-w-md">
@@ -98,7 +114,10 @@ const LibraryHub = () => {
                     <PreviewPanel
                         title="My Uploads"
                         viewAllHref="/library/uploads"
-                        emptyText="Nothing shared yet."
+                        emptyText="Nothing shared yet"
+                        emptyDescription="Upload notes, past questions, or study guides for others to find."
+                        emptyIcon={UploadCloud}
+                        emptyAction={<Button href="/resources/share" size="sm" variant="secondary">Upload a resource</Button>}
                         columns={2}
                         tiles={(uploadedResourcesData?.items ?? []).slice(0, 2).map((item) => (
                             <ResourcePreviewTile
@@ -106,7 +125,7 @@ const LibraryHub = () => {
                                 resourceId={item.id}
                                 title={item.title}
                                 subjectCode={item.subjectOffering?.subject?.code}
-                                typeLabel={ResourceTypeLabel[item.type]}
+                                type={item.type}
                                 timeLabel={`Uploaded ${getRelativeTime(item.createdAt)}`}
                             />
                         ))}

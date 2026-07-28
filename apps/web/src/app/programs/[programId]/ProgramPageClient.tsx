@@ -92,7 +92,8 @@ const ProgramPageClient = ({ params }: ProgramPageClientProps) => {
                 {program && <ProgramCard program={program} />}
 
                 {semesterGroups.length === 0 ? (
-                    <div className="flex items-center justify-center rounded-lg border border-border py-16">
+                    <div className="flex flex-col items-center justify-center gap-2 rounded-lg border border-border py-16">
+                        <ListChecks className="size-5 text-foreground-tertiary" />
                         <p className="text-sm text-foreground-secondary">
                             No subjects have been added for this program yet.
                         </p>

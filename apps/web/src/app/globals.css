@@ -39,13 +39,13 @@
     /* Border on focus - black */
 
     /* ===== Accent Colors ===== */
-    /* Monochrome by design - stays black/white rather than introducing a brand color. */
-    --color-accent: #000000;
-    --color-accent-hover: #1a1a1a;
-    --color-accent-active: #333333;
+    /* Copper/rust accent - restrained, not a brand wash. */
+    --color-accent: #a85a17;
+    --color-accent-hover: #8f4c13;
+    --color-accent-active: #763e10;
     --color-accent-foreground: #ffffff;
     /* Soft tinted background wash for accent-colored active/selected states. */
-    --color-accent-soft: rgba(0, 0, 0, 0.06);
+    --color-accent-soft: rgba(168, 90, 23, 0.08);
 
     /* ===== Status/Semantic Colors ===== */
     /* Success - Green */
@@ -193,6 +193,25 @@
     --color-badge-info-text: #0284c7;
     /* Info badge text */
 
+    /* ===== Tag Colors ===== */
+    /* Categorical tagging (resource type, marketplace category), not status. */
+    --color-tag-sepia-bg: #f4e8cf;
+    --color-tag-sepia-text: #8a6323;
+    --color-tag-slate-bg: #e4e7ec;
+    --color-tag-slate-text: #3d4759;
+    --color-tag-teal-bg: #dcf3f1;
+    --color-tag-teal-text: #0f6e67;
+    --color-tag-olive-bg: #e7f0da;
+    --color-tag-olive-text: #52681e;
+    --color-tag-clay-bg: #f5e1d8;
+    --color-tag-clay-text: #9c4a2e;
+    --color-tag-blue-bg: #e3eefb;
+    --color-tag-blue-text: #1d5fa8;
+    --color-tag-violet-bg: #eee4fb;
+    --color-tag-violet-text: #6b3fa0;
+    --color-tag-rose-bg: #fbe4ec;
+    --color-tag-rose-text: #a83d66;
+
     /* ===== Card Colors ===== */
     /* One step lighter than the page background, so a card doesn't blend into the page. */
     --color-card-background: #fafafa;
@@ -233,7 +252,8 @@
     /* Skeleton loading highlight */
 
     /* ===== Typography ===== */
-    /* Used sparingly for the wordmark and small "eyebrow" labels - --font-plex-mono is set by next/font in layout.tsx. */
+    /* Plex Sans: body copy and headings. Plex Mono: wordmark/eyebrow labels/data. */
+    --font-sans: var(--font-plex-sans), ui-sans-serif, system-ui, sans-serif;
     --font-display: var(--font-plex-mono), ui-monospace, monospace;
 
     /* ===== Animations ===== */
@@ -286,11 +306,11 @@
     --color-border-focus: #ffffff;
 
     /* ===== Accent Colors ===== */
-    --color-accent: #ffffff;
-    --color-accent-hover: #e5e5e5;
-    --color-accent-active: #cccccc;
-    --color-accent-foreground: #0a0a0a;
-    --color-accent-soft: rgba(255, 255, 255, 0.08);
+    --color-accent: #e1874a;
+    --color-accent-hover: #d1743a;
+    --color-accent-active: #c06530;
+    --color-accent-foreground: #1a0f00;
+    --color-accent-soft: rgba(225, 135, 74, 0.12);
 
     /* ===== Status/Semantic Colors ===== */
     /* Success - Green (one step lighter than the light theme for contrast on dark bg) */
@@ -381,6 +401,24 @@
     --color-badge-warning-text: #fbbf24;
     --color-badge-info: #082f49;
     --color-badge-info-text: #38bdf8;
+
+    /* ===== Tag Colors ===== */
+    --color-tag-sepia-bg: #2b2110;
+    --color-tag-sepia-text: #d9b876;
+    --color-tag-slate-bg: #1c2128;
+    --color-tag-slate-text: #9daac0;
+    --color-tag-teal-bg: #0c2624;
+    --color-tag-teal-text: #4fcfc4;
+    --color-tag-olive-bg: #1e2412;
+    --color-tag-olive-text: #a8c46b;
+    --color-tag-clay-bg: #2b180f;
+    --color-tag-clay-text: #e0a182;
+    --color-tag-blue-bg: #112640;
+    --color-tag-blue-text: #7eb6f0;
+    --color-tag-violet-bg: #241b36;
+    --color-tag-violet-text: #b48ae0;
+    --color-tag-rose-bg: #331823;
+    --color-tag-rose-text: #e893b3;
 
     /* ===== Card Colors ===== */
     --color-card-background: #141414;

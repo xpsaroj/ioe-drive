@@ -2,6 +2,7 @@
 
 import React from "react";
 import clsx from "clsx";
+import { Inbox } from "lucide-react";
 
 export interface Column<T> {
     key: string;
@@ -164,9 +165,12 @@ function Table<T>({
                         <tr>
                             <td
                                 colSpan={columns.length}
-                                className="px-4 py-12 text-center text-foreground-muted"
+                                className="px-4 py-12 text-foreground-muted"
                             >
-                                {emptyMessage}
+                                <div className="flex flex-col items-center gap-2">
+                                    <Inbox className="size-5 text-foreground-tertiary" />
+                                    <p className="text-center">{emptyMessage}</p>
+                                </div>
                             </td>
                         </tr>
                     ) : (

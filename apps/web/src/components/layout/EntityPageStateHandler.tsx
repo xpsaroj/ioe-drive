@@ -1,4 +1,6 @@
 "use client";
+import { Inbox, type LucideIcon } from "lucide-react";
+
 import { PageHeader, PageStateHandler, type BreadcrumbItem } from "@/components/layout";
 import Button from "@/components/ui/Button";
 
@@ -13,6 +15,7 @@ interface EntityPageStateHandlerProps {
     error: Error | null | undefined;
     isEmpty: boolean;
     loaderText: string;
+    emptyIcon?: LucideIcon;
     emptyTitle: string;
     emptyDescription: string;
     emptyButtonText: string;
@@ -32,6 +35,7 @@ const EntityPageStateHandler = ({
     error,
     isEmpty,
     loaderText,
+    emptyIcon: EmptyIcon = Inbox,
     emptyTitle,
     emptyDescription,
     emptyButtonText,
@@ -43,12 +47,17 @@ const EntityPageStateHandler = ({
     );
 
     const emptyContent = (
-        <div className="flex flex-col items-center justify-center gap-1">
-            <p className="">{emptyTitle}</p>
-            <p className="text-sm text-foreground-secondary pb-1 md:max-w-xl text-center">
-                {emptyDescription}
-            </p>
-            <Button href={emptyButtonHref}>{emptyButtonText}</Button>
+        <div className="flex flex-col items-center justify-center gap-3 text-center">
+            <span className="flex size-12 items-center justify-center rounded-full bg-accent-soft text-accent">
+                <EmptyIcon className="size-6" />
+            </span>
+            <div>
+                <p className="text-base sm:text-lg font-semibold text-foreground">{emptyTitle}</p>
+                <p className="text-sm sm:text-base text-foreground-secondary mt-1 md:max-w-xl">
+                    {emptyDescription}
+                </p>
+            </div>
+            <Button href={emptyButtonHref} size="sm" className="mt-1">{emptyButtonText}</Button>
         </div>
     )
 

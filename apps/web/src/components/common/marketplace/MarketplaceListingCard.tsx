@@ -6,6 +6,7 @@ import type { ListingSummary } from "@/types/api";
 import { UploaderInfo } from "@/components/common/user";
 import { SubjectCodeTile } from "@/components/common/offering";
 import {
+    MarketplaceCategory,
     MarketplaceListingStatus,
     MarketplaceListingStatusLabel,
     MarketplaceListingType,
@@ -17,6 +18,16 @@ import { formatListingPrice } from "@/utils/marketplace";
 export const LISTING_TYPE_BADGE_VARIANT: Record<MarketplaceListingType, BadgeVariant> = {
     [MarketplaceListingType.SELLING]: "success",
     [MarketplaceListingType.WANTED]: "info",
+};
+
+// Distinct color per category instead of uniform gray - reuses ResourceCard's hues where the association matches.
+export const CATEGORY_BADGE_COLOR: Record<MarketplaceCategory, { bg: string; text: string; border?: string }> = {
+    [MarketplaceCategory.TEXTBOOKS_AND_NOTES]: { bg: "bg-tag-sepia-bg", text: "text-tag-sepia-text" },
+    [MarketplaceCategory.DRAFTING_AND_STATIONERY]: { bg: "bg-tag-slate-bg", text: "text-tag-slate-text" },
+    [MarketplaceCategory.CALCULATORS_AND_ELECTRONICS]: { bg: "bg-tag-teal-bg", text: "text-tag-teal-text" },
+    [MarketplaceCategory.LAB_AND_WORKSHOP_EQUIPMENT]: { bg: "bg-tag-olive-bg", text: "text-tag-olive-text" },
+    [MarketplaceCategory.FURNITURE_AND_HOSTEL_ITEMS]: { bg: "bg-tag-clay-bg", text: "text-tag-clay-text" },
+    [MarketplaceCategory.OTHER]: { bg: "bg-badge-background", text: "text-badge-foreground" },
 };
 
 // ACTIVE isn't shown - every public browse card is ACTIVE, so the badge would be pure noise
@@ -68,7 +79,7 @@ const MarketplaceListingCard = ({ listing, notice, actions }: MarketplaceListing
                         <img src={coverPhoto.photoUrl} alt={title} className="h-full w-full object-cover" />
                     ) : (
                         <div className="flex h-full w-full items-center justify-center">
-                            <ImageOff className="size-6 text-foreground-tertiary" />
+                            <ImageOff className="size-7 text-foreground-tertiary" />
                         </div>
                     )}
                 </Link>
@@ -85,7 +96,7 @@ const MarketplaceListingCard = ({ listing, notice, actions }: MarketplaceListing
                             <Badge size="sm" variant={LISTING_TYPE_BADGE_VARIANT[type]} className="ms-2 align-middle">
                                 {MarketplaceListingTypeLabel[type]}
                             </Badge>
-                            <Badge size="sm" variant="secondary" className="ms-2 align-middle">
+                            <Badge size="sm" color={CATEGORY_BADGE_COLOR[category]} className="ms-2 align-middle">
                                 {MarketplaceCategoryLabel[category]}
                             </Badge>
                             {status !== MarketplaceListingStatus.ACTIVE && (
@@ -102,7 +113,7 @@ const MarketplaceListingCard = ({ listing, notice, actions }: MarketplaceListing
                     </div>
 
                     {description && (
-                        <p className="text-sm text-foreground-secondary leading-relaxed line-clamp-2">
+                        <p className="text-sm sm:text-base text-foreground-secondary leading-relaxed line-clamp-2">
                             {description}
                         </p>
                     )}

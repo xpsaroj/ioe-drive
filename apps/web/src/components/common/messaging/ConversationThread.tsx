@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
-import { ArrowDown, Send } from "lucide-react";
+import { ArrowDown, MessageCircle, Send } from "lucide-react";
 
 import Button from "@/components/ui/Button";
 import Textarea from "@/components/ui/Textarea";
@@ -185,7 +185,10 @@ const ConversationThread = ({ conversationId, currentUserId }: ConversationThrea
                         </div>
                     )}
                     {messages.length === 0 ? (
-                        <p className="text-center text-sm text-foreground-tertiary py-8">No messages yet. Say hello!</p>
+                        <div className="flex flex-col items-center justify-center gap-2 py-8 text-center">
+                            <MessageCircle className="size-5 text-foreground-tertiary" />
+                            <p className="text-sm text-foreground-tertiary">No messages yet. Say hello!</p>
+                        </div>
                     ) : (
                         messages.map((message) => {
                             const isOwn = message.senderId === currentUserId;
