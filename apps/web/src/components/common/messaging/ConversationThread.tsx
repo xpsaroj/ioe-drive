@@ -201,7 +201,7 @@ const ConversationThread = ({ conversationId, currentUserId }: ConversationThrea
                                         )}
                                     >
                                         <p className="whitespace-pre-wrap break-words">{message.body}</p>
-                                        <p className={cn("mt-1 text-[10px]", isOwn ? "text-accent-foreground/70" : "text-foreground-tertiary")}>
+                                        <p className={cn("mt-1 text-[11px]", isOwn ? "text-accent-foreground/70" : "text-foreground-tertiary")}>
                                             {new Date(message.createdAt).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
                                         </p>
                                     </div>

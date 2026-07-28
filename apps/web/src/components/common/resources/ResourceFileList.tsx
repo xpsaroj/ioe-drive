@@ -41,7 +41,7 @@ const ResourceFileList = ({
 
     return (
         <div>
-            {showLabel && <p className="font-medium mb-1">Files</p>}
+            {showLabel && <p className="mb-3 text-lg font-semibold text-foreground">Files</p>}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
                 {resourceFiles.map((file) => (
                     <ResourceFileItem key={file.id} file={file} />

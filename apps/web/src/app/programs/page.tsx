@@ -14,7 +14,7 @@ const ProgramsPage = () => {
 
     return (
         <div className="min-h-screen bg-background text-foreground max-w-7xl mx-auto md:px-8 px-6 md:py-8 py-6 md:space-y-8 space-y-6">
-            <div className="relative overflow-hidden rounded-2xl border border-border bg-background-secondary p-6 md:p-8">
+            <div className="relative overflow-hidden rounded-lg border border-border bg-background-secondary p-6 md:p-8">
                 <BookSpines spines={DEFAULT_SHELF_SPINES} />
                 <div className="relative z-10 max-w-md">
                     <h1 className="text-2xl md:text-3xl font-bold text-foreground">Programs</h1>
