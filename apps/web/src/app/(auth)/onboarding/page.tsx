@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation"
 import { useEffect } from "react"
-import { useForm, Controller } from "react-hook-form"
+import { useForm, Controller, useWatch } from "react-hook-form"
 
 import { Semester, SemesterLabel } from "@/types/entities"
 import { usePrograms } from "@/hooks/queries/use-academics"
@@ -20,6 +20,9 @@ type FormValues = {
     semester: Semester | ""
     college: string
 }
+
+// Only this program's students run to semester 10 - everyone else caps at 8.
+const ARCHITECTURE_PROGRAM_CODE = "BAR"
 
 // Scattered around the page, clear of the center ~60% where the card sits.
 const ONBOARDING_TILES: ScatteredTile[] = [
@@ -46,6 +49,7 @@ const OnBoardingPage = () => {
         control,
         register,
         setError,
+        setValue,
         formState: { errors }
     } = useForm<FormValues>({
         defaultValues: {
@@ -55,18 +59,25 @@ const OnBoardingPage = () => {
         }
     })
 
+    const selectedProgramId = useWatch({ control, name: "programId" })
+    const isArchitecture = programs?.find(p => p.id === Number(selectedProgramId))?.code === ARCHITECTURE_PROGRAM_CODE
+
+    // Already onboarded (e.g. revisiting this URL directly) - about to redirect below, so
+    // don't flash the form for a frame first.
+    const alreadyOnboarded = !!(profile?.semester && profile?.programId)
+
     useEffect(() => {
-        if (profile?.semester && profile?.programId) {
+        if (alreadyOnboarded) {
             router.push("/dashboard")
         }
-    }, [profile?.semester, profile?.programId, router])
+    }, [alreadyOnboarded, router])
 
 
     const onSubmit = async (data: FormValues) => {
-        if (!data.programId || !data.semester)
-            return;
+        // react-hook-form's `required` rule guarantees this before onSubmit fires - narrows the type for updateProfile below.
+        if (!data.semester) return;
 
-        if (programs?.find(p => p.id === Number(data.programId))?.code !== "BAR" && Number(data.semester) > 8) {
+        if (programs?.find(p => p.id === Number(data.programId))?.code !== ARCHITECTURE_PROGRAM_CODE && Number(data.semester) > 8) {
             setError("semester", {
                 message: "Only students in the BAR program can select a semester beyond 8."
             })
@@ -88,7 +99,7 @@ const OnBoardingPage = () => {
         }
     }
 
-    if (programsPending || userPending) {
+    if (programsPending || userPending || alreadyOnboarded) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background text-foreground md:p-8 p-6 max-w-7xl mx-auto">
                 <div className="flex flex-col items-center justify-center">
@@ -143,7 +154,12 @@ const OnBoardingPage = () => {
                                 placeholder="Select program"
                                 value={field.value}
                                 error={errors.programId?.message}
-                                onChange={field.onChange}
+                                onChange={(e) => {
+                                    field.onChange(e);
+                                    // Clear a semester beyond 8 if it's no longer valid for the newly picked program.
+                                    const newIsArchitecture = programs.find(p => String(p.id) === e.target.value)?.code === ARCHITECTURE_PROGRAM_CODE;
+                                    if (!newIsArchitecture) setValue("semester", "");
+                                }}
                                 options={programs.map((prog) => ({
                                     value: String(prog.id),
                                     label: `${prog.code} - ${prog.name}`,
@@ -165,12 +181,19 @@ const OnBoardingPage = () => {
                                 placeholder="Select semester"
                                 value={field.value}
                                 error={errors.semester?.message}
+                                disabled={!selectedProgramId}
                                 onChange={field.onChange}
-                                options={Object.keys(SemesterLabel).map((sem) => ({
-                                    value: String(sem),
-                                    label: `${SemesterLabel[sem as Semester]} ${+sem > 8 ? "(Architecture)" : ""}`,
-                                }))}
-                                helperText="Select the semester you are currently in."
+                                options={Object.keys(SemesterLabel)
+                                    .filter((sem) => isArchitecture || +sem <= 8)
+                                    .map((sem) => ({
+                                        value: String(sem),
+                                        label: `${SemesterLabel[sem as Semester]} ${+sem > 8 ? "(Architecture)" : ""}`,
+                                    }))}
+                                helperText={
+                                    selectedProgramId
+                                        ? "Select the semester you are currently in."
+                                        : "Select a program first to see valid semesters."
+                                }
                             />
                         )}
                     />

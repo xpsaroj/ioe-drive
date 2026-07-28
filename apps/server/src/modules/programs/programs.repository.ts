@@ -10,4 +10,8 @@ export class ProgramsRepository {
   findAll() {
     return this.db.query.programsTable.findMany();
   }
+
+  findById(id: number) {
+    return this.db.query.programsTable.findFirst({ where: (programs, { eq }) => eq(programs.id, id) });
+  }
 }

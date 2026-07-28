@@ -7,5 +7,6 @@ import { ProgramsService } from "./programs.service";
 @Module({
   controllers: [ProgramsController],
   providers: [ProgramsService, ProgramsRepository],
+  exports: [ProgramsRepository],
 })
 export class ProgramsModule {}
