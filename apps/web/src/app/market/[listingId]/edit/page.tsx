@@ -39,9 +39,6 @@ const ListingEditPage = ({
         <>
             <div className="pb-4">
                 <h1 className="text-2xl md:text-3xl font-bold">Edit Listing</h1>
-                <p className="text-foreground-secondary mt-2">
-                    Update your listing&apos;s details, or manage its photos.
-                </p>
             </div>
 
             <div className="sticky top-0 z-10 mb-6 flex items-center gap-2 border-b border-border bg-background/95 py-2.5 backdrop-blur-sm">

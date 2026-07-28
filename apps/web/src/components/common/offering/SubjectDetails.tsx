@@ -13,7 +13,7 @@ const SubjectDetails = ({ subject }: { subject: SubjectWithProgramAndMarks }) =>
         : 0;
 
     return (
-        <div className="space-y-5 rounded-xl border border-border p-6">
+        <div className="space-y-5 rounded-lg border border-border p-6">
             <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
                     <p className="font-display text-xs font-medium uppercase tracking-wide text-foreground-tertiary">
@@ -25,7 +25,7 @@ const SubjectDetails = ({ subject }: { subject: SubjectWithProgramAndMarks }) =>
             </div>
 
             {description && (
-                <p className="text-sm leading-relaxed text-foreground-secondary">{description}</p>
+                <p className="text-sm sm:text-base leading-relaxed text-foreground-secondary">{description}</p>
             )}
 
             {marks && (
@@ -61,9 +61,9 @@ const SubjectDetails = ({ subject }: { subject: SubjectWithProgramAndMarks }) =>
                             </div>
                         </div>
                     </div>
-                    <div className="mt-3 flex items-center justify-between rounded-lg border border-border p-3">
-                        <span className="text-sm font-semibold text-foreground">Total</span>
-                        <span className="text-sm font-semibold text-foreground">{marksTotal}</span>
+                    <div className="mt-3 flex items-center justify-between rounded-lg border border-accent/20 bg-accent-soft p-3">
+                        <span className="text-base font-semibold text-foreground">Total</span>
+                        <span className="text-base font-semibold text-accent">{marksTotal}</span>
                     </div>
                 </div>
             )}

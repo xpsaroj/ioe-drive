@@ -78,6 +78,7 @@ const SemesterInformation = () => {
         columns={columns}
         loading={isLoading || userLoading}
         data={subjectOfferings || []}
+        striped
         onRowClick={(item) => {
           const params = new URLSearchParams({
             programId: String(item.programId),

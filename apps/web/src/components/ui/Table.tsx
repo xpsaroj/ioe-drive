@@ -98,7 +98,7 @@ function Table<T>({
                                 <th
                                     key={column.key}
                                     className={clsx(
-                                        "px-4 py-3 font-medium text-foreground-secondary text-xs uppercase tracking-wide",
+                                        "px-4 py-3 font-display font-medium text-foreground-secondary text-xs uppercase tracking-wide",
                                         getAlignClass(column.align)
                                     )}
                                     style={{ width: column.width }}
@@ -136,7 +136,7 @@ function Table<T>({
                             <th
                                 key={column.key}
                                 className={clsx(
-                                    "px-4 py-3 font-medium text-foreground-secondary text-xs uppercase tracking-wide whitespace-nowrap",
+                                    "px-4 py-3 font-display font-medium text-foreground-secondary text-xs uppercase tracking-wide whitespace-nowrap",
                                     getAlignClass(column.align),
                                     column.sortable && sortable && "cursor-pointer select-none hover:text-foreground"
                                 )}

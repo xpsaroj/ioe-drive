@@ -61,7 +61,7 @@ const MarketplaceListingCard = ({ listing, notice, actions }: MarketplaceListing
     });
 
     return (
-        <div className="group/card relative flex flex-col gap-4 rounded-xl border border-border bg-card-background p-4 transition-colors duration-400 hover:border-accent sm:p-5">
+        <div className="group/card relative flex flex-col gap-4 rounded-lg border border-border bg-card-background p-4 transition-colors duration-400 hover:border-accent sm:p-5">
             {notice && (
                 <div className="rounded-lg border border-border bg-background-tertiary px-3 py-2.5 text-sm">
                     {notice}
@@ -86,30 +86,32 @@ const MarketplaceListingCard = ({ listing, notice, actions }: MarketplaceListing
 
                 <div className="flex min-w-0 flex-1 flex-col gap-3">
                     <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
+                        <div className="min-w-0 flex flex-wrap items-center gap-2">
                             <Link
                                 href={`/market/${listing.id}`}
                                 className="font-semibold text-foreground decoration-2 underline-offset-3 group-hover/card:underline"
                             >
                                 {title}
                             </Link>
-                            <Badge size="sm" variant={LISTING_TYPE_BADGE_VARIANT[type]} className="ms-2 align-middle">
-                                {MarketplaceListingTypeLabel[type]}
-                            </Badge>
-                            <Badge size="sm" color={CATEGORY_BADGE_COLOR[category]} className="ms-2 align-middle">
+                            <Badge size="sm" color={CATEGORY_BADGE_COLOR[category]}>
                                 {MarketplaceCategoryLabel[category]}
                             </Badge>
                             {status !== MarketplaceListingStatus.ACTIVE && (
-                                <Badge size="sm" variant={LISTING_STATUS_BADGE_VARIANT[status]} className="ms-2 align-middle">
+                                <Badge size="sm" variant={LISTING_STATUS_BADGE_VARIANT[status]}>
                                     {MarketplaceListingStatusLabel[status]}
                                 </Badge>
                             )}
                         </div>
-                        {actions && (
-                            <div className="flex items-center gap-1 shrink-0 border border-border p-0.5 rounded-lg">
-                                {actions}
-                            </div>
-                        )}
+                        <div className="flex items-center gap-2 shrink-0">
+                            <Badge size="sm" variant={LISTING_TYPE_BADGE_VARIANT[type]}>
+                                {MarketplaceListingTypeLabel[type]}
+                            </Badge>
+                            {actions && (
+                                <div className="flex items-center gap-1 border border-border p-0.5 rounded-lg">
+                                    {actions}
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     {description && (

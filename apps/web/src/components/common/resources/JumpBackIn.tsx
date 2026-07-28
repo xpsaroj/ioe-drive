@@ -56,7 +56,7 @@ const JumpBackIn = ({ fillHeight = false }: JumpBackInProps) => {
           ))}
         </div>
       ) : (
-        <div className={`flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border py-10 text-center ${fillHeight ? "flex-1" : ""}`}>
+        <div className={`flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border py-10 px-4 text-center ${fillHeight ? "flex-1" : ""}`}>
           <span className="flex size-10 items-center justify-center rounded-full bg-accent-soft text-accent">
             <Compass className="size-5" />
           </span>

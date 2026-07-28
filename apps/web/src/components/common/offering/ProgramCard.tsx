@@ -35,7 +35,7 @@ const ProgramCard = ({ program, href, className }: ProgramCardProps) => {
             <Link
                 href={href}
                 className={cn(
-                    "group flex items-center gap-3 rounded-xl border border-border bg-card-background p-5 transition-colors hover:border-accent hover:bg-card-hover",
+                    "group flex items-center gap-3 rounded-lg border border-border bg-card-background p-5 transition-colors hover:border-accent hover:bg-card-hover",
                     className
                 )}
             >
@@ -45,7 +45,7 @@ const ProgramCard = ({ program, href, className }: ProgramCardProps) => {
     }
 
     return (
-        <div className={cn("rounded-xl border border-border bg-card-background p-5", className)}>
+        <div className={cn("rounded-lg border border-border bg-card-background p-5", className)}>
             <div className="flex items-center gap-3">{header}</div>
 
             {program.syllabusUrl && (

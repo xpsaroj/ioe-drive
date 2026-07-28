@@ -10,18 +10,20 @@ export interface FileTypeMeta {
     className: string;
 }
 
+// Theme tag tokens, not raw Tailwind color literals - auto dark-mode via the .dark class.
 export const FILE_TYPE_META: Record<string, FileTypeMeta> = {
-    pdf: { icon: FileText, className: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400" },
-    png: { icon: FileImage, className: "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400" },
-    jpg: { icon: FileImage, className: "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400" },
-    jpeg: { icon: FileImage, className: "bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400" },
-    document: { icon: FileText, className: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400" },
-    sheet: { icon: FileSpreadsheet, className: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" },
-    "ms-excel": { icon: FileSpreadsheet, className: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" },
-    presentation: { icon: Presentation, className: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400" },
-    "ms-powerpoint": { icon: Presentation, className: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400" },
-    json: { icon: FileJson, className: "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400" },
-    zip: { icon: FileArchive, className: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400" },
+    pdf: { icon: FileText, className: "bg-tag-rose-bg text-tag-rose-text" },
+    png: { icon: FileImage, className: "bg-tag-violet-bg text-tag-violet-text" },
+    jpg: { icon: FileImage, className: "bg-tag-violet-bg text-tag-violet-text" },
+    jpeg: { icon: FileImage, className: "bg-tag-violet-bg text-tag-violet-text" },
+    document: { icon: FileText, className: "bg-tag-blue-bg text-tag-blue-text" },
+    sheet: { icon: FileSpreadsheet, className: "bg-tag-olive-bg text-tag-olive-text" },
+    "ms-excel": { icon: FileSpreadsheet, className: "bg-tag-olive-bg text-tag-olive-text" },
+    csv: { icon: FileSpreadsheet, className: "bg-tag-olive-bg text-tag-olive-text" },
+    presentation: { icon: Presentation, className: "bg-tag-clay-bg text-tag-clay-text" },
+    "ms-powerpoint": { icon: Presentation, className: "bg-tag-clay-bg text-tag-clay-text" },
+    json: { icon: FileJson, className: "bg-tag-sepia-bg text-tag-sepia-text" },
+    zip: { icon: FileArchive, className: "bg-tag-slate-bg text-tag-slate-text" },
 };
 
 export const DEFAULT_FILE_TYPE_META: FileTypeMeta = {
@@ -33,7 +35,8 @@ interface ResourceFileItemProps {
     file: ResourceFileSummary;
 }
 
-// Sized to its content, not a full-width row, so several can wrap wherever a resource's files are listed.
+// Width comes entirely from the parent grid's track sizing (see ResourceFileList) - this
+// just fills its cell, so the same markup works at any column count.
 const ResourceFileItem = ({ file }: ResourceFileItemProps) => {
     const { id: fileId, resourceId, originalFileName, mimeType, fileSize } = file;
     const { icon: Icon, className } = FILE_TYPE_META[getMimeKey(mimeType)] ?? DEFAULT_FILE_TYPE_META;
@@ -41,14 +44,14 @@ const ResourceFileItem = ({ file }: ResourceFileItemProps) => {
     return (
         <Link
             href={`/resources/r/${resourceId}/files/${fileId}`}
-            className="flex w-full items-center gap-2.5 rounded-lg border border-border p-2 transition-colors duration-150 hover:border-foreground-tertiary hover:bg-background-tertiary sm:w-auto sm:max-w-[220px]"
+            className="flex w-full items-center gap-2.5 rounded-lg border border-border p-2 transition-colors duration-150 hover:border-foreground-tertiary hover:bg-background-tertiary"
         >
             <span className={`flex size-9 shrink-0 items-center justify-center rounded-md ${className}`}>
                 <Icon className="size-4" />
             </span>
             <div className="min-w-0">
                 <p className="truncate text-sm font-medium text-foreground">{originalFileName}</p>
-                <p className="font-display text-[10px] uppercase tracking-wide text-foreground-tertiary flex items-center gap-2">
+                <p className="font-display text-[11px] uppercase tracking-wide text-foreground-tertiary flex items-center gap-2">
                     <span>{getMimeLabel(mimeType)}</span>
                     <span>{formatFileSize(fileSize)}</span>
                 </p>

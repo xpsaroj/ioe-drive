@@ -70,7 +70,7 @@ const ResourceCard = ({
     });
 
     return (
-        <div className="group/card relative flex flex-col gap-4 rounded-xl border border-border bg-card-background p-4 transition-colors duration-400 hover:border-accent sm:p-5">
+        <div className="group/card relative flex flex-col gap-4 rounded-lg border border-border bg-card-background p-4 transition-colors duration-400 hover:border-accent sm:p-5">
             {notice && (
                 <div className="rounded-lg border border-border bg-background-tertiary px-3 py-2.5 text-sm">
                     {notice}
@@ -84,16 +84,16 @@ const ResourceCard = ({
             )}
 
             <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
+                <div className="min-w-0 flex flex-wrap items-center gap-2">
                     <Link
                         href={`/resources/r/${resource.id}`}
                         className="font-semibold text-foreground decoration-2 underline-offset-3 group-hover/card:underline"
                     >
                         {title}
                     </Link>
-                    <Badge size="sm" color={TYPE_BADGE_COLOR[type]} className="ms-2 align-middle">{ResourceTypeLabel[type]}</Badge>
+                    <Badge size="sm" color={TYPE_BADGE_COLOR[type]}>{ResourceTypeLabel[type]}</Badge>
                     {resource.status !== ResourceStatus.APPROVED && (
-                        <Badge size="sm" variant={STATUS_BADGE_VARIANT[resource.status]} className="ms-2 align-middle">
+                        <Badge size="sm" variant={STATUS_BADGE_VARIANT[resource.status]}>
                             {ResourceStatusLabel[resource.status]}
                         </Badge>
                     )}
