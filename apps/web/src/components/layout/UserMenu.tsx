@@ -45,15 +45,15 @@ export const UserMenu = () => {
                     {user?.fullName || "User"}
                 </span>
                 {isLoading ? (
-                    <span className="font-display text-[10px] uppercase tracking-wide text-foreground-tertiary">
+                    <span className="font-display text-[11px] uppercase tracking-wide text-foreground-tertiary">
                         Loading...
                     </span>
                 ) : error ? (
-                    <span className="font-display text-[10px] uppercase tracking-wide text-error">
+                    <span className="font-display text-[11px] uppercase tracking-wide text-error">
                         Profile unavailable
                     </span>
                 ) : profileSummary && (
-                    <span className="truncate font-display text-[10px] uppercase tracking-wide text-foreground-tertiary">
+                    <span className="truncate font-display text-[11px] uppercase tracking-wide text-foreground-tertiary">
                         {profileSummary}
                     </span>
                 )}

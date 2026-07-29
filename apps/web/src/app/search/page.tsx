@@ -92,13 +92,13 @@ const SearchContent = () => {
                 <div className="space-y-8">
                     {!subjectsPending && subjects.length > 0 && (
                         <div className="space-y-3">
-                            <h2 className="text-sm font-medium text-foreground-secondary">Subjects</h2>
+                            <h2 className="text-lg font-semibold text-foreground">Subjects</h2>
                             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
                                 {subjects.map((offering) => (
                                     <Link
                                         key={offering.id}
                                         href={`/offerings/${offering.id}`}
-                                        className="flex items-center gap-3 rounded-xl border border-border p-4 transition-colors hover:border-accent hover:bg-background-hover"
+                                        className="flex items-center gap-3 rounded-lg border border-border p-4 transition-colors hover:border-accent hover:bg-background-hover"
                                     >
                                         <SubjectCodeTile code={offering.subject.code} size="md" />
                                         <div className="min-w-0">

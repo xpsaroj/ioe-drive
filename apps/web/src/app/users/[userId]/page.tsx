@@ -101,7 +101,7 @@ const UserDetailsContent = ({ userId }: { userId: number }) => {
             {user && (
                 <div className="space-y-8">
                     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                        <div className="flex h-full flex-col justify-center space-y-4 rounded-xl border border-border p-6 lg:col-span-2">
+                        <div className="flex h-full flex-col justify-center space-y-4 rounded-lg border border-border p-6 lg:col-span-2">
                             <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
                                 <UserAvatar
                                     fullName={user.fullName}
@@ -131,7 +131,7 @@ const UserDetailsContent = ({ userId }: { userId: number }) => {
                             </div>
                         </div>
 
-                        <div className="h-full rounded-xl border border-border p-6">
+                        <div className="h-full rounded-lg border border-border p-6">
                             <p className="mb-2 font-display text-xs font-medium uppercase tracking-wide text-foreground-tertiary">
                                 Academic Standing
                             </p>

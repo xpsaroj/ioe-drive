@@ -66,8 +66,8 @@ const ListingModeratorActionBar = ({ listingId, status }: ListingModeratorAction
     };
 
     return (
-        <div className="flex flex-col gap-3 rounded-xl border border-border p-4 sm:flex-row sm:items-center sm:justify-between">
-            <p className="text-xs font-medium uppercase tracking-wide text-foreground-tertiary">
+        <div className="flex flex-col gap-3 rounded-lg border border-border p-4 sm:flex-row sm:items-center sm:justify-between">
+            <p className="font-display text-xs font-medium uppercase tracking-wide text-foreground-tertiary">
                 Moderator Actions
             </p>
 

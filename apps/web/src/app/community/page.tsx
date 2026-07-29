@@ -16,9 +16,9 @@ const CommunityPage = () => {
                 </p>
             </div>
 
-            <div className="flex flex-1 items-center justify-center rounded-xl border border-border p-6">
+            <div className="flex flex-1 items-center justify-center rounded-lg border border-border p-6">
                 <div className="flex max-w-xs flex-col items-center gap-3 text-center">
-                    <span className="flex size-11 items-center justify-center rounded-full bg-background-tertiary text-foreground-secondary">
+                    <span className="flex size-11 items-center justify-center rounded-full bg-accent-soft text-accent">
                         <Wrench className="size-5" />
                     </span>
                     <div>

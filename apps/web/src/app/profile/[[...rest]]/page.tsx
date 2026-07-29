@@ -78,7 +78,7 @@ const ProfilePage = () => {
                 <p className="mt-1 text-foreground-secondary">Manage your personal details and account settings.</p>
             </div>
 
-            <div className="rounded-xl border border-border p-6">
+            <div className="rounded-lg border border-border p-6">
                 <div className="mb-4 flex items-center justify-between gap-4">
                     <h2 className="text-lg font-semibold text-foreground">Profile Details</h2>
                     {!isEditing && (

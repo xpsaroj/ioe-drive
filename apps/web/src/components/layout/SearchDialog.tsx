@@ -9,6 +9,7 @@ import { useSearchSubjects } from "@/hooks/queries/use-academics";
 import { useListingSearchSuggestions } from "@/hooks/queries/use-marketplace";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import { SubjectCodeTile } from "@/components/common/offering";
+import { TYPE_BADGE_COLOR } from "@/components/common/resources";
 import { cn } from "@/utils/cn";
 import { formatListingPrice } from "@/utils/marketplace";
 import { ResourceTypeLabel, SemesterLabel, MarketplaceCategoryLabel } from "@/types/entities";
@@ -150,7 +151,7 @@ const SearchDialog = ({ isOpen, onClose }: SearchDialogProps) => {
                         <>
                             {subjects.length > 0 && (
                                 <div className="mb-1">
-                                    <p className="px-3 pb-1 pt-2 font-display text-[10px] uppercase tracking-wide text-foreground-tertiary">
+                                    <p className="px-3 pb-1 pt-2 font-display text-[11px] uppercase tracking-wide text-foreground-tertiary">
                                         Subjects
                                     </p>
                                     {subjects.map((offering) => {
@@ -182,7 +183,7 @@ const SearchDialog = ({ isOpen, onClose }: SearchDialogProps) => {
 
                             {resources.length > 0 && (
                                 <div className="mb-1">
-                                    <p className="px-3 pb-1 pt-2 font-display text-[10px] uppercase tracking-wide text-foreground-tertiary">
+                                    <p className="px-3 pb-1 pt-2 font-display text-[11px] uppercase tracking-wide text-foreground-tertiary">
                                         Resources
                                     </p>
                                     {resources.map((resource) => {
@@ -199,8 +200,8 @@ const SearchDialog = ({ isOpen, onClose }: SearchDialogProps) => {
                                                     index === highlightedIndex ? "bg-background-hover" : "hover:bg-background-hover"
                                                 )}
                                             >
-                                                <span className="flex size-9 shrink-0 items-center justify-center rounded-md bg-background-tertiary">
-                                                    <FileText className="size-4 text-foreground-secondary" />
+                                                <span className={`flex size-9 shrink-0 items-center justify-center rounded-md ${TYPE_BADGE_COLOR[resource.type].bg} ${TYPE_BADGE_COLOR[resource.type].text}`}>
+                                                    <FileText className="size-4" />
                                                 </span>
                                                 <div className="min-w-0 flex-1">
                                                     <p className="truncate text-sm font-medium text-foreground">{resource.title}</p>
@@ -216,7 +217,7 @@ const SearchDialog = ({ isOpen, onClose }: SearchDialogProps) => {
 
                             {listings.length > 0 && (
                                 <div>
-                                    <p className="px-3 pb-1 pt-2 font-display text-[10px] uppercase tracking-wide text-foreground-tertiary">
+                                    <p className="px-3 pb-1 pt-2 font-display text-[11px] uppercase tracking-wide text-foreground-tertiary">
                                         Listings
                                     </p>
                                     {listings.map((listing) => {
