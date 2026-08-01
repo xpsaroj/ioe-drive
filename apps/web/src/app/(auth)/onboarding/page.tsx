@@ -8,6 +8,7 @@ import { Semester, SemesterLabel } from "@/types/entities"
 import { usePrograms } from "@/hooks/queries/use-academics"
 import { useMe } from "@/hooks/queries/use-me"
 import { useUpdateProfile } from "@/hooks/queries/use-me"
+import { getErrorMessage } from "@/lib/errors"
 
 import Select from "@/components/ui/Select"
 import Input from "@/components/ui/Input"
@@ -92,9 +93,9 @@ const OnBoardingPage = () => {
             });
 
             router.push("/dashboard")
-        } catch {
+        } catch (updateError) {
             setError("root", {
-                message: "Failed to update profile. Please try again."
+                message: getErrorMessage(updateError, "Couldn't update your profile. Please try again.")
             })
         }
     }
@@ -113,7 +114,7 @@ const OnBoardingPage = () => {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background text-foreground md:p-8 p-6 max-w-7xl mx-auto">
                 <div className="flex flex-col items-center justify-center">
-                    <p className="text-error">Something went wrong. Please try again later.</p>
+                    <p className="text-error">{getErrorMessage(error, "Couldn't load your profile. Please try again.")}</p>
                     <div className="flex space-x-4">
                         <Button variant="secondary" className="mt-4" onClick={() => router.refresh()}>
                             Refresh Page

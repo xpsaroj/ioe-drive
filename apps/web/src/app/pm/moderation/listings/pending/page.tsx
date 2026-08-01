@@ -6,6 +6,7 @@ import { MarketplaceListingCard } from "@/components/common/marketplace";
 import Loader from "@/components/ui/Loader";
 import Pagination from "@/components/ui/Pagination";
 import { usePendingListings } from "@/hooks/queries/use-moderation";
+import { getErrorMessage } from "@/lib/errors";
 import { usePageParam } from "@/hooks/use-page-param";
 
 const PendingListingsQueueContent = () => {
@@ -17,7 +18,7 @@ const PendingListingsQueueContent = () => {
             <ItemList
                 items={data?.items || []}
                 loading={isPending}
-                error={error ? "Failed to load pending listings" : null}
+                error={error ? getErrorMessage(error, "Couldn't load pending listings. Please try again.") : null}
                 emptyMessage="Nothing waiting for review - every posted listing has been reviewed."
                 renderItem={(item) => <MarketplaceListingCard listing={item} />}
             />

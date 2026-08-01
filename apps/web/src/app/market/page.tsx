@@ -10,6 +10,7 @@ import Button from "@/components/ui/Button";
 import Pagination from "@/components/ui/Pagination";
 import Loader from "@/components/ui/Loader";
 import { useListings } from "@/hooks/queries/use-marketplace";
+import { getErrorMessage } from "@/lib/errors";
 import { usePageParam } from "@/hooks/use-page-param";
 import { useDebouncedValue } from "@/hooks/use-debounced-value";
 import {
@@ -95,7 +96,7 @@ const MarketBrowseContent = () => {
                 <ItemList
                     items={listings}
                     loading={isPending}
-                    error={error ? "Failed to load listings. Please try again." : null}
+                    error={error ? getErrorMessage(error, "Couldn't load listings. Please try again.") : null}
                     renderItem={(listing) => <MarketplaceListingCard listing={listing} />}
                     emptyMessage="No listings found."
                 />

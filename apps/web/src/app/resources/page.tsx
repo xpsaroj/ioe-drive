@@ -11,6 +11,7 @@ import Pagination from "@/components/ui/Pagination";
 import Button from "@/components/ui/Button";
 import Select from "@/components/ui/Select";
 import Loader from "@/components/ui/Loader";
+import { getErrorMessage } from "@/lib/errors";
 import { useAuth } from "@clerk/nextjs";
 import { useMe } from "@/hooks/queries/use-me";
 import { usePrograms, useSubjectOfferings } from "@/hooks/queries/use-academics";
@@ -243,7 +244,7 @@ const ResourcesBrowseContent = () => {
                 </div>
             ) : offeringsError ? (
                 <div className="flex-1 flex items-center justify-center py-16">
-                    <p className="text-error">Something went wrong. Please try again later.</p>
+                    <p className="text-error">{getErrorMessage(offeringsError, "Couldn't load resources. Please try again.")}</p>
                 </div>
             ) : !hasOfferings ? (
                 <div className="flex-1 border flex flex-col items-center justify-center gap-2 rounded-lg py-16">
@@ -280,7 +281,7 @@ const ResourcesBrowseContent = () => {
                         <ResourceList
                             resources={resources || []}
                             loading={resourcesLoading}
-                            error={resourcesError ? "Failed to load resources" : null}
+                            error={resourcesError ? getErrorMessage(resourcesError, "Couldn't load resources. Please try again.") : null}
                             renderItem={(resource) =>
                                 <ResourceCard
                                     resource={resource}
@@ -291,7 +292,7 @@ const ResourcesBrowseContent = () => {
                                     <span className="flex size-10 items-center justify-center rounded-full bg-accent-soft text-accent">
                                         <UploadCloud className="size-5" />
                                     </span>
-                                    <div>
+                                    <div className="flex flex-col items-center">
                                         <p className="text-sm font-medium text-foreground">No resources yet</p>
                                         <p className="text-sm text-foreground-secondary mt-1">Be the first to share one for this subject.</p>
                                     </div>

@@ -4,6 +4,7 @@ import { toast } from "sonner";
 
 import Button from "@/components/ui/Button";
 import { useMe, useBookmarkedResourceIds, useBookmarkResource, useUnbookmarkResource } from "@/hooks/queries/use-me";
+import { getErrorMessage } from "@/lib/errors";
 
 interface BookmarkButtonProps {
     resourceId: number;
@@ -31,7 +32,7 @@ const BookmarkButton = ({ resourceId, showLabel = false }: BookmarkButtonProps) 
                     toast.success("Bookmark removed.");
                 },
                 onError: (error) => {
-                    toast.error(error instanceof Error ? error.message : "Failed to remove bookmark.");
+                    toast.error(getErrorMessage(error, "Couldn't remove the bookmark. Please try again."));
                 },
             });
         } else {
@@ -40,7 +41,7 @@ const BookmarkButton = ({ resourceId, showLabel = false }: BookmarkButtonProps) 
                     toast.success("Resource bookmarked.");
                 },
                 onError: (error) => {
-                    toast.error(error instanceof Error ? error.message : "Failed to bookmark resource.");
+                    toast.error(getErrorMessage(error, "Couldn't bookmark the resource. Please try again."));
                 },
             });
         }

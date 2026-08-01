@@ -6,6 +6,7 @@ import { Pencil } from "lucide-react";
 import { toast } from "sonner";
 
 import { useMe, useUpdateProfile } from "@/hooks/queries/use-me";
+import { getErrorMessage } from "@/lib/errors";
 import { usePrograms } from "@/hooks/queries/use-academics";
 import Select from "@/components/ui/Select";
 import Input from "@/components/ui/Input";
@@ -61,7 +62,7 @@ const ProfilePage = () => {
             toast.success("Profile updated successfully.");
             setIsEditing(false);
         } catch (err) {
-            toast.error(err instanceof Error ? err.message : "Failed to update profile.");
+            toast.error(getErrorMessage(err, "Couldn't update your profile. Please try again."));
         }
     };
 

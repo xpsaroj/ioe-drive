@@ -10,6 +10,7 @@ import { useDocxPreviewHtml } from "@/hooks/queries/use-docx-preview";
 import Button from "@/components/ui/Button";
 import Loader from "@/components/ui/Loader";
 import { PageStateHandler } from "@/components/layout";
+import { getErrorMessage } from "@/lib/errors";
 import { FILE_TYPE_META, DEFAULT_FILE_TYPE_META, getMimeKey } from "@/components/common/resources";
 import { UploaderInfo } from "@/components/common/user";
 
@@ -41,6 +42,7 @@ const FilePreviewPage = ({
         data: downloadData,
         isPending: urlPending,
         isError: urlError,
+        error: downloadError,
         refetch: refetchDownloadUrl,
     } = useFileDownloadUrl(resourceId, activeFile?.id);
 
@@ -142,7 +144,9 @@ const FilePreviewPage = ({
                     {urlPending ? (
                         <Loader text="Preparing preview..." />
                     ) : urlError || !downloadData ? (
-                        <p className="text-error text-sm">Couldn&apos;t load this file&apos;s preview.</p>
+                        <p className="text-error text-sm">
+                            {getErrorMessage(downloadError, "Couldn't load this file's preview. Please try again.")}
+                        </p>
                     ) : !canPreviewInline ? (
                         <div className="flex flex-col items-center gap-3 text-center py-10">
                             <FileWarning className="size-10 text-foreground-tertiary" />

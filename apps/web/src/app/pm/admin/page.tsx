@@ -6,6 +6,7 @@ import Input from "@/components/ui/Input";
 import Select from "@/components/ui/Select";
 import Button from "@/components/ui/Button";
 import { useChangeUserRole } from "@/hooks/queries/use-admin";
+import { getErrorMessage } from "@/lib/errors";
 
 interface FormValues {
     email: string;
@@ -32,7 +33,7 @@ const AdminPage = () => {
                     reset();
                 },
                 onError: (error) => {
-                    toast.error(error instanceof Error ? error.message : "Failed to update role.");
+                    toast.error(getErrorMessage(error, "Couldn't update the user's role. Please try again."));
                 },
             }
         );

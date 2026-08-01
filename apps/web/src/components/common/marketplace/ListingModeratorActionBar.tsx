@@ -11,6 +11,7 @@ import {
     useRemoveListingAsModerator,
 } from "@/hooks/queries/use-marketplace";
 import { MarketplaceListingStatus, MarketplaceReportReason, MarketplaceReportReasonLabel } from "@/types/entities";
+import { getErrorMessage } from "@/lib/errors";
 import type { MarketplaceReportReasonInput } from "@/lib/validators/marketplace";
 
 const REASON_OPTIONS = Object.values(MarketplaceReportReason).map((reason) => ({
@@ -41,7 +42,7 @@ const ListingModeratorActionBar = ({ listingId, status }: ListingModeratorAction
     const handleApprove = () => {
         approve(undefined, {
             onSuccess: () => toast.success("Listing approved."),
-            onError: (error) => toast.error(error instanceof Error ? error.message : "Failed to approve listing."),
+            onError: (error) => toast.error(getErrorMessage(error, "Couldn't approve the listing. Please try again.")),
         });
     };
 
@@ -51,7 +52,7 @@ const ListingModeratorActionBar = ({ listingId, status }: ListingModeratorAction
                 toast.success("Listing rejected.");
                 setOpenModal(null);
             },
-            onError: (error) => toast.error(error instanceof Error ? error.message : "Failed to reject listing."),
+            onError: (error) => toast.error(getErrorMessage(error, "Couldn't reject the listing. Please try again.")),
         });
     };
 
@@ -61,7 +62,7 @@ const ListingModeratorActionBar = ({ listingId, status }: ListingModeratorAction
                 toast.success("Listing removed.");
                 setOpenModal(null);
             },
-            onError: (error) => toast.error(error instanceof Error ? error.message : "Failed to remove listing."),
+            onError: (error) => toast.error(getErrorMessage(error, "Couldn't remove the listing. Please try again.")),
         });
     };
 

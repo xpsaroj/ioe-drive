@@ -9,6 +9,7 @@ import Select from "@/components/ui/Select";
 import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
 import Button from "@/components/ui/Button";
+import { getErrorMessage } from "@/lib/errors";
 import { cn } from "@/utils/cn";
 import { formatFileSize } from "@/utils/file";
 import {
@@ -164,7 +165,7 @@ export const ListingUploadForm: React.FC = () => {
                 router.push(`/market/${response.data.id}`);
             },
             onError: (error) => {
-                toast.error(error instanceof Error ? error.message : "Failed to post listing.");
+                toast.error(getErrorMessage(error, "Couldn't post the listing. Please try again."));
             },
         });
     };

@@ -10,6 +10,7 @@ import Input from "@/components/ui/Input";
 import Textarea from "@/components/ui/Textarea";
 import Button from "@/components/ui/Button";
 import Loader from "@/components/ui/Loader";
+import { getErrorMessage } from "@/lib/errors";
 import { cn } from "@/utils/cn";
 import {
     formatFileSize,
@@ -164,7 +165,7 @@ export const ResourceUploadForm: React.FC = () => {
                 reset();
             },
             onError: (error) => {
-                toast.error(error instanceof Error ? error.message : "Failed to upload resource.");
+                toast.error(getErrorMessage(error, "Couldn't upload the resource. Please try again."));
             },
         });
     };
@@ -183,7 +184,7 @@ export const ResourceUploadForm: React.FC = () => {
         return (
             <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
                 <div className="flex flex-col items-center justify-center">
-                    <p className="text-error">Something went wrong. Please try again later.</p>
+                    <p className="text-error">{getErrorMessage(programsLoadError, "Couldn't load the page. Please try again.")}</p>
                     <div className="flex space-x-4">
                         <Button variant="primary" className="mt-4" onClick={() => router.back()}>
                             Go Back

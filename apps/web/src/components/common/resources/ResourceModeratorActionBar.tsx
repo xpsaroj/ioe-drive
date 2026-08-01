@@ -6,6 +6,7 @@ import { Check, ShieldOff, X } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { ModerationActionModal } from "@/components/common/moderation";
 import { useApproveResource, useRejectResource, useRemoveResource } from "@/hooks/queries/use-resources";
+import { getErrorMessage } from "@/lib/errors";
 import { ModerationReason, ModerationReasonLabel, ResourceStatus } from "@/types/entities";
 import type { ModerationReasonInput } from "@/lib/validators/resources";
 
@@ -36,7 +37,7 @@ const ResourceModeratorActionBar = ({ resourceId, status }: ResourceModeratorAct
     const handleApprove = () => {
         approve(undefined, {
             onSuccess: () => toast.success("Resource approved."),
-            onError: (error) => toast.error(error instanceof Error ? error.message : "Failed to approve resource."),
+            onError: (error) => toast.error(getErrorMessage(error, "Couldn't approve the resource. Please try again.")),
         });
     };
 
@@ -46,7 +47,7 @@ const ResourceModeratorActionBar = ({ resourceId, status }: ResourceModeratorAct
                 toast.success("Resource rejected.");
                 setOpenModal(null);
             },
-            onError: (error) => toast.error(error instanceof Error ? error.message : "Failed to reject resource."),
+            onError: (error) => toast.error(getErrorMessage(error, "Couldn't reject the resource. Please try again.")),
         });
     };
 
@@ -56,7 +57,7 @@ const ResourceModeratorActionBar = ({ resourceId, status }: ResourceModeratorAct
                 toast.success("Resource removed.");
                 setOpenModal(null);
             },
-            onError: (error) => toast.error(error instanceof Error ? error.message : "Failed to remove resource."),
+            onError: (error) => toast.error(getErrorMessage(error, "Couldn't remove the resource. Please try again.")),
         });
     };
 

@@ -11,6 +11,7 @@ import Button from "@/components/ui/Button";
 import Loader from "@/components/ui/Loader";
 import { usePrograms, useSubjectsForUpload, useSubjectDetails } from "@/hooks/queries/use-academics";
 import { useUpdateListing } from "@/hooks/queries/use-marketplace";
+import { getErrorMessage } from "@/lib/errors";
 import {
     Semester,
     SemesterLabel,
@@ -113,7 +114,7 @@ export const ListingEditForm = ({ listing, photosPanel }: ListingEditFormProps) 
                     router.back();
                 },
                 onError: (error) => {
-                    toast.error(error instanceof Error ? error.message : "Failed to update listing.");
+                    toast.error(getErrorMessage(error, "Couldn't update the listing. Please try again."));
                 },
             }
         );
@@ -143,7 +144,7 @@ export const ListingEditForm = ({ listing, photosPanel }: ListingEditFormProps) 
                         })}
                     />
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid gap-4">
                         <Controller
                             control={control}
                             name="type"

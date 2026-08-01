@@ -4,6 +4,7 @@ import { toast } from "sonner";
 
 import Button from "@/components/ui/Button";
 import { useDismissListingReport } from "@/hooks/queries/use-moderation";
+import { getErrorMessage } from "@/lib/errors";
 import { MarketplaceReportReasonLabel } from "@/types/entities";
 import type { ListingReportItem } from "@/types/api";
 
@@ -18,7 +19,7 @@ const ListingReportRow = ({ report }: ListingReportRowProps) => {
     const handleDismiss = () => {
         dismiss(report.id, {
             onSuccess: () => toast.success("Report dismissed."),
-            onError: (error) => toast.error(error instanceof Error ? error.message : "Failed to dismiss report."),
+            onError: (error) => toast.error(getErrorMessage(error, "Couldn't dismiss the report. Please try again.")),
         });
     };
 

@@ -11,6 +11,7 @@ import Loader from "@/components/ui/Loader";
 import { useAuth } from "@clerk/nextjs";
 import { useMe } from "@/hooks/queries/use-me";
 import { usePrograms, useSubjectOfferings } from "@/hooks/queries/use-academics";
+import { getErrorMessage } from "@/lib/errors";
 import { Semester, SemesterLabel } from "@/types/entities";
 
 const OfferingsBrowseContent = () => {
@@ -165,7 +166,7 @@ const OfferingsBrowseContent = () => {
                 </div>
             ) : offeringsError ? (
                 <div className="flex-1 flex items-center justify-center py-16">
-                    <p className="text-error">Something went wrong. Please try again later.</p>
+                    <p className="text-error">{getErrorMessage(offeringsError, "Couldn't load subject offerings. Please try again.")}</p>
                 </div>
             ) : !hasOfferings ? (
                 <div className="flex-1 border border-border flex flex-col items-center justify-center gap-2 rounded-lg py-16">

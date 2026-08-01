@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { cn } from "@/utils/cn";
 import { formatFileSize, partitionUploadableFiles, MAX_FILES_PER_UPLOAD, ACCEPTED_UPLOAD_FILE_EXTENSIONS } from "@/utils/file";
 import { useAddResourceFiles, useRemoveResourceFile } from "@/hooks/queries/use-resources";
+import { getErrorMessage } from "@/lib/errors";
 import { FILE_TYPE_META, DEFAULT_FILE_TYPE_META } from "./ResourceFileItem";
 import { getMimeKey } from "./MimeTypeBadge";
 import type { ResourceFileSummary, ResourceSummary } from "@/types/api";
@@ -72,7 +73,7 @@ const ResourceFilesManager = ({ resource }: ResourceFilesManagerProps) => {
                 toast.success(accepted.length > 1 ? "Files added successfully." : "File added successfully.");
             },
             onError: (error) => {
-                toast.error(error instanceof Error ? error.message : "Failed to add files.");
+                toast.error(getErrorMessage(error, "Couldn't add the file. Please try again."));
             },
         });
     };
@@ -94,7 +95,7 @@ const ResourceFilesManager = ({ resource }: ResourceFilesManagerProps) => {
                 toast.success(`Removed "${fileName}".`);
             },
             onError: (error) => {
-                toast.error(error instanceof Error ? error.message : "Failed to remove file.");
+                toast.error(getErrorMessage(error, "Couldn't remove the file. Please try again."));
             },
         });
     };

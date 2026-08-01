@@ -3,6 +3,7 @@ import { BookSpines, DEFAULT_SHELF_SPINES } from "@/components/decor";
 import Loader from "@/components/ui/Loader";
 import { ProgramCard } from "@/components/common/offering";
 import { usePrograms } from "@/hooks/queries/use-academics";
+import { getErrorMessage } from "@/lib/errors";
 
 // SH (Science & Humanities) owns cross-cutting first-year subjects but isn't a program
 // students enroll in - not shown here, same as it's excluded from db:seed-resources.
@@ -30,7 +31,7 @@ const ProgramsPage = () => {
                 </div>
             ) : error ? (
                 <div className="flex items-center justify-center py-16">
-                    <p className="text-error">Something went wrong. Please try again later.</p>
+                    <p className="text-error">{getErrorMessage(error, "Couldn't load programs. Please try again.")}</p>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">

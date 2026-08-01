@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
 import { useDeleteResource } from "@/hooks/queries/use-resources";
+import { getErrorMessage } from "@/lib/errors";
 
 interface DeleteResourceButtonProps {
     resourceId: number;
@@ -25,7 +26,7 @@ const DeleteResourceButton = ({ resourceId, onDeleted }: DeleteResourceButtonPro
                 onDeleted?.();
             },
             onError: (error) => {
-                toast.error(error instanceof Error ? error.message : "Failed to delete resource.");
+                toast.error(getErrorMessage(error, "Couldn't delete the resource. Please try again."));
             },
         });
     };

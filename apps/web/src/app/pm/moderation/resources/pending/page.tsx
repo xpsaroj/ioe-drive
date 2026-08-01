@@ -5,6 +5,7 @@ import { ResourceList, UploadedResourceCard } from "@/components/common/resource
 import Loader from "@/components/ui/Loader";
 import Pagination from "@/components/ui/Pagination";
 import { usePendingResources } from "@/hooks/queries/use-moderation";
+import { getErrorMessage } from "@/lib/errors";
 import { usePageParam } from "@/hooks/use-page-param";
 
 const PendingQueueContent = () => {
@@ -16,7 +17,7 @@ const PendingQueueContent = () => {
             <ResourceList
                 resources={data?.items || []}
                 loading={isPending}
-                error={error ? "Failed to load pending resources" : null}
+                error={error ? getErrorMessage(error, "Couldn't load pending resources. Please try again.") : null}
                 emptyMessage="Nothing waiting for review - every uploaded resource has been reviewed."
                 renderItem={(item) => <UploadedResourceCard item={item} />}
             />

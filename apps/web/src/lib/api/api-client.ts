@@ -27,14 +27,23 @@ class ApiClient {
         return headers;
     }
 
-    private async handleResponse(response: Response) {
-        const result = await response.json();
+    private async handleResponse<T>(response: Response): Promise<T> {
+        const result: unknown = await response.json().catch(() => null);
 
         if (!response.ok) {
-            throw new Error(result.message || 'API request failed');
+            const body = result as Record<string, unknown> | null;
+            const message =
+                typeof body?.error === 'string'
+                    ? body.error
+                    : typeof body?.message === 'string'
+                      ? body.message
+                      : null;
+            const error = new Error(message || 'API request failed') as Error & { status?: number };
+            error.status = response.status;
+            throw error;
         }
 
-        return result;
+        return result as T;
     }
 
     async get<T>(endpoint: string, includeAuth: boolean = true): Promise<T> {

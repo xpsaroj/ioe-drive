@@ -12,6 +12,7 @@ import { SubjectCodeTile } from "@/components/common/offering";
 import Button from "@/components/ui/Button";
 import Pagination from "@/components/ui/Pagination";
 import Loader from "@/components/ui/Loader";
+import { getErrorMessage } from "@/lib/errors";
 import { useSearchResources } from "@/hooks/queries/use-resources";
 import { useSearchSubjects } from "@/hooks/queries/use-academics";
 import { useListings } from "@/hooks/queries/use-marketplace";
@@ -138,7 +139,7 @@ const SearchContent = () => {
                                 <ResourceList
                                     resources={resources}
                                     loading={resourcesLoading}
-                                    error={resourcesError ? "Failed to load results. Please try again." : null}
+                                    error={resourcesError ? getErrorMessage(resourcesError, "Couldn't load search results. Please try again.") : null}
                                     renderItem={(resource) => <ResourceCard resource={resource} />}
                                     emptyMessage={`No resources found for "${q}".`}
                                 />
@@ -154,7 +155,7 @@ const SearchContent = () => {
                                 <ItemList
                                     items={listings}
                                     loading={listingsPending}
-                                    error={listingsError ? "Failed to load results. Please try again." : null}
+                                    error={listingsError ? getErrorMessage(listingsError, "Couldn't load search results. Please try again.") : null}
                                     renderItem={(listing) => <MarketplaceListingCard listing={listing} />}
                                     emptyMessage={`No listings found for "${q}".`}
                                 />

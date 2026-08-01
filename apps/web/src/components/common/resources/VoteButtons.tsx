@@ -4,6 +4,7 @@ import { toast } from "sonner";
 
 import Button from "@/components/ui/Button";
 import { useMe, useResourceVoteValues, useSetResourceVote, useClearResourceVote } from "@/hooks/queries/use-me";
+import { getErrorMessage } from "@/lib/errors";
 import { ResourceStatus } from "@/types/entities";
 
 interface VoteButtonsProps {
@@ -33,7 +34,7 @@ const VoteButtons = ({ resourceId, upvoteCount, downvoteCount, uploadedBy, statu
     const handleVote = (value: 1 | -1) => {
         const resourceIdString = String(resourceId);
         const onError = (error: unknown) => {
-            toast.error(error instanceof Error ? error.message : "Failed to record your vote.");
+            toast.error(getErrorMessage(error, "Couldn't record your vote. Please try again."));
         };
 
         if (myVote === value) {

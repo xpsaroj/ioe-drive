@@ -4,6 +4,7 @@ import { CheckCircle2, RotateCcw } from "lucide-react";
 
 import Button from "@/components/ui/Button";
 import { useMarkListingFulfilled, useReactivateListing } from "@/hooks/queries/use-marketplace";
+import { getErrorMessage } from "@/lib/errors";
 import { MarketplaceListingStatus } from "@/types/entities";
 
 interface ListingStatusToggleButtonProps {
@@ -29,7 +30,7 @@ const ListingStatusToggleButton = ({ listingId, status }: ListingStatusToggleBut
                     reactivate(undefined, {
                         onSuccess: () => toast.success("Listing reactivated."),
                         onError: (error) =>
-                            toast.error(error instanceof Error ? error.message : "Failed to reactivate listing."),
+                            toast.error(getErrorMessage(error, "Couldn't reactivate the listing. Please try again.")),
                     })
                 }
             >
@@ -48,7 +49,7 @@ const ListingStatusToggleButton = ({ listingId, status }: ListingStatusToggleBut
                 markFulfilled(undefined, {
                     onSuccess: () => toast.success("Listing marked as fulfilled."),
                     onError: (error) =>
-                        toast.error(error instanceof Error ? error.message : "Failed to mark listing as fulfilled."),
+                        toast.error(getErrorMessage(error, "Couldn't mark the listing as fulfilled. Please try again.")),
                 })
             }
         >

@@ -6,6 +6,7 @@ import { ChevronLeft, Download, Lightbulb } from "lucide-react";
 import { toast } from "sonner";
 
 import { useResource, useDownloadFile, useSimilarResources } from "@/hooks/queries/use-resources";
+import { getErrorMessage } from "@/lib/errors";
 import { useSubjectDetails } from "@/hooks/queries/use-academics";
 import { useMe, useMarkResourceAsRecentlyAccessed } from "@/hooks/queries/use-me";
 import Badge from "@/components/ui/Badge";
@@ -153,7 +154,7 @@ const ResourceDetailContent = ({
                 window.open(url, "_blank");
             }
         } catch (err) {
-            toast.error(err instanceof Error ? err.message : "Failed to download some files.");
+            toast.error(getErrorMessage(err, "Couldn't download the files. Please try again."));
         } finally {
             setIsDownloadingAll(false);
         }

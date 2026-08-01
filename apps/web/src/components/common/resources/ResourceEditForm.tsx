@@ -11,6 +11,7 @@ import Button from "@/components/ui/Button";
 import Loader from "@/components/ui/Loader";
 import { usePrograms, useSubjectsForUpload, useSubjectDetails } from "@/hooks/queries/use-academics";
 import { useUpdateResource } from "@/hooks/queries/use-resources";
+import { getErrorMessage } from "@/lib/errors";
 import { Semester, SemesterLabel, ResourceType, ResourceTypeLabel } from "@/types/entities";
 import type { ResourceSummary } from "@/types/api";
 
@@ -94,7 +95,7 @@ export const ResourceEditForm = ({ resource, filesPanel }: ResourceEditFormProps
                     router.back();
                 },
                 onError: (error) => {
-                    toast.error(error instanceof Error ? error.message : "Failed to update resource.");
+                    toast.error(getErrorMessage(error, "Couldn't update the resource. Please try again."));
                 },
             }
         );

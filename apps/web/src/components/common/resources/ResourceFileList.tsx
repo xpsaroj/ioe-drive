@@ -26,7 +26,7 @@ const ResourceFileList = ({
     if (error) {
         return (
             <div>
-                <p className="text-xs text-error">Error loading files. Please try again.</p>
+                <p className="text-xs text-error">{error || "Error loading files. Please try again."}</p>
             </div>
         )
     }

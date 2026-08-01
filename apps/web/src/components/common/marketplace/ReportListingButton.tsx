@@ -6,6 +6,7 @@ import { Flag } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { ModerationActionModal } from "@/components/common/moderation";
 import { useReportListing } from "@/hooks/queries/use-marketplace";
+import { getErrorMessage } from "@/lib/errors";
 import { MarketplaceReportReason, MarketplaceReportReasonLabel } from "@/types/entities";
 import type { MarketplaceReportReasonInput } from "@/lib/validators/marketplace";
 
@@ -29,7 +30,7 @@ const ReportListingButton = ({ listingId }: ReportListingButtonProps) => {
                 toast.success("Thanks - we've received your report.");
                 setIsOpen(false);
             },
-            onError: (error) => toast.error(error instanceof Error ? error.message : "Failed to report listing."),
+            onError: (error) => toast.error(getErrorMessage(error, "Couldn't submit your report. Please try again.")),
         });
     };
 

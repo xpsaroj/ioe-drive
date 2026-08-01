@@ -6,6 +6,7 @@ import { Flag } from "lucide-react";
 import Button from "@/components/ui/Button";
 import { ModerationActionModal } from "@/components/common/moderation";
 import { useReportResource } from "@/hooks/queries/use-resources";
+import { getErrorMessage } from "@/lib/errors";
 import { ModerationReason, ModerationReasonLabel } from "@/types/entities";
 import type { ModerationReasonInput } from "@/lib/validators/resources";
 
@@ -29,7 +30,7 @@ const ReportResourceButton = ({ resourceId }: ReportResourceButtonProps) => {
                 toast.success("Thanks - we've received your report.");
                 setIsOpen(false);
             },
-            onError: (error) => toast.error(error instanceof Error ? error.message : "Failed to report resource."),
+            onError: (error) => toast.error(getErrorMessage(error, "Couldn't submit your report. Please try again.")),
         });
     };
 

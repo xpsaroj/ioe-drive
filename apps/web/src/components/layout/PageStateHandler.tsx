@@ -1,6 +1,7 @@
 "use client";
-import { Inbox } from "lucide-react";
+import { AlertCircle, Inbox } from "lucide-react";
 
+import { getErrorMessage } from "@/lib/errors";
 import Loader from "@/components/ui/Loader";
 
 interface PageStateHandlerProps {
@@ -46,7 +47,12 @@ const PageStateHandler = ({
                 {header}
                 <div className={stateContainerClassName}>
                     {errorContent || (
-                        <p className="text-error">Something went wrong. Please try again later.</p>
+                        <div className="flex flex-col items-center gap-2">
+                            <AlertCircle className="size-5 text-error" />
+                            <p className="text-sm text-error">
+                                {getErrorMessage(error, "Something went wrong. Please try again later.")}
+                            </p>
+                        </div>
                     )}
                 </div>
             </div>

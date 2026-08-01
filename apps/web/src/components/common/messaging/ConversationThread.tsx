@@ -8,6 +8,7 @@ import Textarea from "@/components/ui/Textarea";
 import Loader from "@/components/ui/Loader";
 import { useConversationMessages, useLoadOlderMessages, useMarkConversationRead } from "@/hooks/queries/use-messaging";
 import { useMarketplaceSocket } from "@/hooks/use-marketplace-socket";
+import { getErrorMessage } from "@/lib/errors";
 import { cn } from "@/utils/cn";
 import type { MessageSummary } from "@/types/api";
 
@@ -109,7 +110,7 @@ const ConversationThread = ({ conversationId, currentUserId }: ConversationThrea
         };
 
         const handleError = (payload: { message?: string }) => {
-            toast.error(payload?.message || "A messaging error occurred.");
+            toast.error(getErrorMessage(new Error(payload?.message ?? ""), "A messaging error occurred."));
         };
 
         socket.on("new_message", handleNewMessage);
@@ -168,7 +169,7 @@ const ConversationThread = ({ conversationId, currentUserId }: ConversationThrea
     if (error) {
         return (
             <div className="flex flex-1 min-h-0 items-center justify-center py-16">
-                <p className="text-error text-sm">Failed to load messages. Please try again.</p>
+                <p className="text-error text-sm">{getErrorMessage(error, "Couldn't load messages. Please try again.")}</p>
             </div>
         );
     }

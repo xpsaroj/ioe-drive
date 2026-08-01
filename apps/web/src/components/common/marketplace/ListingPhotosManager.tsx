@@ -7,6 +7,7 @@ import { cn } from "@/utils/cn";
 import { formatFileSize } from "@/utils/file";
 import { partitionUploadablePhotos, MAX_LISTING_PHOTOS, ACCEPTED_LISTING_PHOTO_EXTENSIONS } from "@/utils/marketplace-file";
 import { useAddListingPhotos, useRemoveListingPhoto } from "@/hooks/queries/use-marketplace";
+import { getErrorMessage } from "@/lib/errors";
 import type { ListingPhotoSummary, ListingSummary } from "@/types/api";
 
 interface ListingPhotosManagerProps {
@@ -69,7 +70,7 @@ const ListingPhotosManager = ({ listing }: ListingPhotosManagerProps) => {
                 toast.success(accepted.length > 1 ? "Photos added successfully." : "Photo added successfully.");
             },
             onError: (error) => {
-                toast.error(error instanceof Error ? error.message : "Failed to add photos.");
+                toast.error(getErrorMessage(error, "Couldn't add the photos. Please try again."));
             },
         });
     };
@@ -96,7 +97,7 @@ const ListingPhotosManager = ({ listing }: ListingPhotosManagerProps) => {
                 toast.success(`Removed "${fileName}".`);
             },
             onError: (error) => {
-                toast.error(error instanceof Error ? error.message : "Failed to remove photo.");
+                toast.error(getErrorMessage(error, "Couldn't remove the photo. Please try again."));
             },
         });
     };

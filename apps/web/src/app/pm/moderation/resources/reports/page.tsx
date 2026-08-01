@@ -6,6 +6,7 @@ import { ResourceReportRow } from "@/components/common/moderation";
 import Loader from "@/components/ui/Loader";
 import Pagination from "@/components/ui/Pagination";
 import { useResourceReports } from "@/hooks/queries/use-moderation";
+import { getErrorMessage } from "@/lib/errors";
 import { usePageParam } from "@/hooks/use-page-param";
 
 const ReportsQueueContent = () => {
@@ -17,7 +18,7 @@ const ReportsQueueContent = () => {
             <ResourceList
                 resources={data?.items || []}
                 loading={isPending}
-                error={error ? "Failed to load reports" : null}
+                error={error ? getErrorMessage(error, "Couldn't load reports. Please try again.") : null}
                 emptyMessage="No open reports - every reported resource has been reviewed."
                 renderItem={(report) => <ResourceReportRow report={report} />}
             />

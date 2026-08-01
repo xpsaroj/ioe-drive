@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import Button from "@/components/ui/Button";
 import Modal from "@/components/ui/Modal";
 import { useDeleteListing } from "@/hooks/queries/use-marketplace";
+import { getErrorMessage } from "@/lib/errors";
 
 interface DeleteListingButtonProps {
     listingId: number;
@@ -25,7 +26,7 @@ const DeleteListingButton = ({ listingId, onDeleted }: DeleteListingButtonProps)
                 onDeleted?.();
             },
             onError: (error) => {
-                toast.error(error instanceof Error ? error.message : "Failed to delete listing.");
+                toast.error(getErrorMessage(error, "Couldn't delete the listing. Please try again."));
             },
         });
     };

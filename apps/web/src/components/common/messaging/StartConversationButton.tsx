@@ -8,6 +8,7 @@ import Modal from "@/components/ui/Modal";
 import Textarea from "@/components/ui/Textarea";
 import Button from "@/components/ui/Button";
 import { useStartConversation } from "@/hooks/queries/use-messaging";
+import { getErrorMessage } from "@/lib/errors";
 
 interface StartConversationButtonProps {
     listingId: number;
@@ -37,7 +38,7 @@ const StartConversationButton = ({ listingId, label = "Message Seller" }: StartC
                     router.push(`/messages/${data.conversationId}`);
                 },
                 onError: (error) => {
-                    toast.error(error instanceof Error ? error.message : "Failed to send message.");
+                    toast.error(getErrorMessage(error, "Couldn't send your message. Please try again."));
                 },
             }
         );
