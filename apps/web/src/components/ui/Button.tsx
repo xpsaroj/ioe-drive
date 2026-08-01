@@ -68,6 +68,7 @@ const Button = React.forwardRef<HTMLElement, ButtonProps>(
             iconOnly = false,
             className,
             children,
+            disabled,
             ...rest
         },
         ref
@@ -95,13 +96,18 @@ const Button = React.forwardRef<HTMLElement, ButtonProps>(
         );
 
         if (href) {
+            // A native `disabled` attribute (and the CSS `disabled:` variants above) has no
+            // effect on an <a> - Link needs its own click/keyboard guard to actually block navigation.
             return (
                 <Link
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     ref={ref as any}
                     href={href}
-                    className={classes}
+                    className={cn(classes, disabled && "opacity-50 cursor-not-allowed pointer-events-none")}
                     target={href.startsWith("http") ? "_blank" : undefined}
+                    aria-disabled={disabled || undefined}
+                    tabIndex={disabled ? -1 : undefined}
+                    onClick={disabled ? (e) => e.preventDefault() : undefined}
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     {...(rest as any)}
                 >
@@ -112,7 +118,7 @@ const Button = React.forwardRef<HTMLElement, ButtonProps>(
 
         return (
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            <button ref={ref as any} className={classes} {...rest}>
+            <button ref={ref as any} className={classes} disabled={disabled} {...rest}>
                 {content}
             </button>
         );

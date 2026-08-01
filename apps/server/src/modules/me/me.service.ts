@@ -2,11 +2,15 @@ import { BadRequestException, ForbiddenException, Injectable, NotFoundException 
 
 import type { AuthenticatedUser } from "../../common/guards/clerk-auth.guard";
 import { MarketplaceListingsService } from "../marketplace/marketplace-listings.service";
+import { ProgramsRepository } from "../programs/programs.repository";
 import { ResourcesRepository } from "../resources/resources.repository";
 import { ResourcesService } from "../resources/resources.service";
 import { UsersRepository } from "../users/users.repository";
 import type { UpdateProfileDto } from "./dto/update-profile.dto";
 import { MeRepository } from "./me.repository";
+
+// Only this program's students run to semester 10 - everyone else caps at 8.
+const ARCHITECTURE_PROGRAM_CODE = "BAR";
 
 @Injectable()
 export class MeService {
@@ -16,6 +20,7 @@ export class MeService {
     private readonly resourcesRepository: ResourcesRepository,
     private readonly marketplaceListingsService: MarketplaceListingsService,
     private readonly meRepository: MeRepository,
+    private readonly programsRepository: ProgramsRepository,
   ) {}
 
   async getProfile(userId: number) {
@@ -33,6 +38,15 @@ export class MeService {
 
     if (!existingProfile) {
       throw new NotFoundException("User profile not found");
+    }
+
+    if (data.semester !== undefined && Number(data.semester) > 8) {
+      const effectiveProgramId = data.programId ?? existingProfile.programId;
+      const program = effectiveProgramId ? await this.programsRepository.findById(effectiveProgramId) : null;
+
+      if (program?.code !== ARCHITECTURE_PROGRAM_CODE) {
+        throw new BadRequestException("Only Architecture (BAR) students can select a semester beyond 8.");
+      }
     }
 
     await this.usersRepository.updateProfile(userId, {
