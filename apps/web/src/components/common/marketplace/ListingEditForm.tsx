@@ -128,7 +128,7 @@ export const ListingEditForm = ({ listing, photosPanel }: ListingEditFormProps) 
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start">
-                <div className="space-y-4 rounded-xl border border-border p-6">
+                <div className="space-y-4 rounded-lg md:border border-border md:p-6">
                     <h2 className="text-lg font-semibold text-foreground">Listing Details</h2>
 
                     <Input
@@ -198,7 +198,20 @@ export const ListingEditForm = ({ listing, photosPanel }: ListingEditFormProps) 
                         })}
                     />
 
-                    <div className="space-y-4 rounded-lg border border-border p-4">
+                    <Textarea
+                        label="Description"
+                        required
+                        rows={3}
+                        error={errors.description?.message}
+                        disabled={isSaving}
+                        {...register("description", {
+                            required: "Description is required",
+                            minLength: { value: 10, message: "Description must be at least 10 characters" },
+                            maxLength: { value: 1000, message: "Description must be less than 1000 characters" },
+                        })}
+                    />
+
+                    <div className="space-y-4 rounded-lg border border-border bg-background-secondary p-4">
                         <label className="flex items-center gap-2 text-sm font-medium text-foreground">
                             <input
                                 type="checkbox"
@@ -285,21 +298,6 @@ export const ListingEditForm = ({ listing, photosPanel }: ListingEditFormProps) 
                 </div>
 
                 {photosPanel}
-            </div>
-
-            <div className="rounded-xl border border-border p-6">
-                <Textarea
-                    label="Description"
-                    required
-                    rows={4}
-                    error={errors.description?.message}
-                    disabled={isSaving}
-                    {...register("description", {
-                        required: "Description is required",
-                        minLength: { value: 10, message: "Description must be at least 10 characters" },
-                        maxLength: { value: 1000, message: "Description must be less than 1000 characters" },
-                    })}
-                />
             </div>
 
             <div className="flex justify-end gap-3 border-t border-border pt-6">

@@ -26,7 +26,7 @@ interface AcademicTermInfoProps extends Omit<SubjectOffering, "id" | "subjectId"
 
 const AcademicTermInfo = ({ year, semester, isElective, browseResourcesHref }: AcademicTermInfoProps) => {
     return (
-        <div className="rounded-xl border border-border p-6">
+        <div className="rounded-lg border border-border p-6">
             <p className="mb-2 font-display text-xs font-medium uppercase tracking-wide text-foreground-tertiary">
                 Offering Details
             </p>
@@ -36,7 +36,7 @@ const AcademicTermInfo = ({ year, semester, isElective, browseResourcesHref }: A
                         <h2 className="text-xl font-bold text-foreground">
                             Year {numberToRoman(+year)}, Part {numberToRoman(Math.floor(+semester / +year))}
                         </h2>
-                        {isElective && <Badge size="sm">Elective</Badge>}
+                        {isElective && <Badge size="sm" variant="info">Elective</Badge>}
                     </div>
                     <p className="mt-1 flex items-center gap-3 text-sm text-foreground-secondary">
                         <span>Year {year}</span>

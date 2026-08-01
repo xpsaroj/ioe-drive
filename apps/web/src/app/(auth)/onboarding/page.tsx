@@ -10,6 +10,7 @@ import { useMe } from "@/hooks/queries/use-me"
 import { useUpdateProfile } from "@/hooks/queries/use-me"
 
 import Select from "@/components/ui/Select"
+import Input from "@/components/ui/Input"
 import Button from "@/components/ui/Button"
 import Loader from "@/components/ui/Loader"
 import { ScatteredCodeTiles, type ScatteredTile } from "@/components/decor"
@@ -119,7 +120,7 @@ const OnBoardingPage = () => {
         <div className="relative overflow-hidden min-h-screen flex justify-center items-center bg-background text-foreground md:p-8 p-6 max-w-7xl mx-auto">
             <ScatteredCodeTiles tiles={ONBOARDING_TILES} />
 
-            <div className="relative z-10 w-full max-w-xl bg-card border rounded-xl md:p-8 p-6 shadow-sm">
+            <div className="relative z-10 w-full max-w-xl bg-card border rounded-lg md:p-8 p-6 shadow-sm">
 
                 <div className="mb-6">
                     <h1 className="text-2xl font-semibold">One last step.</h1>
@@ -174,25 +175,16 @@ const OnBoardingPage = () => {
                         )}
                     />
 
-                    <div>
-                        <label className="block text-sm font-medium mb-1 text-foreground">
-                            College
-                        </label>
-                        <input
-                            {...register("college", {
-                                required: "College name is required",
-                                minLength: { value: 3, message: "College name must be at least 3 characters long" },
-                                maxLength: { value: 50, message: "College name must be less than 50 characters long" }
-                            })}
-                            placeholder="XYZ Engineering College"
-                            className={`w-full border ${errors.college ? "border-error bg-error/10" : "hover:border-input-placeholder  bg-background"} focus:ring-2 focus:ring-foreground focus:border-transparent outline-none rounded-lg px-3 py-2`}
-                        />
-                        {errors.college && (
-                            <p className="mt-1.5 text-xs text-error">
-                                {errors.college.message}
-                            </p>
-                        )}
-                    </div>
+                    <Input
+                        label="College"
+                        placeholder="XYZ Engineering College"
+                        error={errors.college?.message}
+                        {...register("college", {
+                            required: "College name is required",
+                            minLength: { value: 3, message: "College name must be at least 3 characters long" },
+                            maxLength: { value: 50, message: "College name must be less than 50 characters long" }
+                        })}
+                    />
 
                     {errors.root && (
                         <p className="mt-1.5 text-sm text-error">

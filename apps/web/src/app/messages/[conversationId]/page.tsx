@@ -2,7 +2,7 @@
 import { use } from "react"
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChevronLeft, ImageOff } from "lucide-react";
+import { ChevronLeft, ImageOff, SearchX } from "lucide-react";
 
 import { useConversation } from "@/hooks/queries/use-messaging";
 import { useMe } from "@/hooks/queries/use-me";
@@ -58,8 +58,8 @@ const ConversationThreadPage = ({
                 }
                 loaderText="Loading conversation. Please wait."
                 emptyContent={
-                    <div className="flex flex-col justify-center items-center">
-                        <p className="text-4xl">404</p>
+                    <div className="flex flex-col items-center justify-center gap-2 text-center">
+                        <SearchX className="size-8 text-foreground-tertiary" />
                         <p className="text-foreground-secondary">This conversation does not exist.</p>
                     </div>
                 }

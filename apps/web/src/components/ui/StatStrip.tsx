@@ -26,7 +26,7 @@ const StatStrip = ({ items, variant = "boxed", className }: StatStripProps) => {
                     <Link
                         key={item.label}
                         href={item.href}
-                        className="flex items-center gap-3 rounded-xl border border-border p-4 transition-colors hover:bg-background-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                        className="flex items-center gap-3 rounded-lg border border-border p-4 transition-colors hover:bg-background-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
                     >
                         {item.icon && (
                             <span className="flex size-10 shrink-0 items-center justify-center rounded-lg bg-accent text-accent-foreground">
@@ -61,7 +61,7 @@ const StatStrip = ({ items, variant = "boxed", className }: StatStripProps) => {
     }
 
     return (
-        <div className={cn("flex flex-col sm:flex-row border border-border rounded-xl divide-y sm:divide-y-0 sm:divide-x divide-border overflow-hidden", className)}>
+        <div className={cn("flex flex-col sm:flex-row border border-border rounded-lg divide-y sm:divide-y-0 sm:divide-x divide-border overflow-hidden", className)}>
             {items.map((item) => (
                 <Link
                     key={item.label}

@@ -1,4 +1,6 @@
 "use client";
+import { Inbox } from "lucide-react";
+
 import Loader from "@/components/ui/Loader";
 
 interface PageStateHandlerProps {
@@ -56,7 +58,12 @@ const PageStateHandler = ({
             <div className={containerClassName}>
                 {header}
                 <div className={stateContainerClassName}>
-                    {emptyContent || <p className="text-foreground-secondary">No data found.</p>}
+                    {emptyContent || (
+                        <div className="flex flex-col items-center gap-3">
+                            <Inbox className="size-6 text-foreground-tertiary" />
+                            <p className="text-foreground-secondary">No data found.</p>
+                        </div>
+                    )}
                 </div>
             </div>
         );

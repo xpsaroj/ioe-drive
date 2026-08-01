@@ -109,9 +109,10 @@ const NotificationsBell = () => {
                                 <div className="size-5 animate-spin rounded-full border-2 border-foreground-secondary border-t-foreground" />
                             </div>
                         ) : notifications.length === 0 ? (
-                            <p className="px-4 py-10 text-center text-sm text-foreground-tertiary">
-                                No notifications yet.
-                            </p>
+                            <div className="flex flex-col items-center justify-center gap-2 px-4 py-10 text-center">
+                                <Bell className="size-5 text-foreground-tertiary" />
+                                <p className="text-sm text-foreground-tertiary">No notifications yet.</p>
+                            </div>
                         ) : (
                             <div className="divide-y divide-border">
                                 {notifications.map((notification) => (

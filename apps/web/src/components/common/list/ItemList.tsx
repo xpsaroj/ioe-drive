@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { Inbox, AlertCircle } from "lucide-react";
 
 const DefaultSkeleton = () => (
-    <div className="h-24 animate-pulse rounded-xl border border-border bg-background-tertiary" />
+    <div className="h-24 animate-pulse rounded-lg border border-border bg-background-tertiary" />
 );
 
 interface ItemListProps<T> {
@@ -45,7 +45,7 @@ const ItemList = <T,>({
 
     if (error) {
         return (
-            <div className="flex flex-col items-center gap-2 rounded-xl border border-border py-16">
+            <div className="flex flex-col items-center gap-2 rounded-lg border border-border py-16">
                 <AlertCircle className="size-5 text-error" />
                 <p className="text-error text-sm">{error}</p>
             </div>
@@ -54,7 +54,7 @@ const ItemList = <T,>({
 
     if (!items || items.length === 0) {
         return (
-            <div className="flex flex-col items-center gap-2 rounded-xl border border-border py-16">
+            <div className="flex flex-col items-center gap-2 rounded-lg border border-border py-16">
                 {emptyState ?? (
                     <>
                         <Inbox className="size-5 text-foreground-tertiary" />

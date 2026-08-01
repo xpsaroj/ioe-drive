@@ -6,45 +6,19 @@ export interface MimeTypeBadgeProps
     mimeType: string;
 }
 
+// Theme tag tokens, not raw Tailwind color literals - auto dark-mode via the .dark class.
+// Same hue-per-mime-type mapping as ResourceFileItem's FILE_TYPE_META.
 const mimeColorMap: Record<
     string,
     { bg: string; text: string; border?: string }
 > = {
-    pdf: {
-        bg: "bg-red-100 dark:bg-red-900/30",
-        text: "text-red-700 dark:text-red-400",
-        border: "border-red-200 dark:border-red-800",
-    },
-    png: {
-        bg: "bg-blue-100 dark:bg-blue-900/30",
-        text: "text-blue-700 dark:text-blue-400",
-        border: "border-blue-200 dark:border-blue-800",
-    },
-    jpg: {
-        bg: "bg-blue-100 dark:bg-blue-900/30",
-        text: "text-blue-700 dark:text-blue-400",
-        border: "border-blue-200 dark:border-blue-800",
-    },
-    jpeg: {
-        bg: "bg-blue-100 dark:bg-blue-900/30",
-        text: "text-blue-700 dark:text-blue-400",
-        border: "border-blue-200 dark:border-blue-800",
-    },
-    json: {
-        bg: "bg-yellow-100 dark:bg-yellow-900/30",
-        text: "text-yellow-700 dark:text-yellow-400",
-        border: "border-yellow-200 dark:border-yellow-800",
-    },
-    csv: {
-        bg: "bg-green-100 dark:bg-green-900/30",
-        text: "text-green-700 dark:text-green-400",
-        border: "border-green-200 dark:border-green-800",
-    },
-    zip: {
-        bg: "bg-purple-100 dark:bg-purple-900/30",
-        text: "text-purple-700 dark:text-purple-400",
-        border: "border-purple-200 dark:border-purple-800",
-    },
+    pdf: { bg: "bg-tag-rose-bg", text: "text-tag-rose-text", border: "border-tag-rose-text" },
+    png: { bg: "bg-tag-violet-bg", text: "text-tag-violet-text", border: "border-tag-violet-text" },
+    jpg: { bg: "bg-tag-violet-bg", text: "text-tag-violet-text", border: "border-tag-violet-text" },
+    jpeg: { bg: "bg-tag-violet-bg", text: "text-tag-violet-text", border: "border-tag-violet-text" },
+    json: { bg: "bg-tag-sepia-bg", text: "text-tag-sepia-text", border: "border-tag-sepia-text" },
+    csv: { bg: "bg-tag-olive-bg", text: "text-tag-olive-text", border: "border-tag-olive-text" },
+    zip: { bg: "bg-tag-slate-bg", text: "text-tag-slate-text", border: "border-tag-slate-text" },
 };
 
 const specialMimeMap: Record<string, string> = {

@@ -1,6 +1,6 @@
 "use client";
 import { useState } from "react";
-import { CloudUpload, Trash2 } from "lucide-react";
+import { CloudUpload, File as FileIcon, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { cn } from "@/utils/cn";
@@ -32,7 +32,7 @@ const ExistingFileRow = ({
             </span>
             <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-foreground">{file.originalFileName}</p>
-                <p className="text-xs text-foreground-tertiary">{formatFileSize(file.fileSize)}</p>
+                <p className="font-display text-[11px] uppercase tracking-wide text-foreground-tertiary">{formatFileSize(file.fileSize)}</p>
             </div>
             <button
                 type="button"
@@ -100,13 +100,13 @@ const ResourceFilesManager = ({ resource }: ResourceFilesManagerProps) => {
     };
 
     return (
-        <div className="rounded-xl border border-border p-6">
-            <div className="mb-4">
+        <div className="space-y-4">
+            {/* <div>
                 <h2 className="text-lg font-semibold text-foreground">Files</h2>
                 <p className="mt-0.5 text-xs text-foreground-tertiary">
                     Changes here save instantly &mdash; no need to hit Save Changes.
                 </p>
-            </div>
+            </div> */}
 
             <div
                 onDragOver={(e) => {
@@ -117,19 +117,17 @@ const ResourceFilesManager = ({ resource }: ResourceFilesManagerProps) => {
                 onDrop={handleDrop}
                 onClick={() => !isAdding && document.getElementById("resourceFilesManagerInput")?.click()}
                 className={cn(
-                    "rounded-xl border-2 border-dashed p-6 text-center transition-colors",
+                    "rounded-lg border-2 border-dashed p-8 text-center transition-colors",
                     isAdding ? "cursor-not-allowed opacity-60" : "cursor-pointer hover:border-foreground-tertiary",
                     isDragging ? "border-accent bg-accent/5" : "border-border",
                 )}
             >
-                <span className="mx-auto mb-3 flex size-10 items-center justify-center rounded-xl bg-accent text-accent-foreground">
-                    <CloudUpload className="size-5" />
+                <span className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-accent text-accent-foreground">
+                    <CloudUpload className="size-6" />
                 </span>
-                <p className="text-sm font-semibold text-foreground">
-                    {isAdding ? "Uploading..." : "Drag & Drop files here"}
-                </p>
-                <p className="mt-1 text-xs text-foreground-secondary">or click to browse from your computer</p>
-                <p className="mt-3 inline-block rounded-md bg-background-tertiary px-2.5 py-1 font-display text-[10px] uppercase tracking-wide text-foreground-tertiary">
+                <p className="font-semibold text-foreground">Drag & Drop files here</p>
+                <p className="mt-1 text-sm text-foreground-secondary">or click to browse from your computer</p>
+                <p className="mt-4 inline-block rounded-md bg-background-tertiary px-3 py-1.5 font-display text-[11px] uppercase tracking-wide text-foreground-tertiary">
                     PDF, DOCX, JPG, PNG | up to 10 MB | max {MAX_FILES_PER_UPLOAD} files
                 </p>
                 <input
@@ -143,18 +141,32 @@ const ResourceFilesManager = ({ resource }: ResourceFilesManagerProps) => {
                 />
             </div>
 
+            <p className="text-sm text-foreground-tertiary">
+                Changes here save instantly, no need to hit Save Changes.
+            </p>
+
             {files.length === 0 ? (
-                <p className="mt-4 text-xs text-foreground-tertiary">No files attached to this resource.</p>
+                <div className="flex items-center gap-2 rounded-lg border border-border p-4 text-sm text-foreground-tertiary">
+                    <FileIcon className="size-4 shrink-0" />
+                    No files attached to this resource.
+                </div>
             ) : (
-                <div className="mt-4 flex flex-col gap-2">
-                    {files.map((file) => (
-                        <ExistingFileRow
-                            key={file.id}
-                            file={file}
-                            disabled={isRemoving}
-                            onRemove={() => handleRemove(file.id, file.originalFileName)}
-                        />
-                    ))}
+                <div className="rounded-lg border border-border p-4">
+                    <div className="mb-3 flex items-center justify-between gap-4">
+                        <p className="font-display text-xs font-medium uppercase tracking-wide text-foreground-tertiary">
+                            Files ({files.length})
+                        </p>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        {files.map((file) => (
+                            <ExistingFileRow
+                                key={file.id}
+                                file={file}
+                                disabled={isRemoving}
+                                onRemove={() => handleRemove(file.id, file.originalFileName)}
+                            />
+                        ))}
+                    </div>
                 </div>
             )}
         </div>

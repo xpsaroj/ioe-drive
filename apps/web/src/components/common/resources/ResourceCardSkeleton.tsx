@@ -1,6 +1,6 @@
 const ResourceCardSkeleton = () => {
     return (
-        <div className="flex animate-pulse flex-col gap-4 rounded-xl border border-border p-4 sm:p-5">
+        <div className="flex animate-pulse flex-col gap-4 rounded-lg border border-border p-4 sm:p-5">
             <div className="flex items-start justify-between gap-3">
                 <div className="flex items-center gap-2">
                     <div className="h-5 w-40 rounded bg-background-tertiary" />

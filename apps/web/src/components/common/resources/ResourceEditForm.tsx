@@ -109,7 +109,7 @@ export const ResourceEditForm = ({ resource, filesPanel }: ResourceEditFormProps
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start">
-                <div className="space-y-4 rounded-xl border border-border p-6">
+                <div className="space-y-4 rounded-lg md:border border-border md:p-6">
                     <h2 className="text-lg font-semibold text-foreground">Resource Details</h2>
 
                     <Input
@@ -145,7 +145,20 @@ export const ResourceEditForm = ({ resource, filesPanel }: ResourceEditFormProps
                         )}
                     />
 
-                    <div className="space-y-4 rounded-lg border border-border p-4">
+                    <Textarea
+                        label="Description"
+                        required
+                        rows={3}
+                        error={errors.description?.message}
+                        disabled={isSaving}
+                        {...register("description", {
+                            required: "Description is required",
+                            minLength: { value: 10, message: "Description must be at least 10 characters" },
+                            maxLength: { value: 200, message: "Description must be less than 200 characters" },
+                        })}
+                    />
+
+                    <div className="space-y-4 rounded-lg border border-border bg-background-secondary p-4">
                         <p className="font-display text-xs font-medium uppercase tracking-wide text-foreground-tertiary">
                             Categorization
                         </p>
@@ -231,21 +244,6 @@ export const ResourceEditForm = ({ resource, filesPanel }: ResourceEditFormProps
                 </div>
 
                 {filesPanel}
-            </div>
-
-            <div className="rounded-xl border border-border p-6">
-                <Textarea
-                    label="Description"
-                    required
-                    rows={4}
-                    error={errors.description?.message}
-                    disabled={isSaving}
-                    {...register("description", {
-                        required: "Description is required",
-                        minLength: { value: 10, message: "Description must be at least 10 characters" },
-                        maxLength: { value: 200, message: "Description must be less than 200 characters" },
-                    })}
-                />
             </div>
 
             <div className="flex justify-end gap-3 border-t border-border pt-6">

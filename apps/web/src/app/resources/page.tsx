@@ -2,7 +2,7 @@
 import { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { ChevronRight, ChevronDown, Search, SlidersHorizontal } from "lucide-react";
+import { ChevronRight, ChevronDown, Inbox, Search, SlidersHorizontal, UploadCloud } from "lucide-react";
 
 import { SubjectDetails } from "@/components/common/offering";
 import { ResourceList, ResourceCard } from "@/components/common/resources";
@@ -231,7 +231,8 @@ const ResourcesBrowseContent = () => {
             )}
 
             {!programId || !semester ? (
-                <div className="flex-1 border flex items-center justify-center rounded-lg py-16">
+                <div className="flex-1 border flex flex-col items-center justify-center gap-2 rounded-lg py-16">
+                    <SlidersHorizontal className="size-5 text-foreground-tertiary" />
                     <p className="text-sm text-foreground-secondary">
                         Select a program and semester above to browse resources.
                     </p>
@@ -245,7 +246,8 @@ const ResourcesBrowseContent = () => {
                     <p className="text-error">Something went wrong. Please try again later.</p>
                 </div>
             ) : !hasOfferings ? (
-                <div className="flex-1 border flex items-center justify-center rounded-lg py-16">
+                <div className="flex-1 border flex flex-col items-center justify-center gap-2 rounded-lg py-16">
+                    <Inbox className="size-5 text-foreground-tertiary" />
                     <p className="text-sm text-foreground-secondary">
                         No resources available for this program and semester.
                     </p>
@@ -262,7 +264,7 @@ const ResourcesBrowseContent = () => {
                                 onClick={() => setShowSubjectDetails((prev) => !prev)}
                                 className="border border-border"
                             />
-                            <h3 className="text-lg">Subject Details</h3>
+                            <h3 className="text-lg font-semibold text-foreground">Subject Details</h3>
                         </div>
                         {showSubjectDetails && currentSubject && (
                             <div className="mt-3">
@@ -274,7 +276,7 @@ const ResourcesBrowseContent = () => {
                     </div>
 
                     <div className="pb-6 md:pb-8 space-y-6">
-                        <h3 className="text-lg">Available Resources</h3>
+                        <h3 className="text-lg font-semibold text-foreground">Available Resources</h3>
                         <ResourceList
                             resources={resources || []}
                             loading={resourcesLoading}
@@ -286,10 +288,14 @@ const ResourcesBrowseContent = () => {
                             }
                             emptyState={
                                 <>
-                                    <p className="text-sm text-foreground-tertiary">
-                                        No resources yet for this subject. Be the first to share one.
-                                    </p>
-                                    <Button href="/resources/share" size="sm" className="mt-2">
+                                    <span className="flex size-10 items-center justify-center rounded-full bg-accent-soft text-accent">
+                                        <UploadCloud className="size-5" />
+                                    </span>
+                                    <div>
+                                        <p className="text-sm font-medium text-foreground">No resources yet</p>
+                                        <p className="text-sm text-foreground-secondary mt-1">Be the first to share one for this subject.</p>
+                                    </div>
+                                    <Button href="/resources/share" size="sm" className="mt-1">
                                         Share a Resource
                                     </Button>
                                 </>

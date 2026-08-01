@@ -2,7 +2,7 @@
 import { Suspense, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { ListChecks } from "lucide-react";
+import { Inbox, ListChecks, SlidersHorizontal } from "lucide-react";
 
 import { SubjectOfferingCard } from "@/components/common/offering";
 import { BookSpines, DEFAULT_SHELF_SPINES } from "@/components/decor";
@@ -67,7 +67,7 @@ const OfferingsBrowseContent = () => {
     };
 
     const pageHeader = (
-        <div className="relative overflow-hidden rounded-2xl border border-border bg-background-secondary p-6 md:p-8">
+        <div className="relative overflow-hidden rounded-lg border border-border bg-background-secondary p-6 md:p-8">
             <BookSpines spines={DEFAULT_SHELF_SPINES} />
 
             <div className="relative z-10 flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
@@ -153,7 +153,8 @@ const OfferingsBrowseContent = () => {
             </div>
 
             {!programId || !semester ? (
-                <div className="flex-1 border border-border flex items-center justify-center rounded-lg py-16">
+                <div className="flex-1 border border-border flex flex-col items-center justify-center gap-2 rounded-lg py-16">
+                    <SlidersHorizontal className="size-5 text-foreground-tertiary" />
                     <p className="text-sm text-foreground-secondary">
                         Select a program and semester above to browse subject offerings.
                     </p>
@@ -167,7 +168,8 @@ const OfferingsBrowseContent = () => {
                     <p className="text-error">Something went wrong. Please try again later.</p>
                 </div>
             ) : !hasOfferings ? (
-                <div className="flex-1 border border-border flex items-center justify-center rounded-lg py-16">
+                <div className="flex-1 border border-border flex flex-col items-center justify-center gap-2 rounded-lg py-16">
+                    <Inbox className="size-5 text-foreground-tertiary" />
                     <p className="text-sm text-foreground-secondary">
                         No subjects offered for this program and semester.
                     </p>

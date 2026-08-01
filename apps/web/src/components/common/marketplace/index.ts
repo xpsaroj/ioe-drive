@@ -1,4 +1,4 @@
-export { default as MarketplaceListingCard, LISTING_TYPE_BADGE_VARIANT, LISTING_STATUS_BADGE_VARIANT } from "./MarketplaceListingCard";
+export { default as MarketplaceListingCard, LISTING_TYPE_BADGE_VARIANT, LISTING_STATUS_BADGE_VARIANT, CATEGORY_BADGE_COLOR } from "./MarketplaceListingCard";
 export { default as ListingPreviewTile } from "./ListingPreviewTile";
 export { default as MyListingCard } from "./MyListingCard";
 export { ListingUploadForm } from "./ListingUploadForm";

@@ -43,7 +43,7 @@ const UploadQueueRow = ({ file, onRemove }: { file: File; onRemove: () => void }
             </span>
             <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-foreground">{file.name}</p>
-                <p className="text-xs text-foreground-tertiary">{formatFileSize(file.size)}</p>
+                <p className="font-display text-[11px] uppercase tracking-wide text-foreground-tertiary">{formatFileSize(file.size)}</p>
             </div>
             <button
                 type="button"
@@ -200,7 +200,7 @@ export const ResourceUploadForm: React.FC = () => {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start">
                 {/* Resource Details */}
-                <div className="space-y-4 rounded-xl border border-border p-6">
+                <div className="space-y-4 rounded-lg md:border border-border md:p-6">
                     <h2 className="text-lg font-semibold text-foreground">Resource Details</h2>
 
                     <Input
@@ -237,7 +237,21 @@ export const ResourceUploadForm: React.FC = () => {
                         )}
                     />
 
-                    <div className="space-y-4 rounded-lg border border-border p-4">
+                    <Textarea
+                        label="Description"
+                        placeholder="Brief details about the content..."
+                        required
+                        rows={3}
+                        error={errors.description?.message}
+                        disabled={isUploading}
+                        {...register("description", {
+                            required: "Description is required",
+                            minLength: { value: 10, message: "Description must be at least 10 characters" },
+                            maxLength: { value: 200, message: "Description must be less than 200 characters" },
+                        })}
+                    />
+
+                    <div className="space-y-4 rounded-lg border border-border bg-background-secondary p-4">
                         <p className="font-display text-xs font-medium uppercase tracking-wide text-foreground-tertiary">
                             Categorization
                         </p>
@@ -333,12 +347,12 @@ export const ResourceUploadForm: React.FC = () => {
                         onDrop={handleFileDrop}
                         onClick={() => !isUploading && document.getElementById("resourceFileInput")?.click()}
                         className={cn(
-                            "rounded-xl border-2 border-dashed p-8 text-center transition-colors",
+                            "rounded-lg border-2 border-dashed p-8 text-center transition-colors",
                             isUploading ? "cursor-not-allowed opacity-60" : "cursor-pointer hover:border-foreground-tertiary",
                             isDragging ? "border-accent bg-accent/5" : "border-border",
                         )}
                     >
-                        <span className="mx-auto mb-4 flex size-12 items-center justify-center rounded-xl bg-accent text-accent-foreground">
+                        <span className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-accent text-accent-foreground">
                             <CloudUpload className="size-6" />
                         </span>
                         <p className="font-semibold text-foreground">Drag & Drop files here</p>
@@ -359,7 +373,7 @@ export const ResourceUploadForm: React.FC = () => {
                     {errors.files && <p className="text-xs text-error">{errors.files.message}</p>}
 
                     {files.length > 0 && (
-                        <div className="rounded-xl border border-border p-4">
+                        <div className="rounded-lg border border-border p-4">
                             <div className="mb-3 flex items-center justify-between gap-4">
                                 <p className="font-display text-xs font-medium uppercase tracking-wide text-foreground-tertiary">
                                     Upload Queue ({files.length})
@@ -386,7 +400,7 @@ export const ResourceUploadForm: React.FC = () => {
                     )}
 
                     {files.length === 0 && (
-                        <div className="flex items-center gap-2 rounded-xl border border-border p-4 text-sm text-foreground-tertiary">
+                        <div className="flex items-center gap-2 rounded-lg border border-border p-4 text-sm text-foreground-tertiary">
                             <File className="size-4 shrink-0" />
                             At least one file is required.
                         </div>
@@ -394,25 +408,8 @@ export const ResourceUploadForm: React.FC = () => {
                 </div>
             </div>
 
-            {/* Description */}
-            <div className="rounded-xl border border-border p-6">
-                <Textarea
-                    label="Description"
-                    placeholder="Brief details about the content..."
-                    required
-                    rows={4}
-                    error={errors.description?.message}
-                    disabled={isUploading}
-                    {...register("description", {
-                        required: "Description is required",
-                        minLength: { value: 10, message: "Description must be at least 10 characters" },
-                        maxLength: { value: 200, message: "Description must be less than 200 characters" },
-                    })}
-                />
-            </div>
-
             <div className="flex flex-col gap-4 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-xs text-foreground-secondary sm:max-w-md">
+                <p className="text-sm leading-relaxed text-foreground-secondary sm:max-w-md">
                     By uploading, you confirm this is your own work or you have permission to share it, and that it
                     doesn&apos;t infringe on anyone&apos;s copyright. You&apos;re responsible for what you share -
                     resources are reviewed before going live, and inappropriate or infringing content may be

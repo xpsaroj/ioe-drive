@@ -1,4 +1,4 @@
-export { default as ResourceCard, STATUS_BADGE_VARIANT } from "./ResourceCard";
+export { default as ResourceCard, STATUS_BADGE_VARIANT, TYPE_BADGE_COLOR } from "./ResourceCard";
 export { default as ResourceList } from "./ResourceList";
 export { default as ResourceCardSkeleton } from "./ResourceCardSkeleton";
 export { default as ResourceFileItem, FILE_TYPE_META, DEFAULT_FILE_TYPE_META, type FileTypeMeta } from "./ResourceFileItem";

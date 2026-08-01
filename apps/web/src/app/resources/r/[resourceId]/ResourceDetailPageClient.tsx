@@ -21,6 +21,7 @@ import {
     ResourceModeratorActionBar,
     ReportResourceButton,
     STATUS_BADGE_VARIANT,
+    TYPE_BADGE_COLOR,
 } from "@/components/common/resources";
 import { UploaderInfo } from "@/components/common/user";
 import { SubjectCodeTile } from "@/components/common/offering";
@@ -98,9 +99,9 @@ const ResourceDetailContent = ({
     const title = resource ? (
         <>
             {resource.title}
-            <Badge size="sm" className="ms-2 align-middle">{ResourceTypeLabel[resource.type]}</Badge>
+            <Badge size="sm" color={TYPE_BADGE_COLOR[resource.type]}>{ResourceTypeLabel[resource.type]}</Badge>
             {resource.status !== ResourceStatus.APPROVED && (
-                <Badge size="sm" variant={STATUS_BADGE_VARIANT[resource.status]} className="ms-2 align-middle">
+                <Badge size="sm" variant={STATUS_BADGE_VARIANT[resource.status]}>
                     {ResourceStatusLabel[resource.status]}
                 </Badge>
             )}
@@ -199,7 +200,7 @@ const ResourceDetailContent = ({
                 <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
                     <div className="space-y-8 lg:col-span-2">
                         {showModerationNotice && (
-                            <div className="rounded-xl border border-border bg-background-tertiary p-6">
+                            <div className="rounded-lg border border-border bg-background-tertiary p-6">
                                 <p className="font-medium text-foreground">
                                     {resource.status === ResourceStatus.REMOVED ? "This resource was removed" : "This resource was rejected"}
                                     {resource.moderationReason && `: ${ModerationReasonLabel[resource.moderationReason]}`}
@@ -213,12 +214,12 @@ const ResourceDetailContent = ({
                             </div>
                         )}
 
-                        <div className="rounded-xl border border-border p-6">
+                        <div className="rounded-lg border border-border p-6">
                             <h2 className="mb-3 text-lg font-semibold text-foreground">Description</h2>
                             <p className="text-foreground-secondary leading-relaxed">{resource.description}</p>
                         </div>
 
-                        <div className="rounded-xl border border-border p-6">
+                        <div className="rounded-lg border border-border p-6">
                             <ResourceFileList resourceFiles={files} />
                         </div>
 
@@ -229,7 +230,7 @@ const ResourceDetailContent = ({
                             downloadCount={resource.downloadCount}
                             uploadedBy={resource.uploadedBy}
                             status={resource.status}
-                            className="rounded-xl border border-border p-6"
+                            className="rounded-lg border border-border p-6"
                         />
 
                         {/* Mutually exclusive: a moderator/admin gets direct action
@@ -245,8 +246,8 @@ const ResourceDetailContent = ({
                     </div>
 
                     <div className="space-y-6">
-                        <div className="rounded-xl border border-border p-6">
-                            <p className="mb-3 text-xs font-medium uppercase tracking-wide text-foreground-tertiary">
+                        <div className="rounded-lg border border-border p-6">
+                            <p className="mb-3 font-display text-xs font-medium uppercase tracking-wide text-foreground-tertiary">
                                 Related Subject
                             </p>
                             <div className="flex items-center gap-3 mb-4">
@@ -264,8 +265,8 @@ const ResourceDetailContent = ({
                             </Button>
                         </div>
 
-                        <div className="rounded-xl border border-border p-6">
-                            <div className="mb-3 flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-foreground-tertiary">
+                        <div className="rounded-lg border border-border p-6">
+                            <div className="mb-3 flex items-center gap-2 font-display text-xs font-medium uppercase tracking-wide text-foreground-tertiary">
                                 <Lightbulb className="size-3.5" />
                                 Similar Resources
                             </div>
@@ -286,7 +287,7 @@ const ResourceDetailContent = ({
                                             className="flex items-center justify-between gap-3 px-6 py-3 transition-colors hover:bg-background-hover"
                                         >
                                             <p className="truncate text-sm text-foreground">{item.title}</p>
-                                            <Badge size="sm" className="shrink-0">{ResourceTypeLabel[item.type]}</Badge>
+                                            <Badge size="sm" color={TYPE_BADGE_COLOR[item.type]} className="shrink-0">{ResourceTypeLabel[item.type]}</Badge>
                                         </Link>
                                     ))}
                                 </div>

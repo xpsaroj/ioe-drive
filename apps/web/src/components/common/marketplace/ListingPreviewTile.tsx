@@ -15,11 +15,11 @@ interface ListingPreviewTileProps {
 // Same visual language as ResourcePreviewTile (stretched link, hover lift), swapping the
 // generic file-type icon for the listing's actual cover photo, since listings are always photo-led elsewhere.
 const ListingPreviewTile = ({ listingId, title, photoUrl, price, categoryLabel, timeLabel }: ListingPreviewTileProps) => (
-    <div className="group/card relative flex flex-col gap-3 border border-border bg-card-background rounded-xl p-4 transition-all duration-150 hover:border-accent hover:bg-card-hover hover:-translate-y-0.5 hover:shadow-md">
+    <div className="group/card relative flex flex-col gap-3 border border-border bg-card-background rounded-lg p-4 transition-all duration-150 hover:border-accent hover:bg-card-hover hover:-translate-y-0.5 hover:shadow-md">
         <Link
             href={`/market/${listingId}`}
             aria-label={title}
-            className="absolute inset-0 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            className="absolute inset-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
         />
 
         <div className="relative aspect-[4/3] w-full overflow-hidden rounded-lg bg-background-tertiary">
@@ -43,7 +43,7 @@ const ListingPreviewTile = ({ listingId, title, photoUrl, price, categoryLabel, 
             </p>
         </div>
 
-        <span className="font-display text-[10px] uppercase tracking-wide text-foreground-tertiary">
+        <span className="font-display text-[11px] uppercase tracking-wide text-foreground-tertiary">
             {timeLabel}
         </span>
     </div>

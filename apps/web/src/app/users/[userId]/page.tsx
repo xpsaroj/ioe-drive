@@ -1,7 +1,7 @@
 "use client"
 import { Suspense, use } from "react"
 import { useRouter } from "next/navigation"
-import { ChevronLeft } from "lucide-react"
+import { ChevronLeft, SearchX } from "lucide-react"
 
 import { useUserById } from "@/hooks/queries/use-user"
 import { useResourcesByUploaderId } from "@/hooks/queries/use-resources"
@@ -13,7 +13,7 @@ import { ResourcePreviewTile } from "@/components/common/resources"
 import { ListingPreviewTile } from "@/components/common/marketplace"
 import Button from "@/components/ui/Button"
 import Loader from "@/components/ui/Loader"
-import { SemesterLabel, MarketplaceCategoryLabel, ResourceTypeLabel } from "@/types/entities"
+import { SemesterLabel, MarketplaceCategoryLabel } from "@/types/entities"
 import { getRelativeTime } from "@/utils/time"
 
 interface UserDetailsPageProps {
@@ -54,8 +54,8 @@ const UserDetailsContent = ({ userId }: { userId: number }) => {
     );
 
     const emptyContent = (
-        <div className="flex flex-col justify-center items-center">
-            <p className="text-4xl">404</p>
+        <div className="flex flex-col items-center justify-center gap-2 text-center">
+            <SearchX className="size-8 text-foreground-tertiary" />
             <p className="text-foreground-secondary">The user you are looking for does not exist.</p>
         </div>
     )
@@ -101,7 +101,7 @@ const UserDetailsContent = ({ userId }: { userId: number }) => {
             {user && (
                 <div className="space-y-8">
                     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-                        <div className="flex h-full flex-col justify-center space-y-4 rounded-xl border border-border p-6 lg:col-span-2">
+                        <div className="flex h-full flex-col justify-center space-y-4 rounded-lg border border-border p-6 lg:col-span-2">
                             <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
                                 <UserAvatar
                                     fullName={user.fullName}
@@ -131,7 +131,7 @@ const UserDetailsContent = ({ userId }: { userId: number }) => {
                             </div>
                         </div>
 
-                        <div className="h-full rounded-xl border border-border p-6">
+                        <div className="h-full rounded-lg border border-border p-6">
                             <p className="mb-2 font-display text-xs font-medium uppercase tracking-wide text-foreground-tertiary">
                                 Academic Standing
                             </p>
@@ -168,7 +168,7 @@ const UserDetailsContent = ({ userId }: { userId: number }) => {
                                 resourceId={item.id}
                                 title={item.title}
                                 subjectCode={item.subjectOffering?.subject?.code}
-                                typeLabel={ResourceTypeLabel[item.type]}
+                                type={item.type}
                                 timeLabel={`Uploaded ${getRelativeTime(item.createdAt)}`}
                             />
                         ))}

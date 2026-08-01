@@ -2,7 +2,7 @@
 import { use, useEffect, useState } from "react"
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ChevronLeft, Download, FileWarning, PanelRightClose, PanelRightOpen } from "lucide-react";
+import { ChevronLeft, Download, FileWarning, PanelRightClose, PanelRightOpen, SearchX } from "lucide-react";
 
 import { useResource, useFileDownloadUrl, useDownloadFile } from "@/hooks/queries/use-resources";
 import { useMe, useMarkResourceAsRecentlyAccessed } from "@/hooks/queries/use-me";
@@ -10,7 +10,7 @@ import { useDocxPreviewHtml } from "@/hooks/queries/use-docx-preview";
 import Button from "@/components/ui/Button";
 import Loader from "@/components/ui/Loader";
 import { PageStateHandler } from "@/components/layout";
-import { MimeTypeBadge } from "@/components/common/resources";
+import { FILE_TYPE_META, DEFAULT_FILE_TYPE_META, getMimeKey } from "@/components/common/resources";
 import { UploaderInfo } from "@/components/common/user";
 
 interface FilePreviewPageProps {
@@ -104,8 +104,8 @@ const FilePreviewPage = ({
     )
 
     const emptyContent = (
-        <div className="flex flex-col justify-center items-center">
-            <p className="text-4xl">404</p>
+        <div className="flex flex-col items-center justify-center gap-2 text-center">
+            <SearchX className="size-8 text-foreground-tertiary" />
             <p className="text-foreground-secondary">This file could not be found.</p>
         </div>
     )
@@ -157,7 +157,7 @@ const FilePreviewPage = ({
                             className="w-full h-full"
                         />
                     ) : activeFile.mimeType === DOCX_MIME_TYPE ? (
-                        <div className="w-full h-full overflow-auto rounded-md bg-background p-6">
+                        <div className="w-full h-full overflow-auto bg-background p-6">
                             {docxPending ? (
                                 <Loader text="Converting document..." />
                             ) : docxError || !docxHtml ? (
@@ -174,7 +174,7 @@ const FilePreviewPage = ({
                             src={downloadData.url}
                             alt={activeFile.originalFileName}
                             onError={handleImageError}
-                            className="max-w-full max-h-full rounded-md object-contain"
+                            className="max-w-full max-h-full object-contain"
                         />
                     )}
                 </div>
@@ -217,7 +217,7 @@ const FilePreviewPage = ({
                             </div>
                         </div>
 
-                        <div className="rounded-xl border border-border p-5">
+                        <div className="rounded-lg border border-border p-5">
                             <Link
                                 href={`/resources/r/${resource.id}`}
                                 className="text-lg font-semibold text-foreground hover:underline"
@@ -241,24 +241,30 @@ const FilePreviewPage = ({
                             </Link>
                         </div>
 
-                        <div className="rounded-xl border border-border p-5">
+                        <div className="rounded-lg border border-border p-5">
                             <p className="mb-3 font-display text-xs font-medium uppercase tracking-wide text-foreground-tertiary">
                                 Attached files
                             </p>
                             <div className="flex flex-col gap-1.5">
-                                {resource.files.map((file) => (
-                                    <Link
-                                        key={file.id}
-                                        href={`/resources/r/${resource.id}/files/${file.id}`}
-                                        className={`flex items-center gap-2 rounded-md border p-2 text-sm transition-colors ${file.id === activeFile.id
-                                            ? "border-accent bg-background-tertiary"
-                                            : "border-border hover:bg-background-tertiary"
-                                            }`}
-                                    >
-                                        <MimeTypeBadge mimeType={file.mimeType} />
-                                        <span className="truncate">{file.originalFileName}</span>
-                                    </Link>
-                                ))}
+                                {resource.files.map((file) => {
+                                    const { icon: Icon, className } = FILE_TYPE_META[getMimeKey(file.mimeType)] ?? DEFAULT_FILE_TYPE_META;
+
+                                    return (
+                                        <Link
+                                            key={file.id}
+                                            href={`/resources/r/${resource.id}/files/${file.id}`}
+                                            className={`flex items-center gap-2 rounded-md border p-2 text-sm transition-colors ${file.id === activeFile.id
+                                                ? "border-accent bg-accent-soft"
+                                                : "border-border hover:bg-background-tertiary"
+                                                }`}
+                                        >
+                                            <span className={`flex size-7 shrink-0 items-center justify-center rounded-md ${className}`}>
+                                                <Icon className="size-3.5" />
+                                            </span>
+                                            <span className="truncate">{file.originalFileName}</span>
+                                        </Link>
+                                    );
+                                })}
                             </div>
                         </div>
                     </div>

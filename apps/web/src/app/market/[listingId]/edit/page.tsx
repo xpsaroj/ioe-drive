@@ -1,7 +1,7 @@
 "use client"
 import { use } from "react"
 import { useRouter } from "next/navigation";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, SearchX } from "lucide-react";
 
 import { useListing } from "@/hooks/queries/use-marketplace";
 import { useMe } from "@/hooks/queries/use-me";
@@ -39,9 +39,6 @@ const ListingEditPage = ({
         <>
             <div className="pb-4">
                 <h1 className="text-2xl md:text-3xl font-bold">Edit Listing</h1>
-                <p className="text-foreground-secondary mt-2">
-                    Update your listing&apos;s details, or manage its photos.
-                </p>
             </div>
 
             <div className="sticky top-0 z-10 mb-6 flex items-center gap-2 border-b border-border bg-background/95 py-2.5 backdrop-blur-sm">
@@ -60,8 +57,8 @@ const ListingEditPage = ({
     )
 
     const emptyContent = (
-        <div className="flex flex-col justify-center items-center">
-            <p className="text-4xl">404</p>
+        <div className="flex flex-col items-center justify-center gap-2 text-center">
+            <SearchX className="size-8 text-foreground-tertiary" />
             <p className="text-foreground-secondary">The listing you are looking for does not exist.</p>
         </div>
     )

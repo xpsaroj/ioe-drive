@@ -2,6 +2,7 @@
 
 import React from "react";
 import clsx from "clsx";
+import { Inbox } from "lucide-react";
 
 export interface Column<T> {
     key: string;
@@ -97,7 +98,7 @@ function Table<T>({
                                 <th
                                     key={column.key}
                                     className={clsx(
-                                        "px-4 py-3 font-medium text-foreground-secondary text-xs uppercase tracking-wide",
+                                        "px-4 py-3 font-display font-medium text-foreground-secondary text-xs uppercase tracking-wide",
                                         getAlignClass(column.align)
                                     )}
                                     style={{ width: column.width }}
@@ -135,7 +136,7 @@ function Table<T>({
                             <th
                                 key={column.key}
                                 className={clsx(
-                                    "px-4 py-3 font-medium text-foreground-secondary text-xs uppercase tracking-wide whitespace-nowrap",
+                                    "px-4 py-3 font-display font-medium text-foreground-secondary text-xs uppercase tracking-wide whitespace-nowrap",
                                     getAlignClass(column.align),
                                     column.sortable && sortable && "cursor-pointer select-none hover:text-foreground"
                                 )}
@@ -164,9 +165,12 @@ function Table<T>({
                         <tr>
                             <td
                                 colSpan={columns.length}
-                                className="px-4 py-12 text-center text-foreground-muted"
+                                className="px-4 py-12 text-foreground-muted"
                             >
-                                {emptyMessage}
+                                <div className="flex flex-col items-center gap-2">
+                                    <Inbox className="size-5 text-foreground-tertiary" />
+                                    <p className="text-center">{emptyMessage}</p>
+                                </div>
                             </td>
                         </tr>
                     ) : (

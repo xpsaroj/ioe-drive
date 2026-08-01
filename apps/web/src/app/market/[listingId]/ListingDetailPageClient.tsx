@@ -11,6 +11,7 @@ import Loader from "@/components/ui/Loader";
 import {
     LISTING_TYPE_BADGE_VARIANT,
     LISTING_STATUS_BADGE_VARIANT,
+    CATEGORY_BADGE_COLOR,
     EditListingButton,
     DeleteListingButton,
     ListingStatusToggleButton,
@@ -76,14 +77,14 @@ const ListingDetailContent = ({
     const title = listing ? (
         <>
             {listing.title}
-            <Badge size="sm" variant={LISTING_TYPE_BADGE_VARIANT[listing.type]} className="ms-2 align-middle">
+            <Badge size="sm" variant={LISTING_TYPE_BADGE_VARIANT[listing.type]}>
                 {MarketplaceListingTypeLabel[listing.type]}
             </Badge>
-            <Badge size="sm" variant="secondary" className="ms-2 align-middle">
+            <Badge size="sm" color={CATEGORY_BADGE_COLOR[listing.category]}>
                 {MarketplaceCategoryLabel[listing.category]}
             </Badge>
             {listing.status !== MarketplaceListingStatus.ACTIVE && (
-                <Badge size="sm" variant={LISTING_STATUS_BADGE_VARIANT[listing.status]} className="ms-2 align-middle">
+                <Badge size="sm" variant={LISTING_STATUS_BADGE_VARIANT[listing.status]}>
                     {MarketplaceListingStatusLabel[listing.status]}
                 </Badge>
             )}
@@ -145,7 +146,7 @@ const ListingDetailContent = ({
         >
             <div className="space-y-8">
                 {showModerationNotice && (
-                    <div className="rounded-xl border border-border bg-background-tertiary p-6">
+                    <div className="rounded-lg border border-border bg-background-tertiary p-6">
                         <p className="font-medium text-foreground">
                             {listing.status === MarketplaceListingStatus.REMOVED ? "This listing was removed" : "This listing was rejected"}
                             {listing.moderationReason && `: ${MarketplaceReportReasonLabel[listing.moderationReason]}`}
@@ -162,7 +163,7 @@ const ListingDetailContent = ({
                 <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
                     <div className="space-y-8 lg:col-span-2">
                         <div className="space-y-3">
-                            <div className="aspect-[4/3] w-full overflow-hidden rounded-xl border border-border bg-background-tertiary">
+                            <div className="aspect-[4/3] w-full overflow-hidden rounded-lg border border-border bg-background-tertiary">
                                 {activePhoto ? (
                                     // Signed URLs are per-request and short-lived - plain <img>, not an oversight.
                                     // eslint-disable-next-line @next/next/no-img-element
@@ -198,7 +199,7 @@ const ListingDetailContent = ({
                             )}
                         </div>
 
-                        <div className="rounded-xl border border-border p-6">
+                        <div className="rounded-lg border border-border p-6">
                             <h2 className="mb-3 text-lg font-semibold text-foreground">Description</h2>
                             <p className="text-foreground-secondary leading-relaxed whitespace-pre-wrap">{listing.description}</p>
                         </div>
@@ -218,8 +219,8 @@ const ListingDetailContent = ({
                     </div>
 
                     <div className="space-y-6">
-                        <div className="rounded-xl border border-border p-6">
-                            <p className="mb-3 text-xs font-medium uppercase tracking-wide text-foreground-tertiary">
+                        <div className="rounded-lg border border-border p-6">
+                            <p className="mb-3 font-display text-xs font-medium uppercase tracking-wide text-foreground-tertiary">
                                 Price
                             </p>
                             <p className="text-2xl font-bold text-foreground mb-4">{formatListingPrice(listing.price)}</p>
@@ -246,8 +247,8 @@ const ListingDetailContent = ({
                         </div>
 
                         {listing.subjectOffering && (
-                            <div className="rounded-xl border border-border p-6">
-                                <p className="mb-3 text-xs font-medium uppercase tracking-wide text-foreground-tertiary">
+                            <div className="rounded-lg border border-border p-6">
+                                <p className="mb-3 font-display text-xs font-medium uppercase tracking-wide text-foreground-tertiary">
                                     Related Subject
                                 </p>
                                 <div className="flex items-center gap-3 mb-4">

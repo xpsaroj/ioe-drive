@@ -26,7 +26,7 @@ const DashboardHero = () => {
     const hasProfile = !!(profile?.program && profile?.semester);
 
     return (
-        <div className="relative overflow-hidden rounded-2xl border border-border bg-background-secondary p-6 sm:min-h-[9.5rem]">
+        <div className="relative overflow-hidden rounded-lg border border-border bg-background-secondary p-6 sm:min-h-[9.5rem]">
             <ScatteredCodeTiles tiles={DASHBOARD_HERO_TILES} className="hidden sm:block" />
 
             <div className="relative z-10 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
@@ -44,7 +44,7 @@ const DashboardHero = () => {
 
                 <StatStrip
                     variant="inline"
-                    className="border border-border rounded-xl px-5 py-3 bg-background"
+                    className="border border-border rounded-lg px-5 py-3 bg-background"
                     items={[
                         { href: "/library/uploads", label: "Uploaded", value: uploaded?.meta?.total },
                         { href: "/library/bookmarks", label: "Bookmarked", value: bookmarkedIds?.length },

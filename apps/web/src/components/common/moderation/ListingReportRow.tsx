@@ -23,7 +23,7 @@ const ListingReportRow = ({ report }: ListingReportRowProps) => {
     };
 
     return (
-        <div className="flex flex-col gap-3 rounded-xl border border-border p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 rounded-lg border border-border p-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="min-w-0 space-y-1">
                 <Link href={`/market/${report.listingId}`} className="font-semibold text-foreground hover:underline">
                     {report.listing.title}

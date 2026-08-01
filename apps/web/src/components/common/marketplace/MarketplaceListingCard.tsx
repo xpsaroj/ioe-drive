@@ -6,6 +6,7 @@ import type { ListingSummary } from "@/types/api";
 import { UploaderInfo } from "@/components/common/user";
 import { SubjectCodeTile } from "@/components/common/offering";
 import {
+    MarketplaceCategory,
     MarketplaceListingStatus,
     MarketplaceListingStatusLabel,
     MarketplaceListingType,
@@ -17,6 +18,16 @@ import { formatListingPrice } from "@/utils/marketplace";
 export const LISTING_TYPE_BADGE_VARIANT: Record<MarketplaceListingType, BadgeVariant> = {
     [MarketplaceListingType.SELLING]: "success",
     [MarketplaceListingType.WANTED]: "info",
+};
+
+// Distinct color per category instead of uniform gray - reuses ResourceCard's hues where the association matches.
+export const CATEGORY_BADGE_COLOR: Record<MarketplaceCategory, { bg: string; text: string; border?: string }> = {
+    [MarketplaceCategory.TEXTBOOKS_AND_NOTES]: { bg: "bg-tag-sepia-bg", text: "text-tag-sepia-text" },
+    [MarketplaceCategory.DRAFTING_AND_STATIONERY]: { bg: "bg-tag-slate-bg", text: "text-tag-slate-text" },
+    [MarketplaceCategory.CALCULATORS_AND_ELECTRONICS]: { bg: "bg-tag-teal-bg", text: "text-tag-teal-text" },
+    [MarketplaceCategory.LAB_AND_WORKSHOP_EQUIPMENT]: { bg: "bg-tag-olive-bg", text: "text-tag-olive-text" },
+    [MarketplaceCategory.FURNITURE_AND_HOSTEL_ITEMS]: { bg: "bg-tag-clay-bg", text: "text-tag-clay-text" },
+    [MarketplaceCategory.OTHER]: { bg: "bg-badge-background", text: "text-badge-foreground" },
 };
 
 // ACTIVE isn't shown - every public browse card is ACTIVE, so the badge would be pure noise
@@ -50,7 +61,7 @@ const MarketplaceListingCard = ({ listing, notice, actions }: MarketplaceListing
     });
 
     return (
-        <div className="group/card relative flex flex-col gap-4 rounded-xl border border-border bg-card-background p-4 transition-colors duration-400 hover:border-accent sm:p-5">
+        <div className="group/card relative flex flex-col gap-4 rounded-lg border border-border bg-card-background p-4 transition-colors duration-400 hover:border-accent sm:p-5">
             {notice && (
                 <div className="rounded-lg border border-border bg-background-tertiary px-3 py-2.5 text-sm">
                     {notice}
@@ -68,41 +79,43 @@ const MarketplaceListingCard = ({ listing, notice, actions }: MarketplaceListing
                         <img src={coverPhoto.photoUrl} alt={title} className="h-full w-full object-cover" />
                     ) : (
                         <div className="flex h-full w-full items-center justify-center">
-                            <ImageOff className="size-6 text-foreground-tertiary" />
+                            <ImageOff className="size-7 text-foreground-tertiary" />
                         </div>
                     )}
                 </Link>
 
                 <div className="flex min-w-0 flex-1 flex-col gap-3">
                     <div className="flex items-start justify-between gap-3">
-                        <div className="min-w-0">
+                        <div className="min-w-0 flex flex-wrap items-center gap-2">
                             <Link
                                 href={`/market/${listing.id}`}
                                 className="font-semibold text-foreground decoration-2 underline-offset-3 group-hover/card:underline"
                             >
                                 {title}
                             </Link>
-                            <Badge size="sm" variant={LISTING_TYPE_BADGE_VARIANT[type]} className="ms-2 align-middle">
-                                {MarketplaceListingTypeLabel[type]}
-                            </Badge>
-                            <Badge size="sm" variant="secondary" className="ms-2 align-middle">
+                            <Badge size="sm" color={CATEGORY_BADGE_COLOR[category]}>
                                 {MarketplaceCategoryLabel[category]}
                             </Badge>
                             {status !== MarketplaceListingStatus.ACTIVE && (
-                                <Badge size="sm" variant={LISTING_STATUS_BADGE_VARIANT[status]} className="ms-2 align-middle">
+                                <Badge size="sm" variant={LISTING_STATUS_BADGE_VARIANT[status]}>
                                     {MarketplaceListingStatusLabel[status]}
                                 </Badge>
                             )}
                         </div>
-                        {actions && (
-                            <div className="flex items-center gap-1 shrink-0 border border-border p-0.5 rounded-lg">
-                                {actions}
-                            </div>
-                        )}
+                        <div className="flex items-center gap-2 shrink-0">
+                            <Badge size="sm" variant={LISTING_TYPE_BADGE_VARIANT[type]}>
+                                {MarketplaceListingTypeLabel[type]}
+                            </Badge>
+                            {actions && (
+                                <div className="flex items-center gap-1 border border-border p-0.5 rounded-lg">
+                                    {actions}
+                                </div>
+                            )}
+                        </div>
                     </div>
 
                     {description && (
-                        <p className="text-sm text-foreground-secondary leading-relaxed line-clamp-2">
+                        <p className="text-sm sm:text-base text-foreground-secondary leading-relaxed line-clamp-2">
                             {description}
                         </p>
                     )}

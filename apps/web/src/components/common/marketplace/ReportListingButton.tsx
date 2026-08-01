@@ -34,7 +34,7 @@ const ReportListingButton = ({ listingId }: ReportListingButtonProps) => {
     };
 
     return (
-        <div className="flex flex-col gap-3 rounded-xl border border-border p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 rounded-lg border border-border p-4 sm:flex-row sm:items-center sm:justify-between">
             <p className="text-sm text-foreground-secondary">
                 Found something misleading or inappropriate about this listing?
             </p>

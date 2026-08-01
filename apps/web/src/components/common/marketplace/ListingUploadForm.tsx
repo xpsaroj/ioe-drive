@@ -50,7 +50,7 @@ const PhotoQueueRow = ({ file, onRemove }: { file: File; onRemove: () => void })
             <img src={previewUrl} alt={file.name} className="size-9 shrink-0 rounded-md object-cover" />
             <div className="min-w-0 flex-1">
                 <p className="truncate text-sm font-medium text-foreground">{file.name}</p>
-                <p className="text-xs text-foreground-tertiary">{formatFileSize(file.size)}</p>
+                <p className="font-display text-[11px] uppercase tracking-wide text-foreground-tertiary">{formatFileSize(file.size)}</p>
             </div>
             <button
                 type="button"
@@ -174,7 +174,7 @@ export const ListingUploadForm: React.FC = () => {
     return (
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-start">
-                <div className="space-y-4 rounded-xl border border-border p-6">
+                <div className="space-y-4 rounded-lg md:border border-border md:p-6">
                     <h2 className="text-lg font-semibold text-foreground">Listing Details</h2>
 
                     <Input
@@ -190,7 +190,7 @@ export const ListingUploadForm: React.FC = () => {
                         })}
                     />
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="grid md:grid-cols-2 gap-4">
                         <Controller
                             control={control}
                             name="type"
@@ -247,7 +247,21 @@ export const ListingUploadForm: React.FC = () => {
                         })}
                     />
 
-                    <div className="space-y-4 rounded-lg border border-border p-4">
+                    <Textarea
+                        label="Description"
+                        placeholder="Condition, why you're selling/looking for it, any other details..."
+                        required
+                        rows={3}
+                        error={errors.description?.message}
+                        disabled={isSubmitting}
+                        {...register("description", {
+                            required: "Description is required",
+                            minLength: { value: 10, message: "Description must be at least 10 characters" },
+                            maxLength: { value: 1000, message: "Description must be less than 1000 characters" },
+                        })}
+                    />
+
+                    <div className="space-y-4 rounded-lg border border-border bg-background-secondary p-4">
                         <label className="flex items-center gap-2 text-sm font-medium text-foreground">
                             <input
                                 type="checkbox"
@@ -343,12 +357,12 @@ export const ListingUploadForm: React.FC = () => {
                         onDrop={handlePhotoDrop}
                         onClick={() => !isSubmitting && document.getElementById("listingPhotoInput")?.click()}
                         className={cn(
-                            "rounded-xl border-2 border-dashed p-8 text-center transition-colors",
+                            "rounded-lg border-2 border-dashed p-8 text-center transition-colors",
                             isSubmitting ? "cursor-not-allowed opacity-60" : "cursor-pointer hover:border-foreground-tertiary",
                             isDragging ? "border-accent bg-accent/5" : "border-border",
                         )}
                     >
-                        <span className="mx-auto mb-4 flex size-12 items-center justify-center rounded-xl bg-accent text-accent-foreground">
+                        <span className="mx-auto mb-4 flex size-12 items-center justify-center rounded-full bg-accent text-accent-foreground">
                             <CloudUpload className="size-6" />
                         </span>
                         <p className="font-semibold text-foreground">Drag & Drop photos here</p>
@@ -369,7 +383,7 @@ export const ListingUploadForm: React.FC = () => {
                     {errors.photos && <p className="text-xs text-error">{errors.photos.message}</p>}
 
                     {photos.length > 0 ? (
-                        <div className="rounded-xl border border-border p-4">
+                        <div className="rounded-lg border border-border p-4">
                             <div className="mb-3 flex items-center justify-between gap-4">
                                 <p className="font-display text-xs font-medium uppercase tracking-wide text-foreground-tertiary">
                                     Photos ({photos.length})
@@ -394,7 +408,7 @@ export const ListingUploadForm: React.FC = () => {
                             </div>
                         </div>
                     ) : (
-                        <div className="flex items-center gap-2 rounded-xl border border-border p-4 text-sm text-foreground-tertiary">
+                        <div className="flex items-center gap-2 rounded-lg border border-border p-4 text-sm text-foreground-tertiary">
                             <ImageIcon className="size-4 shrink-0" />
                             At least one photo is required.
                         </div>
@@ -402,24 +416,8 @@ export const ListingUploadForm: React.FC = () => {
                 </div>
             </div>
 
-            <div className="rounded-xl border border-border p-6">
-                <Textarea
-                    label="Description"
-                    placeholder="Condition, why you're selling/looking for it, any other details..."
-                    required
-                    rows={4}
-                    error={errors.description?.message}
-                    disabled={isSubmitting}
-                    {...register("description", {
-                        required: "Description is required",
-                        minLength: { value: 10, message: "Description must be at least 10 characters" },
-                        maxLength: { value: 1000, message: "Description must be less than 1000 characters" },
-                    })}
-                />
-            </div>
-
             <div className="flex flex-col gap-4 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between">
-                <p className="text-xs text-foreground-secondary sm:max-w-md">
+                <p className="text-sm leading-relaxed text-foreground-secondary sm:max-w-md">
                     You&apos;re responsible for what you post here. Listings that are misleading,
                     inappropriate, or prohibited will be removed.
                 </p>

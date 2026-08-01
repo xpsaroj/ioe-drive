@@ -15,7 +15,7 @@ interface ProgramCardProps {
 const ProgramCard = ({ program, href, className }: ProgramCardProps) => {
     const header = (
         <>
-            <span className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-accent font-display text-sm font-semibold text-accent-foreground">
+            <span className="flex size-12 shrink-0 items-center justify-center rounded-lg bg-foreground font-display text-sm font-semibold text-accent-foreground">
                 {program.code}
             </span>
             <div className="min-w-0">
@@ -32,20 +32,37 @@ const ProgramCard = ({ program, href, className }: ProgramCardProps) => {
 
     if (href) {
         return (
-            <Link
-                href={href}
+            <div
                 className={cn(
-                    "group flex items-center gap-3 rounded-xl border border-border bg-card-background p-5 transition-colors hover:border-accent hover:bg-card-hover",
+                    "group relative flex flex-col rounded-lg border border-border bg-card-background p-5 transition-colors hover:border-accent hover:bg-card-hover",
                     className
                 )}
             >
-                {header}
-            </Link>
+                <Link
+                    href={href}
+                    aria-label={program.name}
+                    className="absolute inset-0 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                />
+
+                <div className="flex items-center gap-3">{header}</div>
+
+                {program.syllabusUrl && (
+                    <a
+                        href={program.syllabusUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="relative z-10 mt-4 flex items-center gap-1.5 border-t border-border pt-3 text-xs text-link hover:text-link-hover hover:underline"
+                    >
+                        <BookOpen className="size-3.5 shrink-0" />
+                        {program.code} Syllabus (IOE)
+                    </a>
+                )}
+            </div>
         );
     }
 
     return (
-        <div className={cn("rounded-xl border border-border bg-card-background p-5", className)}>
+        <div className={cn("rounded-lg border border-border bg-card-background p-5", className)}>
             <div className="flex items-center gap-3">{header}</div>
 
             {program.syllabusUrl && (

@@ -39,7 +39,7 @@ const AdminPage = () => {
     };
 
     return (
-        <div className="max-w-lg rounded-xl border border-border p-6 space-y-4">
+        <div className="max-w-lg rounded-lg border border-border p-6 space-y-4">
             <div>
                 <h2 className="text-lg font-semibold text-foreground">Change a user&apos;s role</h2>
                 <p className="text-sm text-foreground-secondary mt-1">
